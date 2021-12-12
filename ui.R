@@ -35,7 +35,9 @@ ui <- fluidPage(
       tableOutput(outputId = "dataHead"),
       plotOutput(outputId = "popPlot"),
       plotOutput(outputId = "NLLPlot"),
+      h4("Parameter estimates for first few studies"),
       tableOutput(outputId = "firstEsts"),
+      h4("Parameter estimates for all studies"),
       plotOutput(outputId = "modComp")
       # plotOutput(outputId = "scatterPlot"),
       # plotOutput(outputId = "MLEplot"),
