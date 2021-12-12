@@ -41,7 +41,75 @@ server <- function(input, output) {
   })
   
   # Print head of first study
-  output$dataHead <- renderTable(head(data.frame(Data = hists.lst()[[1]])))
+  output$dataHead <- renderTable(head(data.frame(hists.lst()[[1]])))
+  
+  # Plot first population size over time
+  output$popPlot <- renderPlot({
+    # Population growth rate
+    lambda <- input$lambda 
+    
+    # "Population birthrate"
+    rho <- lambda - phi 
+    
+    # Load POPAN functions
+    source("Functions/PopanFuncs.R", local = T)
+    
+    # Expected final population size.  gaps variables only used here
+    lambda.gaps <- lambda^srvy.gaps # Population growth rate between surveys
+    phi.gaps <- phi^srvy.gaps # Individual survival rate between surveys
+    exp.N.fin <- sum(pent_func(lambda.gaps, phi.gaps) * exp.Ns * 
+                       prod(phi.gaps) / cumprod(c(1, phi.gaps)))
+    
+    # Expected population size over time
+    exp.N.t <- exp.N.fin / lambda^((hist.len - 1):0)
+
+    # Plot first population size over time
+    plot((f.year - 79):f.year, attributes(hists.lst()[[1]])$N.t.vec, t = "l", 
+         main = "First population size over time",
+         ylab = "E(Nt)", xlab = "Year")
+    lines((f.year - 79):f.year, exp.N.t, col = 2)
+  })
+  
+  # Plot negative log-likelihood surface for first study
+  output$NLLPlot <- renderPlot({
+    # Source NLL and kin pairs functions
+    source("Functions/CloseKinNLL.R", local = T)
+    source("Functions/FindNsKinPairs.R", local = T)
+    
+    # Get simulated family and capture histories of population of animals over
+    # time
+    pop.cap.hist <- hists.lst()[[1]]
+    
+    # Get numbers of animals captured in each survey
+    ns.caps <- attributes(pop.cap.hist)$ns.caps
+    
+    # Find numbers of kin pairs
+    ns.kps.lst <- FindNsKinPairs()
+    
+    # Create grids of parameter and NLL values
+    nll_grid = par_grid = seq(min_lambda, max_lambda, step_lambda)
+    
+    # MLEs
+    params = mod.ests.lst()[[1]][1, 1:3]
+    
+    # Find NLL over grid of parameter values
+    for (i in seq_along(nll_grid)) {
+      # Rho = lambda - phi
+      params[1] = par_grid[i] - params[2]
+      nll_grid[i] = CloseKinNLL(params)
+    }
+    
+    # Plot NLL
+    plot(
+      par_grid, nll_grid,
+      main = "Negative log-likelihood for first study",
+      xlab = "lambda", ylab = "NLL", type = 'l'
+    )
+    abline(v = input$lambda, col = 2)
+    abline(v = mod.ests.lst()[[1]][1, 1], col = 4)
+    # abline(v = cis()[1, 1], col = 4, lty = 2)
+    # abline(v = cis()[2, 1], col = 4, lty = 2)
+  })
   
   # Find parameter estimates
   mod.ests.lst = reactive({
@@ -171,48 +239,7 @@ server <- function(input, output) {
   #   "Poisson" = "Rate",
   #   "Normal" = "Mean"
   # ))
-
-  # Plot negative log-likelihood surface for first study
-  output$NLLPlot <- renderPlot({
-    # Source NLL and kin pairs functions
-    source("Functions/CloseKinNLL.R", local = T)
-    source("Functions/FindNsKinPairs.R", local = T)
-    
-    # Get simulated family and capture histories of population of animals over
-    # time
-    pop.cap.hist <- hists.lst()[[1]]
-    
-    # Get numbers of animals captured in each survey
-    ns.caps <- attributes(pop.cap.hist)$ns.caps
-    
-    # Find numbers of kin pairs
-    ns.kps.lst <- FindNsKinPairs()
-    
-    # Create grids of parameter and NLL values
-    nll_grid = par_grid = seq(min_lambda, max_lambda, step_lambda)
-    
-    # MLEs
-    params = mod.ests.lst()[[1]][1, 1:3]
-
-    # Find NLL over grid of parameter values
-    for (i in seq_along(nll_grid)) {
-      # Rho = lambda - phi
-      params[1] = par_grid[i] - params[2]
-      nll_grid[i] = CloseKinNLL(params)
-    }
-
-    # Plot NLL
-    plot(
-      par_grid, nll_grid,
-      main = "Negative log-likelihood for first study",
-      xlab = "lambda", ylab = "NLL", type = 'l'
-    )
-    abline(v = input$lambda, col = 2)
-    abline(v = mod.ests.lst()[[1]][1, 1], col = 4)
-    # abline(v = cis()[1, 1], col = 4, lty = 2)
-    # abline(v = cis()[2, 1], col = 4, lty = 2)
-  })
-
+  # 
   # # Find maximum likelihood estimates and confidence intervals
   # mles = reactive(colMeans(y()))
   # cis = reactive({
