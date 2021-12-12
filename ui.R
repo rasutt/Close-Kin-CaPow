@@ -26,7 +26,16 @@ ui <- fluidPage(
         max_lambda, 
         value = 1.03, 
         step = step_lambda
-      )
+      ),
+      sliderInput(
+        inputId = "n_sims", 
+        label = "Number of populations:",
+        10, 
+        1000, 
+        value = 10, 
+        step = 10
+      ),
+      helpText("~1 second per 10 populations")
     ),
     
     # Main panel for displaying outputs
@@ -34,6 +43,8 @@ ui <- fluidPage(
       h4("Head of first sample"),
       tableOutput(outputId = "dataHead"),
       plotOutput(outputId = "popPlot"),
+      plotOutput(outputId = "prpnPOPsPlot"),
+      textOutput(outputId = "nUnknPrnts"),
       plotOutput(outputId = "NLLPlot"),
       h4("Parameter estimates for first few studies"),
       tableOutput(outputId = "firstEsts"),

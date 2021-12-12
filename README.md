@@ -12,3 +12,7 @@ first sample, and the MLEs over all samples.
 
 -   Include outputs for the sim validation functions in the Check.R
     script.
+-   Incorporate the number of animals for which we don’t know the
+    parents into the calculations of the expected numbers of kin pairs.
+-   Change proportions calculations to use numbers captured, not total
+    numbers alive.

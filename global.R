@@ -3,9 +3,6 @@ min_lambda = 0.98
 max_lambda = 1.08
 step_lambda = 0.01
 
-# Set number of studies to simulate
-n.stds.sim <- 100
-
 # Set simulation parameters for basic scenario
 exp.Ns <- 2169 # Expected superpopulation size
 phi <- 0.95 # Individual survival rate
@@ -27,9 +24,6 @@ f.year <- srvy.yrs[k] # Final survey year
 srvy.gaps <- as.integer(diff(srvy.yrs)) # Survey gaps
 stdy.len <- sum(srvy.gaps) # Length of study
 n.srvy.prs <- choose(k, 2) # Number of pairs of surveys
-
-# Set number of studies to fit models to (reduce for faster testing)
-n.stds.fit <- 10
 
 # Load TMB library and likelihood functions.  Have to restart R for compile and
 # dyn.load to work sometimes!

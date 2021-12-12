@@ -2,6 +2,9 @@
 server <- function(input, output) {
   # Simulate population and capture histories
   hists.lst = reactive({
+    # Set number of studies to simulate
+    n.stds.sim <- input$n_sims
+
     # Population growth rate
     lambda <- input$lambda 
     
@@ -43,8 +46,100 @@ server <- function(input, output) {
   # Print head of first study
   output$dataHead <- renderTable(head(data.frame(hists.lst()[[1]])))
   
-  # Plot first population size over time
-  output$popPlot <- renderPlot({
+  # Check simulated studies
+  checks.lst = reactive({
+    # Set number of studies to check
+    n.stds.chk <- input$n_sims
+    
+    # Population growth rate
+    lambda <- input$lambda 
+    
+    # "Population birthrate"
+    rho <- lambda - phi 
+    
+    # Load POPAN functions
+    source("Functions/PopanFuncs.R", local = T)
+    
+    # Expected final population size.  gaps variables only used here
+    lambda.gaps <- lambda^srvy.gaps # Population growth rate between surveys
+    phi.gaps <- phi^srvy.gaps # Individual survival rate between surveys
+    exp.N.fin <- sum(pent_func(lambda.gaps, phi.gaps) * exp.Ns * 
+                       prod(phi.gaps) / cumprod(c(1, phi.gaps)))
+    
+    # Load kin pair functions
+    source("Functions/FindNsKinPairs.R", local = T)
+    source("Functions/FindExpNsKPs.R", local = T)
+    
+    # Create matrices for population trajectories (as columns), numbers
+    # captured, and expected and observed number of kin pairs
+    N.t.mat <- matrix(nrow = n.stds.chk, ncol = hist.len)
+    ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- ns.POPs.wtn.mat <- 
+      ns.HSPs.wtn.mat <- exp.ns.HSPs.wtn.mat <- 
+      exp.ns.POPs.wtn.mat <- matrix(nrow = n.stds.chk, ncol = k)
+    ns.POPs.btn.mat <- ns.SPs.btn.mat <- exp.ns.POPs.btn.mat <- 
+      exp.ns.SPs.btn.mat <- matrix(nrow = n.stds.chk, ncol = n.srvy.prs)
+    
+    # Create vectors for proportions with unknown parents, and superpopulation
+    # sizes
+    prpn.prnts.unkn.vec <- Ns.vec <- numeric(n.stds.chk)
+    
+    # Display progress
+    cat("Checking study: ")
+    
+    # Loop over histories
+    for (hist.ind in 1:n.stds.chk) {
+      # Display progress
+      if (hist.ind %% 100 == 1) cat(hist.ind, "")
+      
+      # Get simulated family and capture histories of population of animals over
+      # time
+      pop.cap.hist <- hists.lst()[[hist.ind]]
+      
+      # Record population curve
+      N.t.mat[hist.ind, ] <- attributes(pop.cap.hist)$N.t.vec
+      
+      # Record superpopulation size
+      Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
+      
+      # Get numbers captured and calving in each survey
+      ns.caps <- attributes(pop.cap.hist)$ns.caps
+      ns.caps.mat[hist.ind, ] <- ns.caps
+      ns.clvng.mat[hist.ind, ] <- attributes(pop.cap.hist)$ns.clvng
+      ns.clvng.caps.mat[hist.ind, ] <- 
+        colSums(pop.cap.hist[, 4:(3 + k)] * pop.cap.hist[, (4 + k):(3 + 2 * k)])
+      
+      # Find proportion captured with unknown parents
+      prpn.prnts.unkn.vec[hist.ind] <- mean(is.na(pop.cap.hist$mum))
+      
+      # Find numbers of known kin pairs
+      ns.kps.lst <- FindNsKinPairs()
+      
+      # Record in matrices
+      ns.POPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.POPs.wtn
+      ns.HSPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.HSPs.wtn
+      ns.POPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.POPs.btn
+      ns.SPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.SPs.btn
+      
+      # Find expected numbers of kin pairs
+      exp.ns.kps.lst <- FindExpNsKPs()
+      
+      # Record in matrices
+      exp.ns.POPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.wtn
+      exp.ns.HSPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.HSPs.wtn
+      exp.ns.POPs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.btn
+      exp.ns.SPs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.SPs.btn
+    }
+    
+    list(
+      N.t.mat = N.t.mat, 
+      ns.POPs.wtn.mat = ns.POPs.wtn.mat,
+      exp.ns.POPs.wtn.mat = exp.ns.POPs.wtn.mat,
+      prpn.prnts.unkn.vec = prpn.prnts.unkn.vec
+    )
+  })
+  
+  # Expected population size over time
+  exp.N.t = reactive({
     # Population growth rate
     lambda <- input$lambda 
     
@@ -62,13 +157,70 @@ server <- function(input, output) {
     
     # Expected population size over time
     exp.N.t <- exp.N.fin / lambda^((hist.len - 1):0)
-
-    # Plot first population size over time
-    plot((f.year - 79):f.year, attributes(hists.lst()[[1]])$N.t.vec, t = "l", 
-         main = "First population size over time",
-         ylab = "E(Nt)", xlab = "Year")
-    lines((f.year - 79):f.year, exp.N.t, col = 2)
+    
+    exp.N.t
   })
+  
+  # Plot population sizes over time
+  output$popPlot <- renderPlot({
+    # Plot population trajectories and expected value
+    matplot(
+      (f.year - 79):f.year, t(checks.lst()$N.t.mat), type = 'l', 
+      col = rgb(0, 0, 0, alpha = 0.1), lty = 1, 
+      xlab = 'Year', ylab = 'Nt', main = "Population sizes over time"
+    )
+    lines((f.year - 79):f.year, exp.N.t(), col = 'red', lwd = 2)
+    
+    # Surveys
+    abline(v = srvy.yrs, lty = 2)
+    
+    # Add legend
+    legend(
+      "topleft", 
+      legend = c("Population sizes", "Expected population size", 
+                 "Survey years"),
+      col = c(rgb(0, 0, 0, alpha = 0.1), 2, 1),
+      lwd = c(1, 2, 1),
+      lty = c(1, 1, 2)
+    )
+  })
+  
+  # Plot proportions of parent-offspring pairs within samples
+  output$prpnPOPsPlot <- renderPlot({
+    srvy.inds = hist.len + srvy.yrs - f.year
+    prpns = checks.lst()$ns.POPs.wtn.mat /
+      choose(checks.lst()$N.t.mat[, srvy.inds], 2)
+    exp.prpns = checks.lst()$exp.ns.POPs.wtn.mat / 
+      choose(exp.N.t()[srvy.inds], 2)
+    boxplot(
+      prpns,
+      main = "Proportions of parent-offspring pairs within samples", 
+      sub = paste(
+        "Difference between mean observed and expected:",
+        signif(mean(prpns) - mean(exp.prpns), 3)
+      ),
+      xlab = "Survey", 
+      ylab = "Proportion"
+    )
+    abline(h = mean(prpns), col = 'blue')
+    abline(h = mean(exp.prpns), col = 'red')
+  })
+  
+  # Display proportion of captures for which the parents are unknown
+  output$nUnknPrnts <- renderText({
+    prpns = checks.lst()$ns.POPs.wtn.mat /
+      choose(checks.lst()$N.t.mat[, hist.len + srvy.yrs - f.year], 2)
+    
+    # Pairs are lost quadratically with animals
+    prpns.pairs.lost = 1 - (1 - checks.lst()$prpn.prnts.unkn.vec)^2
+    
+    paste(
+      "Proportion of parent-offspring pairs within samples expected to be 
+      lost due to unknown parents:", 
+      signif(mean(prpns.pairs.lost) * mean(prpns),3), 
+      "\n"
+    )
+  }) 
   
   # Plot negative log-likelihood surface for first study
   output$NLLPlot <- renderPlot({
@@ -113,6 +265,9 @@ server <- function(input, output) {
   
   # Find parameter estimates
   mod.ests.lst = reactive({
+    # Set number of studies to fit models to (reduce for faster testing)
+    n.stds.fit <- input$n_sims
+    
     # Population growth rate
     lambda <- input$lambda 
     
@@ -151,6 +306,7 @@ server <- function(input, output) {
       # Get numbers of animals captured in study and each survey
       n.cap.hists <- nrow(pop.cap.hist)
       ns.caps <- attributes(pop.cap.hist)$ns.caps
+      print(n.cap.hists)
       
       # Find numbers of kin pairs
       ns.kps.lst <- FindNsKinPairs()
