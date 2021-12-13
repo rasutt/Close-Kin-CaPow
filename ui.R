@@ -30,11 +30,11 @@ ui <- fluidPage(
         label = "Number of populations:",
         10, 
         1000, 
-        value = 10, 
+        value = 40, 
         step = 10
       ),
-      helpText("~3 seconds per 10 populations") # shinapps.io
-      # helpText("~1 second per 10 populations") # TMB locally
+      # helpText("~3 seconds per 10 populations") # shinapps.io
+      helpText("~1 second per 10 populations") # TMB locally
     ),
     
     # Main panel for displaying outputs
