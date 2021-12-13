@@ -43,9 +43,6 @@ server <- function(input, output) {
     hists.lst
   })
   
-  # Print head of first study
-  output$dataHead <- renderTable(head(data.frame(hists.lst()[[1]])))
-  
   # Check simulated studies
   checks.lst = reactive({
     # Set number of studies to check
@@ -134,7 +131,8 @@ server <- function(input, output) {
       N.t.mat = N.t.mat, 
       ns.POPs.wtn.mat = ns.POPs.wtn.mat,
       exp.ns.POPs.wtn.mat = exp.ns.POPs.wtn.mat,
-      prpn.prnts.unkn.vec = prpn.prnts.unkn.vec
+      prpn.prnts.unkn.vec = prpn.prnts.unkn.vec,
+      ns.caps.mat = ns.caps.mat
     )
   })
   
@@ -185,42 +183,54 @@ server <- function(input, output) {
     )
   })
   
-  # Plot proportions of parent-offspring pairs within samples
-  output$prpnPOPsPlot <- renderPlot({
-    srvy.inds = hist.len + srvy.yrs - f.year
-    prpns = checks.lst()$ns.POPs.wtn.mat /
-      choose(checks.lst()$N.t.mat[, srvy.inds], 2)
-    exp.prpns = checks.lst()$exp.ns.POPs.wtn.mat / 
-      choose(exp.N.t()[srvy.inds], 2)
+  # Print head of first study
+  output$dataHead <- renderTable(head(data.frame(hists.lst()[[1]])))
+  
+  # Plot numbers of parent-offspring pairs within samples
+  output$nPOPsPlot <- renderPlot({
+    # srvy.inds = hist.len + srvy.yrs - f.year
+    # prpns = checks.lst()$ns.POPs.wtn.mat / choose(checks.lst()$ns.caps.mat, 2)
+    # exp.prpns = 
+    #   checks.lst()$exp.ns.POPs.wtn.mat / choose(exp.N.t()[srvy.inds] * p, 2)
+    diffs = checks.lst()$ns.POPs.wtn.mat - checks.lst()$exp.ns.POPs.wtn.mat
     boxplot(
-      prpns,
-      main = "Proportions of parent-offspring pairs within samples", 
-      sub = paste(
-        "Difference between mean observed and expected:",
-        signif(mean(prpns) - mean(exp.prpns), 3)
-      ),
+      diffs,
+      main = "Expected vs observed numbers of parent-offspring pairs within 
+      samples", 
+      # sub = paste(
+      #   "Average difference over all surveys:",
+      #   signif(mean(diffs), 3)
+      # ),
       xlab = "Survey", 
-      ylab = "Proportion"
+      ylab = "Observed - expected numbers"
     )
-    abline(h = mean(prpns), col = 'blue')
-    abline(h = mean(exp.prpns), col = 'red')
+    abline(h = 0, col = 'red')
+    abline(h = mean(diffs), col = 'blue')
+    legend(
+      "topleft", 
+      legend = c(
+        "Expected difference over all surveys (zero)", 
+        "Average difference over all surveys"
+      ),
+      col = c(2, 4),
+      lty = 1
+    )
   })
   
-  # Display proportion of captures for which the parents are unknown
-  output$nUnknPrnts <- renderText({
-    prpns = checks.lst()$ns.POPs.wtn.mat /
-      choose(checks.lst()$N.t.mat[, hist.len + srvy.yrs - f.year], 2)
-    
-    # Pairs are lost quadratically with animals
-    prpns.pairs.lost = 1 - (1 - checks.lst()$prpn.prnts.unkn.vec)^2
-    
-    paste(
-      "Proportion of parent-offspring pairs within samples expected to be 
-      lost due to unknown parents:", 
-      signif(mean(prpns.pairs.lost) * mean(prpns),3), 
-      "\n"
-    )
-  }) 
+  # # Display proportion of captures for which the parents are unknown
+  # output$nUnknPrnts <- renderText({
+  #   nPOPs = checks.lst()$ns.POPs.wtn.mat
+  # 
+  #   # Pairs are lost quadratically with animals
+  #   prpns.pairs.lost = 1 - (1 - checks.lst()$prpn.prnts.unkn.vec)^2
+  # 
+  #   paste(
+  #     "Expected number of parent-offspring pairs within samples 
+  #     lost due to unknown parents:",
+  #     signif(mean(prpns.pairs.lost * checks.lst()$ns.POPs.wtn.mat), 3),
+  #     "\n"
+  #   )
+  # })
   
   # Plot negative log-likelihood surface for first study
   output$NLLPlot <- renderPlot({
@@ -254,11 +264,17 @@ server <- function(input, output) {
     # Plot NLL
     plot(
       par_grid, nll_grid,
-      main = "Negative log-likelihood for first study",
+      main = "Negative log-likelihood at MLEs for first study",
       xlab = "lambda", ylab = "NLL", type = 'l'
     )
     abline(v = input$lambda, col = 2)
     abline(v = mod.ests.lst()[[1]][1, 1], col = 4)
+    legend(
+      "topleft", 
+      legend = c("Negative log likelihood", "True lambda", "MLE of lambda"),
+      col = c(1, 2, 4),
+      lty = 1
+    )
     # abline(v = cis()[1, 1], col = 4, lty = 2)
     # abline(v = cis()[2, 1], col = 4, lty = 2)
   })
@@ -287,7 +303,7 @@ server <- function(input, output) {
     Ns.vec <- N.fin.vec <- numeric(n.stds.fit)
     
     # Create matrices for estimates
-    ck.tmb.ests <- matrix(nrow = n.stds.fit, ncol = 5 + k, dimnames = list(
+    ck.ests <- ck.tmb.ests <- matrix(nrow = n.stds.fit, ncol = 5 + k, dimnames = list(
       NULL, c("lambda", "phi", "N_final", "Ns", paste0("p", 1:k), "cnvg")))
     
     # Loop over histories
@@ -316,11 +332,18 @@ server <- function(input, output) {
       ck.lwr[3] <- ns.caps[k]
       
       # Try to fit models
+      # ck.ests[hist.ind, -(4:(4 + k))] <- TryCloseKin()
       ck.tmb.ests[hist.ind, -(5:(4 + k))] <- TryCloseKinTMB()
     }
     
+    # # Find close kin estimates of Ns without TMB
+    # ck.ests[, 4] <- Ns_vec_func(ck.ests[, 3], ck.ests[, 1], ck.ests[, 2])
+    
     # Combine model estimates as list
-    mod.ests.lst <- list(ck_tmb = ck.tmb.ests)  
+    mod.ests.lst <- list(
+      # ck = ck.ests
+      ck.tmb = ck.tmb.ests
+    )  
     mod.ests.lst
   })
   

@@ -30,4 +30,3 @@ n.srvy.prs <- choose(k, 2) # Number of pairs of surveys
 library(TMB)
 compile("TMB_objective_functions/CloseKinNLL.cpp")
 dyn.load(dynlib("TMB_objective_functions/CloseKinNLL"))
-

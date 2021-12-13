@@ -8,13 +8,11 @@ ui <- fluidPage(
   p("This is a little web app in Shiny to illustrate close-kin capture-recapture
     parameter estimation via simulation. It simulates datasets from capture-
     recapture studies of a population of animals over time.  It takes the 
-    simulated population growth rate as input, and shows the population size 
-    over time and the negative log-likelihood for the first sample, and the MLEs
+    simulated population growth rate as input, and shows the population sizes 
+    over time, the negative log-likelihood for the first sample, and the 
+    expected versus observed numbers of kin-pairs and the MLEs
     over all samples."),
-  # population growth rate as input, and shows the population size over time and 
-  # negative log-likelihood for the first sample, and the MLEs, confidence 
-  # intervals, and CI coverage over all samples."),
-  
+
   # Sidebar layout with input and output definitions
   sidebarLayout(
     # Sidebar panel for inputs
@@ -35,15 +33,16 @@ ui <- fluidPage(
         value = 10, 
         step = 10
       ),
-      helpText("~1 second per 10 populations")
+      helpText("~3 seconds per 10 populations") # shinapps.io
+      # helpText("~1 second per 10 populations") # TMB locally
     ),
     
     # Main panel for displaying outputs
     mainPanel(
       h4("Head of first sample"),
-      tableOutput(outputId = "dataHead"),
       plotOutput(outputId = "popPlot"),
-      plotOutput(outputId = "prpnPOPsPlot"),
+      tableOutput(outputId = "dataHead"),
+      plotOutput(outputId = "nPOPsPlot"),
       textOutput(outputId = "nUnknPrnts"),
       plotOutput(outputId = "NLLPlot"),
       h4("Parameter estimates for first few studies"),

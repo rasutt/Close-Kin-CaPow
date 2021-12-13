@@ -1,0 +1,14 @@
+name: Close-Kin-CaPow
+title: Close-Kin-CaPow
+username:
+account: genpopsim
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5315483
+bundleId: 5364095
+url: https://genpopsim.shinyapps.io/Close-Kin-CaPow/
+when: 1639353979.97275
+lastSyncTime: 1639353979.97275
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: TMB_objective_functions/CloseKinNLL.cpp|TMB_objective_functions/CloseKinNLL.dll|TMB_objective_functions/CloseKinNLL.o|TMB_objective_functions/CombNLL.cpp|TMB_objective_functions/POPANNLL.cpp
