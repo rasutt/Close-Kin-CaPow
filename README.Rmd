@@ -11,6 +11,5 @@ This is a little web app in Shiny to illustrate close-kin capture-recapture para
     
 ### Things to do
 
-- Include outputs for the sim validation functions in the Check.R script.
-- Incorporate the number of animals for which we don't know the parents into the calculations of the expected numbers of kin pairs.
+- Incorporate the number of animals for which we don't know the parents into the calculations of the expected numbers of kin pairs.  And model-fitting?  Warnings when too high?
 - Find confidence interval coverage.

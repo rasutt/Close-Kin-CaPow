@@ -1,29 +1,42 @@
 # Define server logic for app
 server <- function(input, output) {
-  # Simulate population and capture histories
-  hists.lst = reactive({
-    # Set number of studies to simulate
-    n.stds.sim <- input$n_sims
-
-    # Population growth rate
-    lambda <- input$lambda 
-    
-    # "Population birthrate"
-    rho <- lambda - phi 
-    
-    # Load simulation and POPAN functions
-    source("Functions/SimPopStud.R", local = T)
+  # Population growth rate
+  lambda <- reactive(input$lambda)
+  
+  # "Population birthrate"
+  rho <- reactive(lambda() - phi)
+  
+  # Expected population size over time
+  exp.N.t = reactive({
+    # Load POPAN functions
     source("Functions/PopanFuncs.R", local = T)
     
     # Expected final population size.  gaps variables only used here
-    lambda.gaps <- lambda^srvy.gaps # Population growth rate between surveys
+    lambda.gaps <- lambda()^srvy.gaps # Population growth rate between surveys
     phi.gaps <- phi^srvy.gaps # Individual survival rate between surveys
     exp.N.fin <- sum(pent_func(lambda.gaps, phi.gaps) * exp.Ns * 
                        prod(phi.gaps) / cumprod(c(1, phi.gaps)))
     
     # Expected population size over time
-    exp.N.t <- exp.N.fin / lambda^((hist.len - 1):0)
-    N.init <- round(exp.N.t[1]) # Initial population size
+    exp.N.t <- exp.N.fin / lambda()^((hist.len - 1):0)
+    
+    exp.N.t
+  })
+  
+  # Simulate population and capture histories
+  hists.lst = reactive({
+    # Population growth rate
+    lambda = lambda()
+    
+    # Set number of studies to simulate
+    n.stds.sim <- input$n_sims
+    
+    # Initial population size
+    N.init <- round(exp.N.t()[1]) 
+    
+    # Load simulation and POPAN functions
+    source("Functions/SimPopStud.R", local = T)
+    source("Functions/PopanFuncs.R", local = T)
     
     # Create list for population and capture histories
     hists.lst <- vector("list", n.stds.sim)
@@ -45,23 +58,14 @@ server <- function(input, output) {
   
   # Check simulated studies
   checks.lst = reactive({
+    lambda = lambda()
+    rho = rho()
+    
     # Set number of studies to check
     n.stds.chk <- input$n_sims
     
-    # Population growth rate
-    lambda <- input$lambda 
-    
-    # "Population birthrate"
-    rho <- lambda - phi 
-    
-    # Load POPAN functions
-    source("Functions/PopanFuncs.R", local = T)
-    
-    # Expected final population size.  gaps variables only used here
-    lambda.gaps <- lambda^srvy.gaps # Population growth rate between surveys
-    phi.gaps <- phi^srvy.gaps # Individual survival rate between surveys
-    exp.N.fin <- sum(pent_func(lambda.gaps, phi.gaps) * exp.Ns * 
-                       prod(phi.gaps) / cumprod(c(1, phi.gaps)))
+    # Expected final population size
+    exp.N.fin <- exp.N.t()[hist.len]
     
     # Load kin pair functions
     source("Functions/FindNsKinPairs.R", local = T)
@@ -134,29 +138,6 @@ server <- function(input, output) {
       prpn.prnts.unkn.vec = prpn.prnts.unkn.vec,
       ns.caps.mat = ns.caps.mat
     )
-  })
-  
-  # Expected population size over time
-  exp.N.t = reactive({
-    # Population growth rate
-    lambda <- input$lambda 
-    
-    # "Population birthrate"
-    rho <- lambda - phi 
-    
-    # Load POPAN functions
-    source("Functions/PopanFuncs.R", local = T)
-    
-    # Expected final population size.  gaps variables only used here
-    lambda.gaps <- lambda^srvy.gaps # Population growth rate between surveys
-    phi.gaps <- phi^srvy.gaps # Individual survival rate between surveys
-    exp.N.fin <- sum(pent_func(lambda.gaps, phi.gaps) * exp.Ns * 
-                       prod(phi.gaps) / cumprod(c(1, phi.gaps)))
-    
-    # Expected population size over time
-    exp.N.t <- exp.N.fin / lambda^((hist.len - 1):0)
-    
-    exp.N.t
   })
   
   # Plot population sizes over time
@@ -232,6 +213,71 @@ server <- function(input, output) {
   #   )
   # })
   
+  # Find parameter estimates
+  mod.ests.lst = reactive({
+    # Set number of studies to fit models to (reduce for faster testing)
+    n.stds.fit <- input$n_sims
+    
+    # Load functions
+    funcs <- list.files("Functions")
+    for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]), local = T)
+    
+    # Create general optimizer starting-values and bounds, NAs filled in below
+    ck.start <- c(rho(), phi, NA)
+    ck.lwr <- c(0, 0.75, NA)
+    ck.upr <- c(0.35, 1, Inf)
+    
+    # Create vectors for superpopulation and final population sizes
+    Ns.vec <- N.fin.vec <- numeric(n.stds.fit)
+    
+    # Create matrices for estimates
+    ck.ests <- ck.tmb.ests <- matrix(
+      nrow = n.stds.fit, ncol = 5 + k, dimnames = list(
+        NULL, c("lambda", "phi", "N_final", "Ns", paste0("p", 1:k), "cnvg")
+      )
+    )
+    
+    # Loop over histories
+    for (hist.ind in 1:n.stds.fit) {
+      # Display progress
+      cat("History:", hist.ind, "\n")
+      
+      # Get simulated family and capture histories of population of animals over
+      # time
+      pop.cap.hist <- hists.lst()[[hist.ind]]
+      
+      # Store superpopulation and final population size
+      Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
+      N.fin.vec[hist.ind] <- attributes(pop.cap.hist)$N.t.vec[hist.len]
+      
+      # Get numbers of animals captured in study and each survey
+      n.cap.hists <- nrow(pop.cap.hist)
+      ns.caps <- attributes(pop.cap.hist)$ns.caps
+      print(n.cap.hists)
+      
+      # Find numbers of kin pairs
+      ns.kps.lst <- FindNsKinPairs()
+      
+      # Update optimiser starting-values and bounds
+      ck.start[3] <- N.fin.vec[hist.ind]
+      ck.lwr[3] <- ns.caps[k]
+
+      # Try to fit models
+      # ck.ests[hist.ind, -(4:(4 + k))] <- TryCloseKin()
+      ck.tmb.ests[hist.ind, -(5:(4 + k))] <- TryCloseKinTMB()
+    }
+    
+    # # Find close kin estimates of Ns without TMB
+    # ck.ests[, 4] <- Ns_vec_func(ck.ests[, 3], ck.ests[, 1], ck.ests[, 2])
+    
+    # Combine model estimates as list
+    mod.ests.lst <- list(
+      # ck = ck.ests
+      ck.tmb = ck.tmb.ests
+    )  
+    mod.ests.lst
+  })
+  
   # Plot negative log-likelihood surface for first study
   output$NLLPlot <- renderPlot({
     # Source NLL and kin pairs functions
@@ -267,7 +313,7 @@ server <- function(input, output) {
       main = "Negative log-likelihood at MLEs for first study",
       xlab = "lambda", ylab = "NLL", type = 'l'
     )
-    abline(v = input$lambda, col = 2)
+    abline(v = lambda(), col = 2)
     abline(v = mod.ests.lst()[[1]][1, 1], col = 4)
     legend(
       "topleft", 
@@ -279,74 +325,6 @@ server <- function(input, output) {
     # abline(v = cis()[2, 1], col = 4, lty = 2)
   })
   
-  # Find parameter estimates
-  mod.ests.lst = reactive({
-    # Set number of studies to fit models to (reduce for faster testing)
-    n.stds.fit <- input$n_sims
-    
-    # Population growth rate
-    lambda <- input$lambda 
-    
-    # "Population birthrate"
-    rho <- lambda - phi 
-    
-    # Load functions
-    funcs <- list.files("Functions")
-    for (i in 1:length(funcs)) source(paste0("Functions/",funcs[i]), local = T)
-    
-    # Create general optimizer starting-values and bounds, NAs filled in below
-    ck.start <- c(rho, phi, NA)
-    ck.lwr <- c(0, 0.75, NA)
-    ck.upr <- c(0.35, 1, Inf)
-    
-    # Create vectors for superpopulation and final population sizes
-    Ns.vec <- N.fin.vec <- numeric(n.stds.fit)
-    
-    # Create matrices for estimates
-    ck.ests <- ck.tmb.ests <- matrix(nrow = n.stds.fit, ncol = 5 + k, dimnames = list(
-      NULL, c("lambda", "phi", "N_final", "Ns", paste0("p", 1:k), "cnvg")))
-    
-    # Loop over histories
-    for (hist.ind in 1:n.stds.fit) {
-      # Display progress
-      cat("History:", hist.ind, "\n")
-      
-      # Get simulated family and capture histories of population of animals over
-      # time
-      pop.cap.hist <- hists.lst()[[hist.ind]]
-      
-      # Store superpopulation and final population size
-      Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
-      N.fin.vec[hist.ind] <- attributes(pop.cap.hist)$N.t.vec[hist.len]
-      
-      # Get numbers of animals captured in study and each survey
-      n.cap.hists <- nrow(pop.cap.hist)
-      ns.caps <- attributes(pop.cap.hist)$ns.caps
-      print(n.cap.hists)
-      
-      # Find numbers of kin pairs
-      ns.kps.lst <- FindNsKinPairs()
-      
-      # Update optimiser starting-values and bounds
-      ck.start[3] <- N.fin.vec[hist.ind]
-      ck.lwr[3] <- ns.caps[k]
-      
-      # Try to fit models
-      # ck.ests[hist.ind, -(4:(4 + k))] <- TryCloseKin()
-      ck.tmb.ests[hist.ind, -(5:(4 + k))] <- TryCloseKinTMB()
-    }
-    
-    # # Find close kin estimates of Ns without TMB
-    # ck.ests[, 4] <- Ns_vec_func(ck.ests[, 3], ck.ests[, 1], ck.ests[, 2])
-    
-    # Combine model estimates as list
-    mod.ests.lst <- list(
-      # ck = ck.ests
-      ck.tmb = ck.tmb.ests
-    )  
-    mod.ests.lst
-  })
-  
   # Print first few estimates
   output$firstEsts <- renderTable(
     lapply(mod.ests.lst(), function(mod.ests) head(round(mod.ests, 3)))[[1]]
@@ -355,6 +333,9 @@ server <- function(input, output) {
   # Plot estimates using model comparison plot function (though only one model
   # atm)
   output$modComp <- renderPlot({
+    # Expected population size over time
+    exp.N.t <- exp.N.t()
+    
     # Find optimization attempts that converged
     cvgd.ests.lst <- lapply(mod.ests.lst(), function(ests.mat)
       ests.mat[!ests.mat[, "cnvg"], ])
@@ -363,28 +344,13 @@ server <- function(input, output) {
     
     # Set four plots per page
     par(mfrow = c(2, 2))
-    
-    # Population growth rate
-    lambda <- input$lambda 
-    
-    # Load POPAN functions
-    source("Functions/PopanFuncs.R", local = T)
-    
-    # Expected final population size.  gaps variables only used here
-    lambda.gaps <- lambda^srvy.gaps # Population growth rate between surveys
-    phi.gaps <- phi^srvy.gaps # Individual survival rate between surveys
-    exp.N.fin <- sum(pent_func(lambda.gaps, phi.gaps) * exp.Ns * 
-                       prod(phi.gaps) / cumprod(c(1, phi.gaps)))
-    
-    # Expected population size over time
-    exp.N.t <- exp.N.fin / lambda^((hist.len - 1):0)
 
     # Load comparison plot function
     source("Functions/ComparisonPlot.R", local = T)
     
     # Plot estimates for lambda
     ComparisonPlot(lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 1]),
-                   "Lambda", lambda)
+                   "Lambda", lambda())
     
     # Plot estimates for Phi
     ComparisonPlot(lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 2]),

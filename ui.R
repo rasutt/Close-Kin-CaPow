@@ -39,8 +39,8 @@ ui <- fluidPage(
     
     # Main panel for displaying outputs
     mainPanel(
-      h4("Head of first sample"),
       plotOutput(outputId = "popPlot"),
+      h4("Head of first sample"),
       tableOutput(outputId = "dataHead"),
       plotOutput(outputId = "nPOPsPlot"),
       textOutput(outputId = "nUnknPrnts"),
