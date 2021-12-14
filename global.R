@@ -28,5 +28,7 @@ n.srvy.prs <- choose(k, 2) # Number of pairs of surveys
 # Load TMB library and likelihood functions.  Have to restart R for compile and
 # dyn.load to work sometimes!
 library(TMB)
+compile("TMB_objective_functions/POPANNLL.cpp")
+dyn.load(dynlib("TMB_objective_functions/POPANNLL"))
 compile("TMB_objective_functions/CloseKinNLL.cpp")
 dyn.load(dynlib("TMB_objective_functions/CloseKinNLL"))

@@ -11,5 +11,8 @@ This is a little web app in Shiny to illustrate close-kin capture-recapture para
     
 ### Things to do
 
+- Allow survey years to be selected
+- Update readme and app description to include new inputs and popan model
 - Incorporate the number of animals for which we don't know the parents into the calculations of the expected numbers of kin pairs.  And model-fitting?  Warnings when too high?
 - Find confidence interval coverage.
+- Try plotting relationships between samples?

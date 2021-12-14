@@ -1,5 +1,8 @@
 # Define server logic for app
 server <- function(input, output) {
+  # Survey years
+  # srvy.yrs = reactive(input$srvy.yrs)
+  
   # Population growth rate
   lambda <- reactive(input$lambda)
   
@@ -226,12 +229,15 @@ server <- function(input, output) {
     ck.start <- c(rho(), phi, NA)
     ck.lwr <- c(0, 0.75, NA)
     ck.upr <- c(0.35, 1, Inf)
+    ppn.start <- cbd.start <- c(ck.start, rep(p, k))
+    ppn.lwr <- cbd.lwr <- c(ck.lwr, rep(0, k))
+    ppn.upr <- cbd.upr <- c(ck.upr, rep(1, k))
     
     # Create vectors for superpopulation and final population sizes
     Ns.vec <- N.fin.vec <- numeric(n.stds.fit)
     
     # Create matrices for estimates
-    ck.ests <- ck.tmb.ests <- matrix(
+    ppn.tmb.ests <- ck.tmb.ests <- matrix(
       nrow = n.stds.fit, ncol = 5 + k, dimnames = list(
         NULL, c("lambda", "phi", "N_final", "Ns", paste0("p", 1:k), "cnvg")
       )
@@ -253,28 +259,32 @@ server <- function(input, output) {
       # Get numbers of animals captured in study and each survey
       n.cap.hists <- nrow(pop.cap.hist)
       ns.caps <- attributes(pop.cap.hist)$ns.caps
-      print(n.cap.hists)
+      
+      # Summarise data for POPAN model
+      pop.sum <- FindPopSum()
       
       # Find numbers of kin pairs
       ns.kps.lst <- FindNsKinPairs()
       
       # Update optimiser starting-values and bounds
+      ppn.start[3] <- attributes(pop.cap.hist)$Ns
+      ppn.lwr[3] <- n.cap.hists
       ck.start[3] <- N.fin.vec[hist.ind]
       ck.lwr[3] <- ns.caps[k]
-
+      
       # Try to fit models
-      # ck.ests[hist.ind, -(4:(4 + k))] <- TryCloseKin()
-      ck.tmb.ests[hist.ind, -(5:(4 + k))] <- TryCloseKinTMB()
+      if ("POPAN" %in% input$models) 
+        ppn.tmb.ests[hist.ind, ] <- TryPOPANTMB()
+      if ("Close kin" %in% input$models)
+        ck.tmb.ests[hist.ind, -(5:(4 + k))] <- TryCloseKinTMB()
     }
-    
-    # # Find close kin estimates of Ns without TMB
-    # ck.ests[, 4] <- Ns_vec_func(ck.ests[, 3], ck.ests[, 1], ck.ests[, 2])
     
     # Combine model estimates as list
     mod.ests.lst <- list(
-      # ck = ck.ests
+      ppn.tmb = ppn.tmb.ests,
       ck.tmb = ck.tmb.ests
-    )  
+    )[c("POPAN", "Close kin") %in% input$models]
+    
     mod.ests.lst
   })
   
@@ -344,7 +354,7 @@ server <- function(input, output) {
     
     # Set four plots per page
     par(mfrow = c(2, 2))
-
+    
     # Load comparison plot function
     source("Functions/ComparisonPlot.R", local = T)
     

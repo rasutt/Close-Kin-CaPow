@@ -17,13 +17,19 @@ ui <- fluidPage(
   sidebarLayout(
     # Sidebar panel for inputs
     sidebarPanel(
-      sliderInput(
-        inputId = "lambda", 
-        label = "Population growth rate (lambda):",
-        min_lambda, 
-        max_lambda, 
-        value = 1.03, 
-        step = step_lambda
+      checkboxGroupInput(
+        inputId = "models",
+        label = "Models:",
+        choices = c("POPAN", "Close kin"),
+        selected = "Close kin",
+        inline = T
+      ),
+      checkboxGroupInput(
+        inputId = "srvy.yrs.test",
+        label = "Survey years:",
+        choices = as.character(1995:2020),
+        selected = as.character(c(1995:1998, 2006:2009, 2020)),
+        inline = T
       ),
       sliderInput(
         inputId = "n_sims", 
@@ -33,14 +39,22 @@ ui <- fluidPage(
         value = 40, 
         step = 10
       ),
-      # helpText("~3 seconds per 10 populations") # shinapps.io
-      helpText("~1 second per 10 populations") # TMB locally
+      # helpText("~3 seconds per 10 populations"), # shinapps.io
+      helpText("~1 second per 10 populations"), # TMB locally
+      sliderInput(
+        inputId = "lambda", 
+        label = "Population growth rate (lambda):",
+        min_lambda, 
+        max_lambda, 
+        value = 1.03, 
+        step = step_lambda
+      )
     ),
     
     # Main panel for displaying outputs
     mainPanel(
       plotOutput(outputId = "popPlot"),
-      h4("Head of first sample"),
+      h4("Head of first dataset"),
       tableOutput(outputId = "dataHead"),
       plotOutput(outputId = "nPOPsPlot"),
       textOutput(outputId = "nUnknPrnts"),
