@@ -1,11 +1,13 @@
 # Set bounds on inputs and step size for input slider and NLL plots
-min_rho = 0.01
-max_rho = 0.11
+min_rho = 0.03
+max_rho = 0.13
 step_rho = 0.005
+min_pi = 0.01
+max_pi = 0.09
+step_pi = 0.005
 
 # Set simulation parameters for basic scenario
 exp.Ns <- 2169 # Expected superpopulation size
-phi <- 0.95 # Individual survival rate
 alpha <- 8 # Age of sexual maturity
 hist.len <- 80 # Duration of simulation in years
 p <- 0.1 # Capture probability

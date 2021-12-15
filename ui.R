@@ -19,11 +19,19 @@ ui <- fluidPage(
     sidebarPanel(
       sliderInput(
         inputId = "rho", 
-        label = "Population birth rate (rho):",
+        label = HTML("Birth rate (&rho;):"),
         min_rho, 
         max_rho, 
-        value = 0.06, 
+        value = 0.08, 
         step = step_rho
+      ),
+      sliderInput(
+        inputId = "pi", 
+        label = HTML("Mortality rate (&pi;):"),
+        min_pi, 
+        max_pi, 
+        value = 0.05, 
+        step = step_pi
       ),
       # checkboxGroupInput(
       #   inputId = "srvy.yrs",
@@ -34,7 +42,7 @@ ui <- fluidPage(
       # ),
       textInput(
         inputId = "srvy.yrs",
-        label = "Survey years:",
+        label = "Survey years (ascending):",
         value = paste(c(1995:1998, 2006:2009, 2020), collapse = ", ")
       ),
       sliderInput(
@@ -62,6 +70,11 @@ ui <- fluidPage(
     
     # Main panel for displaying outputs
     mainPanel(
+      h4("Implied parameters"),
+      textOutput(outputId = "phi"),
+      textOutput(outputId = "lambda"),
+      textOutput(outputId = "k"),
+      textOutput(outputId = "f.year"),
       plotOutput(outputId = "popPlot"),
       h4("Head of first dataset"),
       tableOutput(outputId = "dataHead"),

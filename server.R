@@ -5,24 +5,43 @@ server <- function(input, output) {
   
    # Survey years
   srvy.yrs = bindEvent(reactive({
-    # as.numeric(input$srvy.yrs)
     as.numeric(unlist(strsplit(input$srvy.yrs, spl = ", ", fix = T)))
   }), input$simulate, ignoreNULL = F)
 
   # Number of simulations
   n_sims = bindEvent(reactive(input$n_sims), input$simulate, ignoreNULL = F)
   
-  # Population growth rate. Note - Can still have outputs that depend on
-  # input$lambda and update when it does!
-  lambda <- bindEvent(reactive(input$rho + phi), input$simulate, ignoreNULL = F)
+  # Individual survival rate
+  phi <- bindEvent(reactive(1 - input$pi), input$simulate, ignoreNULL = F)
+  
+  # Population growth rate
+  lambda <- bindEvent(reactive(input$rho + phi()), input$simulate, ignoreNULL = F)
+  
+  # Need to rewrite these with bound and unbound versions
+  output$phi = renderText(paste("Survival probability (phi):", 1 - input$pi))
+  output$lambda = renderText({
+    paste("Population growth rate (lambda):", 1 + input$rho - input$pi)
+  })
+  output$k = renderText({
+    years = strsplit(input$srvy.yrs, spl = ", ", fix = T)[[1]]
+    paste(
+      "Number of surveys (k):", 
+      length(years)
+    )
+  })
+  output$f.year = renderText({
+    years = strsplit(input$srvy.yrs, spl = ", ", fix = T)[[1]]
+    paste("Final survey year:", tail(years, 1))
+  })
   
   # Find useful global variables
-  rho <- reactive(lambda() - phi) # "Population birthrate"
+  rho <- reactive(lambda() - phi()) # "Population birthrate"
   srvy.gaps <- reactive(as.integer(diff(srvy.yrs()))) # Survey gaps
   # Number of surveys per study (> 2 for POPAN)
   k <- reactive(length(srvy.yrs())) 
   f.year <- reactive(srvy.yrs()[k()]) # Final survey year
   exp.N.t = reactive({
+    phi = phi()
     srvy.gaps <- srvy.gaps() # Survey gaps
     k <- k() # Number of surveys per study (> 2 for POPAN)
     
@@ -48,6 +67,7 @@ server <- function(input, output) {
     f.year <- f.year() # Final survey year
     
     # Population growth rate
+    phi = phi()
     lambda = lambda()
     
     # Set number of studies to simulate
@@ -87,6 +107,7 @@ server <- function(input, output) {
     stdy.len <- sum(srvy.gaps) # Length of study
     n.srvy.prs <- choose(k, 2) # Number of pairs of surveys
     
+    phi = phi()
     lambda = lambda()
     rho = rho()
     
@@ -259,7 +280,7 @@ server <- function(input, output) {
     for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]), local = T)
     
     # Create general optimizer starting-values and bounds, NAs filled in below
-    ck.start <- c(rho(), phi, NA)
+    ck.start <- c(rho(), phi(), NA)
     ck.lwr <- c(0, 0.75, NA)
     ck.upr <- c(0.35, 1, Inf)
     ppn.start <- cbd.start <- c(ck.start, rep(p, k))
@@ -406,7 +427,7 @@ server <- function(input, output) {
     
     # Plot estimates for Phi
     ComparisonPlot(lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 2]),
-                   "Phi", phi)
+                   "Phi", phi())
     
     # Plot estimates of N_2020
     ComparisonPlot(lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 3]),

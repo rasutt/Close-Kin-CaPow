@@ -1,0 +1,90 @@
+---
+title: "Half-sibling pair probability for New Zealand southern right whales"
+author: "Robin Aldridge-Sutton"
+output: 
+  pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Expected number of animals born at time $t_1$ and surviving until time $t_2$
+
+Let $N_t$ be the population size at time $t$, $\phi$ be the probability of an animal surviving from time $t$ to time $t + 1$, and 
+$$\lambda = \frac {E(N_{t + 1})}{E(N_t)}$$
+be the population growth rate, where $\phi < \lambda$.
+
+Then
+$$E(N_{t - 1}) = \frac{E(N_t)}{\lambda},$$
+and the expected number of animals that survive from time $t - 1$ to time $t$ is 
+$$\frac{\phi}{\lambda} E(N_t).$$ 
+This is also the expected number of animals that are alive at time $t$, but were born before time $t$.  Thus the expected number of animals that are born at any time $t$ is
+$$ E(B_t) = \left(1 - \frac{\phi}{\lambda} \right) E(N_t).$$
+
+The expected number of animals that are born at time $t_1$ and survive until time $t_2$ is
+$$ \phi^{t_2 - t_1} E(B_{t_1}) = \phi^{t_2 - t_1} (1 - \frac{\phi}{\lambda}) E(N_{t_1})$$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right) ^{t_2 - t_1} E(N_{t_2}).$$
+
+### Expected number of pairs with the same mother at time $t$
+
+Let $b_1$, and $b_2$ be the years of birth of a pair of animals that are alive at time $t$.  New Zealand southern right whales have one calf at a time.  So if the animals are maternal half-siblings then $b_1 \ne b_2$.  Let $b_1$ be the birth year of the older sibling, so that $b_1 < b_2$.  
+
+The expected number of animals that are born at time $b_1$ and survive until time $t$ is
+$$ \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right) ^{t - b_1} E(N_t).$$
+The probability that the mother survives from time $b_1$ to time $b_2 - 1$ is $\phi^{b_2 - 1 - b_1}$.
+
+Let $\alpha$ be the age of sexual maturity for NZSRWs.  The expected number of animals that survive from time $b_2 - 1 - \alpha$ to time $b_2 - 1$, and are thus alive and mature at time $b_2 - 1$, is then
+$$ E(M_{b_2 - 1}) =\left( \frac{\phi}{\lambda} \right)^\alpha E(N_{b_2 - 1}) = \left( \frac{\phi}{\lambda} \right)^\alpha \frac {E(N_{b_2})}{\lambda},$$ 
+of which half are female.
+
+The probability that the mother has a calf at time $b_2$, given that she is alive at time $b_2 - 1$, is then
+$$ 2 \frac {E(B_{b_2})}{E(M_{b_2 - 1})} = 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha.$$
+
+The probability that this calf survives to time $t$ is $\phi^{t - b_2}$.
+
+Taking the above altogether the expected number of pairs of animals at time $t$, with birthyears $b_1$ and $b_2$, where $b_1 < b_2$, and the same mother, is 
+$$ E(SMP_{t, b_1, b_2}) = \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right) ^{t - b_1} E(N_t) \phi^{b_2 - 1 - b_1} 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{t - b_2}. $$
+Summing over all possible birthyears $b_1$ and $b_2$ gives the expected total number of pairs at time $t$ with the same mother
+$$ E(SMP_t) = \sum_{b_1 < t} \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right)^{t - b_1} E(N_t) \sum_{b_1 < b_2 \le t} \phi^{b_2 - 1 - b_1} 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{t - b_2} $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \sum_{b_1 < t} \left( \frac{\phi}{\lambda} \right)^{t - b_1} \sum_{b_1 < b_2 \le t} \phi^{t -1 - b_1} $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{-1} \sum_{b_1 < t} \left( \frac{\phi^2}{\lambda} \right)^{t - b_1} (t - b_1) $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{-1} \left\{ \frac{\phi^2}{\lambda} + 2 \left( \frac{\phi^2}{\lambda} \right)^2 + ... \right\} $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{-1} \frac{\frac{\phi^2}{\lambda}}{\left( 1 - \frac{\phi^2}{\lambda} \right)^2}, $$
+because $0 < \frac{\phi^2}{\lambda} < 1$,
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \frac{\phi \lambda}{(\lambda - \phi^2)^2}. $$
+
+### Expected number of half-sibling pairs at time $t$
+
+The same process as above gives the expected total number of pairs at time $t$ with the same father
+$$ E(SFP_t) = \sum_{b_1 \le t} \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right)^{t - b_1} E(N_t) \sum_{b_1 \le b_2 \le t} \phi^{b_2 - b_1} 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{t - b_2}. $$
+Here we allow $b_1 = b_2$ since a male may breed multiple times in one breeding period.  We also include the probability, $\phi$ that the father survives from the time of conception of the first animal to the time of its birth.  The probability that the mother has a calf at time $b_2$ is replaced with the expected number of calves that the father has at $b_2$, which takes the same form if we ignore the small difference in the case when $b1 = b_2$. 
+
+$$ E(SFP_t) = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \sum_{b_1 \le t} \left( \frac{\phi^2}{\lambda} \right)^{t - b_1} (t - b_1 + 1) $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \left( 1 + 2 \frac{\phi^2}{\lambda} + ... \right) $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \frac{1}{\left( 1 - \frac{\phi^2}{\lambda} \right)^2} $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \left( \frac{\lambda}{\lambda - \phi^2} \right)^2. $$
+
+The expected total number of pairs at time $t$ with both the same mother, and the same father (full-sibling pairs), is
+$$ E(FSP_t) = \sum_{b_1 < t} \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right)^{t - b_1} E(N_t) \sum_{b_1 < b_2 \le t} \phi^{b_2 - 1 - b_1} \phi^{b_2 - b_1} \left\{ 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{t - b_2} \right\}^2 $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \left\{ 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \phi^{-1} \sum_{b_1 < t} \left( \frac{\phi}{\lambda} \right)^{t - b_1} \sum_{b_1 < b_2 \le t} \phi^{2 (t - b_1)} $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \left\{ 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \phi^{-1} \sum_{b_1 < t} \left( \frac{\phi^3}{\lambda} \right)^{t - b_1} (t - b_1) $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \left\{ 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \phi^{-1} \left\{ \frac{\phi^3}{\lambda} + 2 \left( \frac{\phi^3}{\lambda} \right)^2 + ... \right\} $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \left\{ 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \phi^{-1} \frac{\frac{\phi^3}{\lambda}}{\left(1 - \frac{\phi^3}{\lambda} \right)^2} $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \left\{ 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \frac{\phi^2 \lambda}{\left(\lambda - \phi^3 \right)^2}. $$
+
+Excluding the full-sibling pairs from the pairs with the same mothers, and from those with the same fathers, leaves the half-sibling pairs,
+
+$$ E(HSP_t) = E(SMP_t) + E(SFP_t) - 2 E(FSP_t) $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \frac{\phi \lambda}{(\lambda - \phi^2)^2} + \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \left( \frac{\lambda}{\lambda - \phi^2} \right)^2 $$
+$$ - 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \left\{ 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \frac{\phi^2 \lambda}{\left(\lambda - \phi^3 \right)^2} $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \left\{ \frac{\phi \lambda}{(\lambda - \phi^2)^2} + \left( \frac{\lambda}{\lambda - \phi^2} \right)^2 - 4 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \frac{\phi^2 \lambda}{\left(\lambda - \phi^3 \right)^2} \right\} $$
+$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \left\{ \frac{\lambda (\phi + \lambda)}{(\lambda - \phi^2)^2} - 4 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \frac{\phi^2 \lambda}{\left(\lambda - \phi^3 \right)^2} \right\}. $$
+Leaving the expression in this form makes it easier to remember the origin and understand the significance of the various terms.  The first factor represents the proportion of the population that is born at any time.  The second is the current expected population size.  The next three factors represent the expected number of offspring that a mature animal will conceive at any time.  The remaining terms are more complicated but include closed form expressions of geometric series representing the probability of the siblings surviving to the present, and the parents surviving between their conceptions/births, across all possible combinations of birthyears.  The difference between the terms in the braces represents that the pair share one parent but not both.
+
+The half-sibling pair *probability* is then found by dividing the expected number of half-sibling pairs by the expected total number of pairs, which we approximate with
+$$ \frac{E(N_t) \left\{E(N_t - 1) \right\}}{2}, $$
+giving
+$$ P(HSP_t) = \frac{4 (\lambda - \phi)}{E(N_t) - 1} \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\lambda}{\phi} \right)^\alpha \left\{ \frac{\lambda (\phi + \lambda)}{(\lambda - \phi^2)^2} - 4 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \frac{\phi^2 \lambda}{\left(\lambda - \phi^3 \right)^2} \right\}. $$
+
+The same process leads to the probability for pairs between samples at times $t_1$ and $t_2$, where $t_1 < t_2$, by simply replacing $t$ with $t_1$ in the first sum, as the older sibling must be born before the first sample, and replacing $t$ with $t_2$ in the second sum, as the younger sibling can be born anytime before the second sample.  The sums may not simplify as nicely then though.  I haven't tried this yet.
