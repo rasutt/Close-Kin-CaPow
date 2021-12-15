@@ -472,62 +472,10 @@ server <- function(input, output) {
                    "Ns", exp.Ns)
   })
   
-  # # Plot first sample
-  # output$scatterPlot <- renderPlot({
-  #   switch (
-  #     input$rv,
-  #     "Bernoulli" = barplot(table(y()[, 1])),
-  #     "Poisson" = barplot(table(y()[, 1])),
-  #     "Normal" = hist(y()[, 1], main = "", xlab = "", ylab = "")
-  #   )
-  #   title(main = "Value counts for first sample", ylab = "Count", 
-  #         xlab = "Value")
-  # })
-  # 
-  # # Set parameter name for plot
-  # par_name = reactive(switch(
-  #   input$rv,
-  #   "Bernoulli" = "Probability",
-  #   "Poisson" = "Rate",
-  #   "Normal" = "Mean"
-  # ))
-  # 
   # # Find maximum likelihood estimates and confidence intervals
-  # mles = reactive(colMeans(y()))
   # cis = reactive({
-  #   var_est = switch (
-  #     input$rv,
-  #     "Bernoulli" = mles() * (1 - mles()),
-  #     "Poisson" = mles(),
-  #     "Normal" = apply(y(), 2, var)
-  #   )
   #   rbind(mles(), mles()) + c(-1, 1) * 1.96 * 
   #     sqrt(matrix(var_est, 2, n_samps, T) / n)
-  # })
-  # 
-  # # Plot MLEs
-  # output$MLEplot = renderPlot({
-  #   boxplot(mles(), main = "Maximum likelihood estimates for all samples", 
-  #           ylab = par_name())
-  #   abline(h = true_val(), col = 2)
-  # })
-  # 
-  # # Find parameter bounds
-  # lb = reactive({
-  #   switch(
-  #     input$rv,
-  #     "Bernoulli" = 0,
-  #     "Poisson" = 0,
-  #     "Normal" = -Inf,
-  #   )
-  # })
-  # ub = reactive({
-  #   switch(
-  #     input$rv,
-  #     "Bernoulli" = 1,
-  #     "Poisson" = Inf,
-  #     "Normal" = Inf,
-  #   )
   # })
   # 
   # # Check CI doesn't cross parameter bounds

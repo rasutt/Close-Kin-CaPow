@@ -85,8 +85,6 @@ ui <- fluidPage(
       tableOutput(outputId = "firstEsts"),
       h4("Parameter estimates for all studies"),
       plotOutput(outputId = "modComp")
-      # plotOutput(outputId = "scatterPlot"),
-      # plotOutput(outputId = "MLEplot"),
       # plotOutput(outputId = "CIPlot"),
       # textOutput(outputId = "ciCov")
     )
