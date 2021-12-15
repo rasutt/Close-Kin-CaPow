@@ -7,20 +7,4 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-This is a little web app in Shiny to illustrate close-kin capture-recapture parameter estimation via simulation. It simulates datasets from capture-recapture studies of a population of animals over time.  It takes the simulated population growth rate as input, and shows the population sizes over time, the negative log-likelihood for the first sample, and the expected versus observed numbers of kin-pairs and the MLEs over all samples.
-
-One interesting observation is that popan depends much more on having surveys over a good range of times, whereas close kin seems to do better when there's only a short range.  Mainly for lambda (5-8x better), and phi (2-3x better), but also somewhat for N_final (15-20% better), when three consecutive surveys.  Tried with two but strange results, need to actually check numbers converged now.  Should check confidence interval coverage too.  Woo!  Model comparison!
-    
-### Things to do
-
-- Separate notes and things to do from readme
-- Allow survey years input to include : operator using eval(expr(input...))
-- Fix NLLplot to not show if close kin model not fit, and modcompplot to not show if no model chosen?
-- Update expected superpopulation size so that current value doesn't include survey in 2020.
-- Update readme and app description to include new inputs and popan model
-- Incorporate the number of animals for which we don't know the parents into the calculations of the expected numbers of kin pairs.  And model-fitting?  Warnings when too high?
-  - Check if bias in numbers of kinpairs due to finite sums vs closed form expressions.  The finite sums going back exactly the length of the simulation should be unbiased.  Using closed form expressions so that could be the reason.  Should check how Mark handles the long-term implications of exponential growth.  Maybe doesn't matter for short-lived animals?
-  - Could it also be because of the approximation of the expected total number of pairs?  Check kinpair probabilities correct, as well as numbers.  Could we get the analytic expression.  Basically a binomial RV squared right?
-  - Check this stuff and then maybe try a proper logistic difference equation
-- Find confidence interval coverage and show number of results discarded.
-- Try plotting relationships between captures?
+This is a web app to perform close-kin capture-recapture study power analysis via simulation. It simulates multiple populations of animals over time, and datasets from capture-recapture studies of those populations, checks that the simulations have the expected characteristics, fits close-kin and/or conventional capture-recapture models to the datasets, and analyses the resulting estimates.

@@ -1,18 +1,9 @@
 Close Kin CaPow
 ================
 
-This is a little web app in Shiny to illustrate close-kin
-capture-recapture parameter estimation via simulation. It simulates
-datasets from capture-recapture studies of a population of animals over
-time. It takes the simulated population growth rate as input, and shows
-the population sizes over time, the negative log-likelihood for the
-first sample, and the expected versus observed numbers of kin-pairs and
-the MLEs over all samples.
-
-### Things to do
-
--   Include outputs for the sim validation functions in the Check.R
-    script.
--   Incorporate the number of animals for which we don’t know the
-    parents into the calculations of the expected numbers of kin pairs.
--   Find confidence interval coverage.
+This is a web app to perform close-kin capture-recapture study power
+analysis via simulation. It simulates multiple populations of animals
+over time, and datasets from capture-recapture studies of those
+populations, checks that the simulations have the expected
+characteristics, fits close-kin and/or conventional capture-recapture
+models to the datasets, and analyses the resulting estimates.

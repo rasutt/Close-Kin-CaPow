@@ -1,10 +1,10 @@
 # Define server logic for app
 server <- function(input, output) {
-  # Reactive global variables
+  # Reactive global variables ----
   
   # Survey years
   srvy.yrs.rct = reactive({
-    as.numeric(unlist(strsplit(input$srvy.yrs, spl = ", ", fix = T)))
+    eval(parse(text = paste0("c(", input$srvy.yrs, ")")))
   })
   # Number of surveys 
   k.rct = reactive(length(srvy.yrs.rct()))
@@ -13,7 +13,7 @@ server <- function(input, output) {
   # Models to fit
   models = reactive(input$models) 
   
-  # Reactive implied parameter outputs
+  # Reactive implied parameter outputs ----
   
   # Population growth rate
   output$lambda = renderText({
@@ -24,7 +24,7 @@ server <- function(input, output) {
   # Final survey year
   output$f.year = renderText(paste("Final survey year:", f.year.rct()))
   
-  # Global variables bound to simulate button
+  # Global variables bound to simulate button ----
   
   # Birthrate
   rho <- bindEvent(reactive(input$rho), input$simulate, ignoreNULL = F)
@@ -61,7 +61,7 @@ server <- function(input, output) {
     exp.N.fin / lambda()^((hist.len - 1):0)
   })
   
-  # Functions and outputs bound to simulate button
+  # Functions and outputs bound to simulate button ----
   
   # Simulate population and capture histories
   hists.lst = reactive({
@@ -97,7 +97,8 @@ server <- function(input, output) {
         # Display progress
         if (hist.ind %% 100 == 1) cat(hist.ind, "")
         
-        # Simulate family and capture histories of population of animals over time
+        # Simulate family and capture histories of population of animals over
+        # time
         hists.lst[[hist.ind]] <- SimPopStud()
         
         incProgress(1/n.stds.sim)
@@ -143,8 +144,8 @@ server <- function(input, output) {
     ns.POPs.btn.mat <- ns.SPs.btn.mat <- exp.ns.POPs.btn.mat <- 
       exp.ns.SPs.btn.mat <- matrix(nrow = n.stds.chk, ncol = n.srvy.prs)
     
-    # Create vectors for proportions with unknown parents, and super-population
-    # sizes
+    # Create vectors for proportions with unknown parents, and
+    # super-population sizes
     prpn.prnts.unkn.vec <- Ns.vec <- numeric(n.stds.chk)
     
     # Display progress
@@ -238,7 +239,8 @@ server <- function(input, output) {
   # Plot numbers of parent-offspring pairs within samples
   output$nPOPsPlot <- renderPlot({
     # srvy.inds = hist.len + srvy.yrs - f.year
-    # prpns = checks.lst()$ns.POPs.wtn.mat / choose(checks.lst()$ns.caps.mat, 2)
+    # prpns = checks.lst()$ns.POPs.wtn.mat / 
+    #   choose(checks.lst()$ns.caps.mat, 2)
     # exp.prpns = 
     #   checks.lst()$exp.ns.POPs.wtn.mat / choose(exp.N.t()[srvy.inds] * p, 2)
     diffs = checks.lst()$ns.POPs.wtn.mat - checks.lst()$exp.ns.POPs.wtn.mat
@@ -266,21 +268,6 @@ server <- function(input, output) {
     )
   })
   
-  # # Display proportion of captures for which the parents are unknown
-  # output$nUnknPrnts <- renderText({
-  #   nPOPs = checks.lst()$ns.POPs.wtn.mat
-  # 
-  #   # Pairs are lost quadratically with animals
-  #   prpns.pairs.lost = 1 - (1 - checks.lst()$prpn.prnts.unkn.vec)^2
-  # 
-  #   paste(
-  #     "Expected number of parent-offspring pairs within samples 
-  #     lost due to unknown parents:",
-  #     signif(mean(prpns.pairs.lost * checks.lst()$ns.POPs.wtn.mat), 3),
-  #     "\n"
-  #   )
-  # })
-  
   # Find parameter estimates
   mod.ests.lst = reactive({
     # Localize global variables
@@ -302,7 +289,8 @@ server <- function(input, output) {
     
     # Load functions
     funcs <- list.files("Functions")
-    for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]), local = T)
+    for (i in 1:length(funcs)) 
+      source(paste0("Functions/", funcs[i]), local = T)
     
     # Create general optimizer starting-values and bounds, NAs filled in below
     ck.start <- c(rho(), phi(), NA)
@@ -420,7 +408,7 @@ server <- function(input, output) {
     abline(v = rho(), col = 2)
     abline(
       # Rho = lambda - phi
-      v = mod.ests.lst()[["ck.tmb"]][1, 1] - mod.ests.lst()[["ck.tmb"]][1, 2], 
+      v = mod.ests.lst()[["ck.tmb"]][1, 1] - mod.ests.lst()[["ck.tmb"]][1, 2],
       col = 4
     )
     legend(
@@ -472,7 +460,22 @@ server <- function(input, output) {
                    "Ns", exp.Ns)
   })
   
-  # # Find maximum likelihood estimates and confidence intervals
+  # # Display proportion of captures for which the parents are unknown
+  # output$nUnknPrnts <- renderText({
+  #   nPOPs = checks.lst()$ns.POPs.wtn.mat
+  # 
+  #   # Pairs are lost quadratically with animals
+  #   prpns.pairs.lost = 1 - (1 - checks.lst()$prpn.prnts.unkn.vec)^2
+  # 
+  #   paste(
+  #     "Expected number of parent-offspring pairs within samples 
+  #     lost due to unknown parents:",
+  #     signif(mean(prpns.pairs.lost * checks.lst()$ns.POPs.wtn.mat), 3),
+  #     "\n"
+  #   )
+  # })
+  
+  # # Find confidence intervals
   # cis = reactive({
   #   rbind(mles(), mles()) + c(-1, 1) * 1.96 * 
   #     sqrt(matrix(var_est, 2, n_samps, T) / n)
@@ -500,4 +503,5 @@ server <- function(input, output) {
   # output$ciCov = renderText(
   #   paste("Confidence interval coverage over all samples:", mean(ci_cov()))
   # )
+  
 }

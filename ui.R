@@ -2,16 +2,14 @@ library(shiny)
 
 # Define UI for app
 ui <- fluidPage(
-  # App title
-  titlePanel("Close Kin CaPow"),
-  
-  p("This is a little web app in Shiny to illustrate close-kin capture-recapture
-    parameter estimation via simulation. It simulates datasets from capture-
-    recapture studies of a population of animals over time.  It takes the 
-    simulated population growth rate as input, and shows the population sizes 
-    over time, the negative log-likelihood for the first sample, and the 
-    expected versus observed numbers of kin-pairs and the MLEs
-    over all samples."),
+  # App title and description
+  titlePanel("Close-Kin CaPow!"),
+  p("This is a web app to perform close-kin capture-recapture study power 
+  analysis via simulation. It simulates multiple populations of animals over 
+  time, and datasets from capture-recapture studies of those populations, checks
+  that the simulations have the expected characteristics, fits close-kin and/or 
+  conventional capture-recapture models to the datasets, and analyses the 
+  resulting estimates."),
 
   # Sidebar layout with input and output definitions
   sidebarLayout(
@@ -33,17 +31,10 @@ ui <- fluidPage(
         value = 0.95, 
         step = step_phi
       ),
-      # checkboxGroupInput(
-      #   inputId = "srvy.yrs",
-      #   label = "Survey years:",
-      #   choices = as.character(1995:2020),
-      #   selected = as.character(c(1995:1998, 2006:2009, 2020)),
-      #   inline = T
-      # ),
       textInput(
         inputId = "srvy.yrs",
         label = "Survey years (ascending):",
-        value = paste(c(1995:1998, 2006:2009, 2020), collapse = ", ")
+        value = "1995:1998, 2006:2009, 2020"
       ),
       sliderInput(
         inputId = "n_sims", 
@@ -57,7 +48,6 @@ ui <- fluidPage(
         inputId = "simulate",
         label = "Simulate studies"
       ),
-      # helpText("~3 seconds per 10 populations"), # shinapps.io
       helpText("~1 second per 10 populations"), # TMB locally
       checkboxGroupInput(
         inputId = "models",
@@ -67,6 +57,7 @@ ui <- fluidPage(
         inline = T
       )
     ),
+    
     
     # Main panel for displaying outputs
     mainPanel(

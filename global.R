@@ -20,7 +20,7 @@ tmp.emgn <- 0 # Probability of males being away from survey area
 pmt.emgn <- 0 
 
 # Load TMB library and likelihood functions.  Have to restart R for compile and
-# dyn.load to work sometimes!
+# dyn.load to take effect sometimes!
 library(TMB)
 compile("TMB_objective_functions/POPANNLL.cpp")
 dyn.load(dynlib("TMB_objective_functions/POPANNLL"))
