@@ -1,16 +1,31 @@
 # Define server logic for app
 server <- function(input, output) {
-  # Survey years
-  # srvy.yrs = reactive(input$srvy.yrs)
+  # Models
+  models = reactive(input$models)
   
-  # Population growth rate
-  lambda <- reactive(input$lambda)
+   # Survey years
+  srvy.yrs = bindEvent(reactive({
+    # as.numeric(input$srvy.yrs)
+    as.numeric(unlist(strsplit(input$srvy.yrs, spl = ", ", fix = T)))
+  }), input$simulate, ignoreNULL = F)
+
+  # Number of simulations
+  n_sims = bindEvent(reactive(input$n_sims), input$simulate, ignoreNULL = F)
   
-  # "Population birthrate"
-  rho <- reactive(lambda() - phi)
+  # Population growth rate. Note - Can still have outputs that depend on
+  # input$lambda and update when it does!
+  lambda <- bindEvent(reactive(input$lambda), input$simulate, ignoreNULL = F)
   
-  # Expected population size over time
+  # Find useful global variables
+  rho <- reactive(lambda() - phi) # "Population birthrate"
+  srvy.gaps <- reactive(as.integer(diff(srvy.yrs()))) # Survey gaps
+  # Number of surveys per study (> 2 for POPAN)
+  k <- reactive(length(srvy.yrs())) 
+  f.year <- reactive(srvy.yrs()[k()]) # Final survey year
   exp.N.t = reactive({
+    srvy.gaps <- srvy.gaps() # Survey gaps
+    k <- k() # Number of surveys per study (> 2 for POPAN)
+    
     # Load POPAN functions
     source("Functions/PopanFuncs.R", local = T)
     
@@ -24,15 +39,19 @@ server <- function(input, output) {
     exp.N.t <- exp.N.fin / lambda()^((hist.len - 1):0)
     
     exp.N.t
-  })
+  }) # Expected population size over time
   
   # Simulate population and capture histories
   hists.lst = reactive({
+    srvy.yrs = srvy.yrs()
+    k <- k() # Number of surveys per study (> 2 for POPAN)
+    f.year <- f.year() # Final survey year
+    
     # Population growth rate
     lambda = lambda()
     
     # Set number of studies to simulate
-    n.stds.sim <- input$n_sims
+    n.stds.sim <- n_sims()
     
     # Initial population size
     N.init <- round(exp.N.t()[1]) 
@@ -61,11 +80,18 @@ server <- function(input, output) {
   
   # Check simulated studies
   checks.lst = reactive({
+    srvy.yrs = srvy.yrs()
+    k <- k() # Number of surveys per study (> 2 for POPAN)
+    f.year <- f.year() # Final survey year
+    srvy.gaps <- as.integer(diff(srvy.yrs)) # Survey gaps
+    stdy.len <- sum(srvy.gaps) # Length of study
+    n.srvy.prs <- choose(k, 2) # Number of pairs of surveys
+    
     lambda = lambda()
     rho = rho()
     
     # Set number of studies to check
-    n.stds.chk <- input$n_sims
+    n.stds.chk <- n_sims()
     
     # Expected final population size
     exp.N.fin <- exp.N.t()[hist.len]
@@ -147,14 +173,14 @@ server <- function(input, output) {
   output$popPlot <- renderPlot({
     # Plot population trajectories and expected value
     matplot(
-      (f.year - 79):f.year, t(checks.lst()$N.t.mat), type = 'l', 
+      (f.year() - 79):f.year(), t(checks.lst()$N.t.mat), type = 'l', 
       col = rgb(0, 0, 0, alpha = 0.1), lty = 1, 
       xlab = 'Year', ylab = 'Nt', main = "Population sizes over time"
     )
-    lines((f.year - 79):f.year, exp.N.t(), col = 'red', lwd = 2)
+    lines((f.year() - 79):f.year(), exp.N.t(), col = 'red', lwd = 2)
     
     # Surveys
-    abline(v = srvy.yrs, lty = 2)
+    abline(v = srvy.yrs(), lty = 2)
     
     # Add legend
     legend(
@@ -166,7 +192,7 @@ server <- function(input, output) {
       lty = c(1, 1, 2)
     )
   })
-  
+
   # Print head of first study
   output$dataHead <- renderTable(head(data.frame(hists.lst()[[1]])))
   
@@ -218,8 +244,15 @@ server <- function(input, output) {
   
   # Find parameter estimates
   mod.ests.lst = reactive({
+    srvy.yrs = srvy.yrs()
+    k <- k() # Number of surveys per study (> 2 for POPAN)
+    f.year <- f.year() # Final survey year
+    srvy.gaps <- as.integer(diff(srvy.yrs)) # Survey gaps
+    stdy.len <- sum(srvy.gaps) # Length of study
+    n.srvy.prs <- choose(k, 2) # Number of pairs of surveys
+    
     # Set number of studies to fit models to (reduce for faster testing)
-    n.stds.fit <- input$n_sims
+    n.stds.fit <- n_sims()
     
     # Load functions
     funcs <- list.files("Functions")
@@ -273,9 +306,9 @@ server <- function(input, output) {
       ck.lwr[3] <- ns.caps[k]
       
       # Try to fit models
-      if ("POPAN" %in% input$models) 
+      if ("POPAN" %in% models()) 
         ppn.tmb.ests[hist.ind, ] <- TryPOPANTMB()
-      if ("Close kin" %in% input$models)
+      if ("Close kin" %in% models())
         ck.tmb.ests[hist.ind, -(5:(4 + k))] <- TryCloseKinTMB()
     }
     
@@ -283,13 +316,20 @@ server <- function(input, output) {
     mod.ests.lst <- list(
       ppn.tmb = ppn.tmb.ests,
       ck.tmb = ck.tmb.ests
-    )[c("POPAN", "Close kin") %in% input$models]
+    )[c("POPAN", "Close kin") %in% models()]
     
     mod.ests.lst
   })
   
   # Plot negative log-likelihood surface for first study
   output$NLLPlot <- renderPlot({
+    srvy.yrs = srvy.yrs()
+    k <- k() # Number of surveys per study (> 2 for POPAN)
+    f.year <- f.year() # Final survey year
+    srvy.gaps <- as.integer(diff(srvy.yrs)) # Survey gaps
+    stdy.len <- sum(srvy.gaps) # Length of study
+    n.srvy.prs <- choose(k, 2) # Number of pairs of surveys
+    
     # Source NLL and kin pairs functions
     source("Functions/CloseKinNLL.R", local = T)
     source("Functions/FindNsKinPairs.R", local = T)
@@ -308,7 +348,7 @@ server <- function(input, output) {
     nll_grid = par_grid = seq(min_lambda, max_lambda, step_lambda)
     
     # MLEs
-    params = mod.ests.lst()[[1]][1, 1:3]
+    params = mod.ests.lst()[["ck.tmb"]][1, 1:3]
     
     # Find NLL over grid of parameter values
     for (i in seq_along(nll_grid)) {
@@ -324,7 +364,7 @@ server <- function(input, output) {
       xlab = "lambda", ylab = "NLL", type = 'l'
     )
     abline(v = lambda(), col = 2)
-    abline(v = mod.ests.lst()[[1]][1, 1], col = 4)
+    abline(v = mod.ests.lst()[["ck.tmb"]][1, 1], col = 4)
     legend(
       "topleft", 
       legend = c("Negative log likelihood", "True lambda", "MLE of lambda"),
@@ -336,12 +376,11 @@ server <- function(input, output) {
   })
   
   # Print first few estimates
-  output$firstEsts <- renderTable(
+  output$firstEsts <- renderTable({
     lapply(mod.ests.lst(), function(mod.ests) head(round(mod.ests, 3)))[[1]]
-  )
+  })
   
-  # Plot estimates using model comparison plot function (though only one model
-  # atm)
+  # Plot estimates using model comparison plot function
   output$modComp <- renderPlot({
     # Expected population size over time
     exp.N.t <- exp.N.t()
