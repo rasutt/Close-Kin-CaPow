@@ -26,12 +26,12 @@ ui <- fluidPage(
         step = step_rho
       ),
       sliderInput(
-        inputId = "pi", 
-        label = HTML("Mortality rate (&pi;):"),
-        min_pi, 
-        max_pi, 
-        value = 0.05, 
-        step = step_pi
+        inputId = "phi", 
+        label = HTML("Survival rate (&phi;):"),
+        min_phi, 
+        max_phi, 
+        value = 0.95, 
+        step = step_phi
       ),
       # checkboxGroupInput(
       #   inputId = "srvy.yrs",
@@ -50,7 +50,7 @@ ui <- fluidPage(
         label = "Number of populations:",
         10, 
         1000, 
-        value = 40, 
+        value = 10, 
         step = 10
       ),
       actionButton(

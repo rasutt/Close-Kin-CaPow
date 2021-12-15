@@ -1,74 +1,78 @@
 # Define server logic for app
 server <- function(input, output) {
-  # Models
-  models = reactive(input$models)
+  # Reactive global variables
   
-   # Survey years
-  srvy.yrs = bindEvent(reactive({
+  # Survey years
+  srvy.yrs.rct = reactive({
     as.numeric(unlist(strsplit(input$srvy.yrs, spl = ", ", fix = T)))
-  }), input$simulate, ignoreNULL = F)
-
-  # Number of simulations
-  n_sims = bindEvent(reactive(input$n_sims), input$simulate, ignoreNULL = F)
+  })
+  # Number of surveys 
+  k.rct = reactive(length(srvy.yrs.rct()))
+  # Final survey year 
+  f.year.rct = reactive(tail(srvy.yrs.rct(), 1))
+  # Models to fit
+  models = reactive(input$models) 
   
-  # Individual survival rate
-  phi <- bindEvent(reactive(1 - input$pi), input$simulate, ignoreNULL = F)
+  # Reactive implied parameter outputs
   
   # Population growth rate
-  lambda <- bindEvent(reactive(input$rho + phi()), input$simulate, ignoreNULL = F)
-  
-  # Need to rewrite these with bound and unbound versions
-  output$phi = renderText(paste("Survival probability (phi):", 1 - input$pi))
   output$lambda = renderText({
-    paste("Population growth rate (lambda):", 1 + input$rho - input$pi)
+    paste("Population growth rate (lambda):", input$rho + input$phi)
   })
-  output$k = renderText({
-    years = strsplit(input$srvy.yrs, spl = ", ", fix = T)[[1]]
-    paste(
-      "Number of surveys (k):", 
-      length(years)
-    )
-  })
-  output$f.year = renderText({
-    years = strsplit(input$srvy.yrs, spl = ", ", fix = T)[[1]]
-    paste("Final survey year:", tail(years, 1))
-  })
+  # Number of surveys
+  output$k = renderText(paste("Number of surveys (k):", k.rct()))
+  # Final survey year
+  output$f.year = renderText(paste("Final survey year:", f.year.rct()))
   
-  # Find useful global variables
-  rho <- reactive(lambda() - phi()) # "Population birthrate"
-  srvy.gaps <- reactive(as.integer(diff(srvy.yrs()))) # Survey gaps
-  # Number of surveys per study (> 2 for POPAN)
-  k <- reactive(length(srvy.yrs())) 
-  f.year <- reactive(srvy.yrs()[k()]) # Final survey year
+  # Global variables bound to simulate button
+  
+  # Birthrate
+  rho <- bindEvent(reactive(input$rho), input$simulate, ignoreNULL = F)
+  # Individual survival rate
+  phi <- bindEvent(reactive(input$phi), input$simulate, ignoreNULL = F)
+  # Population growth rate
+  lambda <- reactive(rho() + phi()) 
+  # Survey years
+  srvy.yrs = bindEvent(srvy.yrs.rct, input$simulate, ignoreNULL = F)
+  # Number of simulations
+  n_sims = bindEvent(reactive(input$n_sims), input$simulate, ignoreNULL = F)
+  # Survey gaps
+  srvy.gaps <- reactive(as.integer(diff(srvy.yrs())))
+  # Number of surveys
+  k <- bindEvent(k.rct, input$simulate, ignoreNULL = F)
+  # Final survey year
+  f.year <- bindEvent(f.year.rct, input$simulate, ignoreNULL = F) 
+  # Expected population size over time
   exp.N.t = reactive({
+    # Localize global variables
     phi = phi()
-    srvy.gaps <- srvy.gaps() # Survey gaps
-    k <- k() # Number of surveys per study (> 2 for POPAN)
+    srvy.gaps <- srvy.gaps()
+    k <- k()
     
     # Load POPAN functions
     source("Functions/PopanFuncs.R", local = T)
     
-    # Expected final population size.  gaps variables only used here
+    # Expected final population size.  Gaps variables only used here
     lambda.gaps <- lambda()^srvy.gaps # Population growth rate between surveys
     phi.gaps <- phi^srvy.gaps # Individual survival rate between surveys
     exp.N.fin <- sum(pent_func(lambda.gaps, phi.gaps) * exp.Ns * 
                        prod(phi.gaps) / cumprod(c(1, phi.gaps)))
     
-    # Expected population size over time
-    exp.N.t <- exp.N.fin / lambda()^((hist.len - 1):0)
-    
-    exp.N.t
-  }) # Expected population size over time
+    exp.N.fin / lambda()^((hist.len - 1):0)
+  })
+  
+  # Functions and outputs bound to simulate button
   
   # Simulate population and capture histories
   hists.lst = reactive({
-    srvy.yrs = srvy.yrs()
-    k <- k() # Number of surveys per study (> 2 for POPAN)
-    f.year <- f.year() # Final survey year
-    
-    # Population growth rate
+    # Localize global variables
     phi = phi()
     lambda = lambda()
+    srvy.yrs = srvy.yrs()
+    k <- k()
+    f.year <- f.year()
+    
+    # Population growth rate
     
     # Set number of studies to simulate
     n.stds.sim <- n_sims()
@@ -83,37 +87,46 @@ server <- function(input, output) {
     # Create list for population and capture histories
     hists.lst <- vector("list", n.stds.sim)
     
+    
     # Display progress
     cat("Simulating study: ")
     
     # Loop over histories
-    for (hist.ind in 1:n.stds.sim) {
-      # Display progress
-      if (hist.ind %% 100 == 1) cat(hist.ind, "")
-      
-      # Simulate family and capture histories of population of animals over time
-      hists.lst[[hist.ind]] <- SimPopStud()
-    }
+    withProgress({
+      for (hist.ind in 1:n.stds.sim) {
+        # Display progress
+        if (hist.ind %% 100 == 1) cat(hist.ind, "")
+        
+        # Simulate family and capture histories of population of animals over time
+        hists.lst[[hist.ind]] <- SimPopStud()
+        
+        incProgress(1/n.stds.sim)
+      }
+    }, value = 0, message = "Simulating populations")
     
     hists.lst
   })
   
   # Check simulated studies
   checks.lst = reactive({
-    srvy.yrs = srvy.yrs()
-    k <- k() # Number of surveys per study (> 2 for POPAN)
-    f.year <- f.year() # Final survey year
-    srvy.gaps <- as.integer(diff(srvy.yrs)) # Survey gaps
-    stdy.len <- sum(srvy.gaps) # Length of study
-    n.srvy.prs <- choose(k, 2) # Number of pairs of surveys
-    
+    # Localize global variables
+    rho = rho()
     phi = phi()
     lambda = lambda()
-    rho = rho()
+    srvy.yrs = srvy.yrs()
+    k <- k()
+    f.year <- f.year()
     
+    # New variables for kin pair functions
+    
+    # Survey gaps 
+    srvy.gaps <- as.integer(diff(srvy.yrs))
+    # Length of study
+    stdy.len <- sum(srvy.gaps)
+    # Number of pairs of surveys
+    n.srvy.prs <- choose(k, 2) 
     # Set number of studies to check
     n.stds.chk <- n_sims()
-    
     # Expected final population size
     exp.N.fin <- exp.N.t()[hist.len]
     
@@ -122,7 +135,7 @@ server <- function(input, output) {
     source("Functions/FindExpNsKPs.R", local = T)
     
     # Create matrices for population trajectories (as columns), numbers
-    # captured, and expected and observed number of kin pairs
+    # captured, and expected and observed numbers of kin pairs
     N.t.mat <- matrix(nrow = n.stds.chk, ncol = hist.len)
     ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- ns.POPs.wtn.mat <- 
       ns.HSPs.wtn.mat <- exp.ns.HSPs.wtn.mat <- 
@@ -130,7 +143,7 @@ server <- function(input, output) {
     ns.POPs.btn.mat <- ns.SPs.btn.mat <- exp.ns.POPs.btn.mat <- 
       exp.ns.SPs.btn.mat <- matrix(nrow = n.stds.chk, ncol = n.srvy.prs)
     
-    # Create vectors for proportions with unknown parents, and superpopulation
+    # Create vectors for proportions with unknown parents, and super-population
     # sizes
     prpn.prnts.unkn.vec <- Ns.vec <- numeric(n.stds.chk)
     
@@ -138,48 +151,53 @@ server <- function(input, output) {
     cat("Checking study: ")
     
     # Loop over histories
-    for (hist.ind in 1:n.stds.chk) {
-      # Display progress
-      if (hist.ind %% 100 == 1) cat(hist.ind, "")
-      
-      # Get simulated family and capture histories of population of animals over
-      # time
-      pop.cap.hist <- hists.lst()[[hist.ind]]
-      
-      # Record population curve
-      N.t.mat[hist.ind, ] <- attributes(pop.cap.hist)$N.t.vec
-      
-      # Record superpopulation size
-      Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
-      
-      # Get numbers captured and calving in each survey
-      ns.caps <- attributes(pop.cap.hist)$ns.caps
-      ns.caps.mat[hist.ind, ] <- ns.caps
-      ns.clvng.mat[hist.ind, ] <- attributes(pop.cap.hist)$ns.clvng
-      ns.clvng.caps.mat[hist.ind, ] <- 
-        colSums(pop.cap.hist[, 4:(3 + k)] * pop.cap.hist[, (4 + k):(3 + 2 * k)])
-      
-      # Find proportion captured with unknown parents
-      prpn.prnts.unkn.vec[hist.ind] <- mean(is.na(pop.cap.hist$mum))
-      
-      # Find numbers of known kin pairs
-      ns.kps.lst <- FindNsKinPairs()
-      
-      # Record in matrices
-      ns.POPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.POPs.wtn
-      ns.HSPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.HSPs.wtn
-      ns.POPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.POPs.btn
-      ns.SPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.SPs.btn
-      
-      # Find expected numbers of kin pairs
-      exp.ns.kps.lst <- FindExpNsKPs()
-      
-      # Record in matrices
-      exp.ns.POPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.wtn
-      exp.ns.HSPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.HSPs.wtn
-      exp.ns.POPs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.btn
-      exp.ns.SPs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.SPs.btn
-    }
+    withProgress({
+      for (hist.ind in 1:n.stds.chk) {
+        # Display progress
+        if (hist.ind %% 100 == 1) cat(hist.ind, "")
+        
+        # Get simulated family and capture histories of population of animals
+        # over time
+        pop.cap.hist <- hists.lst()[[hist.ind]]
+        
+        # Record population curve
+        N.t.mat[hist.ind, ] <- attributes(pop.cap.hist)$N.t.vec
+        
+        # Record superpopulation size
+        Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
+        
+        # Get numbers captured and calving in each survey
+        ns.caps <- attributes(pop.cap.hist)$ns.caps
+        ns.caps.mat[hist.ind, ] <- ns.caps
+        ns.clvng.mat[hist.ind, ] <- attributes(pop.cap.hist)$ns.clvng
+        ns.clvng.caps.mat[hist.ind, ] <- 
+          colSums(pop.cap.hist[, 4:(3 + k)] * 
+                    pop.cap.hist[, (4 + k):(3 + 2 * k)])
+        
+        # Find proportion captured with unknown parents
+        prpn.prnts.unkn.vec[hist.ind] <- mean(is.na(pop.cap.hist$mum))
+        
+        # Find numbers of known kin pairs
+        ns.kps.lst <- FindNsKinPairs()
+        
+        # Record in matrices
+        ns.POPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.POPs.wtn
+        ns.HSPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.HSPs.wtn
+        ns.POPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.POPs.btn
+        ns.SPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.SPs.btn
+        
+        # Find expected numbers of kin pairs
+        exp.ns.kps.lst <- FindExpNsKPs()
+        
+        # Record in matrices
+        exp.ns.POPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.wtn
+        exp.ns.HSPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.HSPs.wtn
+        exp.ns.POPs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.btn
+        exp.ns.SPs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.SPs.btn
+        
+        incProgress(1/n.stds.chk)
+      }
+    }, value = 0, message = "Checking simulations")
     
     list(
       N.t.mat = N.t.mat, 
@@ -213,7 +231,7 @@ server <- function(input, output) {
       lty = c(1, 1, 2)
     )
   })
-
+  
   # Print head of first study
   output$dataHead <- renderTable(head(data.frame(hists.lst()[[1]])))
   
@@ -265,12 +283,19 @@ server <- function(input, output) {
   
   # Find parameter estimates
   mod.ests.lst = reactive({
+    # Localize global variables
     srvy.yrs = srvy.yrs()
-    k <- k() # Number of surveys per study (> 2 for POPAN)
-    f.year <- f.year() # Final survey year
-    srvy.gaps <- as.integer(diff(srvy.yrs)) # Survey gaps
-    stdy.len <- sum(srvy.gaps) # Length of study
-    n.srvy.prs <- choose(k, 2) # Number of pairs of surveys
+    k <- k()
+    f.year <- f.year()
+    
+    # New variables for functions
+    
+    # Survey gaps
+    srvy.gaps <- as.integer(diff(srvy.yrs)) 
+    # Length of study
+    stdy.len <- sum(srvy.gaps) 
+    # Number of pairs of surveys
+    n.srvy.prs <- choose(k, 2) 
     
     # Set number of studies to fit models to (reduce for faster testing)
     n.stds.fit <- n_sims()
@@ -298,58 +323,67 @@ server <- function(input, output) {
     )
     
     # Loop over histories
-    for (hist.ind in 1:n.stds.fit) {
-      # Display progress
-      cat("History:", hist.ind, "\n")
-      
-      # Get simulated family and capture histories of population of animals over
-      # time
-      pop.cap.hist <- hists.lst()[[hist.ind]]
-      
-      # Store superpopulation and final population size
-      Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
-      N.fin.vec[hist.ind] <- attributes(pop.cap.hist)$N.t.vec[hist.len]
-      
-      # Get numbers of animals captured in study and each survey
-      n.cap.hists <- nrow(pop.cap.hist)
-      ns.caps <- attributes(pop.cap.hist)$ns.caps
-      
-      # Summarise data for POPAN model
-      pop.sum <- FindPopSum()
-      
-      # Find numbers of kin pairs
-      ns.kps.lst <- FindNsKinPairs()
-      
-      # Update optimiser starting-values and bounds
-      ppn.start[3] <- attributes(pop.cap.hist)$Ns
-      ppn.lwr[3] <- n.cap.hists
-      ck.start[3] <- N.fin.vec[hist.ind]
-      ck.lwr[3] <- ns.caps[k]
-      
-      # Try to fit models
-      if ("POPAN" %in% models()) 
-        ppn.tmb.ests[hist.ind, ] <- TryPOPANTMB()
-      if ("Close kin" %in% models())
-        ck.tmb.ests[hist.ind, -(5:(4 + k))] <- TryCloseKinTMB()
-    }
+    withProgress({
+      for (hist.ind in 1:n.stds.fit) {
+        # Display progress
+        cat("History:", hist.ind, "\n")
+        
+        # Get simulated family and capture histories of population of animals
+        # over time
+        pop.cap.hist <- hists.lst()[[hist.ind]]
+        
+        # Store superpopulation and final population size
+        Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
+        N.fin.vec[hist.ind] <- attributes(pop.cap.hist)$N.t.vec[hist.len]
+        
+        # Get numbers of animals captured in study and each survey
+        n.cap.hists <- nrow(pop.cap.hist)
+        ns.caps <- attributes(pop.cap.hist)$ns.caps
+        
+        # Summarise data for POPAN model
+        pop.sum <- FindPopSum()
+        
+        # Find numbers of kin pairs
+        ns.kps.lst <- FindNsKinPairs()
+        
+        # Update optimiser starting-values and bounds
+        ppn.start[3] <- attributes(pop.cap.hist)$Ns
+        ppn.lwr[3] <- n.cap.hists
+        ck.start[3] <- N.fin.vec[hist.ind]
+        ck.lwr[3] <- ns.caps[k]
+        
+        # Try to fit models
+        if ("POPAN" %in% models()) 
+          ppn.tmb.ests[hist.ind, ] <- TryPOPANTMB()
+        if ("Close kin" %in% models())
+          ck.tmb.ests[hist.ind, -(5:(4 + k))] <- TryCloseKinTMB()
+        
+        incProgress(1/n.stds.fit)
+      }
+    }, value = 0, message = "Fitting models")
     
-    # Combine model estimates as list
-    mod.ests.lst <- list(
+    # Combine model estimates as list and return those requested
+    list(
       ppn.tmb = ppn.tmb.ests,
       ck.tmb = ck.tmb.ests
     )[c("POPAN", "Close kin") %in% models()]
-    
-    mod.ests.lst
   })
   
   # Plot negative log-likelihood surface for first study
   output$NLLPlot <- renderPlot({
+    # Localize global variables
     srvy.yrs = srvy.yrs()
-    k <- k() # Number of surveys per study (> 2 for POPAN)
-    f.year <- f.year() # Final survey year
-    srvy.gaps <- as.integer(diff(srvy.yrs)) # Survey gaps
-    stdy.len <- sum(srvy.gaps) # Length of study
-    n.srvy.prs <- choose(k, 2) # Number of pairs of surveys
+    k <- k()
+    f.year <- f.year()
+    
+    # New variables for functions
+    
+    # Survey gaps
+    srvy.gaps <- as.integer(diff(srvy.yrs)) 
+    # Length of study
+    stdy.len <- sum(srvy.gaps) 
+    # Number of pairs of surveys
+    n.srvy.prs <- choose(k, 2) 
     
     # Source NLL and kin pairs functions
     source("Functions/CloseKinNLL.R", local = T)
@@ -406,7 +440,7 @@ server <- function(input, output) {
   
   # Plot estimates using model comparison plot function
   output$modComp <- renderPlot({
-    # Expected population size over time
+    # Localize global variables
     exp.N.t <- exp.N.t()
     
     # Find optimization attempts that converged
@@ -495,7 +529,6 @@ server <- function(input, output) {
   #     "Normal" = Inf,
   #   )
   # })
-  # 
   # 
   # # Check CI doesn't cross parameter bounds
   # ci_ok = reactive(cis()[1, ] > lb() & cis()[2, ] < ub())

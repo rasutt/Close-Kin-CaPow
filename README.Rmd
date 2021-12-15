@@ -14,8 +14,8 @@ One interesting observation is that popan depends much more on having surveys ov
 ### Things to do
 
 - Separate notes and things to do from readme
+- Allow survey years input to include : operator using eval(expr(input...))
 - Fix NLLplot to not show if close kin model not fit, and modcompplot to not show if no model chosen?
-- Add progress bars
 - Update expected superpopulation size so that current value doesn't include survey in 2020.
 - Update readme and app description to include new inputs and popan model
 - Incorporate the number of animals for which we don't know the parents into the calculations of the expected numbers of kin pairs.  And model-fitting?  Warnings when too high?

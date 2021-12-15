@@ -2,9 +2,9 @@
 min_rho = 0.03
 max_rho = 0.13
 step_rho = 0.005
-min_pi = 0.01
-max_pi = 0.09
-step_pi = 0.005
+min_phi = 0.91
+max_phi = 0.99
+step_phi = 0.005
 
 # Set simulation parameters for basic scenario
 exp.Ns <- 2169 # Expected superpopulation size
