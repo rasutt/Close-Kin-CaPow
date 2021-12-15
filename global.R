@@ -1,7 +1,7 @@
 # Set bounds on inputs and step size for input slider and NLL plots
-min_lambda = 0.98
-max_lambda = 1.08
-step_lambda = 0.01
+min_rho = 0.01
+max_rho = 0.11
+step_rho = 0.005
 
 # Set simulation parameters for basic scenario
 exp.Ns <- 2169 # Expected superpopulation size

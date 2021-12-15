@@ -18,12 +18,12 @@ ui <- fluidPage(
     # Sidebar panel for inputs
     sidebarPanel(
       sliderInput(
-        inputId = "lambda", 
-        label = "Population growth rate (lambda):",
-        min_lambda, 
-        max_lambda, 
-        value = 1.03, 
-        step = step_lambda
+        inputId = "rho", 
+        label = "Population birth rate (rho):",
+        min_rho, 
+        max_rho, 
+        value = 0.06, 
+        step = step_rho
       ),
       # checkboxGroupInput(
       #   inputId = "srvy.yrs",

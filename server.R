@@ -14,7 +14,7 @@ server <- function(input, output) {
   
   # Population growth rate. Note - Can still have outputs that depend on
   # input$lambda and update when it does!
-  lambda <- bindEvent(reactive(input$lambda), input$simulate, ignoreNULL = F)
+  lambda <- bindEvent(reactive(input$rho + phi), input$simulate, ignoreNULL = F)
   
   # Find useful global variables
   rho <- reactive(lambda() - phi) # "Population birthrate"
@@ -345,15 +345,14 @@ server <- function(input, output) {
     ns.kps.lst <- FindNsKinPairs()
     
     # Create grids of parameter and NLL values
-    nll_grid = par_grid = seq(min_lambda, max_lambda, step_lambda)
+    nll_grid = par_grid = seq(min_rho, max_rho, step_rho)
     
     # MLEs
     params = mod.ests.lst()[["ck.tmb"]][1, 1:3]
     
     # Find NLL over grid of parameter values
     for (i in seq_along(nll_grid)) {
-      # Rho = lambda - phi
-      params[1] = par_grid[i] - params[2]
+      params[1] = par_grid[i]
       nll_grid[i] = CloseKinNLL(params)
     }
     
@@ -361,13 +360,17 @@ server <- function(input, output) {
     plot(
       par_grid, nll_grid,
       main = "Negative log-likelihood at MLEs for first study",
-      xlab = "lambda", ylab = "NLL", type = 'l'
+      xlab = "rho", ylab = "NLL", type = 'l'
     )
-    abline(v = lambda(), col = 2)
-    abline(v = mod.ests.lst()[["ck.tmb"]][1, 1], col = 4)
+    abline(v = rho(), col = 2)
+    abline(
+      # Rho = lambda - phi
+      v = mod.ests.lst()[["ck.tmb"]][1, 1] - mod.ests.lst()[["ck.tmb"]][1, 2], 
+      col = 4
+    )
     legend(
       "topleft", 
-      legend = c("Negative log likelihood", "True lambda", "MLE of lambda"),
+      legend = c("Negative log likelihood", "True rho", "MLE of rho"),
       col = c(1, 2, 4),
       lty = 1
     )
