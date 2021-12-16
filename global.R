@@ -9,7 +9,6 @@ step_phi = 0.005
 # Set simulation parameters for basic scenario
 exp.Ns <- 2169 # Expected superpopulation size
 alpha <- 8 # Age of sexual maturity
-hist.len <- 80 # Duration of simulation in years
 p <- 0.1 # Capture probability
 stch.bths <- T # Set whether numbers of births stochastic
 clvng.p <- 0 # Additional capture probability when calving

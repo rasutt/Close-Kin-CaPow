@@ -34,6 +34,8 @@ server <- function(input, output) {
   lambda <- reactive(rho() + phi()) 
   # Survey years
   srvy.yrs = bindEvent(srvy.yrs.rct, input$simulate, ignoreNULL = F)
+  # Length of simulation
+  hist.len = bindEvent(reactive(input$hist.len), input$simulate, ignoreNULL = F)
   # Number of simulations
   n_sims = bindEvent(reactive(input$n_sims), input$simulate, ignoreNULL = F)
   # Survey gaps
@@ -58,7 +60,7 @@ server <- function(input, output) {
     exp.N.fin <- sum(pent_func(lambda.gaps, phi.gaps) * exp.Ns * 
                        prod(phi.gaps) / cumprod(c(1, phi.gaps)))
     
-    exp.N.fin / lambda()^((hist.len - 1):0)
+    exp.N.fin / lambda()^((hist.len() - 1):0)
   })
   
   # Functions and outputs bound to simulate button ----
@@ -69,6 +71,7 @@ server <- function(input, output) {
     phi = phi()
     lambda = lambda()
     srvy.yrs = srvy.yrs()
+    hist.len = hist.len()
     k <- k()
     f.year <- f.year()
     
@@ -115,6 +118,7 @@ server <- function(input, output) {
     phi = phi()
     lambda = lambda()
     srvy.yrs = srvy.yrs()
+    hist.len = hist.len()
     k <- k()
     f.year <- f.year()
     
@@ -213,11 +217,11 @@ server <- function(input, output) {
   output$popPlot <- renderPlot({
     # Plot population trajectories and expected value
     matplot(
-      (f.year() - 79):f.year(), t(checks.lst()$N.t.mat), type = 'l', 
+      (f.year() - hist.len() + 1):f.year(), t(checks.lst()$N.t.mat), type = 'l', 
       col = rgb(0, 0, 0, alpha = 0.1), lty = 1, 
       xlab = 'Year', ylab = 'Nt', main = "Population sizes over time"
     )
-    lines((f.year() - 79):f.year(), exp.N.t(), col = 'red', lwd = 2)
+    lines((f.year() - hist.len() + 1):f.year(), exp.N.t(), col = 'red', lwd = 2)
     
     # Surveys
     abline(v = srvy.yrs(), lty = 2)
@@ -246,8 +250,8 @@ server <- function(input, output) {
     diffs = checks.lst()$ns.POPs.wtn.mat - checks.lst()$exp.ns.POPs.wtn.mat
     boxplot(
       diffs,
-      main = "Expected vs observed numbers of parent-offspring pairs within 
-      samples", 
+      main = 
+      "Expected vs observed numbers of parent-offspring pairs within samples", 
       # sub = paste(
       #   "Average difference over all surveys:",
       #   signif(mean(diffs), 3)
@@ -268,6 +272,25 @@ server <- function(input, output) {
     )
   })
   
+  # Display percentage of animals captured for which the parents are unknown
+  output$percUnknPrnts <- renderText({
+    # nPOPs = checks.lst()$ns.POPs.wtn.mat
+    # 
+    # # Pairs are lost quadratically with animals
+    # prpns.pairs.lost = 1 - (1 - checks.lst()$prpn.prnts.unkn.vec)^2
+    # 
+    # paste(
+    #   "Expected number of parent-offspring pairs within samples
+    #   lost due to unknown parents:",
+    #   signif(mean(prpns.pairs.lost * checks.lst()$ns.POPs.wtn.mat), 3),
+    #   "\n"
+    # )
+    paste0(
+      "Percentage of captured animals with unknown parents (1DP): ", 
+      mean(round(checks.lst()$prpn.prnts.unkn.vec * 100, 0)), "%"
+    )
+  })
+
   # Find parameter estimates
   mod.ests.lst = reactive({
     # Localize global variables
@@ -322,7 +345,7 @@ server <- function(input, output) {
         
         # Store superpopulation and final population size
         Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
-        N.fin.vec[hist.ind] <- attributes(pop.cap.hist)$N.t.vec[hist.len]
+        N.fin.vec[hist.ind] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
         
         # Get numbers of animals captured in study and each survey
         n.cap.hists <- nrow(pop.cap.hist)
@@ -453,27 +476,12 @@ server <- function(input, output) {
     
     # Plot estimates of N_2020
     ComparisonPlot(lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 3]),
-                   "N_2020", exp.N.t[hist.len])
+                   "N_2020", exp.N.t[hist.len()])
     
     # Plot estimates of superpopulation size
     ComparisonPlot(lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 4]),
                    "Ns", exp.Ns)
   })
-  
-  # # Display proportion of captures for which the parents are unknown
-  # output$nUnknPrnts <- renderText({
-  #   nPOPs = checks.lst()$ns.POPs.wtn.mat
-  # 
-  #   # Pairs are lost quadratically with animals
-  #   prpns.pairs.lost = 1 - (1 - checks.lst()$prpn.prnts.unkn.vec)^2
-  # 
-  #   paste(
-  #     "Expected number of parent-offspring pairs within samples 
-  #     lost due to unknown parents:",
-  #     signif(mean(prpns.pairs.lost * checks.lst()$ns.POPs.wtn.mat), 3),
-  #     "\n"
-  #   )
-  # })
   
   # # Find confidence intervals
   # cis = reactive({

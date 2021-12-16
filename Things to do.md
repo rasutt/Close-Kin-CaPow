@@ -6,13 +6,16 @@
 
 -   Split into separate tabs for simulation planning, checking datasets, and model fitting and power analysis.
 
+-   Include mathematical explanations. Can use includeMarkdown() or withMathJax(),
+
 -   Incorporate the number of animals for which we don't know the parents into the calculations of the expected numbers of kin pairs. And model-fitting? Warnings when too high?
 
     -   Check if bias in numbers of kinpairs due to finite sums vs closed form expressions. The finite sums going back exactly the length of the simulation should be unbiased. Using closed form expressions so that could be the reason. Should check how Mark handles the long-term implications of exponential growth. Maybe doesn't matter for short-lived animals?
+    -   I think that's right. So I think it'll be equivalent and fast and easy to use the closed form expressions in cases where the constant dynamics apply for the whole period that matters, but we'll need a non-constant dynamics model, with no closed form solution for the kin pairs, in other cases, especially the case of whales. Probably wanna provide both options, and shouldn't be too difficult, since already derived most of the closed form expressions. Might be fast and convenient to do the rest of the testing of them with lower survival rate and age of maturity, and thus shorter necessary simulation lengths? Will wanna establish the expression for those lengths, not only for the simulations, but for the assumptions of the constant dynamics models, which people will wanna use when possible since they'll be simpler and allow greater statistical power. They're the same expression, the length of time the model has to have applied to account for all of the kin-ships in the data with high enough probability. What's high enough will depend on the sensitivity of the model estimates, which we can investigate with the app and maybe also mathematically.
     -   Could it also be because of the approximation of the expected total number of pairs? Check kinpair probabilities correct, as well as numbers. Could we get the analytic expression. Basically a binomial RV squared right?
     -   Check this stuff and then maybe try a proper logistic difference equation.
 
--   Find confidence interval coverage and show number of results discarded.
+-   Find confidence interval coverage and show number of results discarded. Also average confidence interval width, since often models fail by returning large variances and CI's that still cover their true values. Also average bias, since biases can cancel out, although I guess that comes into CV.
 
 -   Try plotting relationships between captures?
 
