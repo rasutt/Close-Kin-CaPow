@@ -28,29 +28,18 @@ TryPOPANTMB <- function() {
     return(NA)
   }
   
-  # Get estimates and standard errors for all parameters requested
-  sd.rep.summ = summary(sdreport(obj))
-  
-  # Replace estimate for rho with that for lambda, as code assumes first
-  # estimated parameter is lambda for now
-  ppn.opt$par[1] <- sd.rep.summ[k + 4, 1]
-  
+  # Get estimates and standard errors from TMB, replacing rho with lambda and
+  # inserting estimate for final population size
+  est.se.df = summary(sdreport(obj))[c(k + 4, 2, k + 5, 3:(k + 3)), ]
+
   # Show results
   if (ppn.opt$convergence == 0) {
     cat("Optimiser reports success for POPAN model using TMB \n")
-    cat("Estimates:", round(ppn.opt$par, 3), "\n")
+    cat("Estimates:", round(est.se.df[, 1], 3), "\n")
   } else {
     cat("Optimiser reports failure for POPAN model using TMB \n")
   }
   
-  print("PPN sdrep")
-  print(sd.rep.summ)
-  
   # Return results, including derived estimate of final population size
-  list(
-    c(ppn.opt$par[1:2], tail(sd.rep.summ, 1)[1], 
-      ppn.opt$par[3:(k + 3)], ppn.opt$convergence),
-    c(sd.rep.summ[k + 4, 2], sd.rep.summ[2, 2], tail(sd.rep.summ, 1)[2],
-      sd.rep.summ[3:(k + 3), 2])
-  )
+  list(est.se.df = est.se.df, cnvg = ppn.opt$convergence)
 }

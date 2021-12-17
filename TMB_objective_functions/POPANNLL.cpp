@@ -18,7 +18,7 @@ Type objective_function<Type>::operator() ()
   // Declare parameter input
   PARAMETER_VECTOR(pars);
   
-  // Unpack parameters
+  // Unpack parameters and request standard error for lambda
   Type rho = pars(0);
   Type phi = pars(1);
   Type Ns = pars(2);
@@ -57,7 +57,7 @@ Type objective_function<Type>::operator() ()
   for(int i = 1; i < k; i++) {
     exp_N_t(i) = exp_N_t(i - 1) * phigaps(i - 1) + Ns * pentvec(i);
   }
-  ADREPORT(exp_N_t);
+  ADREPORT(exp_N_t(k - 1));
 
   // Find probability that animal not consequenty observed given alive in
   // population at each survey

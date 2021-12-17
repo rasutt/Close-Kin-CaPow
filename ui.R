@@ -3,13 +3,7 @@ library(shiny)
 # Define UI for app
 ui <- fluidPage(
   # App title and description ----
-  titlePanel("Close-Kin CaPow!"),
-  p("This is a web app to perform close-kin capture-recapture study power 
-  analysis via simulation. It simulates multiple populations of animals over 
-  time, and datasets from capture-recapture studies of those populations, checks
-  that the simulations have the expected characteristics, fits close-kin and/or 
-  conventional capture-recapture models to the datasets, and analyses the 
-  resulting estimates."),
+  includeMarkdown("README.md"),
 
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
@@ -48,7 +42,6 @@ ui <- fluidPage(
     # Main panel for displaying outputs ----
     mainPanel(
       h4("Implied parameters"),
-      textOutput(outputId = "phi"),
       textOutput(outputId = "lambda"),
       textOutput(outputId = "k"),
       textOutput(outputId = "f.year"),

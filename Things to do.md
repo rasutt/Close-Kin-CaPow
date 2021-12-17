@@ -1,12 +1,12 @@
 ### Things to do
 
+-   Include expected final population size in inputs and update selected value so that it doesn't include survey in 2020.
+
+-   Add output for differences between population size estimates and true values, rather than expected values.
+
 -   Split into separate tabs for simulation planning, checking datasets, and model fitting and power analysis.
 
--   Rewrite code to take estimates in proper order with rho first instead of lambda and tidy up model-fitting and CI code.
-
--   Find and show number of results discarded. Also average confidence interval width, since often models fail by returning large variances and CI's that still cover their true values. Also average bias, since biases can cancel out, although I guess that comes into CV.
-
--   Include expected super/final population size in inputs and update selected value so that it doesn't include survey in 2020.
+-   Check for missing standard errors. Find and show number of results discarded. Also average confidence interval width, since often models fail by returning large variances and CI's that still cover their true values. Also average bias, since biases can cancel out, although I guess that comes into CV.
 
 -   Include the parameters controlling the biological scenarios Emma's interested in as inputs and investigate their effects.
 
@@ -25,7 +25,6 @@
     -   Could it also be because of the approximation of the expected total number of pairs? Check kinpair probabilities correct, as well as numbers. Could we get the analytic expression. Basically a binomial RV squared right?
     -   Check this stuff and then maybe try a proper logistic difference equation.
 
-```{=html}
 <!-- -->
-```
+
 -   Try plotting relationships between captures?
