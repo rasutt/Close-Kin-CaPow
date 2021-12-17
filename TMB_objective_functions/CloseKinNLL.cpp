@@ -53,6 +53,7 @@ Type objective_function<Type>::operator() ()
   // derived parameter to calculate and report the standard error
   Type Ns = (Nfinal / cumlambda) / pentvec(0);
   ADREPORT(Ns);
+  ADREPORT(lambda);
   
   // Set negative log likelihood to zero
   Type nll = Type(0.0);

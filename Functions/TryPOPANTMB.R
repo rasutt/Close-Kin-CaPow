@@ -28,8 +28,12 @@ TryPOPANTMB <- function() {
     return(NA)
   }
   
-  # lambda = rho + phi
-  ppn.opt$par[1] <- sum(ppn.opt$par[1:2])
+  # Get estimates and standard errors for all parameters requested
+  sd.rep.summ = summary(sdreport(obj))
+  
+  # Replace estimate for rho with that for lambda, as code assumes first
+  # estimated parameter is lambda for now
+  ppn.opt$par[1] <- sd.rep.summ[k + 4, 1]
   
   # Show results
   if (ppn.opt$convergence == 0) {
@@ -39,7 +43,14 @@ TryPOPANTMB <- function() {
     cat("Optimiser reports failure for POPAN model using TMB \n")
   }
   
+  print("PPN sdrep")
+  print(sd.rep.summ)
+  
   # Return results, including derived estimate of final population size
-  c(ppn.opt$par[1:2], tail(summary(sdreport(obj)), 1)[1], 
-    ppn.opt$par[c(3:(k + 3))], ppn.opt$convergence)
+  list(
+    c(ppn.opt$par[1:2], tail(sd.rep.summ, 1)[1], 
+      ppn.opt$par[3:(k + 3)], ppn.opt$convergence),
+    c(sd.rep.summ[k + 4, 2], sd.rep.summ[2, 2], tail(sd.rep.summ, 1)[2],
+      sd.rep.summ[3:(k + 3), 2])
+  )
 }

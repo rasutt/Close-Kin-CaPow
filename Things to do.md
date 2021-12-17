@@ -1,12 +1,22 @@
 ### Things to do
 
+-   Split into separate tabs for simulation planning, checking datasets, and model fitting and power analysis.
+
+-   Rewrite code to take estimates in proper order with rho first instead of lambda and tidy up model-fitting and CI code.
+
+-   Find and show number of results discarded. Also average confidence interval width, since often models fail by returning large variances and CI's that still cover their true values. Also average bias, since biases can cancel out, although I guess that comes into CV.
+
 -   Include expected super/final population size in inputs and update selected value so that it doesn't include survey in 2020.
+
+-   Include the parameters controlling the biological scenarios Emma's interested in as inputs and investigate their effects.
 
 -   Show parameters of last simulation to keep clear when the inputs been changed but not simulated from.
 
--   Split into separate tabs for simulation planning, checking datasets, and model fitting and power analysis.
+-   Include mathematical explanations. Can use includeMarkdown() or withMathJax().
 
--   Include mathematical explanations. Can use includeMarkdown() or withMathJax(),
+-   Investigate when close kin does and does not do better than popan
+
+    -   One interesting observation is that popan depends much more on having surveys over a good range of times, whereas close kin seems to do better when there's only a short range. Mainly for lambda (5-8x better), and phi (2-3x better), but also somewhat for N_final (15-20% better), when three consecutive surveys. Tried with two but strange results, need to actually check numbers converged now. Should check confidence interval coverage too.
 
 -   Incorporate the number of animals for which we don't know the parents into the calculations of the expected numbers of kin pairs. And model-fitting? Warnings when too high?
 
@@ -15,10 +25,7 @@
     -   Could it also be because of the approximation of the expected total number of pairs? Check kinpair probabilities correct, as well as numbers. Could we get the analytic expression. Basically a binomial RV squared right?
     -   Check this stuff and then maybe try a proper logistic difference equation.
 
--   Find confidence interval coverage and show number of results discarded. Also average confidence interval width, since often models fail by returning large variances and CI's that still cover their true values. Also average bias, since biases can cancel out, although I guess that comes into CV.
-
+```{=html}
+<!-- -->
+```
 -   Try plotting relationships between captures?
-
--   Investigate when close kin does and does not do better than popan
-
-    -   One interesting observation is that popan depends much more on having surveys over a good range of times, whereas close kin seems to do better when there's only a short range. Mainly for lambda (5-8x better), and phi (2-3x better), but also somewhat for N_final (15-20% better), when three consecutive surveys. Tried with two but strange results, need to actually check numbers converged now. Should check confidence interval coverage too.

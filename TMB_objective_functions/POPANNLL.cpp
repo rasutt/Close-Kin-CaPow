@@ -27,7 +27,8 @@ Type objective_function<Type>::operator() ()
     pvec(i) = pars(3 + i);
   }
   Type lambda = rho + phi;
-
+  ADREPORT(lambda);
+  
   // Find lambda and phi with respect to gaps between surveys
   vector<Type> lambdagaps(k - 1);
   vector<Type> phigaps(k - 1);

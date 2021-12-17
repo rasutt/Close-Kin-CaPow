@@ -41,6 +41,13 @@ TryCloseKinTMB <- function() {
     cat("Message:", ck.opt$message, "\n")
   }
   
+  sd.rep.summ = summary(sdreport(obj))
+  print("CK sdrep")
+  print(sd.rep.summ)
+  
   # Return results
-  c(ck.opt$par[1:3], tail(summary(sdreport(obj)), 1)[1], ck.opt$convergence)
+  list(
+    c(ck.opt$par[1:3], sd.rep.summ[4, 1], ck.opt$convergence),
+    c(tail(sd.rep.summ, 1)[2], sd.rep.summ[2:4, 2])
+  )
 }
