@@ -41,15 +41,20 @@ ui <- fluidPage(
     
     # Main panel for displaying outputs ----
     mainPanel(
+      h3("Preparing next simulation"),
       h4("Implied parameters"),
       textOutput(outputId = "lambda"),
       textOutput(outputId = "k"),
       textOutput(outputId = "f.year"),
+      h3("Checking last simulation"),
       plotOutput(outputId = "popPlot"),
       h4("Head of first dataset"),
       tableOutput(outputId = "dataHead"),
       plotOutput(outputId = "nPOPsPlot"),
       textOutput(outputId = "percUnknPrnts"),
+      h3("Analysing model performance"),
+      textOutput(outputId = "cnvgRate"),
+      textOutput(outputId = "sesRate"),
       plotOutput(outputId = "NLLPlot"),
       h4("Parameter estimates from first model for first few studies"),
       tableOutput(outputId = "firstEsts"),

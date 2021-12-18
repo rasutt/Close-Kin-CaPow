@@ -287,12 +287,12 @@ server <- function(input, output) {
     # )
     paste0(
       "Percentage of captured animals with unknown parents (1DP): ", 
-      mean(round(checks.lst()$prpn.prnts.unkn.vec * 100, 0)), "%"
+      round(mean(checks.lst()$prpn.prnts.unkn.vec) * 100, 1), "%"
     )
   })
   
   # Find parameter estimates, standard errors, and model convergences
-  ests.ses.cnvgs.lst = reactive({
+  fit.lst = reactive({
     # Localize global variables
     srvy.yrs = srvy.yrs()
     k <- k()
@@ -394,9 +394,40 @@ server <- function(input, output) {
       cnvgs = list(popan = ppn.tmb.cnvg, close_kin = ck.tmb.cnvg)[mod.bool]
     )
   })
-  ests.lst = reactive(ests.ses.cnvgs.lst()[["ests"]])
-  ses.lst = reactive(ests.ses.cnvgs.lst()[["ses"]])
-  cnvgs.lst = reactive(ests.ses.cnvgs.lst()[["cnvgs"]])
+  ests.lst = reactive(fit.lst()[["ests"]])
+  ses.lst = reactive(fit.lst()[["ses"]])
+  cnvgs.lst = reactive(fit.lst()[["cnvgs"]])
+  
+  # Report number of datasets for which the optimizer reported convergence
+  output$cnvgRate = renderText({
+    paste0(
+      "Optimizer reported convergence for ", 
+      round(mean(cnvgs.lst()[["close_kin"]] == 0) * 100, 1), 
+      "% of datasets for close kin model."
+    )
+  })
+  
+  # Report number of datasets for which standard errors were calculable
+  output$sesRate = renderText({
+    ses.clbl = rowSums(is.na(ses.lst()[["close_kin"]][, 1:4])) == 0
+    paste0(
+      "Standard errors calculable for ", 
+      round(mean(ses.clbl) * 100, 1), 
+      "% of datasets for close kin model."
+    )
+  })
+  
+  # # Find estimates when optimizer converged.  A list of lists of matrices with
+  # # one for each model requested
+  # cvgd.fit.lst = reactive({
+  #   cvgd.fit.lst = list(ests = list(), ses = list())
+  #   # Loop over models requested
+  #   for (i in 1:length(ests.lst())) {
+  #     cvgd.fit.lst[i] = list(fit.lst()[[i]][!cnvgs.lst()[[i]], ])
+  #   }
+  #   names(cvgd.ests.lst) = names(ests.lst())
+  # })
+  
   
   # Plot negative log-likelihood surface for first study
   output$NLLPlot <- renderPlot({
@@ -493,13 +524,13 @@ server <- function(input, output) {
     # Plot estimates of final population size
     ComparisonPlot(
       lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 3]),
-      "Expected final population size", exp.N.t()[hist.len()]
+      "Final population size", exp.N.t()[hist.len()]
     )
     
     # Plot estimates of superpopulation size
     ComparisonPlot(
       lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 4]),
-      "Expected super population size", exp.Ns
+      "Super-population size", exp.Ns
     )
   })
   
@@ -537,7 +568,7 @@ server <- function(input, output) {
   # Print CI coverage
   output$CICov = renderText({
     paste0(
-      "Confidence interval coverage for close kin model for lambda: ", 
+      "95% confidence interval coverage for close kin model for lambda: ", 
       round(mean(ci_cov()) * 100, 1), "%"
     )
   })
