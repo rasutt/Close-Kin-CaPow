@@ -14,6 +14,8 @@
 
 -   Include mathematical explanations. Can use includeMarkdown() or withMathJax().
 
+-   Can I make it so when new model requested it doesn't fit old model again too?
+
 -   Investigate when close kin does and does not do better than popan
 
     -   One interesting observation is that popan depends much more on having surveys over a good range of times, whereas close kin seems to do better when there's only a short range. Mainly for lambda (5-8x better), and phi (2-3x better), but also somewhat for N_final (15-20% better), when three consecutive surveys. Tried with two but strange results, need to actually check numbers converged now. Should check confidence interval coverage too.

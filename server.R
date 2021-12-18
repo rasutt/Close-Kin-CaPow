@@ -389,9 +389,9 @@ server <- function(input, output) {
     # Combine model estimates, standard errors, and convergences, as lists and
     # return those requested
     list(
-      ests = list(ppn.tmb = ppn.tmb.ests, ck.tmb = ck.tmb.ests)[mod.bool],
-      ses = list(ppn.tmb = ppn.tmb.ses, ck.tmb = ck.tmb.ses)[mod.bool],
-      cnvgs = list(ppn.tmb = ppn.tmb.cnvg, ck.tmb = ck.tmb.cnvg)[mod.bool]
+      ests = list(popan = ppn.tmb.ests, close_kin = ck.tmb.ests)[mod.bool],
+      ses = list(popan = ppn.tmb.ses, close_kin = ck.tmb.ses)[mod.bool],
+      cnvgs = list(popan = ppn.tmb.cnvg, close_kin = ck.tmb.cnvg)[mod.bool]
     )
   })
   ests.lst = reactive(ests.ses.cnvgs.lst()[["ests"]])
@@ -428,7 +428,7 @@ server <- function(input, output) {
     # Create grids of rho and NLL values
     nll_grid = rho_grid = seq(min_rho, max_rho, step_rho)
     # MLEs for rho, phi, and Ns
-    params = ests.lst()[["ck.tmb"]][1, 1:3]
+    params = ests.lst()[["close_kin"]][1, 1:3]
     
     # Find NLL over grid of rho values
     for (i in seq_along(nll_grid)) {
@@ -444,7 +444,7 @@ server <- function(input, output) {
       xlab = "Lambda", ylab = "NLL", type = 'l'
     )
     abline(v = lambda(), col = 2)
-    abline(v = ests.lst()[["ck.tmb"]][1, 1], col = 4)
+    abline(v = ests.lst()[["close_kin"]][1, 1], col = 4)
     legend(
       "topleft", 
       legend = c("Negative log likelihood", "True lambda", "MLE of lambda"),
@@ -468,7 +468,8 @@ server <- function(input, output) {
     for (i in 1:length(ests.lst())) {
       cvgd.ests.lst[i] = list(ests.lst()[[i]][!cnvgs.lst()[[i]], ])
     }
-    
+    names(cvgd.ests.lst) = names(ests.lst())
+
     # Plot estimates from all models side-by-side
     
     # Set four plots per page
@@ -478,29 +479,33 @@ server <- function(input, output) {
     source("Functions/ComparisonPlot.R", local = T)
     
     # Plot estimates for lambda
-    ComparisonPlot(lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 1]),
-                   "Lambda", lambda())
+    ComparisonPlot(
+      lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 1]), 
+      "Population growth rate", lambda()
+    )
     
     # Plot estimates for Phi
-    ComparisonPlot(lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 2]),
-                   "Phi", phi())
+    ComparisonPlot(
+      lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 2]),
+      "Survival rate", phi()
+    )
     
-    # Plot estimates of N_2020
-    ComparisonPlot(lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 3]),
-                   "N_2020", exp.N.t()[hist.len()])
+    # Plot estimates of final population size
+    ComparisonPlot(
+      lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 3]),
+      "Expected final population size", exp.N.t()[hist.len()]
+    )
     
     # Plot estimates of superpopulation size
-    ComparisonPlot(lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 4]),
-                   "Ns", exp.Ns)
+    ComparisonPlot(
+      lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 4]),
+      "Expected super population size", exp.Ns
+    )
   })
   
   # Find confidence intervals for close kin model
-  lcbs = reactive({
-    ests.lst()[["ck.tmb"]] - 1.96 * ses.lst()[["ck.tmb"]]
-  })
-  ucbs = reactive({
-    ests.lst()[["ck.tmb"]] + 1.96 * ses.lst()[["ck.tmb"]]
-  })
+  lcbs = reactive(ests.lst()[["close_kin"]] - 1.96 * ses.lst()[["close_kin"]])
+  ucbs = reactive(ests.lst()[["close_kin"]] + 1.96 * ses.lst()[["close_kin"]])
   
   # # Check CI doesn't cross parameter bounds
   # ci_ok = reactive(cis()[1, ] > lb() & cis()[2, ] < ub())
@@ -513,7 +518,7 @@ server <- function(input, output) {
   
   # Plot confidence intervals for close kin model for lambda
   output$CIPlot = renderPlot({
-    ord = order(ests.lst()[["ck.tmb"]][, 1])
+    ord = order(ests.lst()[["close_kin"]][, 1])
     plot(
       rep(1:n_sims(), 2), c(lcbs()[, 1], ucbs()[, 1]), 
       main = "Confidence intervals for close kin model for lambda",

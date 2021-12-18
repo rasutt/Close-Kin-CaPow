@@ -51,9 +51,9 @@ ui <- fluidPage(
       plotOutput(outputId = "nPOPsPlot"),
       textOutput(outputId = "percUnknPrnts"),
       plotOutput(outputId = "NLLPlot"),
-      h4("Parameter estimates for first few studies"),
+      h4("Parameter estimates from first model for first few studies"),
       tableOutput(outputId = "firstEsts"),
-      h4("Parameter estimates for all studies"),
+      h4("Parameter estimates from all models for all studies"),
       plotOutput(outputId = "modComp"),
       plotOutput(outputId = "CIPlot"),
       textOutput(outputId = "CICov")

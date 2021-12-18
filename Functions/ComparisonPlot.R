@@ -13,8 +13,7 @@ ComparisonPlot <- function(ests.lst, par, true.val) {
   
   # Plot estimates
   boxplot(
-    ests.lst,
-    main = par,
+    ests.lst, main = par, show.names = T,
     sub = paste0(
       "Bias (1DP): ", paste0(round(ests.bias, 1), "%", collapse = ", "), "\n",
       "CV (1DP): ", paste0(round(ests.cv, 1), "%", collapse = ", ")
