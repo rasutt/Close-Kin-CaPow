@@ -1,12 +1,12 @@
 ### Things to do
 
--   Show parameters simulated from in checking and analysis tabs
-
 -   Find and show number of results discarded. Update CI coverage calculations.
 
 -   Extend model analysis to popan models.
 
 -   Include expected final population size in inputs and update selected value so that it doesn't include survey in 2020.
+
+-   Show parameters simulated from in checking and analysis tabs.
 
 -   Add output for differences between population size estimates and true values, rather than expected values.
 

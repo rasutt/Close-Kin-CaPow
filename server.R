@@ -410,7 +410,7 @@ server <- function(input, output) {
   
   # Report number of datasets for which standard errors were calculable
   output$sesRate = renderText({
-    ses.clbl = rowSums(is.na(ses.lst()[["close_kin"]][, 1:4])) == 0
+    ses.clbl = rowSums(is.na(fit.lst()$ses$close_kin[, 1:4])) == 0
     paste0(
       "Standard errors calculable for ", round(mean(ses.clbl) * 100, 1), 
       "% of datasets (", sum(ses.clbl), "/", length(ses.clbl), 
@@ -418,16 +418,18 @@ server <- function(input, output) {
     )
   })
   
-  # # Find estimates when optimizer converged.  A list of lists of matrices with
-  # # one for each model requested
-  # cvgd.fit.lst = reactive({
-  #   cvgd.fit.lst = list(ests = list(), ses = list())
-  #   # Loop over models requested
-  #   for (i in 1:length(ests.lst())) {
-  #     cvgd.fit.lst[i] = list(fit.lst()[[i]][!cnvgs.lst()[[i]], ])
-  #   }
-  #   names(cvgd.ests.lst) = names(ests.lst())
-  # })
+  # Find estimates when optimizer converged.  A list of lists of matrices with
+  # one for each model requested
+  cvgd.fit.lst = reactive({
+    cvgd.ests.lst = cvgd.ses.lst = list()
+    # Loop over models requested
+    for (i in 1:length(ests.lst())) {
+      cvgd.ests.lst[i] = list(ests.lst()[[i]][!cnvgs.lst()[[i]], ])
+      cvgd.ses.lst[i] = list(ses.lst()[[i]][!cnvgs.lst()[[i]], ])
+    }
+    names(cvgd.ests.lst) = names(cvgd.ses.lst) = names(ests.lst())
+    list(cvgd.ests.lst = cvgd.ests.lst, cvgd.ses.lst = cvgd.ses.lst)
+  })
   
   
   # Plot negative log-likelihood surface for first study
