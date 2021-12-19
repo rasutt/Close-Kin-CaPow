@@ -89,8 +89,7 @@ server <- function(input, output) {
     
     # Create list for population and capture histories
     hists.lst <- vector("list", n.stds.sim)
-    
-    
+
     # Display progress
     cat("Simulating study: ")
     
@@ -104,6 +103,8 @@ server <- function(input, output) {
         # time
         hists.lst[[hist.ind]] <- SimPopStud()
         
+        # Update progress. Unexplained "Error in as.vector: object 'x' not
+        # found" seen 19/12/2021 coming from incProgress...
         incProgress(1/n.stds.sim)
       }
     }, value = 0, message = "Simulating populations")
@@ -459,10 +460,10 @@ server <- function(input, output) {
     ns.caps <- attributes(pop.cap.hist)$ns.caps
     # Find numbers of kin pairs
     ns.kps.lst <- FindNsKinPairs()
-    # Create grids of rho and NLL values
-    nll_grid = rho_grid = seq(min_rho, max_rho, step_rho)
     # MLEs for rho, phi, and Ns
     params = ests.lst()[["close_kin"]][1, 1:3]
+    # Create grids of rho and NLL values
+    nll_grid = rho_grid = seq(min_rho, max_rho, step_rho) + phi() - params[2]
     
     # Find NLL over grid of rho values
     for (i in seq_along(nll_grid)) {

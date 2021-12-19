@@ -54,8 +54,9 @@ SimPopStud <- function() {
     mature <- alive & t - 1 - b.year >= alpha
     
     # Find survivors to current year
-    alive[alive] <- as.logical(rbinom(N.t.vec[t - 1], 1, 
-                                      phi * (1 - pmt.emgn * !female[alive])))
+    alive[alive] <- as.logical(
+      rbinom(N.t.vec[t - 1], 1, phi * (1 - pmt.emgn * !female[alive]))
+    )
     
     # Find possible parents (mothers must survive to give birth)
     mums.poss <- which(alive & mature & female)
