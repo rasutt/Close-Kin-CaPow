@@ -1,12 +1,14 @@
 ### Things to do
 
--   Check for missing standard errors. Find and show number of results discarded. Update CI coverage calculations.
+-   Show parameters simulated from in checking and analysis tabs
+
+-   Find and show number of results discarded. Update CI coverage calculations.
+
+-   Extend model analysis to popan models.
 
 -   Include expected final population size in inputs and update selected value so that it doesn't include survey in 2020.
 
 -   Add output for differences between population size estimates and true values, rather than expected values.
-
--   Split into separate tabs for simulation planning, checking datasets, and model fitting and power analysis.
 
 -   Also average confidence interval width, since often models fail by returning large variances and CI's that still cover their true values. Also average bias, since biases can cancel out, although I guess that comes into CV. Yeah nah, CV covers all of that I think. You check the CI coverage and bias for problems, and then look at the CV as the actual performance metric, which will still be bad for failed models. Still, easy to report them all so you can see how they fail I guess.
 

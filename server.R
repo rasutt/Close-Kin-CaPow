@@ -400,10 +400,11 @@ server <- function(input, output) {
   
   # Report number of datasets for which the optimizer reported convergence
   output$cnvgRate = renderText({
+    cnvgd = cnvgs.lst()[["close_kin"]] == 0
     paste0(
-      "Optimizer reported convergence for ", 
-      round(mean(cnvgs.lst()[["close_kin"]] == 0) * 100, 1), 
-      "% of datasets for close kin model."
+      "Optimizer reported convergence for ", round(mean(cnvgd) * 100, 1), 
+      "% of datasets (", sum(cnvgd), "/", length(cnvgd), 
+      ") for close kin model."
     )
   })
   
@@ -411,9 +412,9 @@ server <- function(input, output) {
   output$sesRate = renderText({
     ses.clbl = rowSums(is.na(ses.lst()[["close_kin"]][, 1:4])) == 0
     paste0(
-      "Standard errors calculable for ", 
-      round(mean(ses.clbl) * 100, 1), 
-      "% of datasets for close kin model."
+      "Standard errors calculable for ", round(mean(ses.clbl) * 100, 1), 
+      "% of datasets (", sum(ses.clbl), "/", length(ses.clbl), 
+      ") for close kin model."
     )
   })
   

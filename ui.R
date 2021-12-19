@@ -2,12 +2,11 @@ library(shiny)
 
 # Define UI for app
 ui <- fluidPage(
-  # App title and description ----
+  # App title and description
   includeMarkdown("README.md"),
-
-  # Sidebar layout with input and output definitions ----
+  
   sidebarLayout(
-    # Sidebar panel for inputs ----
+    # Inputs ----
     sidebarPanel(
       sliderInput(
         inputId = "rho", label = HTML("Birth rate (&rho;):"),
@@ -32,37 +31,54 @@ ui <- fluidPage(
       actionButton(
         inputId = "simulate", label = "Simulate studies"
       ),
-      helpText("~1 second per 10 populations"), # TMB locally
+      helpText("~1 second per 10 populations"),
       checkboxGroupInput(
         inputId = "models", label = "Fit models:",
         choices = c("POPAN", "Close kin"), selected = "Close kin", inline = T
-      )
+      ) 
     ),
-    
-    # Main panel for displaying outputs ----
-    mainPanel(
-      h3("Preparing next simulation"),
-      h4("Implied parameters"),
-      textOutput(outputId = "lambda"),
-      textOutput(outputId = "k"),
-      textOutput(outputId = "f.year"),
-      h3("Checking last simulation"),
-      plotOutput(outputId = "popPlot"),
-      h4("Head of first dataset"),
-      tableOutput(outputId = "dataHead"),
-      plotOutput(outputId = "nPOPsPlot"),
-      textOutput(outputId = "percUnknPrnts"),
-      h3("Analysing model performance"),
-      textOutput(outputId = "cnvgRate"),
-      textOutput(outputId = "sesRate"),
-      plotOutput(outputId = "NLLPlot"),
-      h4("Parameter estimates from first model for first few studies"),
-      tableOutput(outputId = "firstEsts"),
-      h4("Parameter estimates from all models for all studies"),
-      plotOutput(outputId = "modComp"),
-      plotOutput(outputId = "CIPlot"),
-      textOutput(outputId = "CICov")
-    )
     # ----
+    mainPanel(
+      tabsetPanel(
+        id = "tab",
+        selected = "model_tab",
+        # Sim tab ----
+        tabPanel(
+          title = "Simulate studies",
+          value = "sim_tab",
+          h4("Implied parameters"),
+          textOutput(outputId = "lambda"),
+          textOutput(outputId = "k"),
+          textOutput(outputId = "f.year")
+        ),
+        # ----
+        # Check tab ----
+        tabPanel(
+          title = "Check simulation",
+          value = "check_tab",
+          plotOutput(outputId = "popPlot"),
+          h4("Head of first dataset"),
+          tableOutput(outputId = "dataHead"),
+          plotOutput(outputId = "nPOPsPlot"),
+          textOutput(outputId = "percUnknPrnts")
+        ), 
+        # ----
+        # Model tab ----
+        tabPanel(
+          title = "Analyse model performance",
+          value = "model_tab",
+          textOutput(outputId = "cnvgRate"),
+          textOutput(outputId = "sesRate"),
+          plotOutput(outputId = "NLLPlot"),
+          h4("Parameter estimates from first model for first few studies"),
+          tableOutput(outputId = "firstEsts"),
+          h4("Parameter estimates from all models for all studies"),
+          plotOutput(outputId = "modComp"),
+          plotOutput(outputId = "CIPlot"),
+          textOutput(outputId = "CICov")
+        )
+        # ----
+      )
+    )
   )
 )
