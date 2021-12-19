@@ -1,5 +1,7 @@
 # Function to find expected numbers of kinpairs 
-FindExpNsKPs <- function() {
+FindExpNsKPs <- function(
+  k, n.srvy.prs, exp.N.fin, lambda, f.year, srvy.yrs, phi, rho, ns.caps
+) {
   # Create vectors for POPs within each sample, and POPs and SPs between each
   # pair of samples
   exp.ns.POPs.wtn <- exp.ns.HSPs.wtn <- numeric(k)

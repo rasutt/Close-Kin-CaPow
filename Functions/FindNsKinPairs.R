@@ -1,4 +1,4 @@
-FindNsKinPairs <- function() {
+FindNsKinPairs <- function(k, n.srvy.prs, pop.cap.hist) {
   # Create vectors for POPs within each sample, and POPs and SPs between each
   # pair of samples
   ns.POPs.wtn <- ns.HSPs.wtn <- numeric(k)

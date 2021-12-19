@@ -1,5 +1,5 @@
 # Find close kin model negative log likelihood
-CloseKinNLL <- function(params) {
+CloseKinNLL <- function(params, k, f.year, srvy.yrs, ns.kps.lst, ns.caps) {
   # print(params)
   
   # Unpack parameters
