@@ -21,7 +21,7 @@ ui <- fluidPage(
         10, 100, value = 80, step = 1
       ),
       textInput(
-        inputId = "srvy.yrs", label = "Survey years (ascending):",
+        inputId = "srvy.yrs", label = "Survey years:",
         value = "1995:1998, 2006:2009, 2020"
       ),
       sliderInput(
@@ -65,10 +65,9 @@ ui <- fluidPage(
         # ----
         # Model tab ----
         tabPanel(
-          title = "Analyse model performance",
+          title = "Analyze model performance",
           value = "model_tab",
-          textOutput(outputId = "cnvgRate"),
-          textOutput(outputId = "sesRate"),
+          tableOutput(outputId = "modStats"),
           plotOutput(outputId = "NLLPlot"),
           h4("Parameter estimates from first model for first few studies"),
           tableOutput(outputId = "firstEsts"),

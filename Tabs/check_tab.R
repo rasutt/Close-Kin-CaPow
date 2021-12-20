@@ -1,0 +1,191 @@
+# Simulate population and capture histories
+hists.lst = reactive({
+  # Initial population size
+  N.init = round(exp.N.t()[1])
+  
+  # Create list for population and capture histories
+  hists.lst <- vector("list", n_sims())
+  
+  # Display progress
+  cat("Simulating study: ")
+  
+  # Loop over histories
+  withProgress({
+    for (hist.ind in 1:n_sims()) {
+      # Display progress
+      if (hist.ind %% 100 == 1) cat(hist.ind, "")
+      
+      # Simulate family and capture histories of population of animals over
+      # time
+      hists.lst[[hist.ind]] <- SimPopStud(
+        phi(), lambda(), N.init, hist.len(), srvy.yrs(), k(), f.year()
+      )
+      
+      # Update progress. Unexplained "Error in as.vector: object 'x' not
+      # found" seen 19/12/2021 coming from incProgress...
+      incProgress(1/n_sims())
+    }
+  }, value = 0, message = "Simulating populations")
+  
+  hists.lst
+})
+
+# Check simulated studies
+checks.lst = reactive({
+  # Expected final population size
+  exp.N.fin <- exp.N.t()[hist.len()]
+  
+  # Create matrices for population trajectories (as columns), numbers
+  # captured, and expected and observed numbers of kin pairs
+  N.t.mat <- matrix(nrow = n_sims(), ncol = hist.len())
+  ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- ns.POPs.wtn.mat <- 
+    ns.HSPs.wtn.mat <- exp.ns.HSPs.wtn.mat <- exp.ns.POPs.wtn.mat <- 
+    matrix(nrow = n_sims(), ncol = k())
+  ns.POPs.btn.mat <- ns.SPs.btn.mat <- exp.ns.POPs.btn.mat <- 
+    exp.ns.SPs.btn.mat <- matrix(nrow = n_sims(), ncol = n.srvy.prs())
+  
+  # Create vectors for proportions with unknown parents, and
+  # super-population sizes
+  prpn.prnts.unkn.vec <- Ns.vec <- numeric(n_sims())
+  
+  # Display progress
+  cat("Checking study: ")
+  
+  # Loop over histories
+  withProgress({
+    for (hist.ind in 1:n_sims()) {
+      # Display progress
+      if (hist.ind %% 100 == 1) cat(hist.ind, "")
+      
+      # Get simulated family and capture histories of population of animals
+      # over time
+      pop.cap.hist <- hists.lst()[[hist.ind]]
+      
+      # Record population curve
+      N.t.mat[hist.ind, ] <- attributes(pop.cap.hist)$N.t.vec
+      
+      # Record superpopulation size
+      Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
+      
+      # Get numbers captured and calving in each survey
+      ns.caps <- attributes(pop.cap.hist)$ns.caps
+      ns.caps.mat[hist.ind, ] <- ns.caps
+      ns.clvng.mat[hist.ind, ] <- attributes(pop.cap.hist)$ns.clvng
+      ns.clvng.caps.mat[hist.ind, ] <- colSums(
+        pop.cap.hist[, 4:(3 + k())] * pop.cap.hist[, (4 + k()):(3 + 2 * k())]
+      )
+      
+      # Find proportion captured with unknown parents
+      prpn.prnts.unkn.vec[hist.ind] <- mean(is.na(pop.cap.hist$mum))
+      
+      # Find numbers of known kin pairs
+      ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
+      
+      # Record in matrices
+      ns.POPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.POPs.wtn
+      ns.HSPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.HSPs.wtn
+      ns.POPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.POPs.btn
+      ns.SPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.SPs.btn
+      
+      # Find expected numbers of kin pairs
+      exp.ns.kps.lst <- FindExpNsKPs(
+        k(), n.srvy.prs(), exp.N.fin, lambda(), f.year(), srvy.yrs(), phi(), 
+        rho(), ns.caps
+      )
+      
+      # Record in matrices
+      exp.ns.POPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.wtn
+      exp.ns.HSPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.HSPs.wtn
+      exp.ns.POPs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.btn
+      exp.ns.SPs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.SPs.btn
+      
+      incProgress(1/n_sims())
+    }
+  }, value = 0, message = "Checking simulations")
+  
+  list(
+    N.t.mat = N.t.mat, 
+    ns.POPs.wtn.mat = ns.POPs.wtn.mat,
+    exp.ns.POPs.wtn.mat = exp.ns.POPs.wtn.mat,
+    prpn.prnts.unkn.vec = prpn.prnts.unkn.vec,
+    ns.caps.mat = ns.caps.mat
+  )
+})
+
+# Plot population sizes over time
+output$popPlot <- renderPlot({
+  # Plot population trajectories and expected value
+  matplot(
+    (f.year() - hist.len() + 1):f.year(), t(checks.lst()$N.t.mat), type = 'l',
+    col = rgb(0, 0, 0, alpha = 0.1), lty = 1, 
+    xlab = 'Year', ylab = 'Nt', main = "Population sizes over time"
+  )
+  lines((f.year() - hist.len() + 1):f.year(), exp.N.t(), col = 'red', lwd = 2)
+  
+  # Surveys
+  abline(v = srvy.yrs(), lty = 2)
+  
+  # Add legend
+  legend(
+    "topleft", 
+    legend = c("Population sizes", "Expected population size", 
+               "Survey years"),
+    col = c(rgb(0, 0, 0, alpha = 0.1), 2, 1),
+    lwd = c(1, 2, 1),
+    lty = c(1, 1, 2)
+  )
+})
+
+# Print head of first study
+output$dataHead <- renderTable(head(data.frame(hists.lst()[[1]])))
+
+# Plot numbers of parent-offspring pairs within samples
+output$nPOPsPlot <- renderPlot({
+  # srvy.inds = hist.len + srvy.yrs - f.year
+  # prpns = checks.lst()$ns.POPs.wtn.mat / 
+  #   choose(checks.lst()$ns.caps.mat, 2)
+  # exp.prpns = 
+  #   checks.lst()$exp.ns.POPs.wtn.mat / choose(exp.N.t()[srvy.inds] * p, 2)
+  diffs = checks.lst()$ns.POPs.wtn.mat - checks.lst()$exp.ns.POPs.wtn.mat
+  boxplot(
+    diffs,
+    main = 
+      "Expected vs observed numbers of parent-offspring pairs within samples",
+    # sub = paste(
+    #   "Average difference over all surveys:",
+    #   signif(mean(diffs), 3)
+    # ),
+    xlab = "Survey", 
+    ylab = "Observed - expected numbers"
+  )
+  abline(h = 0, col = 'red')
+  abline(h = mean(diffs), col = 'blue')
+  legend(
+    "topleft", 
+    legend = c(
+      "Expected difference over all surveys (zero)", 
+      "Average difference over all surveys"
+    ),
+    col = c(2, 4),
+    lty = 1
+  )
+})
+
+# Display percentage of animals captured for which the parents are unknown
+output$percUnknPrnts <- renderText({
+  # nPOPs = checks.lst()$ns.POPs.wtn.mat
+  # 
+  # # Pairs are lost quadratically with animals
+  # prpns.pairs.lost = 1 - (1 - checks.lst()$prpn.prnts.unkn.vec)^2
+  # 
+  # paste(
+  #   "Expected number of parent-offspring pairs within samples
+  #   lost due to unknown parents:",
+  #   signif(mean(prpns.pairs.lost * checks.lst()$ns.POPs.wtn.mat), 3),
+  #   "\n"
+  # )
+  paste0(
+    "Percentage of captured animals with unknown parents (1DP): ", 
+    round(mean(checks.lst()$prpn.prnts.unkn.vec) * 100, 1), "%"
+  )
+})
