@@ -121,9 +121,9 @@ output$modStats = renderTable({
   perc = function(stat) paste0(round(stat * 100, 1), "%")
   data.frame(
     model = models(), 
-    percent_converged = perc(check.ests()$prpn_cnvgd), 
-    percent_SEs_OK = perc(check.ests()$prpn_ses_ok), 
-    percent_CIs_OK = perc(check.ests()$prpn_cis_ok)
+    optimizer_converged = perc(check.ests()$prpn_cnvgd), 
+    standard_errors_ok = perc(check.ests()$prpn_ses_ok), 
+    confidence_intervals_ok = perc(check.ests()$prpn_cis_ok)
   )
 })
 
