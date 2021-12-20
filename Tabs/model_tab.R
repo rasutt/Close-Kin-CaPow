@@ -89,10 +89,8 @@ fit.lst = reactive({
 check.ests = reactive({
   # Number of models requested
   n_mods = length(models())
-  
   # Lists for retained model estimate and standard error matrices
   ests = ses = ses_ok = cis_ok = list(n_mods)
-  
   # Vectors for model stats
   prpn_cnvgd = prpn_ses_ok = prpn_cis_ok = numeric(n_mods)
   
@@ -108,12 +106,12 @@ check.ests = reactive({
   }
   names(ests) = names(ses) = names(fit.lst()$ests)
   list(
-    ests = ests, ses = ses, ses_ok = ses_ok, cis_ok = cis_ok, 
+    ests = ests, ses = ses, 
+    ses_ok = ses_ok, cis_ok = cis_ok,
     prpn_cnvgd = prpn_cnvgd, prpn_ses_ok = prpn_ses_ok, 
     prpn_cis_ok = prpn_cis_ok
   )
 })
-ests = reactive(check.ests()$ests)
 
 # Show convergence, standard error acceptance, and confidence interval
 # acceptance rates for all models requested
@@ -175,7 +173,7 @@ output$NLLPlot <- renderPlot({
 # Print first few estimates and convergences for first model
 output$firstEsts <- renderTable({
   ests.cnvg = data.frame(
-    round(fit.lst()$ests[[1]], 3), cnvgd = fit.lst()$cnvgs[[1]]
+    round(fit.lst()$ests[[1]], 3), converged = fit.lst()$cnvgs[[1]]
   )
   head(ests.cnvg)
 })
@@ -189,25 +187,25 @@ output$modComp <- renderPlot({
   
   # Plot estimates for lambda
   ComparisonPlot(
-    lapply(ests(), function(ests.mat) ests.mat[, 1]), 
+    lapply(check.ests()$ests, function(ests.mat) ests.mat[, 1]), 
     "Population growth rate", lambda()
   )
   
   # Plot estimates for Phi
   ComparisonPlot(
-    lapply(ests(), function(ests.mat) ests.mat[, 2]),
+    lapply(check.ests()$ests, function(ests.mat) ests.mat[, 2]),
     "Survival rate", phi()
   )
   
   # Plot estimates of final population size
   ComparisonPlot(
-    lapply(ests(), function(ests.mat) ests.mat[, 3]),
+    lapply(check.ests()$ests, function(ests.mat) ests.mat[, 3]),
     "Final population size", exp.N.t()[hist.len()]
   )
   
   # Plot estimates of superpopulation size
   ComparisonPlot(
-    lapply(ests(), function(ests.mat) ests.mat[, 4]),
+    lapply(check.ests()$ests, function(ests.mat) ests.mat[, 4]),
     "Super-population size", exp.Ns
   )
 })
@@ -220,13 +218,9 @@ ucbs = reactive({
   fit.lst()$ests[["close_kin"]] + 1.96 * fit.lst()$ses[["close_kin"]]
 })
 
-# # Check CI doesn't cross parameter bounds
-# ci_ok = reactive(cis()[1, ] > lb() & cis()[2, ] < ub())
-
 # Check CI coverage
 ci_cov = reactive({
-  # ci_ok() & true_val() > cis()[1, ] & true_val() < cis()[2, ]
-  lambda() > lcbs()[, 1] & lambda() < ucbs()[, 1]
+  lambda() > lcbs()[, 1] & lambda() < ucbs()[, 1] & check.ests()$cis_ok[[1]]
 })
 
 # Plot confidence intervals for close kin model for lambda
@@ -237,11 +231,15 @@ output$CIPlot = renderPlot({
     main = "Confidence intervals for close kin model for lambda",
     ylab = "Lambda", xlab = "", type = 'n'
   )
+  points(
+    1:n_sims(), fit.lst()$ests[["close_kin"]][, 1][ord], 
+    col = 1 + !ci_cov()[ord]
+  )
   arrows(
     1:n_sims(), lcbs()[, 1][ord], 
     1:n_sims(), ucbs()[, 1][ord], 
     code = 3, length = 0.02, angle = 90,
-    lwd = 1 + !ci_cov()[ord]
+    col = 1 + !ci_cov()[ord]
   )
   abline(h = lambda(), col = 2)
   # abline(h = c(lb(), ub()))
