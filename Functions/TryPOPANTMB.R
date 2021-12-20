@@ -1,5 +1,7 @@
 # Function to try to fit POPAN model
-TryPOPANTMB <- function() {
+TryPOPANTMB <- function(
+  k, srvy.gaps, n.cap.hists, pop.sum, ppn.start, ppn.lwr, ppn.upr
+) {
   # Create TMB function
   data <- list(k = k, srvygaps = srvy.gaps, ncaphists = n.cap.hists, 
                firsttab = pop.sum$first.tab, 

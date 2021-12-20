@@ -257,12 +257,6 @@ server <- function(input, output) {
   
   # Find parameter estimates, standard errors, and model convergences
   fit.lst = reactive({
-    # Load variables and functions
-    k = k()
-    srvy.gaps = srvy.gaps()
-    files = c("FindPopSum.R", "TryCloseKinTMB.R", "TryPOPANTMB.R")
-    for (f in files) source(paste0("Functions/", f), local = T)
-
     # Create general optimizer starting-values and bounds, NAs filled in below
     ck.start <- c(rho(), phi(), NA)
     ck.lwr <- c(0, 0.75, NA)
@@ -305,7 +299,7 @@ server <- function(input, output) {
         ns.caps <- attributes(pop.cap.hist)$ns.caps
         
         # Summarise data for POPAN model
-        pop.sum <- FindPopSum()
+        pop.sum <- FindPopSum(k(), pop.cap.hist, n.cap.hists)
         
         # Find numbers of kin pairs
         ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
@@ -318,13 +312,18 @@ server <- function(input, output) {
         
         # Try to fit models
         if (mod.bool[1]) {
-          ppn.tmb.res <- TryPOPANTMB()
+          ppn.tmb.res <- TryPOPANTMB(
+            k(), srvy.gaps(), n.cap.hists, pop.sum, ppn.start, ppn.lwr, ppn.upr
+          )
           ppn.tmb.ests[hist.ind, ] <- ppn.tmb.res[["est.se.df"]][, 1]
           ppn.tmb.ses[hist.ind, ] <- ppn.tmb.res[["est.se.df"]][, 2]
           ppn.tmb.cnvg[hist.ind] = ppn.tmb.res[["cnvg"]]
         }
         if (mod.bool[2]) {
-          ck.tmb.res <- TryCloseKinTMB(f.year(), srvy.yrs())
+          ck.tmb.res <- TryCloseKinTMB(
+            k(), srvy.gaps(), f.year(), srvy.yrs(), ns.caps, ns.kps.lst, 
+            ck.start, ck.lwr, ck.upr
+          )
           ck.tmb.ests[hist.ind, -(5:(4 + k()))] <- 
             ck.tmb.res[["est.se.df"]][, 1]
           ck.tmb.ses[hist.ind, -(5:(4 + k()))] <- ck.tmb.res[["est.se.df"]][, 2]
@@ -334,7 +333,7 @@ server <- function(input, output) {
         incProgress(1/n_sims())
       }
     }, value = 0, message = "Fitting models")
-    
+
     # Combine model estimates, standard errors, and convergences, as lists and
     # return those requested
     list(
@@ -379,6 +378,7 @@ server <- function(input, output) {
     names(cvgd.ests.lst) = names(cvgd.ses.lst) = names(ests.lst())
     list(cvgd.ests.lst = cvgd.ests.lst, cvgd.ses.lst = cvgd.ses.lst)
   })
+  cvgd.ests.lst = reactive(cvgd.fit.lst()$cvgd.ests.lst)
   
   # Plot negative log-likelihood surface for first study
   output$NLLPlot <- renderPlot({
@@ -429,42 +429,32 @@ server <- function(input, output) {
   
   # Plot estimates using model comparison plot function
   output$modComp <- renderPlot({
-    # Find estimates when optimizer converged
-    cvgd.ests.lst = list()
-    for (i in 1:length(ests.lst())) {
-      cvgd.ests.lst[i] = list(ests.lst()[[i]][!cnvgs.lst()[[i]], ])
-    }
-    names(cvgd.ests.lst) = names(ests.lst())
-
     # Plot estimates from all models side-by-side
     
     # Set four plots per page
     par(mfrow = c(2, 2))
     
-    # Load comparison plot function
-    source("Functions/ComparisonPlot.R", local = T)
-    
     # Plot estimates for lambda
     ComparisonPlot(
-      lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 1]), 
+      lapply(cvgd.ests.lst(), function(ests.mat) ests.mat[, 1]), 
       "Population growth rate", lambda()
     )
     
     # Plot estimates for Phi
     ComparisonPlot(
-      lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 2]),
+      lapply(cvgd.ests.lst(), function(ests.mat) ests.mat[, 2]),
       "Survival rate", phi()
     )
     
     # Plot estimates of final population size
     ComparisonPlot(
-      lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 3]),
+      lapply(cvgd.ests.lst(), function(ests.mat) ests.mat[, 3]),
       "Final population size", exp.N.t()[hist.len()]
     )
     
     # Plot estimates of superpopulation size
     ComparisonPlot(
-      lapply(cvgd.ests.lst, function(ests.mat) ests.mat[, 4]),
+      lapply(cvgd.ests.lst(), function(ests.mat) ests.mat[, 4]),
       "Super-population size", exp.Ns
     )
   })

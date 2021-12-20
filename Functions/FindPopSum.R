@@ -1,5 +1,5 @@
 # Summarise data for POPAN model
-FindPopSum <- function() {
+FindPopSum <- function(k, pop.cap.hist, n.cap.hists) {
   # Get capture histories as matrix
   cap.hists <- as.matrix(pop.cap.hist[, 4:(3 + k)])
   

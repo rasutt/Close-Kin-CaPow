@@ -1,5 +1,7 @@
 # Try to fit close kin model with TMB
-TryCloseKinTMB <- function(f.year, srvy.yrs) {
+TryCloseKinTMB <- function(
+  k, srvy.gaps, f.year, srvy.yrs, ns.caps, ns.kps.lst, ck.start, ck.lwr, ck.upr
+) {
   # Create TMB function
   data <- list(
     nsPOPswtn = ns.kps.lst$ns.POPs.wtn, nsHSPswtn = ns.kps.lst$ns.HSPs.wtn, 

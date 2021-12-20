@@ -1,7 +1,5 @@
 ### Things to do
 
--   Tidy up code by sourcing functions once and passing variables into them
-
 -   Find and show number of results discarded. Update CI coverage calculations.
 
 -   Extend model analysis to popan models.
