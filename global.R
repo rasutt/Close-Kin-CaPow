@@ -6,6 +6,8 @@ min_phi = 0.91
 max_phi = 0.99
 step_phi = 0.005
 
+mod_choices = c("Popan", "Close-kin")
+
 # Set simulation parameters for basic scenario
 exp.Ns <- 2169 # Expected superpopulation size
 alpha <- 8 # Age of sexual maturity

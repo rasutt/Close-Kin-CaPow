@@ -1,10 +1,12 @@
 ### Things to do
 
--   Find and show number of results discarded. Update CI coverage calculations.
+-   Extend model analysis to popan models and all parameters.
 
--   Extend model analysis to popan models.
+-   Change to log-normal CI's for population parameters.
 
 -   Include expected final population size in inputs and update selected value so that it doesn't include survey in 2020.
+
+-   Allow for just one survey for close kin model
 
 -   Show parameters simulated from in checking and analysis tabs.
 

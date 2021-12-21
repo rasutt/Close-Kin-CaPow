@@ -34,7 +34,7 @@ ui <- fluidPage(
       helpText("~1 second per 10 populations"),
       checkboxGroupInput(
         inputId = "models", label = "Fit models:",
-        choices = c("POPAN", "Close kin"), selected = "Close kin", inline = T
+        choices = mod_choices, selected = "Close-kin", inline = T
       ) 
     ),
     # ----
@@ -67,14 +67,16 @@ ui <- fluidPage(
         tabPanel(
           title = "Analyze model performance",
           value = "model_tab",
+          h4("Model-fitting success rates"),
           tableOutput(outputId = "modStats"),
+          h4("95% confidence interval coverage"),
+          tableOutput(outputId = "CICov"),
+          plotOutput(outputId = "CIPlot"),
           plotOutput(outputId = "NLLPlot"),
-          h4("Parameter estimates from first model for first few studies"),
+          h4("Parameter estimates from close-kin model for first study"),
           tableOutput(outputId = "firstEsts"),
           h4("Parameter estimates from all models for all studies"),
-          plotOutput(outputId = "modComp"),
-          plotOutput(outputId = "CIPlot"),
-          textOutput(outputId = "CICov")
+          plotOutput(outputId = "modComp")
         )
         # ----
       )

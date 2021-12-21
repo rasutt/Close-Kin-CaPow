@@ -1,3 +1,17 @@
+# True parameter values
+true_vals = reactive({
+  c(lambda(), phi(), exp.N.t()[hist.len()], exp.Ns, rep(p, k()))
+})
+# Parameter names
+par_names = reactive(c("lambda", "phi", "N_final", "Ns", paste0("p", 1:k())))
+# Number of parameters
+n_pars = reactive(length(par_names()))
+# Number of models requested
+n_mods = reactive(length(models()))
+
+# Function to prepare proportion to print as percentage
+perc = function(prpn) paste0(round(prpn * 100, 1), "%")
+
 # Find parameter estimates, standard errors, and model convergences
 fit.lst = reactive({
   # Create general optimizer starting-values and bounds, NAs filled in below
@@ -13,15 +27,11 @@ fit.lst = reactive({
   Ns.vec <- N.fin.vec <- ppn.tmb.cnvg <- ck.tmb.cnvg <- numeric(n_sims())
   
   # Create matrices for estimates and standard errors
-  ppn.tmb.ests <- ck.tmb.ests <- ppn.tmb.ses <- ck.tmb.ses <- matrix(
-    nrow = n_sims(), ncol = 4 + k(), 
-    dimnames = list(
-      NULL, c("lambda", "phi", "N_final", "Ns", paste0("p", 1:k()))
-    )
-  )
+  ppn.tmb.ests <- ck.tmb.ests <- ppn.tmb.ses <- ck.tmb.ses <- 
+    matrix(nrow = n_sims(), ncol = 4 + k(), dimnames = list(NULL, par_names()))
   
   # Boolean for models requested 
-  mod.bool = c("POPAN", "Close kin") %in% models()
+  mod.bool = mod_choices %in% models()
   
   # Loop over histories
   withProgress({
@@ -87,27 +97,38 @@ fit.lst = reactive({
 
 # Check when optimizer converged and standard errors calculable
 check.ests = reactive({
-  # Number of models requested
-  n_mods = length(models())
   # Lists for retained model estimate and standard error matrices
-  ests = ses = ses_ok = cis_ok = list(n_mods)
+  ests = ses = ses_ok = cis_ok = lcbs = ucbs = ci_cov = list(n_mods())
   # Vectors for model stats
-  prpn_cnvgd = prpn_ses_ok = prpn_cis_ok = numeric(n_mods)
+  prpn_cnvgd = prpn_ses_ok = prpn_cis_ok = numeric(n_mods())
+  # Matrix for confidence interval coverage
+  prpn_ci_cov = matrix(NA, n_mods(), n_pars())
   
   # Loop over models requested
-  for (i in 1:n_mods) {
+  for (i in 1:n_mods()) {
     ses_ok[[i]] = rowSums(is.na(fit.lst()$ses[[i]][, 1:4])) == 0
     cis_ok[[i]] = fit.lst()$cnvgs[[i]] & ses_ok[[i]]
     ests[[i]] = fit.lst()$ests[[i]][cis_ok[[i]], ]
     ses[[i]] = fit.lst()$ses[[i]][cis_ok[[i]], ]
+    lcbs[[i]] = fit.lst()$ests[[i]] - 1.96 * fit.lst()$ses[[i]]
+    ucbs[[i]] = fit.lst()$ests[[i]] + 1.96 * fit.lst()$ses[[i]]
+    # Bounds are matrices for studies x parameters, true_vals is a vector for
+    # parameters, and cis_ok is a vector for studies
+    ci_cov[[i]] = 
+      t(true_vals() > t(lcbs[[i]]) & true_vals() < t(ucbs[[i]])) & cis_ok[[i]]
+    prpn_ci_cov[i, ] = colMeans(ci_cov[[i]])
     prpn_cnvgd[i] = mean(fit.lst()$cnvgs[[i]])
     prpn_ses_ok[i] = mean(ses_ok[[i]])
     prpn_cis_ok[i] = mean(cis_ok[[i]])
   }
-  names(ests) = names(ses) = names(fit.lst()$ests)
+  
+  names(ests) = names(ses) = names(cis_ok) = names(lcbs) = names(ucbs) = 
+    names(ci_cov) = names(fit.lst()$ests)
+  colnames(prpn_ci_cov) = par_names()
+  
   list(
-    ests = ests, ses = ses, 
-    ses_ok = ses_ok, cis_ok = cis_ok,
+    ests = ests, ses = ses, lcbs = lcbs, ucbs = ucbs, ci_cov = ci_cov,
+    ses_ok = ses_ok, cis_ok = cis_ok, prpn_ci_cov = prpn_ci_cov,
     prpn_cnvgd = prpn_cnvgd, prpn_ses_ok = prpn_ses_ok, 
     prpn_cis_ok = prpn_cis_ok
   )
@@ -120,14 +141,54 @@ output$modStats = renderTable({
   data.frame(
     model = models(), 
     optimizer_converged = perc(check.ests()$prpn_cnvgd), 
-    standard_errors_ok = perc(check.ests()$prpn_ses_ok), 
-    confidence_intervals_ok = perc(check.ests()$prpn_cis_ok)
+    standard_errors_found = perc(check.ests()$prpn_ses_ok), 
+    fit_successful = perc(check.ests()$prpn_cis_ok)
   )
 })
 
-cnvgd = reactive(fit.lst()$cnvgs$close_kin)
-ses_ok = reactive(rowSums(is.na(fit.lst()$ses$close_kin[, 1:4])) == 0)
-cis_ok = reactive(cnvgd() & ses_ok())
+# Plot confidence intervals for close kin model for lambda
+output$CIPlot = renderPlot({
+  ord = order(fit.lst()$ests[["close_kin"]][, 1])
+  plot(
+    rep(1:n_sims(), 2), 
+    c(
+      check.ests()$lcbs[["close_kin"]][, 1], 
+      check.ests()$ucbs[["close_kin"]][, 1]
+    ), 
+    main = "Confidence intervals for close kin model for lambda",
+    ylab = "Lambda", xlab = "", type = 'n'
+  )
+  points(
+    1:n_sims(), fit.lst()$ests[["close_kin"]][, 1][ord], 
+    col = 1 + !check.ests()$ci_cov[["close_kin"]][ord], pch = "-"
+  )
+  arrows(
+    1:n_sims(), check.ests()$lcbs[["close_kin"]][, 1][ord], 
+    1:n_sims(), check.ests()$ucbs[["close_kin"]][, 1][ord], 
+    code = 3, length = 0.02, angle = 90, 
+    col = 1 + !check.ests()$ci_cov[["close_kin"]][ord]
+  )
+  abline(h = lambda(), col = 2)
+  # abline(h = c(lb(), ub()))
+  legend(
+    "topleft", col = 1:2, lwd = c(1, 1), 
+    legend = c(
+      "Optimizer converged and CI covers true value", 
+      "Did not converge and/or does not cover"
+    )
+  )
+})
+
+# Print CI coverage
+output$CICov = renderTable({
+  data.frame(
+    model = models(), 
+    matrix(
+      perc(check.ests()$prpn_ci_cov), n_mods(), n_pars(), 
+      dimnames = list(NULL, par_names())
+    )
+  )
+})
 
 # Plot negative log-likelihood surface for first study
 output$NLLPlot <- renderPlot({
@@ -173,10 +234,17 @@ output$NLLPlot <- renderPlot({
 # Print first few estimates and convergences for first model
 output$firstEsts <- renderTable({
   ests.cnvg = data.frame(
-    round(fit.lst()$ests[[1]], 3), converged = fit.lst()$cnvgs[[1]]
+    rbind(
+      fit.lst()$ests[["close_kin"]][1, ], fit.lst()$ses[["close_kin"]][1, ],
+      check.ests()$lcbs[["close_kin"]][1, ], 
+      check.ests()$ucbs[["close_kin"]][1, ]
+    ), 
+    row.names = c(
+      "estimate", "standard_error", "lower_confidence_bound",
+      "upper_confidence_bound"
+    )
   )
-  head(ests.cnvg)
-})
+}, digits = 3, rownames = T)
 
 # Plot estimates using model comparison plot function
 output$modComp <- renderPlot({
@@ -207,48 +275,5 @@ output$modComp <- renderPlot({
   ComparisonPlot(
     lapply(check.ests()$ests, function(ests.mat) ests.mat[, 4]),
     "Super-population size", exp.Ns
-  )
-})
-
-# Find confidence intervals for close kin model
-lcbs = reactive({
-  fit.lst()$ests[["close_kin"]] - 1.96 * fit.lst()$ses[["close_kin"]]
-})
-ucbs = reactive({
-  fit.lst()$ests[["close_kin"]] + 1.96 * fit.lst()$ses[["close_kin"]]
-})
-
-# Check CI coverage
-ci_cov = reactive({
-  lambda() > lcbs()[, 1] & lambda() < ucbs()[, 1] & check.ests()$cis_ok[[1]]
-})
-
-# Plot confidence intervals for close kin model for lambda
-output$CIPlot = renderPlot({
-  ord = order(fit.lst()$ests[["close_kin"]][, 1])
-  plot(
-    rep(1:n_sims(), 2), c(lcbs()[, 1], ucbs()[, 1]), 
-    main = "Confidence intervals for close kin model for lambda",
-    ylab = "Lambda", xlab = "", type = 'n'
-  )
-  points(
-    1:n_sims(), fit.lst()$ests[["close_kin"]][, 1][ord], 
-    col = 1 + !ci_cov()[ord]
-  )
-  arrows(
-    1:n_sims(), lcbs()[, 1][ord], 
-    1:n_sims(), ucbs()[, 1][ord], 
-    code = 3, length = 0.02, angle = 90,
-    col = 1 + !ci_cov()[ord]
-  )
-  abline(h = lambda(), col = 2)
-  # abline(h = c(lb(), ub()))
-})
-
-# Print CI coverage
-output$CICov = renderText({
-  paste0(
-    "95% confidence interval coverage for close kin model for lambda: ", 
-    round(mean(ci_cov()) * 100, 1), "%"
   )
 })
