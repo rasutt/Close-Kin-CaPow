@@ -4,6 +4,8 @@
 
 -   Include expected final population size in inputs and update selected value so that it doesn't include survey in 2020.
 
+-   Allow selection of kin-pair types to include in close-kin model. Add half-sibling pairs between surveys.
+
 -   Allow for just one survey for close kin model
 
 -   Show parameters simulated from in checking and analysis tabs.
