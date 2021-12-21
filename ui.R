@@ -9,12 +9,26 @@ ui <- fluidPage(
     # Inputs ----
     sidebarPanel(
       sliderInput(
+        inputId = "phi", label = HTML("Survival rate (&phi;):"),
+        min_phi, max_phi, value = 0.95, step = step_phi
+      ),
+      sliderInput(
         inputId = "rho", label = HTML("Birth rate (&rho;):"),
         min_rho, max_rho, value = 0.08, step = step_rho
       ),
+      helpText("Next three inputs not implemented yet"),
+      textInput(
+        inputId = "base.yr", label = "Base year:",
+        value = "2009"
+      ),
       sliderInput(
-        inputId = "phi", label = HTML("Survival rate (&phi;):"),
-        min_phi, max_phi, value = 0.95, step = step_phi
+        inputId = "exp.N.base", 
+        label = HTML("Expected population size in base year:"),
+        1000, 5000, value = 1500
+      ),
+      textInput(
+        inputId = "f.sim.yr", label = "Final year for simulations:",
+        value = "2021"
       ),
       sliderInput(
         inputId = "hist.len", label = "Length of simulations:",
@@ -41,7 +55,7 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(
         id = "tab",
-        selected = "model_tab",
+        selected = "sim_tab",
         # Sim tab ----
         tabPanel(
           title = "Simulate studies",
@@ -49,7 +63,8 @@ ui <- fluidPage(
           h4("Implied parameters"),
           textOutput(outputId = "lambda"),
           textOutput(outputId = "k"),
-          textOutput(outputId = "f.year")
+          textOutput(outputId = "f.year"),
+          plotOutput(outputId = "expPopPlot")
         ),
         # ----
         # Check tab ----

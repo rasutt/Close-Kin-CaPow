@@ -5,6 +5,8 @@ for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]))
 # Define server logic for app
 server <- function(input, output) {
   # Reactive variables ----
+  # Population growth rate
+  lambda.rct <- reactive(input$rho + input$phi) 
   # Survey years
   srvy.yrs.rct = reactive({
     eval(parse(text = paste0("c(", sort(input$srvy.yrs), ")")))
@@ -12,18 +14,31 @@ server <- function(input, output) {
   # Number of surveys 
   k.rct = reactive(length(srvy.yrs.rct()))
   # Final survey year 
-  f.year.rct = reactive(tail(srvy.yrs.rct(), 1))
+  f.year.rct = reactive(tail(srvy.yrs.rct(), 1))  
+  # Survey gaps
+  srvy.gaps.rct <- reactive(as.integer(diff(srvy.yrs.rct())))
+  # Expected population size over time
+  exp.N.t.rct = reactive({
+    # Expected final population size
+    phi.gaps <- input$phi^srvy.gaps.rct()
+    pents = pent_func(lambda.rct()^srvy.gaps.rct(), phi.gaps, k.rct())
+    exp.N.fin <- sum(pents * exp.Ns * prod(phi.gaps) / 
+                       cumprod(c(1, phi.gaps)))
+    
+    exp.N.fin / lambda.rct()^((input$hist.len - 1):0)
+  })
+  
   # Models to fit
   models = reactive(input$models) 
   # ----
   
   # Variables bound to simulate button ----
-  # Birthrate
-  rho <- bindEvent(reactive(input$rho), input$simulate, ignoreNULL = F)
   # Individual survival rate
   phi <- bindEvent(reactive(input$phi), input$simulate, ignoreNULL = F)
+  # Birthrate
+  rho <- bindEvent(reactive(input$rho), input$simulate, ignoreNULL = F)
   # Population growth rate
-  lambda <- reactive(rho() + phi()) 
+  lambda <- bindEvent(lambda.rct, input$simulate, ignoreNULL = F)
   # Survey years
   srvy.yrs = bindEvent(srvy.yrs.rct, input$simulate, ignoreNULL = F)
   # Length of simulation
@@ -31,7 +46,7 @@ server <- function(input, output) {
   # Number of simulations
   n_sims = bindEvent(reactive(input$n_sims), input$simulate, ignoreNULL = F)
   # Survey gaps
-  srvy.gaps <- reactive(as.integer(diff(srvy.yrs())))
+  srvy.gaps <- bindEvent(srvy.gaps.rct, input$simulate, ignoreNULL = F)
   # Number of surveys
   k <- bindEvent(k.rct, input$simulate, ignoreNULL = F)
   # Number of pairs of surveys
@@ -39,14 +54,7 @@ server <- function(input, output) {
   # Final survey year
   f.year <- bindEvent(f.year.rct, input$simulate, ignoreNULL = F) 
   # Expected population size over time
-  exp.N.t = reactive({
-    # Expected final population size
-    phi.gaps <- phi()^srvy.gaps()
-    pents = pent_func(lambda()^srvy.gaps(), phi.gaps, k())
-    exp.N.fin <- sum(pents * exp.Ns * prod(phi.gaps) / cumprod(c(1, phi.gaps)))
-    
-    exp.N.fin / lambda()^((hist.len() - 1):0)
-  })
+  exp.N.t = bindEvent(exp.N.t.rct, input$simulate, ignoreNULL = F) 
   # ----
 
   # Load functions and outputs for simulating studies, checking simulations, and
