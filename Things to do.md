@@ -1,8 +1,6 @@
 ### Things to do
 
--   Extend model analysis to popan models and all parameters.
-
--   Change to log-normal CI's for population parameters.
+-   Change outputs to compare population size estimates and true values, rather than expected values.
 
 -   Include expected final population size in inputs and update selected value so that it doesn't include survey in 2020.
 
@@ -10,7 +8,7 @@
 
 -   Show parameters simulated from in checking and analysis tabs.
 
--   Add output for differences between population size estimates and true values, rather than expected values.
+-   Extend model analysis to popan models and all parameters.
 
 -   Also average confidence interval width, since often models fail by returning large variances and CI's that still cover their true values. Also average bias, since biases can cancel out, although I guess that comes into CV. Yeah nah, CV covers all of that I think. You check the CI coverage and bias for problems, and then look at the CV as the actual performance metric, which will still be bad for failed models. Still, easy to report them all so you can see how they fail I guess.
 
@@ -20,7 +18,7 @@
 
 -   Include mathematical explanations. Can use includeMarkdown() or withMathJax().
 
--   Can I make it so when new model requested it doesn't fit old model again too?
+-   Can I make it so when new model requested, or model unselected, it doesn't fit old model again too?
 
 -   Investigate when close kin does and does not do better than popan
 

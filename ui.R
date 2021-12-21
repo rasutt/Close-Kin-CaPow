@@ -69,8 +69,12 @@ ui <- fluidPage(
           value = "model_tab",
           h4("Model-fitting success rates"),
           tableOutput(outputId = "modStats"),
-          h4("95% confidence interval coverage"),
+          h4(
+            "95% confidence interval coverage 
+            (log-normal for population parameters)"
+          ),
           tableOutput(outputId = "CICov"),
+          h4("95% confidence intervals for lambda"),
           plotOutput(outputId = "CIPlot"),
           plotOutput(outputId = "NLLPlot"),
           h4("Parameter estimates from close-kin model for first study"),

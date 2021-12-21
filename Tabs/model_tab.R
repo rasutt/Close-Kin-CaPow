@@ -110,8 +110,18 @@ check.ests = reactive({
     cis_ok[[i]] = fit.lst()$cnvgs[[i]] & ses_ok[[i]]
     ests[[i]] = fit.lst()$ests[[i]][cis_ok[[i]], ]
     ses[[i]] = fit.lst()$ses[[i]][cis_ok[[i]], ]
-    lcbs[[i]] = fit.lst()$ests[[i]] - 1.96 * fit.lst()$ses[[i]]
-    ucbs[[i]] = fit.lst()$ests[[i]] + 1.96 * fit.lst()$ses[[i]]
+    
+    # Normal CI's for non-population parameters (creates matrix of correct size)
+    radius = 1.96 * fit.lst()$ses[[i]]
+    lcbs[[i]] = fit.lst()$ests[[i]] - radius
+    ucbs[[i]] = fit.lst()$ests[[i]] + radius
+    
+    # Overwrite log normal CI's for population parameters
+    l_vars = log(1 + (fit.lst()$ses[[i]][, 3:4] / fit.lst()$ests[[i]][, 3:4])^2)
+    fctr <- exp(1.959964 * sqrt(l_vars))
+    lcbs[[i]][, 3:4] <- fit.lst()$ests[[i]][, 3:4] / fctr
+    ucbs[[i]][, 3:4] <- fit.lst()$ests[[i]][, 3:4] * fctr
+    
     # Bounds are matrices for studies x parameters, true_vals is a vector for
     # parameters, and cis_ok is a vector for studies
     ci_cov[[i]] = 
@@ -146,39 +156,6 @@ output$modStats = renderTable({
   )
 })
 
-# Plot confidence intervals for close kin model for lambda
-output$CIPlot = renderPlot({
-  ord = order(fit.lst()$ests[["close_kin"]][, 1])
-  plot(
-    rep(1:n_sims(), 2), 
-    c(
-      check.ests()$lcbs[["close_kin"]][, 1], 
-      check.ests()$ucbs[["close_kin"]][, 1]
-    ), 
-    main = "Confidence intervals for close kin model for lambda",
-    ylab = "Lambda", xlab = "", type = 'n'
-  )
-  points(
-    1:n_sims(), fit.lst()$ests[["close_kin"]][, 1][ord], 
-    col = 1 + !check.ests()$ci_cov[["close_kin"]][ord], pch = "-"
-  )
-  arrows(
-    1:n_sims(), check.ests()$lcbs[["close_kin"]][, 1][ord], 
-    1:n_sims(), check.ests()$ucbs[["close_kin"]][, 1][ord], 
-    code = 3, length = 0.02, angle = 90, 
-    col = 1 + !check.ests()$ci_cov[["close_kin"]][ord]
-  )
-  abline(h = lambda(), col = 2)
-  # abline(h = c(lb(), ub()))
-  legend(
-    "topleft", col = 1:2, lwd = c(1, 1), 
-    legend = c(
-      "Optimizer converged and CI covers true value", 
-      "Did not converge and/or does not cover"
-    )
-  )
-})
-
 # Print CI coverage
 output$CICov = renderTable({
   data.frame(
@@ -188,6 +165,43 @@ output$CICov = renderTable({
       dimnames = list(NULL, par_names())
     )
   )
+})
+
+# Plot confidence intervals for lambda
+output$CIPlot = renderPlot({
+  par(mfrow = c(n_mods(), 1), mar = c(3.1, 4.1, 2.1, 2.1))
+  # Loop over models requested
+  for (m in 1:n_mods()) {
+    # Loop over parameters, just lambda for now
+    for (p in 1) {
+      ord = order(fit.lst()$ests[[m]][, p])
+      plot(
+        rep(1:n_sims(), 2), 
+        c(check.ests()$lcbs[[m]][, p], check.ests()$ucbs[[m]][, p]), 
+        main = models()[m], ylab = par_names()[p], xlab = "", type = 'n'
+      )
+      points(
+        1:n_sims(), fit.lst()$ests[[m]][ord, p], pch = "-", 
+        col = 1 + !check.ests()$ci_cov[[m]][ord, p]
+      )
+      arrows(
+        1:n_sims(), check.ests()$lcbs[[m]][ord, p], 
+        1:n_sims(), check.ests()$ucbs[[m]][ord, p], 
+        code = 3, length = 0.02, angle = 90, 
+        col = 1 + !check.ests()$ci_cov[[m]][ord, p]
+      )
+      abline(h = true_vals()[p], col = 2)
+      # abline(h = c(lb(), ub()))
+      # legend(
+      #   "topleft", col = 1:2, lwd = c(1, 1), 
+      #   legend = c(
+      #     "Optimizer converged and CI covers true value", 
+      #     "Did not converge and/or does not cover"
+      #   )
+      # )
+    }
+  }
+  
 })
 
 # Plot negative log-likelihood surface for first study
