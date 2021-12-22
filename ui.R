@@ -19,7 +19,7 @@ ui <- fluidPage(
       sliderInput(
         inputId = "exp.N.base", 
         label = HTML("Expected population size in base year:"),
-        50, 3050, value = 1500, step = 100
+        50, 3050, value = 1500, step = 50
       ),
       sliderInput(
         inputId = "base.yr", 
@@ -36,7 +36,7 @@ ui <- fluidPage(
       ),
       sliderInput(
         inputId = "n_sims", label = "Number of studies to simulate:",
-        10, 1000, value = 10, step = 10
+        10, 1010, value = 10, step = 10
       ),
       actionButton(
         inputId = "simulate", label = "Simulate studies"
@@ -77,7 +77,9 @@ ui <- fluidPage(
         tabPanel(
           title = "Analyze model performance",
           value = "model_tab",
-          h4("Model-fitting success rates"),
+          h4("Parameter estimates from all models for all studies"),
+          plotOutput(outputId = "modComp"),
+          h4("Model fitting success rates"),
           tableOutput(outputId = "modStats"),
           h4(
             "95% confidence interval coverage 
@@ -88,9 +90,7 @@ ui <- fluidPage(
           plotOutput(outputId = "CIPlot"),
           plotOutput(outputId = "NLLPlot"),
           h4("Parameter estimates from close-kin model for first study"),
-          tableOutput(outputId = "firstEsts"),
-          h4("Parameter estimates from all models for all studies"),
-          plotOutput(outputId = "modComp")
+          tableOutput(outputId = "firstEsts")
         )
         # ----
       )

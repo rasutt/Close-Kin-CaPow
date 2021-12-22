@@ -1,6 +1,8 @@
 ### Things to do
 
--   Change outputs to compare population size estimates and true values, rather than expected values.
+-   Change model lists to arrays to simplify code? No for loop and list indexing.
+
+-   Take a break and get away from your work.
 
 -   Make it simulate populations when button pressed in sim tab.
 

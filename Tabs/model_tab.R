@@ -41,7 +41,7 @@ fit.lst = reactive({
       
       # Get simulated family and capture histories of population of animals
       # over time
-      pop.cap.hist <- hists.lst()[[hist.ind]]
+      pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
       
       # Store superpopulation and final population size
       Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
@@ -98,7 +98,8 @@ fit.lst = reactive({
 # Check when optimizer converged and standard errors calculable
 check.ests = reactive({
   # Lists for retained model estimate and standard error matrices
-  ests = ses = ses_ok = cis_ok = lcbs = ucbs = ci_cov = list(n_mods())
+  ests = ses = ses_ok = cis_ok = lcbs = ucbs = ci_cov = N.fin.errs = Ns.errs =
+    list(n_mods())
   # Vectors for model stats
   prpn_cnvgd = prpn_ses_ok = prpn_cis_ok = numeric(n_mods())
   # Matrix for confidence interval coverage
@@ -106,17 +107,22 @@ check.ests = reactive({
   
   # Loop over models requested
   for (i in 1:n_mods()) {
+    # Find where model fit successfully
     ses_ok[[i]] = rowSums(is.na(fit.lst()$ses[[i]][, 1:4])) == 0
     cis_ok[[i]] = fit.lst()$cnvgs[[i]] & ses_ok[[i]]
     ests[[i]] = fit.lst()$ests[[i]][cis_ok[[i]], ]
     ses[[i]] = fit.lst()$ses[[i]][cis_ok[[i]], ]
     
-    # Normal CI's for non-population parameters (creates matrix of correct size)
+    # Find differences between population parameter estimates and true values
+    N.fin.errs[[i]] = ests[[i]][, 3] / sim.lst()$N.fin.vec[cis_ok[[i]]] - 1
+    Ns.errs[[i]] = ests[[i]][, 4] / sim.lst()$Ns.vec[cis_ok[[i]]] - 1
+
+    # Confidence intervals (creates matrices of correct size)
     radius = 1.96 * fit.lst()$ses[[i]]
     lcbs[[i]] = fit.lst()$ests[[i]] - radius
     ucbs[[i]] = fit.lst()$ests[[i]] + radius
     
-    # Overwrite log normal CI's for population parameters
+    # Overwrite with log-normal CI's for population parameters
     l_vars = log(1 + (fit.lst()$ses[[i]][, 3:4] / fit.lst()$ests[[i]][, 3:4])^2)
     fctr <- exp(1.959964 * sqrt(l_vars))
     lcbs[[i]][, 3:4] <- fit.lst()$ests[[i]][, 3:4] / fctr
@@ -126,6 +132,13 @@ check.ests = reactive({
     # parameters, and cis_ok is a vector for studies
     ci_cov[[i]] = 
       t(true_vals() > t(lcbs[[i]]) & true_vals() < t(ucbs[[i]])) & cis_ok[[i]]
+    
+    # Overwrite for population parameters
+    true_pops = cbind(sim.lst()$N.fin.vec, sim.lst()$Ns.vec)
+    ci_cov[[i]][, 3:4] = 
+      true_pops > lcbs[[i]][, 3:4] & true_pops < ucbs[[i]][, 3:4] & cis_ok[[i]]
+    
+    # Find proportions
     prpn_ci_cov[i, ] = colMeans(ci_cov[[i]])
     prpn_cnvgd[i] = mean(fit.lst()$cnvgs[[i]])
     prpn_ses_ok[i] = mean(ses_ok[[i]])
@@ -133,14 +146,14 @@ check.ests = reactive({
   }
   
   names(ests) = names(ses) = names(cis_ok) = names(lcbs) = names(ucbs) = 
-    names(ci_cov) = names(fit.lst()$ests)
+    names(ci_cov) = names(N.fin.errs) = names(Ns.errs) = names(fit.lst()$ests)
   colnames(prpn_ci_cov) = par_names()
   
   list(
     ests = ests, ses = ses, lcbs = lcbs, ucbs = ucbs, ci_cov = ci_cov,
     ses_ok = ses_ok, cis_ok = cis_ok, prpn_ci_cov = prpn_ci_cov,
     prpn_cnvgd = prpn_cnvgd, prpn_ses_ok = prpn_ses_ok, 
-    prpn_cis_ok = prpn_cis_ok
+    prpn_cis_ok = prpn_cis_ok, N.fin.errs = N.fin.errs, Ns.errs = Ns.errs
   )
 })
 
@@ -208,7 +221,7 @@ output$CIPlot = renderPlot({
 output$NLLPlot <- renderPlot({
   # Get simulated family and capture histories of population of animals over
   # time
-  pop.cap.hist <- hists.lst()[[1]]
+  pop.cap.hist <- sim.lst()$hists.lst[[1]]
   # Get numbers of animals captured in each survey
   ns.caps <- attributes(pop.cap.hist)$ns.caps
   # Find numbers of kin pairs
@@ -262,32 +275,22 @@ output$firstEsts <- renderTable({
 
 # Plot estimates using model comparison plot function
 output$modComp <- renderPlot({
-  # Plot estimates from all models side-by-side
-  
-  # Set four plots per page
+  # Set four plots per figure
   par(mfrow = c(2, 2))
   
-  # Plot estimates for lambda
+  # Plot estimates from all models side-by-side
   ComparisonPlot(
     lapply(check.ests()$ests, function(ests.mat) ests.mat[, 1]), 
     "Population growth rate", lambda()
   )
-  
-  # Plot estimates for Phi
   ComparisonPlot(
     lapply(check.ests()$ests, function(ests.mat) ests.mat[, 2]),
     "Survival rate", phi()
   )
-  
-  # Plot estimates of final population size
   ComparisonPlot(
-    lapply(check.ests()$ests, function(ests.mat) ests.mat[, 3]),
-    "Final population size", exp.N.t()[hist.len()]
+    check.ests()$N.fin.errs, "Final population size proportional errors", 0
   )
-  
-  # Plot estimates of superpopulation size
   ComparisonPlot(
-    lapply(check.ests()$ests, function(ests.mat) ests.mat[, 4]),
-    "Super-population size", exp.Ns()
+    check.ests()$Ns.errs, "Super-population size proportional errors", 0
   )
 })

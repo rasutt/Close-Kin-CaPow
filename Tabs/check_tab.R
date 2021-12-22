@@ -1,10 +1,12 @@
 # Simulate population and capture histories
-hists.lst = reactive({
+sim.lst = reactive({
   # Initial population size
   N.init = round(exp.N.t()[1])
   
   # Create list for population and capture histories
   hists.lst <- vector("list", n_sims())
+  # Create vectors for final and super-population sizes
+  N.fin.vec <- Ns.vec <- numeric(n_sims())
   
   # Display progress
   cat("Simulating study: ")
@@ -20,6 +22,9 @@ hists.lst = reactive({
       hists.lst[[hist.ind]] <- SimPopStud(
         phi(), lambda(), N.init, hist.len(), srvy.yrs(), k(), f.year()
       )
+      # Collect final and super-population sizes
+      N.fin.vec[hist.ind] <- tail(attributes(hists.lst[[hist.ind]])$N.t.vec, 1)
+      Ns.vec[hist.ind] <- attributes(hists.lst[[hist.ind]])$Ns
       
       # Update progress. Unexplained "Error in as.vector: object 'x' not
       # found" seen 19/12/2021 coming from incProgress...
@@ -27,7 +32,7 @@ hists.lst = reactive({
     }
   }, value = 0, message = "Simulating populations")
   
-  hists.lst
+  list(hists.lst = hists.lst, N.fin.vec = N.fin.vec, Ns.vec = Ns.vec)
 })
 
 # Check simulated studies
@@ -59,7 +64,7 @@ checks.lst = reactive({
       
       # Get simulated family and capture histories of population of animals
       # over time
-      pop.cap.hist <- hists.lst()[[hist.ind]]
+      pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
       
       # Record population curve
       N.t.mat[hist.ind, ] <- attributes(pop.cap.hist)$N.t.vec
@@ -133,7 +138,7 @@ output$popPlot <- renderPlot({
 })
 
 # Print head of first study
-output$dataHead <- renderTable(head(data.frame(hists.lst()[[1]])))
+output$dataHead <- renderTable(head(data.frame(sim.lst()$hists.lst[[1]])))
 
 # Plot numbers of parent-offspring pairs within samples
 output$nPOPsPlot <- renderPlot({
