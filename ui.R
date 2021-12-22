@@ -19,12 +19,12 @@ ui <- fluidPage(
       sliderInput(
         inputId = "exp.N.base", 
         label = HTML("Expected population size in base year:"),
-        50, 3050, value = 1500, step = 50
+        0, 3000, value = 1500, step = 50
       ),
       sliderInput(
         inputId = "base.yr", 
         label = HTML("Base year for expected population size:"),
-        2002, 2022, value = 2009, step = 1
+        1990, 2030, value = 2009, step = 1
       ),
       textInput(
         inputId = "srvy.yrs", label = "Survey years:",
@@ -32,11 +32,11 @@ ui <- fluidPage(
       ),
       sliderInput(
         inputId = "hist.len", label = "Length of population histories:",
-        40, 100, value = 80, step = 10
+        0, 100, value = 80, step = 10
       ),
       sliderInput(
         inputId = "n_sims", label = "Number of studies to simulate:",
-        10, 1010, value = 10, step = 10
+        0, 1000, value = 10, step = 10
       ),
       actionButton(
         inputId = "simulate", label = "Simulate studies"
@@ -77,10 +77,12 @@ ui <- fluidPage(
         tabPanel(
           title = "Analyze model performance",
           value = "model_tab",
-          h4("Parameter estimates from all models for all studies"),
-          plotOutput(outputId = "modComp"),
           h4("Model fitting success rates"),
           tableOutput(outputId = "modStats"),
+          h4("First estimates"),
+          tableOutput(outputId = "firstEsts"),
+          h4("All estimates"),
+          plotOutput(outputId = "modComp"),
           h4(
             "95% confidence interval coverage 
             (log-normal for population parameters)"
@@ -88,9 +90,9 @@ ui <- fluidPage(
           tableOutput(outputId = "CICov"),
           h4("95% confidence intervals for lambda"),
           plotOutput(outputId = "CIPlot"),
-          plotOutput(outputId = "NLLPlot"),
-          h4("Parameter estimates from close-kin model for first study"),
-          tableOutput(outputId = "firstEsts")
+          h4("First 95% confidence intervals from first model"),
+          tableOutput(outputId = "firstCIs"),
+          plotOutput(outputId = "NLLPlot")
         )
         # ----
       )

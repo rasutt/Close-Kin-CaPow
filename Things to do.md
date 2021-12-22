@@ -1,6 +1,6 @@
 ### Things to do
 
--   Change model lists to arrays to simplify code? No for loop and list indexing.
+-   Change model lists to arrays to simplify code? No for loop and list indexing. No check list, just individual reactives.
 
 -   Take a break and get away from your work.
 

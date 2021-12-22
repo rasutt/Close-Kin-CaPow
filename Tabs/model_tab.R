@@ -169,6 +169,43 @@ output$modStats = renderTable({
   )
 })
 
+# Print first few estimates and convergences for first model
+output$firstEsts <- renderTable({
+  rows = matrix(NA, n_mods() + 1, n_pars())
+  rows[1, ] = true_vals()
+  rows[1, 3:4] = c(sim.lst()$N.fin.vec[1], sim.lst()$Ns.vec[1])
+  colnames(rows) = par_names()
+  for (i in 1:n_mods()) {
+    rows[i + 1, ] = fit.lst()$ests[[i]][1, ]
+  }
+  ests.cnvg = data.frame(rows, row.names = c("True values", models()))
+  ests.cnvg[, 4] = as.integer(ests.cnvg[, 4])
+  ests.cnvg[, 5] = as.integer(ests.cnvg[, 5])
+  ests.cnvg
+}, digits = 3, rownames = T)
+
+# Plot estimates using model comparison plot function
+output$modComp <- renderPlot({
+  # Set four plots per figure
+  par(mfrow = c(2, 2))
+  
+  # Plot estimates from all models side-by-side
+  ComparisonPlot(
+    lapply(check.ests()$ests, function(ests.mat) ests.mat[, 1]), 
+    "Population growth rate", lambda()
+  )
+  ComparisonPlot(
+    lapply(check.ests()$ests, function(ests.mat) ests.mat[, 2]),
+    "Survival rate", phi()
+  )
+  ComparisonPlot(
+    check.ests()$N.fin.errs, "Final population size proportional errors", 0
+  )
+  ComparisonPlot(
+    check.ests()$Ns.errs, "Super-population size proportional errors", 0
+  )
+})
+
 # Print CI coverage
 output$CICov = renderTable({
   data.frame(
@@ -217,6 +254,20 @@ output$CIPlot = renderPlot({
   
 })
 
+# Print first few estimates and convergences for first model
+output$firstCIs <- renderTable({
+  ests.cnvg = data.frame(
+    rbind(
+      fit.lst()$ests[[1]][1, ], fit.lst()$ses[[1]][1, ],
+      check.ests()$lcbs[[1]][1, ], check.ests()$ucbs[[1]][1, ]
+    ), 
+    row.names = c(
+      "estimate", "standard_error", "lower_confidence_bound",
+      "upper_confidence_bound"
+    )
+  )
+}, digits = 3, rownames = T)
+
 # Plot negative log-likelihood surface for first study
 output$NLLPlot <- renderPlot({
   # Get simulated family and capture histories of population of animals over
@@ -256,41 +307,4 @@ output$NLLPlot <- renderPlot({
   )
   # abline(v = cis()[1, 1], col = 4, lty = 2)
   # abline(v = cis()[2, 1], col = 4, lty = 2)
-})
-
-# Print first few estimates and convergences for first model
-output$firstEsts <- renderTable({
-  ests.cnvg = data.frame(
-    rbind(
-      fit.lst()$ests[["close_kin"]][1, ], fit.lst()$ses[["close_kin"]][1, ],
-      check.ests()$lcbs[["close_kin"]][1, ], 
-      check.ests()$ucbs[["close_kin"]][1, ]
-    ), 
-    row.names = c(
-      "estimate", "standard_error", "lower_confidence_bound",
-      "upper_confidence_bound"
-    )
-  )
-}, digits = 3, rownames = T)
-
-# Plot estimates using model comparison plot function
-output$modComp <- renderPlot({
-  # Set four plots per figure
-  par(mfrow = c(2, 2))
-  
-  # Plot estimates from all models side-by-side
-  ComparisonPlot(
-    lapply(check.ests()$ests, function(ests.mat) ests.mat[, 1]), 
-    "Population growth rate", lambda()
-  )
-  ComparisonPlot(
-    lapply(check.ests()$ests, function(ests.mat) ests.mat[, 2]),
-    "Survival rate", phi()
-  )
-  ComparisonPlot(
-    check.ests()$N.fin.errs, "Final population size proportional errors", 0
-  )
-  ComparisonPlot(
-    check.ests()$Ns.errs, "Super-population size proportional errors", 0
-  )
 })

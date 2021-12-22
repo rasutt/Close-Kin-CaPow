@@ -2,6 +2,14 @@
 funcs <- list.files("Functions")
 for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]))
 
+# Load TMB library and likelihood functions.  Have to restart R for compile and
+# dyn.load to take effect sometimes!
+library(TMB)
+compile("TMB_objective_functions/POPANNLL.cpp")
+dyn.load(dynlib("TMB_objective_functions/POPANNLL"))
+compile("TMB_objective_functions/CloseKinNLL.cpp")
+dyn.load(dynlib("TMB_objective_functions/CloseKinNLL"))
+
 # Define server logic for app
 server <- function(input, output) {
   # Reactive variables ----
