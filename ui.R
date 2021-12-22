@@ -18,22 +18,17 @@ ui <- fluidPage(
       ),
       sliderInput(
         inputId = "base.yr", 
-        label = HTML("Base year:"),
-        2002, 2022, value = 2009
+        label = HTML("Base year for expected population size:"),
+        2002, 2022, value = 2009, step = 1
       ),
       sliderInput(
         inputId = "exp.N.base", 
         label = HTML("Expected population size in base year:"),
-        1000, 5000, value = 1500
-      ),
-      sliderInput(
-        inputId = "f.sim.yr", 
-        label = HTML("Final year for simulations:"),
-        2020, 2030, value = 2022
+        100, 3000, value = 1500, step = 100
       ),
       sliderInput(
         inputId = "hist.len", label = "Length of simulations:",
-        10, 100, value = 80, step = 1
+        40, 100, value = 80, step = 10
       ),
       textInput(
         inputId = "srvy.yrs", label = "Survey years:",
@@ -63,8 +58,6 @@ ui <- fluidPage(
           value = "sim_tab",
           h4("Implied parameters"),
           textOutput(outputId = "lambda"),
-          textOutput(outputId = "k"),
-          textOutput(outputId = "f.year"),
           plotOutput(outputId = "expPopPlot")
         ),
         # ----

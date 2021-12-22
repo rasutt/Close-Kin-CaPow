@@ -7,14 +7,6 @@ server <- function(input, output) {
   # Reactive variables ----
   # Population growth rate
   lambda.rct <- reactive(input$rho + input$phi) 
-  
-  # Expected population curve
-  exp.N.sim = reactive({
-    exp.N.fin = 
-      input$exp.N.base * lambda.rct()^(input$f.sim.yr - input$base.yr)
-    exp.N.fin / lambda.rct()^((input$hist.len - 1):0)
-  })
-  
   # Survey years
   srvy.yrs.rct = reactive({
     eval(parse(text = paste0("c(", sort(input$srvy.yrs), ")")))
@@ -23,6 +15,14 @@ server <- function(input, output) {
   k.rct = reactive(length(srvy.yrs.rct()))
   # Final survey year 
   f.year.rct = reactive(tail(srvy.yrs.rct(), 1))  
+  
+  # Expected population curve
+  exp.N.sim = reactive({
+    exp.N.fin = 
+      input$exp.N.base * lambda.rct()^(f.year.rct() - input$base.yr)
+    exp.N.fin / lambda.rct()^((input$hist.len - 1):0)
+  })
+  
   # Survey gaps
   srvy.gaps.rct <- reactive(as.integer(diff(srvy.yrs.rct())))
   # Expected population size over time
