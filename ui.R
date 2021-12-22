@@ -16,19 +16,20 @@ ui <- fluidPage(
         inputId = "rho", label = HTML("Birth rate (&rho;):"),
         min_rho, max_rho, value = 0.08, step = step_rho
       ),
-      helpText("Next three inputs not implemented yet"),
-      textInput(
-        inputId = "base.yr", label = "Base year:",
-        value = "2009"
+      sliderInput(
+        inputId = "base.yr", 
+        label = HTML("Base year:"),
+        2002, 2022, value = 2009
       ),
       sliderInput(
         inputId = "exp.N.base", 
         label = HTML("Expected population size in base year:"),
         1000, 5000, value = 1500
       ),
-      textInput(
-        inputId = "f.sim.yr", label = "Final year for simulations:",
-        value = "2021"
+      sliderInput(
+        inputId = "f.sim.yr", 
+        label = HTML("Final year for simulations:"),
+        2020, 2030, value = 2022
       ),
       sliderInput(
         inputId = "hist.len", label = "Length of simulations:",

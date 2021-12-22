@@ -1,6 +1,6 @@
 # Set bounds on inputs and step size for input slider and NLL plots
-min_rho = 0.03
-max_rho = 0.13
+min_rho = 0.01
+max_rho = 0.15
 step_rho = 0.005
 min_phi = 0.91
 max_phi = 0.99

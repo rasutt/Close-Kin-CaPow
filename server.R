@@ -7,6 +7,14 @@ server <- function(input, output) {
   # Reactive variables ----
   # Population growth rate
   lambda.rct <- reactive(input$rho + input$phi) 
+  
+  # Expected population curve
+  exp.N.sim = reactive({
+    exp.N.fin = 
+      input$exp.N.base * lambda.rct()^(input$f.sim.yr - input$base.yr)
+    exp.N.fin / lambda.rct()^((input$hist.len - 1):0)
+  })
+  
   # Survey years
   srvy.yrs.rct = reactive({
     eval(parse(text = paste0("c(", sort(input$srvy.yrs), ")")))
