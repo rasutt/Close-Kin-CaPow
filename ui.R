@@ -17,25 +17,25 @@ ui <- fluidPage(
         min_rho, max_rho, value = 0.08, step = step_rho
       ),
       sliderInput(
+        inputId = "exp.N.base", 
+        label = HTML("Expected population size in base year:"),
+        50, 3050, value = 1500, step = 100
+      ),
+      sliderInput(
         inputId = "base.yr", 
         label = HTML("Base year for expected population size:"),
         2002, 2022, value = 2009, step = 1
-      ),
-      sliderInput(
-        inputId = "exp.N.base", 
-        label = HTML("Expected population size in base year:"),
-        100, 3000, value = 1500, step = 100
-      ),
-      sliderInput(
-        inputId = "hist.len", label = "Length of simulations:",
-        40, 100, value = 80, step = 10
       ),
       textInput(
         inputId = "srvy.yrs", label = "Survey years:",
         value = "1995:1998, 2006:2009, 2020"
       ),
       sliderInput(
-        inputId = "n_sims", label = "Number of populations:",
+        inputId = "hist.len", label = "Length of population histories:",
+        40, 100, value = 80, step = 10
+      ),
+      sliderInput(
+        inputId = "n_sims", label = "Number of studies to simulate:",
         10, 1000, value = 10, step = 10
       ),
       actionButton(
