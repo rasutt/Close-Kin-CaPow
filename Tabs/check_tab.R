@@ -114,25 +114,21 @@ checks.lst = reactive({
 
 # Plot population sizes over time
 output$popPlot <- renderPlot({
-  # Plot population trajectories and expected value
+  # Plot population trajectories
   matplot(
     (f.year() - hist.len() + 1):f.year(), t(checks.lst()$N.t.mat), type = 'l',
     col = rgb(0, 0, 0, alpha = 0.1), lty = 1, 
+    ylim = c(0, max(checks.lst()$N.t.mat)),
     xlab = 'Year', ylab = 'Nt', main = "Population sizes over time"
   )
+  # Expected value
   lines((f.year() - hist.len() + 1):f.year(), exp.N.t(), col = 'red', lwd = 2)
-  
   # Surveys
   abline(v = srvy.yrs(), lty = 2)
-  
   # Add legend
   legend(
-    "topleft", 
-    legend = c("Population sizes", "Expected population size", 
-               "Survey years"),
-    col = c(rgb(0, 0, 0, alpha = 0.1), 2, 1),
-    lwd = c(1, 2, 1),
-    lty = c(1, 1, 2)
+    "topleft", legend = c("Simulated", "Expected", "Survey years"),
+    col = c(rgb(0, 0, 0, alpha = 0.1), 2, 1), lwd = c(1, 2, 1), lty = c(1, 1, 2)
   )
 })
 

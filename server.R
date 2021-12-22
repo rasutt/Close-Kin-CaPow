@@ -15,27 +15,20 @@ server <- function(input, output) {
   k.rct = reactive(length(srvy.yrs.rct()))
   # Final survey year 
   f.year.rct = reactive(tail(srvy.yrs.rct(), 1))  
-  
-  # Expected population curve
-  exp.N.sim = reactive({
-    exp.N.fin = 
-      input$exp.N.base * lambda.rct()^(f.year.rct() - input$base.yr)
-    exp.N.fin / lambda.rct()^((input$hist.len - 1):0)
-  })
-  
   # Survey gaps
   srvy.gaps.rct <- reactive(as.integer(diff(srvy.yrs.rct())))
   # Expected population size over time
   exp.N.t.rct = reactive({
-    # Expected final population size
-    phi.gaps <- input$phi^srvy.gaps.rct()
-    pents = pent_func(lambda.rct()^srvy.gaps.rct(), phi.gaps, k.rct())
-    exp.N.fin <- sum(pents * exp.Ns * prod(phi.gaps) / 
-                       cumprod(c(1, phi.gaps)))
-    
-    exp.N.fin / lambda.rct()^((input$hist.len - 1):0)
+    input$exp.N.base * lambda.rct()^(f.year.rct() - input$base.yr) / 
+      lambda.rct()^((input$hist.len - 1):0)
   })
-  
+  # Expected super-population size
+  exp.Ns.rct = reactive({
+    exp.N.srvy.yrs = 
+      exp.N.t.rct()[input$hist.len - f.year.rct() + srvy.yrs.rct()]
+    sum(exp.N.srvy.yrs) - sum(exp.N.srvy.yrs[-length(srvy.yrs.rct())] * 
+      input$phi^(srvy.gaps.rct()))
+  })
   # Models to fit
   models = reactive(input$models) 
   # ----
@@ -63,6 +56,8 @@ server <- function(input, output) {
   f.year <- bindEvent(f.year.rct, input$simulate, ignoreNULL = F) 
   # Expected population size over time
   exp.N.t = bindEvent(exp.N.t.rct, input$simulate, ignoreNULL = F) 
+  # Expected super-population size
+  exp.Ns = bindEvent(exp.Ns.rct, input$simulate, ignoreNULL = F) 
   # ----
 
   # Load functions and outputs for simulating studies, checking simulations, and

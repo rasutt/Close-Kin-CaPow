@@ -9,7 +9,6 @@ step_phi = 0.005
 mod_choices = c("Popan", "Close-kin")
 
 # Set simulation parameters for basic scenario
-exp.Ns <- 2169 # Expected superpopulation size
 alpha <- 8 # Age of sexual maturity
 p <- 0.1 # Capture probability
 stch.bths <- T # Set whether numbers of births stochastic

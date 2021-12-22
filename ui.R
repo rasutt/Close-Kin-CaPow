@@ -58,6 +58,7 @@ ui <- fluidPage(
           value = "sim_tab",
           h4("Implied parameters"),
           textOutput(outputId = "lambda"),
+          textOutput(outputId = "exp.Ns"),
           plotOutput(outputId = "expPopPlot")
         ),
         # ----

@@ -1,6 +1,6 @@
 # True parameter values
 true_vals = reactive({
-  c(lambda(), phi(), exp.N.t()[hist.len()], exp.Ns, rep(p, k()))
+  c(lambda(), phi(), exp.N.t()[hist.len()], exp.Ns(), rep(p, k()))
 })
 # Parameter names
 par_names = reactive(c("lambda", "phi", "N_final", "Ns", paste0("p", 1:k())))
@@ -288,6 +288,6 @@ output$modComp <- renderPlot({
   # Plot estimates of superpopulation size
   ComparisonPlot(
     lapply(check.ests()$ests, function(ests.mat) ests.mat[, 4]),
-    "Super-population size", exp.Ns
+    "Super-population size", exp.Ns()
   )
 })
