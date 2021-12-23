@@ -6,32 +6,26 @@ true_vals = reactive({
 par_names = reactive(c("lambda", "phi", "N_final", "Ns", paste0("p", 1:k())))
 # Number of parameters
 n_pars = reactive(length(par_names()))
+# Names of models requested
+mod_names = reactive(mod_choices[c(input$popan, input$close_kin)])
 # Number of models requested
-n_mods = reactive(length(models()))
-
+n_mods = reactive(input$popan + input$close_kin)
 # Function to prepare proportion to print as percentage
 perc = function(prpn) paste0(round(prpn * 100, 1), "%")
 
-# Find parameter estimates, standard errors, and model convergences
-fit.lst = reactive({
+# Fit close-kin model
+fit.ck = reactive(if (input$close_kin) {
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), NA)
   ck.lwr <- c(0, 0.75, NA)
   ck.upr <- c(0.35, 1, Inf)
-  ppn.start <- cbd.start <- c(ck.start, rep(p, k()))
-  ppn.lwr <- cbd.lwr <- c(ck.lwr, rep(0, k()))
-  ppn.upr <- cbd.upr <- c(ck.upr, rep(1, k()))
   
-  # Create vectors for superpopulation and final population sizes, and model
-  # convergences
-  Ns.vec <- N.fin.vec <- ppn.tmb.cnvg <- ck.tmb.cnvg <- numeric(n_sims())
+  # Create vector for model convergences
+  ck.tmb.cnvg <- numeric(n_sims())
   
   # Create matrices for estimates and standard errors
-  ppn.tmb.ests <- ck.tmb.ests <- ppn.tmb.ses <- ck.tmb.ses <- 
+  ck.tmb.ests <- ck.tmb.ses <- 
     matrix(nrow = n_sims(), ncol = 4 + k(), dimnames = list(NULL, par_names()))
-  
-  # Boolean for models requested 
-  mod.bool = mod_choices %in% models()
   
   # Loop over histories
   withProgress({
@@ -43,44 +37,24 @@ fit.lst = reactive({
       # over time
       pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
       
-      # Store superpopulation and final population size
-      Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
-      N.fin.vec[hist.ind] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
-      
-      # Get numbers of animals captured in study and each survey
-      n.cap.hists <- nrow(pop.cap.hist)
+      # Get numbers of animals captured in each survey
       ns.caps <- attributes(pop.cap.hist)$ns.caps
-      
-      # Summarise data for POPAN model
-      pop.sum <- FindPopSum(k(), pop.cap.hist, n.cap.hists)
       
       # Find numbers of kin pairs
       ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
       
       # Update optimiser starting-values and bounds
-      ppn.start[3] <- attributes(pop.cap.hist)$Ns
-      ppn.lwr[3] <- n.cap.hists
-      ck.start[3] <- N.fin.vec[hist.ind]
+      ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
       ck.lwr[3] <- ns.caps[k()]
       
-      # Try to fit models
-      if (mod.bool[1]) {
-        ppn.tmb.res <- TryPOPANTMB(
-          k(), srvy.gaps(), n.cap.hists, pop.sum, ppn.start, ppn.lwr, ppn.upr
-        )
-        ppn.tmb.ests[hist.ind, ] <- ppn.tmb.res$est.se.df[, 1]
-        ppn.tmb.ses[hist.ind, ] <- ppn.tmb.res$est.se.df[, 2]
-        ppn.tmb.cnvg[hist.ind] = ppn.tmb.res$cnvg
-      }
-      if (mod.bool[2]) {
-        ck.tmb.res <- TryCloseKinTMB(
-          k(), srvy.gaps(), f.year(), srvy.yrs(), ns.caps, ns.kps.lst, 
-          ck.start, ck.lwr, ck.upr
-        )
-        ck.tmb.ests[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
-        ck.tmb.ses[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 2]
-        ck.tmb.cnvg[hist.ind] = ck.tmb.res$cnvg
-      }
+      # Try to fit model
+      ck.tmb.res <- TryCloseKinTMB(
+        k(), srvy.gaps(), f.year(), srvy.yrs(), ns.caps, ns.kps.lst, 
+        ck.start, ck.lwr, ck.upr
+      )
+      ck.tmb.ests[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
+      ck.tmb.ses[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 2]
+      ck.tmb.cnvg[hist.ind] = ck.tmb.res$cnvg
       
       incProgress(1/n_sims())
     }
@@ -88,10 +62,72 @@ fit.lst = reactive({
   
   # Combine model estimates, standard errors, and convergences, as lists and
   # return those requested
+  list(ests = ck.tmb.ests, ses = ck.tmb.ses, cnvgs = !ck.tmb.cnvg)
+})
+
+# Fit popan model
+fit.ppn = reactive(if (input$popan) {
+  # Create general optimizer starting-values and bounds, NAs filled in below
+  ck.start <- c(rho(), phi(), NA)
+  ck.lwr <- c(0, 0.75, NA)
+  ck.upr <- c(0.35, 1, Inf)
+  ppn.start <- cbd.start <- c(ck.start, rep(p, k()))
+  ppn.lwr <- cbd.lwr <- c(ck.lwr, rep(0, k()))
+  ppn.upr <- cbd.upr <- c(ck.upr, rep(1, k()))
+  
+  # Create vector model convergences
+  ppn.tmb.cnvg <- numeric(n_sims())
+  
+  # Create matrices for estimates and standard errors
+  ppn.tmb.ests <- ppn.tmb.ses <- 
+    matrix(nrow = n_sims(), ncol = 4 + k(), dimnames = list(NULL, par_names()))
+  
+  # Loop over histories
+  withProgress({
+    for (hist.ind in 1:n_sims()) {
+      # Display progress
+      cat("History:", hist.ind, "\n")
+      
+      # Get simulated family and capture histories of population of animals
+      # over time
+      pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
+      
+      # Get numbers of animals captured in study
+      n.cap.hists <- nrow(pop.cap.hist)
+      
+      # Summarise data for POPAN model
+      pop.sum <- FindPopSum(k(), pop.cap.hist, n.cap.hists)
+      
+      # Update optimiser starting-values and bounds
+      ppn.start[3] <- attributes(pop.cap.hist)$Ns
+      ppn.lwr[3] <- n.cap.hists
+      
+      # Try to fit models
+      ppn.tmb.res <- TryPOPANTMB(
+        k(), srvy.gaps(), n.cap.hists, pop.sum, ppn.start, ppn.lwr, ppn.upr
+      )
+      ppn.tmb.ests[hist.ind, ] <- ppn.tmb.res$est.se.df[, 1]
+      ppn.tmb.ses[hist.ind, ] <- ppn.tmb.res$est.se.df[, 2]
+      ppn.tmb.cnvg[hist.ind] = ppn.tmb.res$cnvg
+      
+      incProgress(1/n_sims())
+    }
+  }, value = 0, message = "Fitting models")
+  
+  # Combine model estimates, standard errors, and convergences, as lists and
+  # return those requested
+  list(ests = ppn.tmb.ests, ses = ppn.tmb.ses, cnvgs = !ppn.tmb.cnvg)
+})
+
+# Combine model estimates
+fit.lst = reactive({
+  # Boolean for models requested 
+  mod.bool = c(input$popan, input$close_kin)
+  
   list(
-    ests = list(popan = ppn.tmb.ests, close_kin = ck.tmb.ests)[mod.bool],
-    ses = list(popan = ppn.tmb.ses, close_kin = ck.tmb.ses)[mod.bool],
-    cnvgs = list(popan = !ppn.tmb.cnvg, close_kin = !ck.tmb.cnvg)[mod.bool]
+    ests = list(popan = fit.ppn()$ests, close_kin = fit.ck()$ests)[mod.bool],
+    ses = list(popan = fit.ppn()$ses, close_kin = fit.ck()$ses)[mod.bool],
+    cnvgs = list(popan = fit.ppn()$cnvgs, close_kin = fit.ck()$cnvgs)[mod.bool]
   )
 })
 
@@ -162,7 +198,7 @@ check.ests = reactive({
 output$modStats = renderTable({
   perc = function(stat) paste0(round(stat * 100, 1), "%")
   data.frame(
-    model = models(), 
+    model = mod_names(), 
     optimizer_converged = perc(check.ests()$prpn_cnvgd), 
     standard_errors_found = perc(check.ests()$prpn_ses_ok), 
     fit_successful = perc(check.ests()$prpn_cis_ok)
@@ -178,7 +214,7 @@ output$firstEsts <- renderTable({
   for (i in 1:n_mods()) {
     rows[i + 1, ] = fit.lst()$ests[[i]][1, ]
   }
-  ests.cnvg = data.frame(rows, row.names = c("True values", models()))
+  ests.cnvg = data.frame(rows, row.names = c("True values", mod_names()))
   ests.cnvg[, 4] = as.integer(ests.cnvg[, 4])
   ests.cnvg[, 5] = as.integer(ests.cnvg[, 5])
   ests.cnvg
@@ -209,7 +245,7 @@ output$modComp <- renderPlot({
 # Print CI coverage
 output$CICov = renderTable({
   data.frame(
-    model = models(), 
+    model = mod_names(), 
     matrix(
       perc(check.ests()$prpn_ci_cov), n_mods(), n_pars(), 
       dimnames = list(NULL, par_names())
@@ -225,21 +261,25 @@ output$CIPlot = renderPlot({
     # Loop over parameters, just lambda for now
     for (p in 1) {
       ord = order(fit.lst()$ests[[m]][, p])
+      # Setup plot
       plot(
         rep(1:n_sims(), 2), 
         c(check.ests()$lcbs[[m]][, p], check.ests()$ucbs[[m]][, p]), 
-        main = models()[m], ylab = par_names()[p], xlab = "", type = 'n'
+        main = mod_names()[m], ylab = par_names()[p], xlab = "", type = 'n'
       )
+      # Plot estimates
       points(
         1:n_sims(), fit.lst()$ests[[m]][ord, p], pch = "-", 
         col = 1 + !check.ests()$ci_cov[[m]][ord, p]
       )
+      # Plot intervals
       arrows(
         1:n_sims(), check.ests()$lcbs[[m]][ord, p], 
         1:n_sims(), check.ests()$ucbs[[m]][ord, p], 
         code = 3, length = 0.02, angle = 90, 
         col = 1 + !check.ests()$ci_cov[[m]][ord, p]
       )
+      # True parameter value
       abline(h = true_vals()[p], col = 2)
       # abline(h = c(lb(), ub()))
       # legend(
@@ -251,7 +291,6 @@ output$CIPlot = renderPlot({
       # )
     }
   }
-  
 })
 
 # Print first few estimates and convergences for first model

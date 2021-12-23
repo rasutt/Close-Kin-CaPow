@@ -42,10 +42,12 @@ ui <- fluidPage(
         inputId = "simulate", label = "Simulate studies"
       ),
       helpText("~1 second per 10 populations"),
-      checkboxGroupInput(
-        inputId = "models", label = "Fit models:",
-        choices = mod_choices, selected = mod_choices, inline = T
-      ) 
+      checkboxInput(
+        inputId = "popan", label = "Popan model", value = T
+      ),
+      checkboxInput(
+        inputId = "close_kin", label = "Close-kin model", value = T
+      )
     ),
     # ----
     mainPanel(

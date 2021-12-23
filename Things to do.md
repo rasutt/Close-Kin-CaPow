@@ -2,8 +2,6 @@
 
 -   Take a break and get away from your work.
 
--   Use separate model checkbox inputs to make seperate reactive model fits that share a function using different inputs and feed into the fit list? It'll only update the unticked one when it gets unticked. Seems like a lot of effort.
-
 -   Make it simulate populations when button pressed in sim tab.
 
 -   Show other kin-pairs in check tab.
