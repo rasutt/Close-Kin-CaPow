@@ -81,7 +81,7 @@ ui <- fluidPage(
           value = "model_tab",
           h4("Model fitting success rates"),
           tableOutput(outputId = "modStats"),
-          h4("First estimates"),
+          h4("Estimates for first study"),
           tableOutput(outputId = "firstEsts"),
           h4("All estimates"),
           plotOutput(outputId = "modComp"),

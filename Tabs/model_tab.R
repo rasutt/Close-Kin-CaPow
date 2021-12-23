@@ -205,15 +205,20 @@ output$modStats = renderTable({
   )
 })
 
-# Print first few estimates and convergences for first model
+# Print first few estimates for each model
 output$firstEsts <- renderTable({
+  # Setup matrix and true parameter values
   rows = matrix(NA, n_mods() + 1, n_pars())
   rows[1, ] = true_vals()
   rows[1, 3:4] = c(sim.lst()$N.fin.vec[1], sim.lst()$Ns.vec[1])
   colnames(rows) = par_names()
+  
+  # Add model estimates
   for (i in 1:n_mods()) {
     rows[i + 1, ] = fit.lst()$ests[[i]][1, ]
   }
+  
+  # Format and output table
   ests.cnvg = data.frame(rows, row.names = c("True values", mod_names()))
   ests.cnvg[, 4] = as.integer(ests.cnvg[, 4])
   ests.cnvg[, 5] = as.integer(ests.cnvg[, 5])
