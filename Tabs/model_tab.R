@@ -1,6 +1,6 @@
 # True parameter values
 true_vals = reactive({
-  c(lambda(), phi(), exp.N.t()[hist.len()], exp.Ns(), rep(p, k()))
+  c(lambda(), phi(), exp.N.t()[hist.len()], exp.Ns(), rep(p(), k()))
 })
 # Parameter names
 par_names = reactive(c("lambda", "phi", "N_final", "Ns", paste0("p", 1:k())))
@@ -71,7 +71,7 @@ fit.ppn = reactive(if (input$popan) {
   ck.start <- c(rho(), phi(), NA)
   ck.lwr <- c(0, 0.75, NA)
   ck.upr <- c(0.35, 1, Inf)
-  ppn.start <- cbd.start <- c(ck.start, rep(p, k()))
+  ppn.start <- cbd.start <- c(ck.start, rep(p(), k()))
   ppn.lwr <- cbd.lwr <- c(ck.lwr, rep(0, k()))
   ppn.upr <- cbd.upr <- c(ck.upr, rep(1, k()))
   

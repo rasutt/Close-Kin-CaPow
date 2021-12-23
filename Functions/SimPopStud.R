@@ -4,7 +4,7 @@
 # Returns: Dataframe with IDs, parents (NA for initial population), and
 # capture histories for captured animals, with parameters, implied birthrate
 # beta, and population trajectory N.t.vec attached.
-SimPopStud <- function(phi, lambda, N.init, hist.len, srvy.yrs, k, f.year) {
+SimPopStud <- function(phi, lambda, N.init, hist.len, srvy.yrs, k, f.year, p) {
   # Record start-time
   s.time <- proc.time()
   

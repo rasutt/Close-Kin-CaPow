@@ -20,7 +20,7 @@ sim.lst = reactive({
       # Simulate family and capture histories of population of animals over
       # time
       hists.lst[[hist.ind]] <- SimPopStud(
-        phi(), lambda(), N.init, hist.len(), srvy.yrs(), k(), f.year()
+        phi(), lambda(), N.init, hist.len(), srvy.yrs(), k(), f.year(), p()
       )
       # Collect final and super-population sizes
       N.fin.vec[hist.ind] <- tail(attributes(hists.lst[[hist.ind]])$N.t.vec, 1)

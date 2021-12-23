@@ -31,6 +31,10 @@ ui <- fluidPage(
         value = "1995:1998, 2006:2009, 2020"
       ),
       sliderInput(
+        inputId = "p", label = "Capture probability:",
+        0, 0.2, value = 0.1, step = 0.05
+      ),
+      sliderInput(
         inputId = "hist.len", label = "Length of population histories:",
         0, 100, value = 80, step = 10
       ),

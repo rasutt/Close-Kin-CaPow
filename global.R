@@ -11,7 +11,6 @@ mod_choices = c("Popan", "Close-kin")
 
 # Set simulation parameters for basic scenario
 alpha <- 8 # Age of sexual maturity
-p <- 0.1 # Capture probability
 stch.bths <- T # Set whether numbers of births stochastic
 clvng.p <- 0 # Additional capture probability when calving
 tmp.emgn <- 0 # Probability of males being away from survey area

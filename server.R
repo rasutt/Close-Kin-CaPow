@@ -50,6 +50,8 @@ server <- function(input, output) {
   lambda <- bindEvent(lambda.rct, input$simulate, ignoreNULL = F)
   # Survey years
   srvy.yrs = bindEvent(srvy.yrs.rct, input$simulate, ignoreNULL = F)
+  # Capture probability
+  p = bindEvent(reactive(input$p), input$simulate, ignoreNULL = F)
   # Length of simulation
   hist.len = bindEvent(reactive(input$hist.len), input$simulate, ignoreNULL = F)
   # Number of simulations
