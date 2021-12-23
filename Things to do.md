@@ -1,7 +1,5 @@
 ### Things to do
 
--   Change model lists to arrays to simplify code? No for loop and list indexing. No check list, just individual reactives.
-
 -   Take a break and get away from your work.
 
 -   Make it simulate populations when button pressed in sim tab.

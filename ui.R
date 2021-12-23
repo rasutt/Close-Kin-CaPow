@@ -44,7 +44,7 @@ ui <- fluidPage(
       helpText("~1 second per 10 populations"),
       checkboxGroupInput(
         inputId = "models", label = "Fit models:",
-        choices = mod_choices, selected = "Close-kin", inline = T
+        choices = mod_choices, selected = mod_choices, inline = T
       ) 
     ),
     # ----
