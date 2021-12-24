@@ -32,7 +32,7 @@ ui <- fluidPage(
       ),
       sliderInput(
         inputId = "p", label = "Capture probability:",
-        0, 0.2, value = 0.1, step = 0.05
+        0, 0.2, value = 0.1, step = 0.01
       ),
       sliderInput(
         inputId = "hist.len", label = "Length of population histories:",
@@ -62,9 +62,10 @@ ui <- fluidPage(
         tabPanel(
           title = "Simulate studies",
           value = "sim_tab",
-          h4("Implied parameters"),
-          textOutput(outputId = "lambda"),
-          textOutput(outputId = "exp.Ns"),
+          h4("Parameters and values simulated from"),
+          tableOutput(outputId = "simParVals"),
+          h4("Parameters and values to simulate from next"),
+          tableOutput(outputId = "selParVals"),
           plotOutput(outputId = "expPopPlot")
         ),
         # ----
@@ -72,6 +73,8 @@ ui <- fluidPage(
         tabPanel(
           title = "Check simulation",
           value = "check_tab",
+          h4("Parameters and values simulated from"),
+          tableOutput(outputId = "checkParVals"),
           plotOutput(outputId = "popPlot"),
           h4("Head of first dataset"),
           tableOutput(outputId = "dataHead"),
@@ -83,6 +86,8 @@ ui <- fluidPage(
         tabPanel(
           title = "Analyze model performance",
           value = "model_tab",
+          h4("Parameters and values simulated from"),
+          tableOutput(outputId = "modParVals"),
           h4("Model fitting success rates"),
           tableOutput(outputId = "modStats"),
           h4("Estimates for first study"),

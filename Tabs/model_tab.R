@@ -1,17 +1,16 @@
-# True parameter values
-true_vals = reactive({
-  c(lambda(), phi(), exp.N.t()[hist.len()], exp.Ns(), rep(p(), k()))
-})
-# Parameter names
-par_names = reactive(c("lambda", "phi", "N_final", "Ns", paste0("p", 1:k())))
 # Number of parameters
-n_pars = reactive(length(par_names()))
+n_pars = reactive(length(est.par.names()))
 # Names of models requested
 mod_names = reactive(mod_choices[c(input$popan, input$close_kin)])
 # Number of models requested
 n_mods = reactive(input$popan + input$close_kin)
 # Function to prepare proportion to print as percentage
 perc = function(prpn) paste0(round(prpn * 100, 1), "%")
+
+# Display parameter values
+output$modParVals <- renderTable({
+  par_vals_df(sim.par.vals(), sim.par.names())
+}, digits = 3)
 
 # Fit close-kin model
 fit.ck = reactive(if (input$close_kin) {
@@ -25,7 +24,7 @@ fit.ck = reactive(if (input$close_kin) {
   
   # Create matrices for estimates and standard errors
   ck.tmb.ests <- ck.tmb.ses <- 
-    matrix(nrow = n_sims(), ncol = 4 + k(), dimnames = list(NULL, par_names()))
+    matrix(nrow = n_sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names()))
   
   # Loop over histories
   withProgress({
@@ -58,7 +57,7 @@ fit.ck = reactive(if (input$close_kin) {
       
       incProgress(1/n_sims())
     }
-  }, value = 0, message = "Fitting models")
+  }, value = 0, message = "Fitting close-kin model")
   
   # Combine model estimates, standard errors, and convergences, as lists and
   # return those requested
@@ -80,7 +79,7 @@ fit.ppn = reactive(if (input$popan) {
   
   # Create matrices for estimates and standard errors
   ppn.tmb.ests <- ppn.tmb.ses <- 
-    matrix(nrow = n_sims(), ncol = 4 + k(), dimnames = list(NULL, par_names()))
+    matrix(nrow = n_sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names()))
   
   # Loop over histories
   withProgress({
@@ -112,7 +111,7 @@ fit.ppn = reactive(if (input$popan) {
       
       incProgress(1/n_sims())
     }
-  }, value = 0, message = "Fitting models")
+  }, value = 0, message = "Fitting Popan model")
   
   # Combine model estimates, standard errors, and convergences, as lists and
   # return those requested
@@ -167,7 +166,8 @@ check.ests = reactive({
     # Bounds are matrices for studies x parameters, true_vals is a vector for
     # parameters, and cis_ok is a vector for studies
     ci_cov[[i]] = 
-      t(true_vals() > t(lcbs[[i]]) & true_vals() < t(ucbs[[i]])) & cis_ok[[i]]
+      t(sim.par.vals() > t(lcbs[[i]]) & sim.par.vals() < t(ucbs[[i]])) &
+      cis_ok[[i]]
     
     # Overwrite for population parameters
     true_pops = cbind(sim.lst()$N.fin.vec, sim.lst()$Ns.vec)
@@ -183,7 +183,7 @@ check.ests = reactive({
   
   names(ests) = names(ses) = names(cis_ok) = names(lcbs) = names(ucbs) = 
     names(ci_cov) = names(N.fin.errs) = names(Ns.errs) = names(fit.lst()$ests)
-  colnames(prpn_ci_cov) = par_names()
+  colnames(prpn_ci_cov) = est.par.names()
   
   list(
     ests = ests, ses = ses, lcbs = lcbs, ucbs = ucbs, ci_cov = ci_cov,
@@ -209,9 +209,9 @@ output$modStats = renderTable({
 output$firstEsts <- renderTable({
   # Setup matrix and true parameter values
   rows = matrix(NA, n_mods() + 1, n_pars())
-  rows[1, ] = true_vals()
+  rows[1, ] = sim.par.vals()
   rows[1, 3:4] = c(sim.lst()$N.fin.vec[1], sim.lst()$Ns.vec[1])
-  colnames(rows) = par_names()
+  colnames(rows) = est.par.names()
   
   # Add model estimates
   for (i in 1:n_mods()) {
@@ -253,7 +253,7 @@ output$CICov = renderTable({
     model = mod_names(), 
     matrix(
       perc(check.ests()$prpn_ci_cov), n_mods(), n_pars(), 
-      dimnames = list(NULL, par_names())
+      dimnames = list(NULL, est.par.names())
     )
   )
 })
@@ -270,7 +270,7 @@ output$CIPlot = renderPlot({
       plot(
         rep(1:n_sims(), 2), 
         c(check.ests()$lcbs[[m]][, p], check.ests()$ucbs[[m]][, p]), 
-        main = mod_names()[m], ylab = par_names()[p], xlab = "", type = 'n'
+        main = mod_names()[m], ylab = est.par.names()[p], xlab = "", type = 'n'
       )
       # Plot estimates
       points(
@@ -285,7 +285,7 @@ output$CIPlot = renderPlot({
         col = 1 + !check.ests()$ci_cov[[m]][ord, p]
       )
       # True parameter value
-      abline(h = true_vals()[p], col = 2)
+      abline(h = sim.par.vals()[p], col = 2)
       # abline(h = c(lb(), ub()))
       # legend(
       #   "topleft", col = 1:2, lwd = c(1, 1), 

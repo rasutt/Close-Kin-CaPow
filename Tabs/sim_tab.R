@@ -1,19 +1,24 @@
-# Reactive implied parameter outputs
+# Reactive outputs for proposed simulation
 
-# Population growth rate
-output$lambda = renderText({
-  paste("Population growth rate (lambda):", input$rho + input$phi)
-})
-# Expected super-population size
-output$exp.Ns = renderText({
-  paste("Expected super-population size (Ns):", round(exp.Ns.rct()))
-})
+# Display simulation parameter values
+output$simParVals <- renderTable({
+  # Force simulation when starting app in sim tab
+  req(sim.lst())
+  # Make data frame for display
+  par_vals_df(sim.par.vals(), sim.par.names())
+}, digits = 3)
+# Display selected parameter values
+output$selParVals <- renderTable({
+  # Make data frame for display
+  par_vals_df(sim.par.vals.rct(), sim.par.names.rct())
+}, digits = 3)
 # Plot expected population size over time
 output$expPopPlot <- renderPlot({
   plot(
     (f.year.rct() - input$hist.len + 1):f.year.rct(), exp.N.t.rct(), 
     col = 'red', lwd = 2, t = 'l', ylim = c(0, max(exp.N.t.rct())),
-    xlab = 'Year', ylab = 'E(N[t])', main = "Expected population size over time"
+    xlab = 'Year', ylab = 'Exp_N_t', 
+    main = "Expected population size over time"
   )
   # Base year
   abline(v = input$base.yr, h = input$exp.N.base, col = 2)
@@ -24,4 +29,41 @@ output$expPopPlot <- renderPlot({
     "topleft", legend = c("Over time", "In base year", "Survey years"),
     col = c(2, 2, 1), lwd = c(2, 1, 1), lty = c(1, 1, 2)
   )
+})
+
+# Simulate population and capture histories
+sim.lst = reactive({
+  # Initial population size
+  N.init = round(exp.N.t()[1])
+  
+  # Create list for population and capture histories
+  hists.lst <- vector("list", n_sims())
+  # Create vectors for final and super-population sizes
+  N.fin.vec <- Ns.vec <- numeric(n_sims())
+  
+  # Display progress
+  cat("Simulating study: ")
+  
+  # Loop over histories
+  withProgress({
+    for (hist.ind in 1:n_sims()) {
+      # Display progress
+      if (hist.ind %% 100 == 1) cat(hist.ind, "")
+      
+      # Simulate family and capture histories of population of animals over
+      # time
+      hists.lst[[hist.ind]] <- SimPopStud(
+        phi(), lambda(), N.init, hist.len(), srvy.yrs(), k(), f.year(), p()
+      )
+      # Collect final and super-population sizes
+      N.fin.vec[hist.ind] <- tail(attributes(hists.lst[[hist.ind]])$N.t.vec, 1)
+      Ns.vec[hist.ind] <- attributes(hists.lst[[hist.ind]])$Ns
+      
+      # Update progress. Unexplained "Error in as.vector: object 'x' not
+      # found" seen 19/12/2021 coming from incProgress...
+      incProgress(1/n_sims())
+    }
+  }, value = 0, message = "Simulating populations")
+  
+  list(hists.lst = hists.lst, N.fin.vec = N.fin.vec, Ns.vec = Ns.vec)
 })

@@ -2,15 +2,11 @@
 
 -   Take a break and get away from your work.
 
--   Make it simulate populations when button pressed in sim tab.
-
 -   Show other kin-pairs in check tab.
 
 -   Allow selection of kin-pair types to include in close-kin model. Add half-sibling pairs between surveys.
 
 -   Allow for just one survey for close kin model
-
--   Show parameters simulated from in checking and analysis tabs.
 
 -   Extend model analysis to popan models and all parameters.
 

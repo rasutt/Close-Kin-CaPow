@@ -37,6 +37,17 @@ server <- function(input, output) {
     sum(exp.N.srvy.yrs) - sum(exp.N.srvy.yrs[-length(srvy.yrs.rct())] * 
       input$phi^(srvy.gaps.rct()))
   })
+  # Simulation parameter values
+  sim.par.vals.rct = reactive({
+    c(
+      lambda.rct(), input$phi, exp.N.t.rct()[input$hist.len], exp.Ns.rct(), 
+      rep(input$p, k.rct())
+    )
+  })
+  # Simulation parameter names
+  sim.par.names.rct = reactive({
+    c("lambda", "phi", "Exp_N_final", "Exp_Ns", paste0("p", srvy.yrs.rct()))
+  })
   # Models to fit
   models = reactive(input$models) 
   # ----
@@ -68,7 +79,25 @@ server <- function(input, output) {
   exp.N.t = bindEvent(exp.N.t.rct, input$simulate, ignoreNULL = F) 
   # Expected super-population size
   exp.Ns = bindEvent(exp.Ns.rct, input$simulate, ignoreNULL = F) 
+  # Simulation parameter values
+  sim.par.vals = bindEvent(sim.par.vals.rct, input$simulate, ignoreNULL = F) 
+  # Simulation parameter names
+  sim.par.names = bindEvent(sim.par.names.rct, input$simulate, ignoreNULL = F) 
+  # Estimate parameter names
+  est.par.names = bindEvent({
+    reactive(c("lambda", "phi", "N_final", "Ns", paste0("p", srvy.yrs())))
+  }, input$simulate, ignoreNULL = F) 
   # ----
+
+  # Function to make data frame of parameter values for display
+  par_vals_df = function(par_vals, par_names) {
+    par_mat = matrix(par_vals, nrow = 1)
+    colnames(par_mat) = par_names
+    par_df = data.frame(par_mat)
+    par_df[, 3] = as.integer(par_df[, 3])
+    par_df[, 4] = as.integer(par_df[, 4])
+    par_df
+  }
 
   # Load functions and outputs for simulating studies, checking simulations, and
   # analyzing model performance
