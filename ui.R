@@ -62,48 +62,47 @@ ui <- fluidPage(
         tabPanel(
           title = "Simulate studies",
           value = "sim_tab",
-          h4("Parameters and values simulated from"),
+          h4("Values simulated"),
           tableOutput(outputId = "simParVals"),
-          h4("Parameters and values to simulate from next"),
+          # plotOutput(outputId = "simExpPop"),
+          h4("Values to simulate next"),
           tableOutput(outputId = "selParVals"),
-          plotOutput(outputId = "expPopPlot")
+          plotOutput(outputId = "selExpPop")
         ),
         # ----
         # Check tab ----
         tabPanel(
           title = "Check simulation",
           value = "check_tab",
-          h4("Parameters and values simulated from"),
+          h4("Values simulated"),
           tableOutput(outputId = "checkParVals"),
+          h4("Simulation parameters"),
+          tableOutput(outputId = "checkSimVals"),
           plotOutput(outputId = "popPlot"),
-          h4("Head of first dataset"),
-          tableOutput(outputId = "dataHead"),
           plotOutput(outputId = "nPOPsPlot"),
-          textOutput(outputId = "percUnknPrnts")
+          textOutput(outputId = "percUnknPrnts"),
+          h4("Head of first dataset"),
+          tableOutput(outputId = "dataHead")
         ), 
         # ----
         # Model tab ----
         tabPanel(
           title = "Analyze model performance",
           value = "model_tab",
-          h4("Parameters and values simulated from"),
+          h4("Values simulated"),
           tableOutput(outputId = "modParVals"),
+          h4("Simulation parameters"),
+          tableOutput(outputId = "modSimVals"),
           h4("Model fitting success rates"),
           tableOutput(outputId = "modStats"),
-          h4("Estimates for first study"),
-          tableOutput(outputId = "firstEsts"),
-          h4("All estimates"),
+          h4("Estimates"),
           plotOutput(outputId = "modComp"),
-          h4(
-            "95% confidence interval coverage 
-            (log-normal for population parameters)"
-          ),
+          h4("95% confidence interval coverage"),
           tableOutput(outputId = "CICov"),
+          h4("Results for first study"),
+          tableOutput(outputId = "firstResults"),
           h4("95% confidence intervals for lambda"),
-          plotOutput(outputId = "CIPlot"),
-          h4("First 95% confidence intervals from first model"),
-          tableOutput(outputId = "firstCIs"),
-          plotOutput(outputId = "NLLPlot")
+          plotOutput(outputId = "CIPlot")
         )
         # ----
       )

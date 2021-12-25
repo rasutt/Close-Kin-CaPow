@@ -12,6 +12,9 @@ output$modParVals <- renderTable({
   par_vals_df(sim.par.vals(), sim.par.names())
 }, digits = 3)
 
+# Display simulation values
+output$modSimVals = renderTable(sim.vals())
+
 # Fit close-kin model
 fit.ck = reactive(if (input$close_kin) {
   # Create general optimizer starting-values and bounds, NAs filled in below
@@ -205,26 +208,6 @@ output$modStats = renderTable({
   )
 })
 
-# Print first few estimates for each model
-output$firstEsts <- renderTable({
-  # Setup matrix and true parameter values
-  rows = matrix(NA, n_mods() + 1, n_pars())
-  rows[1, ] = sim.par.vals()
-  rows[1, 3:4] = c(sim.lst()$N.fin.vec[1], sim.lst()$Ns.vec[1])
-  colnames(rows) = est.par.names()
-  
-  # Add model estimates
-  for (i in 1:n_mods()) {
-    rows[i + 1, ] = fit.lst()$ests[[i]][1, ]
-  }
-  
-  # Format and output table
-  ests.cnvg = data.frame(rows, row.names = c("True values", mod_names()))
-  ests.cnvg[, 4] = as.integer(ests.cnvg[, 4])
-  ests.cnvg[, 5] = as.integer(ests.cnvg[, 5])
-  ests.cnvg
-}, digits = 3, rownames = T)
-
 # Plot estimates using model comparison plot function
 output$modComp <- renderPlot({
   # Set four plots per figure
@@ -257,6 +240,39 @@ output$CICov = renderTable({
     )
   )
 })
+
+# Print results for first study
+output$firstResults <- renderTable({
+  # True parameter values
+  res.mat = matrix(sim.par.vals(), nrow = 1)
+  res.mat[1, 3:4] = c(sim.lst()$N.fin.vec[1], sim.lst()$Ns.vec[1])
+  colnames(res.mat) = est.par.names()
+  
+  # Model estimates
+  for (i in 1:n_mods()) {
+    res.mat = rbind(
+      res.mat, 
+      fit.lst()$ests[[i]][1, ], fit.lst()$ses[[i]][1, ],
+      check.ests()$lcbs[[i]][1, ], check.ests()$ucbs[[i]][1, ]
+    )
+  }
+  
+  # Result and model labels
+  res.vals = c(
+    "estimate", "standard_error", "lower_confidence_bound",
+    "upper_confidence_bound"
+  )
+  res.df = data.frame(
+    model = c("true_values", rep(mod_names(), each = 4)), 
+    value = c("true_values", rep(res.vals, n_mods())),
+    res.mat  
+  )
+  
+  # Formatting
+  res.df[, 5] = as.integer(res.df[, 5])
+  res.df[, 6] = as.integer(res.df[, 6])
+  res.df
+}, digits = 3)
 
 # Plot confidence intervals for lambda
 output$CIPlot = renderPlot({
@@ -296,59 +312,4 @@ output$CIPlot = renderPlot({
       # )
     }
   }
-})
-
-# Print first few estimates and convergences for first model
-output$firstCIs <- renderTable({
-  ests.cnvg = data.frame(
-    rbind(
-      fit.lst()$ests[[1]][1, ], fit.lst()$ses[[1]][1, ],
-      check.ests()$lcbs[[1]][1, ], check.ests()$ucbs[[1]][1, ]
-    ), 
-    row.names = c(
-      "estimate", "standard_error", "lower_confidence_bound",
-      "upper_confidence_bound"
-    )
-  )
-}, digits = 3, rownames = T)
-
-# Plot negative log-likelihood surface for first study
-output$NLLPlot <- renderPlot({
-  # Get simulated family and capture histories of population of animals over
-  # time
-  pop.cap.hist <- sim.lst()$hists.lst[[1]]
-  # Get numbers of animals captured in each survey
-  ns.caps <- attributes(pop.cap.hist)$ns.caps
-  # Find numbers of kin pairs
-  ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
-  # MLEs for rho, phi, and Ns
-  params = fit.lst()$ests[["close_kin"]][1, 1:3]
-  # Create grids of rho and NLL values
-  nll_grid = rho_grid = seq(min_rho, max_rho, step_rho) + phi() - params[2]
-  
-  # Find NLL over grid of rho values
-  for (i in seq_along(nll_grid)) {
-    params[1] = rho_grid[i]
-    nll_grid[i] = CloseKinNLL(
-      params, k(), f.year(), srvy.yrs(), ns.kps.lst, ns.caps
-    )
-  }
-  
-  # Plot NLL over grid of lambda values
-  plot(
-    rho_grid + params[2], nll_grid,
-    main = "Negative log-likelihood at MLEs from close kin model
-      for first study",
-    xlab = "Lambda", ylab = "NLL", type = 'l'
-  )
-  abline(v = lambda(), col = 2)
-  abline(v = fit.lst()$ests[["close_kin"]][1, 1], col = 4)
-  legend(
-    "topleft", 
-    legend = c("Negative log likelihood", "True lambda", "MLE of lambda"),
-    col = c(1, 2, 4),
-    lty = 1
-  )
-  # abline(v = cis()[1, 1], col = 4, lty = 2)
-  # abline(v = cis()[2, 1], col = 4, lty = 2)
 })

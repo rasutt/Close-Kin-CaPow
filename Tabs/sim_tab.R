@@ -13,7 +13,7 @@ output$selParVals <- renderTable({
   par_vals_df(sim.par.vals.rct(), sim.par.names.rct())
 }, digits = 3)
 # Plot expected population size over time
-output$expPopPlot <- renderPlot({
+output$selExpPop <- renderPlot({
   plot(
     (f.year.rct() - input$hist.len + 1):f.year.rct(), exp.N.t.rct(), 
     col = 'red', lwd = 2, t = 'l', ylim = c(0, max(exp.N.t.rct())),

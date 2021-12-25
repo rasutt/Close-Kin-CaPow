@@ -8,17 +8,11 @@
 
 -   Allow for just one survey for close kin model
 
--   Extend model analysis to popan models and all parameters.
-
 -   Also average confidence interval width, since often models fail by returning large variances and CI's that still cover their true values. Also average bias, since biases can cancel out, although I guess that comes into CV. Yeah nah, CV covers all of that I think. You check the CI coverage and bias for problems, and then look at the CV as the actual performance metric, which will still be bad for failed models. Still, easy to report them all so you can see how they fail I guess.
 
 -   Include the parameters controlling the biological scenarios Emma's interested in as inputs and investigate their effects.
 
--   Show parameters of last simulation to keep clear when the inputs been changed but not simulated from.
-
 -   Include mathematical explanations. Can use includeMarkdown() or withMathJax().
-
--   Can I make it so when new model requested, or model unselected, it doesn't fit old model again too?
 
 -   Investigate when close kin does and does not do better than popan
 

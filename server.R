@@ -87,6 +87,11 @@ server <- function(input, output) {
   est.par.names = bindEvent({
     reactive(c("lambda", "phi", "N_final", "Ns", paste0("p", srvy.yrs())))
   }, input$simulate, ignoreNULL = F) 
+  sim.vals = bindEvent({
+    reactive(data.frame(
+        Number_of_studies = n_sims(), Population_history_length = hist.len()
+    ))
+  }, input$simulate, ignoreNULL = F) 
   # ----
 
   # Function to make data frame of parameter values for display
