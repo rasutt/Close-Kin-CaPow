@@ -1,16 +1,12 @@
 ### Things to do
 
--   Take a break and get away from your work.
+-   Check why higher alpha causes bias in close kin model. Just fewer kin pairs? Or problem with kin pair probabilities other than POPs within samples.
 
 -   Show other kin-pairs in check tab.
 
 -   Allow selection of kin-pair types to include in close-kin model. Add half-sibling pairs between surveys.
 
--   Allow for just one survey for close kin model
-
--   Also average confidence interval width, since often models fail by returning large variances and CI's that still cover their true values. Also average bias, since biases can cancel out, although I guess that comes into CV. Yeah nah, CV covers all of that I think. You check the CI coverage and bias for problems, and then look at the CV as the actual performance metric, which will still be bad for failed models. Still, easy to report them all so you can see how they fail I guess.
-
--   Include the parameters controlling the biological scenarios Emma's interested in as inputs and investigate their effects.
+-   Allow for just one survey for close kin model.
 
 -   Include mathematical explanations. Can use includeMarkdown() or withMathJax().
 

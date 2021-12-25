@@ -7,11 +7,34 @@ output$simParVals <- renderTable({
   # Make data frame for display
   par_vals_df(sim.par.vals(), sim.par.names())
 }, digits = 3)
+# Display last simulation values
+output$lastSimVals = renderTable(sim.vals())
+
+# Plot expected population size over time
+output$simExpPop <- renderPlot({
+  plot(
+    (f.year() - input$hist.len + 1):f.year(), exp.N.t(), 
+    col = 'red', lwd = 2, t = 'l', ylim = c(0, max(exp.N.t())),
+    xlab = 'Year', ylab = 'Exp_N_t', 
+    main = "Expected population size over time"
+  )
+  # Base year
+  abline(v = input$base.yr, h = input$exp.N.base, col = 2)
+  # Surveys
+  abline(v = srvy.yrs(), lty = 2)
+  # Add legend
+  legend(
+    "topleft", legend = c("Over time", "In base year", "Survey years"),
+    col = c(2, 2, 1), lwd = c(2, 1, 1), lty = c(1, 1, 2)
+  )
+})
 # Display selected parameter values
 output$selParVals <- renderTable({
   # Make data frame for display
   par_vals_df(sim.par.vals.rct(), sim.par.names.rct())
 }, digits = 3)
+# Display next simulation values
+output$nextSimVals = renderTable(sim.vals.rct())
 # Plot expected population size over time
 output$selExpPop <- renderPlot({
   plot(
@@ -53,7 +76,8 @@ sim.lst = reactive({
       # Simulate family and capture histories of population of animals over
       # time
       hists.lst[[hist.ind]] <- SimPopStud(
-        phi(), lambda(), N.init, hist.len(), srvy.yrs(), k(), f.year(), p()
+        phi(), lambda(), N.init, hist.len(), srvy.yrs(), k(), f.year(), p(),
+        clvng.p(), tmp.emgn(), alpha()
       )
       # Collect final and super-population sizes
       N.fin.vec[hist.ind] <- tail(attributes(hists.lst[[hist.ind]])$N.t.vec, 1)

@@ -66,7 +66,7 @@ checks.lst = reactive({
       # Find expected numbers of kin pairs
       exp.ns.kps.lst <- FindExpNsKPs(
         k(), n.srvy.prs(), exp.N.fin, lambda(), f.year(), srvy.yrs(), phi(), 
-        rho(), ns.caps
+        rho(), ns.caps, alpha()
       )
       
       # Record in matrices

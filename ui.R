@@ -31,8 +31,22 @@ ui <- fluidPage(
         value = "1995:1998, 2006:2009, 2020"
       ),
       sliderInput(
-        inputId = "p", label = "Capture probability:",
+        inputId = "p", label = "Base level capture probability:",
         0, 0.2, value = 0.1, step = 0.01
+      ),
+      sliderInput(
+        inputId = "clvng.p", 
+        label = "Additional capture probability when calving:",
+        0, 0.5, value = 0, step = 0.05
+      ),
+      sliderInput(
+        inputId = "tmp.emgn", 
+        label = "Probability that males absent:",
+        0, 1, value = 0, step = 0.05
+      ),
+      sliderInput(
+        inputId = "alpha", label = "Age of sexual maturity:",
+        0, 16, value = 8, step = 1
       ),
       sliderInput(
         inputId = "hist.len", label = "Length of population histories:",
@@ -62,11 +76,13 @@ ui <- fluidPage(
         tabPanel(
           title = "Simulate studies",
           value = "sim_tab",
-          h4("Values simulated"),
+          h4("Last simulation"),
           tableOutput(outputId = "simParVals"),
-          # plotOutput(outputId = "simExpPop"),
-          h4("Values to simulate next"),
+          tableOutput(outputId = "lastSimVals"),
+          plotOutput(outputId = "simExpPop"),
+          h4("Next simulation"),
           tableOutput(outputId = "selParVals"),
+          tableOutput(outputId = "nextSimVals"),
           plotOutput(outputId = "selExpPop")
         ),
         # ----
@@ -76,7 +92,6 @@ ui <- fluidPage(
           value = "check_tab",
           h4("Values simulated"),
           tableOutput(outputId = "checkParVals"),
-          h4("Simulation parameters"),
           tableOutput(outputId = "checkSimVals"),
           plotOutput(outputId = "popPlot"),
           plotOutput(outputId = "nPOPsPlot"),
@@ -91,7 +106,6 @@ ui <- fluidPage(
           value = "model_tab",
           h4("Values simulated"),
           tableOutput(outputId = "modParVals"),
-          h4("Simulation parameters"),
           tableOutput(outputId = "modSimVals"),
           h4("Model fitting success rates"),
           tableOutput(outputId = "modStats"),

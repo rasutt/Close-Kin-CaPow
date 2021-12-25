@@ -27,7 +27,10 @@ fit.ck = reactive(if (input$close_kin) {
   
   # Create matrices for estimates and standard errors
   ck.tmb.ests <- ck.tmb.ses <- 
-    matrix(nrow = n_sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names()))
+    matrix(
+      nrow = n_sims(), ncol = 4 + k(), 
+      dimnames = list(NULL, est.par.names())
+    )
   
   # Loop over histories
   withProgress({
@@ -52,7 +55,7 @@ fit.ck = reactive(if (input$close_kin) {
       # Try to fit model
       ck.tmb.res <- TryCloseKinTMB(
         k(), srvy.gaps(), f.year(), srvy.yrs(), ns.caps, ns.kps.lst, 
-        ck.start, ck.lwr, ck.upr
+        ck.start, ck.lwr, ck.upr, alpha()
       )
       ck.tmb.ests[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
       ck.tmb.ses[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 2]

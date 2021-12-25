@@ -48,6 +48,16 @@ server <- function(input, output) {
   sim.par.names.rct = reactive({
     c("lambda", "phi", "Exp_N_final", "Exp_Ns", paste0("p", srvy.yrs.rct()))
   })
+  # Simulation values 
+  sim.vals.rct = reactive({
+    data.frame(
+      Number_of_studies = input$n_sims, 
+      Population_history_length = input$hist.len,
+      Calving_capture_probability = input$clvng.p, 
+      Male_absense_probability = input$tmp.emgn,
+      Age_of_sexual_maturity = input$alpha
+    )
+  })
   # Models to fit
   models = reactive(input$models) 
   # ----
@@ -63,6 +73,12 @@ server <- function(input, output) {
   srvy.yrs = bindEvent(srvy.yrs.rct, input$simulate, ignoreNULL = F)
   # Capture probability
   p = bindEvent(reactive(input$p), input$simulate, ignoreNULL = F)
+  # Additional capture probability when calving
+  clvng.p = bindEvent(reactive(input$clvng.p), input$simulate, ignoreNULL = F)
+  # Probability of males being away from survey area
+  tmp.emgn = bindEvent(reactive(input$tmp.emgn), input$simulate, ignoreNULL = F)
+  # Age of sexual maturity
+  alpha = bindEvent(reactive(input$alpha), input$simulate, ignoreNULL = F)
   # Length of simulation
   hist.len = bindEvent(reactive(input$hist.len), input$simulate, ignoreNULL = F)
   # Number of simulations
@@ -87,11 +103,8 @@ server <- function(input, output) {
   est.par.names = bindEvent({
     reactive(c("lambda", "phi", "N_final", "Ns", paste0("p", srvy.yrs())))
   }, input$simulate, ignoreNULL = F) 
-  sim.vals = bindEvent({
-    reactive(data.frame(
-        Number_of_studies = n_sims(), Population_history_length = hist.len()
-    ))
-  }, input$simulate, ignoreNULL = F) 
+  # Simulation values 
+  sim.vals = bindEvent(sim.vals.rct, input$simulate, ignoreNULL = F) 
   # ----
 
   # Function to make data frame of parameter values for display

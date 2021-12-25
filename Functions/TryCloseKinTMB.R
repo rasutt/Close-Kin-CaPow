@@ -1,6 +1,7 @@
 # Try to fit close kin model with TMB
 TryCloseKinTMB <- function(
-  k, srvy.gaps, f.year, srvy.yrs, ns.caps, ns.kps.lst, ck.start, ck.lwr, ck.upr
+  k, srvy.gaps, f.year, srvy.yrs, ns.caps, ns.kps.lst, ck.start, ck.lwr, ck.upr,
+  alpha
 ) {
   # Create TMB function
   data <- list(
