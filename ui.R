@@ -94,7 +94,11 @@ ui <- fluidPage(
           tableOutput(outputId = "checkParVals"),
           tableOutput(outputId = "checkSimVals"),
           plotOutput(outputId = "popPlot"),
-          plotOutput(outputId = "nPOPsPlot"),
+          h4("Observed minus expected numbers of kin-pairs"),
+          plotOutput(outputId = "nsPOPsWtn"),
+          plotOutput(outputId = "nsHSPsWtn"),
+          plotOutput(outputId = "nsPOPsBtn"),
+          plotOutput(outputId = "nsSPsBtn"),
           textOutput(outputId = "percUnknPrnts"),
           h4("Head of first dataset"),
           tableOutput(outputId = "dataHead")

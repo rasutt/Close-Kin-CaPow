@@ -1,8 +1,6 @@
 ### Things to do
 
--   Check why higher alpha causes bias in close kin model. Just fewer kin pairs? Or problem with kin pair probabilities other than POPs within samples.
-
--   Show other kin-pairs in check tab.
+-   Figure out why higher alpha causes bias in expected numbers of HSPs within samples.
 
 -   Allow selection of kin-pair types to include in close-kin model. Add half-sibling pairs between surveys.
 

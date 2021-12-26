@@ -82,7 +82,13 @@ checks.lst = reactive({
   list(
     N.t.mat = N.t.mat, 
     ns.POPs.wtn.mat = ns.POPs.wtn.mat,
+    ns.HSPs.wtn.mat = ns.HSPs.wtn.mat,
+    ns.POPs.btn.mat = ns.POPs.btn.mat,
+    ns.SPs.btn.mat = ns.SPs.btn.mat,
     exp.ns.POPs.wtn.mat = exp.ns.POPs.wtn.mat,
+    exp.ns.HSPs.wtn.mat = exp.ns.HSPs.wtn.mat,
+    exp.ns.POPs.btn.mat = exp.ns.POPs.btn.mat,
+    exp.ns.SPs.btn.mat = exp.ns.SPs.btn.mat,
     prpn.prnts.unkn.vec = prpn.prnts.unkn.vec,
     ns.caps.mat = ns.caps.mat
   )
@@ -111,35 +117,54 @@ output$popPlot <- renderPlot({
 # Print head of first study
 output$dataHead <- renderTable(head(data.frame(sim.lst()$hists.lst[[1]])))
 
-# Plot numbers of parent-offspring pairs within samples
-output$nPOPsPlot <- renderPlot({
-  # srvy.inds = hist.len + srvy.yrs - f.year
-  # prpns = checks.lst()$ns.POPs.wtn.mat / 
-  #   choose(checks.lst()$ns.caps.mat, 2)
-  # exp.prpns = 
-  #   checks.lst()$exp.ns.POPs.wtn.mat / choose(exp.N.t()[srvy.inds] * p, 2)
-  diffs = checks.lst()$ns.POPs.wtn.mat - checks.lst()$exp.ns.POPs.wtn.mat
+nsKPsPlot = function(n_obs, n_exp, x, xlab, kp_type) {
+  diffs = n_obs - n_exp
+  colnames(diffs) = x
   boxplot(
-    diffs,
-    main = 
-      "Expected vs observed numbers of parent-offspring pairs within samples",
-    # sub = paste(
-    #   "Average difference over all surveys:",
-    #   signif(mean(diffs), 3)
-    # ),
-    xlab = "Survey", 
-    ylab = "Observed - expected numbers"
+    diffs, main = kp_type, xlab = xlab, ylab = "Observed - expected numbers"
   )
   abline(h = 0, col = 'red')
   abline(h = mean(diffs), col = 'blue')
   legend(
-    "topleft", 
+    "topleft", col = c(2, 4), lty = 1,
     legend = c(
       "Expected difference over all surveys (zero)", 
       "Average difference over all surveys"
     ),
-    col = c(2, 4),
-    lty = 1
+  )
+}
+
+# Plot numbers of parent-offspring pairs within samples
+output$nsPOPsWtn <- renderPlot({
+  nsKPsPlot(
+    checks.lst()$ns.POPs.wtn.mat, checks.lst()$exp.ns.POPs.wtn.mat, 
+    srvy.yrs(), "Survey", "Parent-offspring pairs within samples"
+  )
+})
+
+# Plot numbers of half-sibling pairs within samples
+output$nsHSPsWtn <- renderPlot({
+  nsKPsPlot(
+    checks.lst()$ns.HSPs.wtn.mat, checks.lst()$exp.ns.HSPs.wtn.mat, 
+    srvy.yrs(), "Survey", "Half-sibling pairs within samples"
+  )
+})
+
+# Plot numbers of parent-offspring pairs between samples
+output$nsPOPsBtn <- renderPlot({
+  nsKPsPlot(
+    checks.lst()$ns.POPs.btn.mat, checks.lst()$exp.ns.POPs.btn.mat, 
+    apply(combn(srvy.yrs(), 2), 2, paste, collapse = "-"), "Survey-pair", 
+    "Parent-offspring pairs between samples"
+  )
+})
+
+# Plot numbers of self-pairs between samples
+output$nsSPsBtn <- renderPlot({
+  nsKPsPlot(
+    checks.lst()$ns.SPs.btn.mat, checks.lst()$exp.ns.SPs.btn.mat, 
+    apply(combn(srvy.yrs(), 2), 2, paste, collapse = "-"), "Survey-pair", 
+    "Self-pairs between samples"
   )
 })
 
