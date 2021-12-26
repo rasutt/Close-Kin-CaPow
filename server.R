@@ -69,7 +69,9 @@ server <- function(input, output) {
   rho <- bindEvent(reactive(input$rho), input$simulate, ignoreNULL = F)
   # Population growth rate
   lambda <- bindEvent(lambda.rct, input$simulate, ignoreNULL = F)
+  # Base year for expected population size
   base.yr = bindEvent(reactive(input$base.yr), input$simulate, ignoreNULL = F)
+  # Expected population size in base year
   exp.N.base = bindEvent({
     reactive(input$exp.N.base)
   }, input$simulate, ignoreNULL = F)
