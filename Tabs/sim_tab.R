@@ -19,7 +19,7 @@ output$simExpPop <- renderPlot({
     main = "Expected population size over time"
   )
   # Base year
-  abline(v = input$base.yr, h = input$exp.N.base, col = 2)
+  abline(v = base.yr(), h = exp.N.base(), col = 2)
   # Surveys
   abline(v = srvy.yrs(), lty = 2)
   # Add legend

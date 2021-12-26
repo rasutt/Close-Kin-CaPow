@@ -69,6 +69,10 @@ server <- function(input, output) {
   rho <- bindEvent(reactive(input$rho), input$simulate, ignoreNULL = F)
   # Population growth rate
   lambda <- bindEvent(lambda.rct, input$simulate, ignoreNULL = F)
+  base.yr = bindEvent(reactive(input$base.yr), input$simulate, ignoreNULL = F)
+  exp.N.base = bindEvent({
+    reactive(input$exp.N.base)
+  }, input$simulate, ignoreNULL = F)
   # Survey years
   srvy.yrs = bindEvent(srvy.yrs.rct, input$simulate, ignoreNULL = F)
   # Capture probability
