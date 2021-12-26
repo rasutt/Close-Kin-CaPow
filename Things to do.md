@@ -2,6 +2,8 @@
 
 -   Figure out why higher alpha causes bias in expected numbers of HSPs within samples.
 
+-   Add combined model, and other simulation checks.
+
 -   Allow selection of kin-pair types to include in close-kin model. Add half-sibling pairs between surveys.
 
 -   Allow for just one survey for close kin model.
