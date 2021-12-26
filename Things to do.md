@@ -8,6 +8,8 @@
 
 -   Allow for just one survey for close kin model.
 
+-   Allow results to be downloaded, as both R objects and pdf report.
+
 -   Include mathematical explanations. Can use includeMarkdown() or withMathJax().
 
 -   Investigate when close kin does and does not do better than popan
