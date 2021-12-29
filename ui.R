@@ -59,7 +59,7 @@ ui <- fluidPage(
       actionButton(
         inputId = "simulate", label = "Simulate studies"
       ),
-      helpText("~1 second per 10 populations"),
+      helpText("~3 seconds per 100 populations"),
       checkboxInput(
         inputId = "popan", label = "Popan model", value = T
       ),
