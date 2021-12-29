@@ -19,7 +19,7 @@ FindNsKinPairs <- function(k, n.srvy.prs, pop.cap.hist) {
     ns.HSPs.wtn[smp.ind] <- sum(
       choose(table(fam.samp$mum), 2),
       choose(table(fam.samp$dad), 2),
-      -choose(table(fam.samp$mum, fam.samp$dad), 2)
+      - 2 * choose(table(fam.samp$mum, fam.samp$dad), 2)
     )
   }
   

@@ -2,7 +2,6 @@
 output$checkParVals <- renderTable({
   par_vals_df(sim.par.vals(), sim.par.names())
 }, digits = 3)
-
 # Display simulation values
 output$checkSimVals = renderTable(sim.vals())
 
