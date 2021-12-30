@@ -6,7 +6,7 @@ FindNsKinPairs <- function(k, n.srvy.prs, pop.cap.hist) {
   
   # Loop over surveys
   for (smp.ind in 1:k) {
-    # Find family data for current and next sample
+    # Find family data for current sample
     fam.samp <- pop.cap.hist[pop.cap.hist[, 3 + smp.ind] == 1, ]
 
     # Find number of POPs within current sample
@@ -19,7 +19,7 @@ FindNsKinPairs <- function(k, n.srvy.prs, pop.cap.hist) {
     ns.HSPs.wtn[smp.ind] <- sum(
       choose(table(fam.samp$mum), 2),
       choose(table(fam.samp$dad), 2),
-      - 2 * choose(table(fam.samp$mum, fam.samp$dad), 2)
+      -2 * choose(table(fam.samp$mum, fam.samp$dad), 2)
     )
   }
   
