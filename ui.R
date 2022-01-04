@@ -95,6 +95,7 @@ ui <- fluidPage(
           tableOutput(outputId = "checkSimVals"),
           plotOutput(outputId = "popPlot"),
           tableOutput(outputId = "lambdaHat"),
+          tableOutput(outputId = "alive"),
           h4("Observed minus expected numbers of kin-pairs"),
           plotOutput(outputId = "nsPOPsWtn"),
           plotOutput(outputId = "nsHSPsWtn"),

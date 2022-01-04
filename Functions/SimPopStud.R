@@ -1,7 +1,7 @@
 # Function to simulate a population of animals over time and a mark-recapture
 # study of it.
 
-# Returns: Dataframe with IDs, parents (NA for initial population), and
+# Returns: Data frame with IDs, parents (NA for initial population), and
 # capture histories for captured animals, with parameters, implied birthrate
 # beta, and population trajectory N.t.vec attached.
 SimPopStud <- function(
@@ -32,9 +32,11 @@ SimPopStud <- function(
   N.t.vec <- numeric(hist.len)
   N.t.vec[1] <- N.init
   
-  # Create lists for life and calving statuses of animals in survey years
-  alv.srvy <- vector("list", k)
-  clvng.srvy <- vector("list", k)
+  # Create lists for life and calving statuses of animals in survey years, and
+  # life in all years for testing
+  alv.srvy <- clvng.srvy <- vector("list", k)
+  alv.all <- vector("list", hist.len)
+  alv.all[[1]] <- alive
   
   # Set survey counter to zero
   srvy.cnt <- 0
@@ -103,6 +105,9 @@ SimPopStud <- function(
     
     # Record population size
     N.t.vec[t] <- sum(alive)
+    
+    # Add life statuses to list
+    alv.all[[t]] <- alive
 
     # If survey year add life and calving statuses of animals to lists
     if ((f.year - hist.len + t) %in% srvy.yrs) {
@@ -119,6 +124,13 @@ SimPopStud <- function(
   # Adjust birth years with respect to final year
   b.year <- b.year + f.year - hist.len
   
+  # Create matrix and enter life statuses of animals over all years for testing
+  alv.mat <- matrix(0, length(alive), hist.len)
+  for (t in 1:hist.len) {
+    alv.mat[1:length(alv.all[[t]]), t] <- alv.all[[t]]
+  }
+  mode(alv.mat) <- "integer"
+
   # Create matrices and enter life and calving statuses of animals in survey
   # years
   cap.hists <- clvng.hists <- matrix(F, length(alive), k)
@@ -130,17 +142,17 @@ SimPopStud <- function(
   clvng.hists[is.na(clvng.hists)] <- F
   mode(clvng.hists) <- "integer"
   
-  # Find superpopulation size of study
+  # Find super-population size of study
   Ns <- sum(rowSums(cap.hists) > 0)
-  
-  # Find numbers calving in survey years
-  ns.clvng <- colSums(clvng.hists)
   
   # Change life statuses to capture histories
   # The capture probability depends on male temporary emigration, and calving
   cap.hists[cap.hists] <- 
     rbinom(sum(cap.hists), 1, p * (1 - tmp.emgn * !rep(female, k)[cap.hists]) + 
              clvng.hists[cap.hists] * clvng.p)
+  
+  # Find numbers calving in survey years
+  ns.clvng <- colSums(clvng.hists)
   
   # Label capture and calving history columns by year
   colnames(cap.hists) <- paste0("C", srvy.yrs)
@@ -153,12 +165,15 @@ SimPopStud <- function(
   pop.hist <- 
     data.frame(ID, mum, dad, cap.hists, clvng.hists)[rowSums(cap.hists) > 0, ]
   
+  rownames(alv.mat) <- ID
+  
   # Attach parameters and implied birthrate
   attributes(pop.hist)$beta <- beta
   attributes(pop.hist)$N.t.vec <- N.t.vec
   attributes(pop.hist)$ns.caps <- colSums(cap.hists)
   attributes(pop.hist)$Ns <- Ns
   attributes(pop.hist)$ns.clvng <- ns.clvng
+  attributes(pop.hist)$alv.mat <- alv.mat
   
   # Display runtime
   # cat("Final population size:", tail(N.t.vec, 1), "\n")

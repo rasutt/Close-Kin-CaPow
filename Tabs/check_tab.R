@@ -131,6 +131,13 @@ output$lambdaHat = renderTable({
 
 # Check derived expressions
 
+# First life histories from first study
+output$alive = renderTable({
+  df = data.frame(head(attributes(sim.lst()$hists.lst[[1]])$alv.mat))
+  names(df) = (f.year() - hist.len() + 1):f.year()
+  df
+}, rownames = T)
+
 # Function to plot simulated versus expected numbers of kin-pairs
 nsKPsPlot = function(n_obs, n_exp, x, xlab, kp_type) {
   diffs = n_obs - n_exp
