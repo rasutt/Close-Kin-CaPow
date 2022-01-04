@@ -54,7 +54,7 @@ ui <- fluidPage(
       ),
       sliderInput(
         inputId = "n_sims", label = "Number of studies to simulate:",
-        0, 1000, value = 10, step = 10
+        0, 1000, value = 40, step = 10
       ),
       actionButton(
         inputId = "simulate", label = "Simulate studies"
@@ -71,7 +71,7 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(
         id = "tab",
-        selected = "sim_tab",
+        selected = "check_tab",
         # Sim tab ----
         tabPanel(
           title = "Simulate studies",
@@ -94,6 +94,7 @@ ui <- fluidPage(
           tableOutput(outputId = "checkParVals"),
           tableOutput(outputId = "checkSimVals"),
           plotOutput(outputId = "popPlot"),
+          tableOutput(outputId = "lambdaHat"),
           h4("Observed minus expected numbers of kin-pairs"),
           plotOutput(outputId = "nsPOPsWtn"),
           plotOutput(outputId = "nsHSPsWtn"),

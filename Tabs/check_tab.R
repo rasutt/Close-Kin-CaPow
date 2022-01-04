@@ -39,7 +39,7 @@ checks.lst = reactive({
       # Record population curve
       N.t.mat[hist.ind, ] <- attributes(pop.cap.hist)$N.t.vec
       
-      # Record superpopulation size
+      # Record super-population size
       Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
       
       # Get numbers captured and calving in each survey
@@ -80,6 +80,7 @@ checks.lst = reactive({
   
   list(
     N.t.mat = N.t.mat, 
+    mean.N.t = colMeans(N.t.mat),
     ns.POPs.wtn.mat = ns.POPs.wtn.mat,
     ns.HSPs.wtn.mat = ns.HSPs.wtn.mat,
     ns.POPs.btn.mat = ns.POPs.btn.mat,
@@ -103,19 +104,34 @@ output$popPlot <- renderPlot({
     xlab = 'Year', ylab = 'Nt', main = "Population sizes over time"
   )
   # Expected value
-  lines((f.year() - hist.len() + 1):f.year(), exp.N.t(), col = 'red', lwd = 2)
+  lines((f.year() - hist.len() + 1):f.year(), exp.N.t(), col = 2, lwd = 2)
+  # Average value
+  lines(
+    (f.year() - hist.len() + 1):f.year(), checks.lst()$mean.N.t, 
+    col = 4, lwd = 2
+  )
   # Surveys
   abline(v = srvy.yrs(), lty = 2)
   # Add legend
   legend(
-    "topleft", legend = c("Simulated", "Expected", "Survey years"),
-    col = c(rgb(0, 0, 0, alpha = 0.1), 2, 1), lwd = c(1, 2, 1), lty = c(1, 1, 2)
+    "topleft", legend = c("Expected", "Simulated", "Mean", "Survey years"),
+    col = c(2, rgb(0, 0, 0, alpha = 0.1), 4, 1), lwd = c(2, 1, 2, 1), 
+    lty = c(1, 1, 1, 2)
   )
 })
 
-# Print head of first study
-output$dataHead <- renderTable(head(data.frame(sim.lst()$hists.lst[[1]])))
+# Check lambda
+output$lambdaHat = renderTable({
+  df = data.frame(
+    mean(checks.lst()$mean.N.t[-1] / checks.lst()$mean.N.t[-hist.len()])
+  )
+  names(df) = "Average ratio of consecutive average simulated population-sizes"
+  df
+}, digits = 3)
 
+# Check derived expressions
+
+# Function to plot simulated versus expected numbers of kin-pairs
 nsKPsPlot = function(n_obs, n_exp, x, xlab, kp_type) {
   diffs = n_obs - n_exp
   colnames(diffs) = x
@@ -133,7 +149,7 @@ nsKPsPlot = function(n_obs, n_exp, x, xlab, kp_type) {
   )
 }
 
-# Plot numbers of parent-offspring pairs within samples
+# Parent-offspring pairs within samples
 output$nsPOPsWtn <- renderPlot({
   nsKPsPlot(
     checks.lst()$ns.POPs.wtn.mat, checks.lst()$exp.ns.POPs.wtn.mat, 
@@ -141,7 +157,7 @@ output$nsPOPsWtn <- renderPlot({
   )
 })
 
-# Plot numbers of half-sibling pairs within samples
+# Half-sibling pairs within samples
 output$nsHSPsWtn <- renderPlot({
   nsKPsPlot(
     checks.lst()$ns.HSPs.wtn.mat, checks.lst()$exp.ns.HSPs.wtn.mat, 
@@ -149,7 +165,7 @@ output$nsHSPsWtn <- renderPlot({
   )
 })
 
-# Plot numbers of parent-offspring pairs between samples
+# Parent-offspring pairs between samples
 output$nsPOPsBtn <- renderPlot({
   nsKPsPlot(
     checks.lst()$ns.POPs.btn.mat, checks.lst()$exp.ns.POPs.btn.mat, 
@@ -158,7 +174,7 @@ output$nsPOPsBtn <- renderPlot({
   )
 })
 
-# Plot numbers of self-pairs between samples
+# Self-pairs between samples
 output$nsSPsBtn <- renderPlot({
   nsKPsPlot(
     checks.lst()$ns.SPs.btn.mat, checks.lst()$exp.ns.SPs.btn.mat, 
@@ -185,3 +201,6 @@ output$percUnknPrnts <- renderText({
     round(mean(checks.lst()$prpn.prnts.unkn.vec) * 100, 1), "%"
   )
 })
+
+# Print head of first study
+output$dataHead <- renderTable(head(data.frame(sim.lst()$hists.lst[[1]])))

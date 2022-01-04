@@ -11,8 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Expected number of animals born at time $t_1$ and surviving until time $t_2$
 
-Let $N_t$ be the population size at time $t$, $\phi$ be the probability of an animal surviving from time $t$ to time $t + 1$, and 
-$$\lambda = \frac {E(N_{t + 1})}{E(N_t)}$$
+Let $N_t$ be the population size at time $t$, $\phi$ be the probability of an animal surviving from time $t - 1$ to time $t$, and 
+$$\lambda = \frac {E(N_{t})}{E(N_{t - 1})}$$
 be the population growth rate, where $\phi < \lambda$.
 
 Then
