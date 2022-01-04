@@ -10,17 +10,18 @@ checks.lst = reactive({
   # Expected final population size
   exp.N.fin <- exp.N.t()[hist.len()]
   
-  # Create matrices for population trajectories (as columns), numbers
-  # captured, and expected and observed numbers of kin pairs
+  # Create matrices for population trajectories (as columns), numbers of births
+  # and deaths, numbers captured, and expected and observed numbers of kin pairs
   N.t.mat <- matrix(nrow = n_sims(), ncol = hist.len())
+  ns_bths <- ns_dths <- matrix(nrow = n_sims(), ncol = hist.len() - 1)
   ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- ns.POPs.wtn.mat <- 
     ns.HSPs.wtn.mat <- exp.ns.HSPs.wtn.mat <- exp.ns.POPs.wtn.mat <- 
     matrix(nrow = n_sims(), ncol = k())
   ns.POPs.btn.mat <- ns.SPs.btn.mat <- exp.ns.POPs.btn.mat <- 
     exp.ns.SPs.btn.mat <- matrix(nrow = n_sims(), ncol = n.srvy.prs())
   
-  # Create vectors for proportions with unknown parents, and
-  # super-population sizes
+  # Create vectors for proportions with unknown parents, and super-population
+  # sizes
   prpn.prnts.unkn.vec <- Ns.vec <- numeric(n_sims())
   
   # Display progress
@@ -38,6 +39,12 @@ checks.lst = reactive({
       
       # Record population curve
       N.t.mat[hist.ind, ] <- attributes(pop.cap.hist)$N.t.vec
+      
+      # Find birth and survival rates
+      f_alv_mat = attributes(pop.cap.hist)$alv.mat
+      bs_n_ds = f_alv_mat[, -1] != f_alv_mat[, -hist.len()]
+      ns_bths[hist.ind, ] = colSums(bs_n_ds & f_alv_mat[, -hist.len()] == 0)
+      ns_dths[hist.ind, ] = colSums(bs_n_ds & f_alv_mat[, -hist.len()] == 1)
       
       # Record super-population size
       Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
@@ -81,6 +88,8 @@ checks.lst = reactive({
   list(
     N.t.mat = N.t.mat, 
     mean.N.t = colMeans(N.t.mat),
+    ns_bths = ns_bths,
+    ns_dths = ns_dths,
     ns.POPs.wtn.mat = ns.POPs.wtn.mat,
     ns.HSPs.wtn.mat = ns.HSPs.wtn.mat,
     ns.POPs.btn.mat = ns.POPs.btn.mat,
@@ -93,6 +102,8 @@ checks.lst = reactive({
     ns.caps.mat = ns.caps.mat
   )
 })
+
+# Show check results
 
 # Plot population sizes over time
 output$popPlot <- renderPlot({
@@ -120,16 +131,15 @@ output$popPlot <- renderPlot({
   )
 })
 
-# Check lambda
-output$lambdaHat = renderTable({
-  df = data.frame(
-    mean(checks.lst()$mean.N.t[-1] / checks.lst()$mean.N.t[-hist.len()])
-  )
-  names(df) = "Average ratio of consecutive average simulated population-sizes"
+# Observed parameter values
+output$obsParVals = renderTable({
+  br = mean(checks.lst()$ns_bths / checks.lst()$N.t.mat[, -hist.len()])
+  sr = 1 - mean(checks.lst()$ns_dths / checks.lst()$N.t.mat[, -hist.len()])
+  gr = mean(checks.lst()$mean.N.t[-1] / checks.lst()$mean.N.t[-hist.len()])
+  df = data.frame(br, gr, sr)
+  names(df) = c("Birth rate", "Growth rate", "Survival rate")
   df
 }, digits = 3)
-
-# Check derived expressions
 
 # First life histories from first study
 output$alive = renderTable({
