@@ -1,6 +1,8 @@
 ### Things to do
 
--   Figure out why higher alpha causes bias in expected numbers of HSPs within samples.
+-   Figure out why higher alpha causes bias in expected numbers of HSPs within samples. Check whether it could be the expression for probability of a mother having a calf, where I've confused the ratio of expectations for the expectation of the ratio of dependent variables. It seems like it might apply to Mark's work too.
+
+-   Make the simulation and kin-pair probabilities consistent about the requirement that animals are mature at the time of their first calf's birth, rather than the year before.
 
 -   Add combined model, and other simulation checks.
 

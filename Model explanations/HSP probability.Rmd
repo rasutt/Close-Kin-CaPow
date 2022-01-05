@@ -12,42 +12,85 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Expected number of animals born at time $t_1$ and surviving until time $t_2$
 
-Let $N_t$ be the population size at time $t$, $\phi$ be the probability of an animal surviving from time $t - 1$ to time $t$, and 
-$$\lambda = \frac {E(N_{t})}{E(N_{t - 1})}$$
-be the population growth rate, where $\phi \le \lambda$.
+Let 
+
+- $N_t$ be the population size at time $t$, 
+- $\phi$ be the probability of an animal surviving from time $t - 1$ to time $t$, and 
+- $\lambda = \frac {E(N_{t})}{E(N_{t - 1})}$ be the population growth rate, where $E(.)$ is the expected value of $.$, and $\lambda \ge \phi$.
 
 Then
 $$E(N_{t - 1}) = \frac{E(N_t)}{\lambda},$$
-and the expected number of animals that survive from time $t - 1$ to time $t$ is 
-$$\frac{\phi}{\lambda} E(N_t).$$ 
-This is also the expected number of animals that are alive at time $t$, but were born before time $t$.  Thus the expected number of animals that are born at any time $t$ is
-$$ E(B_t) = \left(1 - \frac{\phi}{\lambda} \right) E(N_t).$$
+$$E(N_{t - 2}) = \frac{E(N_{t - 1})}{\lambda} = \frac{E(N_t)}{\lambda^2},$$
+and
+$$E(N_{t_1}) = \frac{E(N_{t_2})}{\lambda^{t_2 - t_1}}.$$
 
-The expected number of animals that are born at time $t_1$ and survive until time $t_2$ is
-$$ \phi^{t_2 - t_1} E(B_{t_1}) = \phi^{t_2 - t_1} (1 - \frac{\phi}{\lambda}) E(N_{t_1})$$
+The probability that an animal survives from time $t_1$ to time $t_2$ is $\phi^{t_2 - t_1}$, where $t_2 > t_1$.
+
+Let $S_{t_1, t_2}$ be the number of animals that survive from time $t_1$ to time $t_2$.  Then 
+$$S_{t_1, t_2} \sim Bin(N_{t_1}, \phi^{t_2 - t_1}),$$
+and
+$$E(S_{t_1, t_2}) = E\{E(S_{t_1, t_2}|N_{t_1})\}$$
+$$= E(N_{t_1} \phi^{t_2 - t_1})$$
+$$= E(N_{t_1}) \phi^{t_2 - t_1}$$
+$$= \frac{E(N_{t_2})}{\lambda^{t_2 - t_1}} \phi^{t_2 - t_1}$$
+$$= E(N_{t_2}) \left(\frac{\phi}{\lambda}\right)^{t_2 - t_1}.$$
+
+Let $B_t$ be the number of animals that are born at time $t$.  Then
+$$B_t = N_t - S_{t - 1, t},$$
+and
+$$E(B_t) = E(N_t - S_{t - 1, t})$$
+$$= E(N_t) - E(S_{t - 1, t})$$
+$$= E(N_t) - E(N_t) \left(\frac{\phi}{\lambda}\right)^{t - (t - 1)}$$
+$$= E(N_t) - E(N_t) \frac{\phi}{\lambda}$$
+$$= E(N_t) \left(1 - \frac{\phi}{\lambda} \right).$$
+
+Let $C_{t_1, t_2}$ be the number of animals that are born at time $t_1$ and survive until time $t_2$.  Then
+$$C_{t_1, t_2} \sim Bin(B_{t_1}, \phi^{t_2 - t_1}),$$
+and
+$$E(C_{t_1, t_2}) = E\{E(C_{t_1, t_2}|B_{t_1})\}$$
+$$= E(B_{t_1} \phi^{t_2 - t_1})$$
+$$= E(B_{t_1}) \phi^{t_2 - t_1}$$
+$$= E(N_{t_1}) \left(1 - \frac{\phi}{\lambda}\right) \phi^{t_2 - t_1}$$
 $$ = \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right) ^{t_2 - t_1} E(N_{t_2}).$$
 
-### Expected number of pairs with the same mother at time $t$
+### Expected number of pairs of animals at time $t$ with the same mother
 
 Let $b_1$, and $b_2$ be the years of birth of a pair of animals that are alive at time $t$.  New Zealand southern right whales have one calf at a time.  So if the animals are maternal half-siblings then $b_1 \ne b_2$.  Let $b_1$ be the birth year of the older sibling, so that $b_1 < b_2$.  
 
 The expected number of animals that are born at time $b_1$ and survive until time $t$ is
-$$ \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right) ^{t - b_1} E(N_t).$$
-The probability that the mother survives from time $b_1$ to time $b_2 - 1$ is $\phi^{b_2 - 1 - b_1}$.
+$$E(C_{b_1, t}) =  \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right) ^{t - b_1} E(N_t).$$
+The probability that the mother survives from time $b_1$ to time $b_2$ is $\phi^{b_2 - b_1}$.
 
-Let $\alpha$ be the age of sexual maturity for NZSRWs.  The expected number of animals that survive from time $b_2 - 1 - \alpha$ to time $b_2 - 1$, and are thus alive and mature at time $b_2 - 1$, is then
-$$ E(M_{b_2 - 1}) =\left( \frac{\phi}{\lambda} \right)^\alpha E(N_{b_2 - 1}) = \left( \frac{\phi}{\lambda} \right)^\alpha \frac {E(N_{b_2})}{\lambda},$$ 
-of which half are female.
+Let 
 
-The probability that the mother has a calf at time $b_2$, given that she is alive at time $b_2 - 1$, is then
-$$ 2 \frac {E(B_{b_2})}{E(M_{b_2 - 1})} = 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha.$$
+- $\alpha$ be the age of sexual maturity for NZSRWs, and 
+- $F_{b_2}$ the number of mature females at time $b_2$.
+
+The probability that the mother has another calf at time $b_2$, given that she survives until then, is then $E\left(\frac{B_{b_2}}{F_{b_2}}\right)$.  The terms in this fraction are not independent because the more mature females there are, the more animals are likely to be born.
+
+
+
+
+The expected number of animals that survive from time $b_2 - \alpha$ to time $b_2$, and are female, is
+$$\frac{E(S_{b_2 - \alpha, b_2})}{2} = \left( \frac{\phi}{\lambda} \right)^{b_2 - (b_2 - \alpha)} \frac{E(N_{b_2})}{2}$$
+$$= \left( \frac{\phi}{\lambda} \right)^\alpha \frac{E(N_{b_2})}{2},$$
+assuming that each animal is female with probability $0.5$.
+
+The probability that the mother has another calf at time $b_2$, given that she is alive at time $b_2$, is then
+
+$$E\left(\frac{B_{b_2}}{S_{b_2 - \alpha, b_2} / 2}\right) = 2 E\left(\frac{B_{b_2}}{S_{b_2 - \alpha, b_2}}\right)$$
+$$= 2 E\left(\frac {N_{b_2} - S_{b_2 - 1, b_2}}{S_{b_2 - \alpha, b_2}}\right).$$
+The terms in this fraction are not independent because as the number of animals that survive from time $b_2 - \alpha$ to time $b_2$ gets larger, the larger both the number of animals that survive from time $b_2 - 1$ to time $b_2$, and the population size at time $b_2$, are likely to be.
+
+$$\frac{E(B_{b_2})}{E(S_{b_2 - \alpha, b_2}) / 2} = \frac{E(N_{b_2}) \left(1 - \frac{\phi}{\lambda} \right)}{\left( \frac{\phi}{\lambda} \right)^\alpha \frac{E(N_{b_2})}{2}}$$
+$$= 2 \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\lambda}{\phi} \right)^\alpha.$$
 
 The probability that this calf survives to time $t$ is $\phi^{t - b_2}$.
 
 Taking the above altogether the expected number of pairs of animals at time $t$, with birthyears $b_1$ and $b_2$, where $b_1 < b_2$, and the same mother, is 
-$$ E(SMP_{t, b_1, b_2}) = \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right) ^{t - b_1} E(N_t) \phi^{b_2 - 1 - b_1} 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{t - b_2}. $$
+$$ E(SMP_{t, b_1, b_2}) = \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right) ^{t - b_1} E(N_t) \phi^{b_2 - b_1} 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{t - b_2}. $$
 Summing over all possible birthyears $b_1$ and $b_2$ gives the expected total number of pairs at time $t$ with the same mother
-$$ E(SMP_t) = \sum_{b_1 < t} \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right)^{t - b_1} E(N_t) \sum_{b_1 < b_2 \le t} \phi^{b_2 - 1 - b_1} 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{t - b_2} $$
+$$ E(SMP_t) = \sum_{b_1 < t} \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right)^{t - b_1} E(N_t) \sum_{b_1 < b_2 \le t} \phi^{b_2 - b_1} 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{t - b_2} $$
 $$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \sum_{b_1 < t} \left( \frac{\phi}{\lambda} \right)^{t - b_1} \sum_{b_1 < b_2 \le t} \phi^{t -1 - b_1} $$
 $$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{-1} \sum_{b_1 < t} \left( \frac{\phi^2}{\lambda} \right)^{t - b_1} (t - b_1) $$
 $$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{-1} \left\{ \frac{\phi^2}{\lambda} + 2 \left( \frac{\phi^2}{\lambda} \right)^2 + ... \right\} $$
@@ -67,7 +110,7 @@ $$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \fr
 $$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \left( \frac{\lambda}{\lambda - \phi^2} \right)^2. $$
 
 The expected total number of pairs at time $t$ with both the same mother, and the same father (full-sibling pairs), is
-$$ E(FSP_t) = \sum_{b_1 < t} \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right)^{t - b_1} E(N_t) \sum_{b_1 < b_2 \le t} \phi^{b_2 - 1 - b_1} \phi^{b_2 - b_1} \left\{ 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{t - b_2} \right\}^2 $$
+$$ E(FSP_t) = \sum_{b_1 < t} \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right)^{t - b_1} E(N_t) \sum_{b_1 < b_2 \le t} \phi^{b_2 - b_1} \phi^{b_2 - b_1} \left\{ 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{t - b_2} \right\}^2 $$
 $$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \left\{ 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \phi^{-1} \sum_{b_1 < t} \left( \frac{\phi}{\lambda} \right)^{t - b_1} \sum_{b_1 < b_2 \le t} \phi^{2 (t - b_1)} $$
 $$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \left\{ 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \phi^{-1} \sum_{b_1 < t} \left( \frac{\phi^3}{\lambda} \right)^{t - b_1} (t - b_1) $$
 $$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \left\{ 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \phi^{-1} \left\{ \frac{\phi^3}{\lambda} + 2 \left( \frac{\phi^3}{\lambda} \right)^2 + ... \right\} $$
