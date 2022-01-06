@@ -28,15 +28,18 @@ SimPopStud <- function(
   t.lst.clf <- rep(NA, N.init)
   alive <- rep(T, N.init)
   
-  # Create vector for population size and enter first value
-  N.t.vec <- numeric(hist.len)
+  # Create vectors for population size and maturity statuses and enter first
+  # value
+  N.t.vec <- ns.mtr <- numeric(hist.len)
   N.t.vec[1] <- N.init
+  ns.mtr[1] <- sum(alive & -b.year >= alpha)
   
   # Create lists for life and calving statuses of animals in survey years, and
   # life in all years for testing
   alv.srvy <- clvng.srvy <- vector("list", k)
-  alv.all <- vector("list", hist.len)
+  alv.all <- mtr.all <- vector("list", hist.len)
   alv.all[[1]] <- alive
+  # mtr.all[[1]] <- alive & -b.year >= alpha
   
   # Set survey counter to zero
   srvy.cnt <- 0
@@ -106,9 +109,11 @@ SimPopStud <- function(
     # Record population size
     N.t.vec[t] <- sum(alive)
     
-    # Add life statuses to list
+    # Add life and maturity statuses to list
     alv.all[[t]] <- alive
-
+    # mtr.all[[t]] <- mature
+    ns.mtr[t] <- sum(mature)
+    
     # If survey year add life and calving statuses of animals to lists
     if ((f.year - hist.len + t) %in% srvy.yrs) {
       srvy.cnt <- srvy.cnt + 1
@@ -124,12 +129,14 @@ SimPopStud <- function(
   # Adjust birth years with respect to final year
   b.year <- b.year + f.year - hist.len
   
-  # Create matrix and enter life statuses of animals over all years for testing
-  alv.mat <- matrix(0, length(alive), hist.len)
+  # Create matrix and enter life and maturity statuses of animals over all years
+  # for testing
+  alv.mat <- mtr.mat <- matrix(0, length(alive), hist.len)
   for (t in 1:hist.len) {
     alv.mat[1:length(alv.all[[t]]), t] <- alv.all[[t]]
+    # mtr.mat[1:length(mtr.all[[t]]), t] <- mtr.all[[t]]
   }
-  mode(alv.mat) <- "integer"
+  mode(alv.mat) <- mode(mtr.mat) <- "integer"
 
   # Create matrices and enter life and calving statuses of animals in survey
   # years
@@ -165,7 +172,7 @@ SimPopStud <- function(
   pop.hist <- 
     data.frame(ID, mum, dad, cap.hists, clvng.hists)[rowSums(cap.hists) > 0, ]
   
-  rownames(alv.mat) <- ID
+  rownames(alv.mat) <- rownames(mtr.mat) <- ID
   
   # Attach parameters and implied birthrate
   attributes(pop.hist)$beta <- beta
@@ -174,6 +181,8 @@ SimPopStud <- function(
   attributes(pop.hist)$Ns <- Ns
   attributes(pop.hist)$ns.clvng <- ns.clvng
   attributes(pop.hist)$alv.mat <- alv.mat
+  # attributes(pop.hist)$mtr.mat <- mtr.mat
+  attributes(pop.hist)$ns.mtr <- ns.mtr
   
   # Display runtime
   # cat("Final population size:", tail(N.t.vec, 1), "\n")

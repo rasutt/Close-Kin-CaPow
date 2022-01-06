@@ -12,7 +12,7 @@ checks.lst = reactive({
   
   # Create matrices for population trajectories (as columns), numbers of births
   # and deaths, numbers captured, and expected and observed numbers of kin pairs
-  N.t.mat <- matrix(nrow = n_sims(), ncol = hist.len())
+  N.t.mat <- ns.mtr.mat <- matrix(nrow = n_sims(), ncol = hist.len())
   ns_bths <- ns_dths <- matrix(nrow = n_sims(), ncol = hist.len() - 1)
   ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- ns.POPs.wtn.mat <- 
     ns.HSPs.wtn.mat <- exp.ns.HSPs.wtn.mat <- exp.ns.POPs.wtn.mat <- 
@@ -45,6 +45,9 @@ checks.lst = reactive({
       bs_n_ds = f_alv_mat[, -1] != f_alv_mat[, -hist.len()]
       ns_bths[hist.ind, ] = colSums(bs_n_ds & f_alv_mat[, -hist.len()] == 0)
       ns_dths[hist.ind, ] = colSums(bs_n_ds & f_alv_mat[, -hist.len()] == 1)
+      
+      # Record numbers of mature animals
+      ns.mtr.mat[hist.ind, ] <- attributes(pop.cap.hist)$ns.mtr
       
       # Record super-population size
       Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
@@ -90,6 +93,7 @@ checks.lst = reactive({
     mean.N.t = colMeans(N.t.mat),
     ns_bths = ns_bths,
     ns_dths = ns_dths,
+    ns.mtr.mat = ns.mtr.mat,
     ns.POPs.wtn.mat = ns.POPs.wtn.mat,
     ns.HSPs.wtn.mat = ns.HSPs.wtn.mat,
     ns.POPs.btn.mat = ns.POPs.btn.mat,
@@ -140,6 +144,23 @@ output$obsParVals = renderTable({
   names(df) = c("Birth rate", "Growth rate", "Survival rate")
   df
 }, digits = 3)
+
+# Effect of dependency between births and numbers mature on probability of
+# breeding
+output$bthsNMtr = renderTable({
+  mean_bths = colMeans(checks.lst()$ns_bths)
+  mean.ns.mtr = colMeans(checks.lst()$ns.mtr.mat[, -hist.len()])
+  ratio.mns = mean_bths / mean.ns.mtr
+  mn.ratio = 
+    colMeans(checks.lst()$ns_bths / checks.lst()$ns.mtr.mat[, -hist.len()])
+  df = rbind(mean_bths, mean.ns.mtr, mn.ratio, ratio.mns)
+  rownames(df) = c(
+    "Average numbers born", "Average numbers mature", "Average ratio",
+    "Ratio of averages"
+  )
+  colnames(df) = (f.year() - hist.len() + 2):f.year()
+  df
+}, rownames = T, digits = 3)
 
 # First life histories from first study
 output$alive = renderTable({

@@ -96,6 +96,7 @@ ui <- fluidPage(
           h4("Values observed"),
           plotOutput(outputId = "popPlot"),
           tableOutput(outputId = "obsParVals"),
+          tableOutput(outputId = "bthsNMtr"),
           tableOutput(outputId = "alive"),
           h4("Observed minus expected numbers of kin-pairs"),
           plotOutput(outputId = "nsPOPsWtn"),
