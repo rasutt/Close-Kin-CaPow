@@ -140,8 +140,16 @@ output$obsParVals = renderTable({
   br = mean(checks.lst()$ns_bths / checks.lst()$N.t.mat[, -hist.len()])
   sr = 1 - mean(checks.lst()$ns_dths / checks.lst()$N.t.mat[, -hist.len()])
   gr = mean(checks.lst()$mean.N.t[-1] / checks.lst()$mean.N.t[-hist.len()])
-  df = data.frame(br, gr, sr)
-  names(df) = c("Birth rate", "Growth rate", "Survival rate")
+  brmf = 2 * mean(checks.lst()$ns_bths / checks.lst()$ns.mtr.mat[, -1])
+  # Mature females the year before
+  # exp_brmf = 2 * (lambda() / phi() - 1) * (lambda() / phi())^alpha()
+  exp_brmf = 2 * (1 - phi() / lambda()) * (lambda() / phi())^alpha()
+  df = data.frame(br, gr, sr, brmf, exp_brmf)
+  names(df) = c(
+    "Birth rate", "Growth rate", "Survival rate", 
+    "Birth rate among mature females", 
+    "Expected birth rate among mature females"
+  )
   df
 }, digits = 3)
 
@@ -149,10 +157,10 @@ output$obsParVals = renderTable({
 # breeding
 output$bthsNMtr = renderTable({
   mean_bths = colMeans(checks.lst()$ns_bths)
-  mean.ns.mtr = colMeans(checks.lst()$ns.mtr.mat[, -hist.len()])
+  mean.ns.mtr = colMeans(checks.lst()$ns.mtr.mat[, -1])
   ratio.mns = mean_bths / mean.ns.mtr
   mn.ratio = 
-    colMeans(checks.lst()$ns_bths / checks.lst()$ns.mtr.mat[, -hist.len()])
+    colMeans(checks.lst()$ns_bths / checks.lst()$ns.mtr.mat[, -1])
   df = rbind(mean_bths, mean.ns.mtr, mn.ratio, ratio.mns)
   rownames(df) = c(
     "Average numbers born", "Average numbers mature", "Average ratio",
