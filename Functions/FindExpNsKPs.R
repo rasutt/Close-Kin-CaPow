@@ -4,7 +4,7 @@ FindExpNsKPs <- function(
 ) {
   # Create vectors for POPs within each sample, and POPs and SPs between each
   # pair of samples
-  exp.ns.POPs.wtn <- exp.ns.HSPs.wtn <- numeric(k)
+  exp.ns.POPs.wtn <- exp.ns.HSPs.wtn <- exp.ns.SMPs.wtn <- numeric(k)
   exp.ns.POPs.btn <- exp.ns.SPs.btn <- numeric(n.srvy.prs)
   
   # Parent-offspring pairs within sample
@@ -28,6 +28,10 @@ FindExpNsKPs <- function(
     
     # Find expected number of HSPs within sample
     exp.ns.HSPs.wtn[srvy.ind] <- prb.HSPs.wtn * choose(ns.caps[srvy.ind], 2)
+  
+    # Same-mother pairs
+    exp.ns.SMPs.wtn[srvy.ind] <- 2 * exp.N.srvy.yr * (1 - phi / lambda)^2 * 
+      (lambda / phi)^alpha * lambda * phi / (lambda - phi^2)^2
   } 
   
   # Self and parent-offspring pairs between samples
@@ -79,6 +83,7 @@ FindExpNsKPs <- function(
     exp.ns.POPs.wtn = exp.ns.POPs.wtn, 
     exp.ns.HSPs.wtn = exp.ns.HSPs.wtn,
     exp.ns.POPs.btn = exp.ns.POPs.btn,
-    exp.ns.SPs.btn = exp.ns.SPs.btn
+    exp.ns.SPs.btn = exp.ns.SPs.btn,
+    exp.ns.SMPs.wtn = exp.ns.SMPs.wtn
   )
 }

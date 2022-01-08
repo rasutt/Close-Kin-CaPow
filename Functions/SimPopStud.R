@@ -12,7 +12,8 @@ SimPopStud <- function(
   s.time <- proc.time()
   
   # Find implied birth rate for mature females surviving to birth year
-  beta <- 2 * (lambda / phi - 1) * (lambda / phi)^alpha
+  # beta <- 2 * (lambda / phi - 1) * (lambda / phi)^alpha
+  beta <- 2 * (1 - phi / lambda) * (lambda / phi)^alpha
   if (beta < 0 | beta > 1)
     cat("Implied birthrate for mature females:", round(beta, 3), "\n")
   if (beta < 0) stop("Negative birth rates impossible")
@@ -59,12 +60,15 @@ SimPopStud <- function(
     # if (t %% 20 == 1) cat('', f.year - hist.len + t)
     
     # Find animals alive and mature last year
-    mature <- alive & t - 1 - b.year >= alpha
-    
+    # mature <- alive & t - 1 - b.year >= alpha
+
     # Find survivors to current year
     alive[alive] <- as.logical(
       rbinom(N.t.vec[t - 1], 1, phi * (1 - pmt.emgn * !female[alive]))
     )
+
+    # Find animals alive and mature this year
+    mature <- alive & t - b.year >= alpha
     
     # Find possible parents (mothers must survive to give birth)
     mums.poss <- which(alive & mature & female)

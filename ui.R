@@ -101,6 +101,7 @@ ui <- fluidPage(
           h4("Observed minus expected numbers of kin-pairs"),
           plotOutput(outputId = "nsPOPsWtn"),
           plotOutput(outputId = "nsHSPsWtn"),
+          plotOutput(outputId = "nsSMPsWtn"),
           plotOutput(outputId = "nsPOPsBtn"),
           plotOutput(outputId = "nsSPsBtn"),
           textOutput(outputId = "percUnknPrnts"),

@@ -1,7 +1,7 @@
 FindNsKinPairs <- function(k, n.srvy.prs, pop.cap.hist) {
   # Create vectors for POPs within each sample, and POPs and SPs between each
   # pair of samples
-  ns.POPs.wtn <- ns.HSPs.wtn <- numeric(k)
+  ns.POPs.wtn <- ns.HSPs.wtn <- ns.SMPs.wtn <- numeric(k)
   ns.POPs.btn <- ns.SPs.btn <- numeric(n.srvy.prs)
   
   # Loop over surveys
@@ -21,6 +21,9 @@ FindNsKinPairs <- function(k, n.srvy.prs, pop.cap.hist) {
       choose(table(fam.samp$dad), 2),
       -2 * choose(table(fam.samp$mum, fam.samp$dad), 2)
     )
+    
+    # Same mother pairs
+    ns.SMPs.wtn[smp.ind] <- sum(choose(table(fam.samp$mum), 2))
   }
   
   # Set sample pair count to zero
@@ -56,6 +59,7 @@ FindNsKinPairs <- function(k, n.srvy.prs, pop.cap.hist) {
   list(
     ns.POPs.wtn = ns.POPs.wtn, 
     ns.HSPs.wtn = ns.HSPs.wtn,
+    ns.SMPs.wtn = ns.SMPs.wtn,
     ns.POPs.btn = ns.POPs.btn,
     ns.SPs.btn = ns.SPs.btn
   )

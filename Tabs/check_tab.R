@@ -15,7 +15,9 @@ checks.lst = reactive({
   N.t.mat <- ns.mtr.mat <- matrix(nrow = n_sims(), ncol = hist.len())
   ns_bths <- ns_dths <- matrix(nrow = n_sims(), ncol = hist.len() - 1)
   ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- ns.POPs.wtn.mat <- 
-    ns.HSPs.wtn.mat <- exp.ns.HSPs.wtn.mat <- exp.ns.POPs.wtn.mat <- 
+    ns.SMPs.wtn.mat <- ns.HSPs.wtn.mat <- 
+    exp.ns.HSPs.wtn.mat <- exp.ns.POPs.wtn.mat <- 
+    exp.ns.SMPs.wtn.mat <-
     matrix(nrow = n_sims(), ncol = k())
   ns.POPs.btn.mat <- ns.SPs.btn.mat <- exp.ns.POPs.btn.mat <- 
     exp.ns.SPs.btn.mat <- matrix(nrow = n_sims(), ncol = n.srvy.prs())
@@ -69,6 +71,7 @@ checks.lst = reactive({
       # Record in matrices
       ns.POPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.POPs.wtn
       ns.HSPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.HSPs.wtn
+      ns.SMPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.SMPs.wtn
       ns.POPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.POPs.btn
       ns.SPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.SPs.btn
       
@@ -81,6 +84,7 @@ checks.lst = reactive({
       # Record in matrices
       exp.ns.POPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.wtn
       exp.ns.HSPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.HSPs.wtn
+      exp.ns.SMPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.SMPs.wtn
       exp.ns.POPs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.btn
       exp.ns.SPs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.SPs.btn
       
@@ -96,10 +100,12 @@ checks.lst = reactive({
     ns.mtr.mat = ns.mtr.mat,
     ns.POPs.wtn.mat = ns.POPs.wtn.mat,
     ns.HSPs.wtn.mat = ns.HSPs.wtn.mat,
+    ns.SMPs.wtn.mat = ns.SMPs.wtn.mat,
     ns.POPs.btn.mat = ns.POPs.btn.mat,
     ns.SPs.btn.mat = ns.SPs.btn.mat,
     exp.ns.POPs.wtn.mat = exp.ns.POPs.wtn.mat,
     exp.ns.HSPs.wtn.mat = exp.ns.HSPs.wtn.mat,
+    exp.ns.SMPs.wtn.mat = exp.ns.SMPs.wtn.mat,
     exp.ns.POPs.btn.mat = exp.ns.POPs.btn.mat,
     exp.ns.SPs.btn.mat = exp.ns.SPs.btn.mat,
     prpn.prnts.unkn.vec = prpn.prnts.unkn.vec,
@@ -208,6 +214,14 @@ output$nsHSPsWtn <- renderPlot({
   nsKPsPlot(
     checks.lst()$ns.HSPs.wtn.mat, checks.lst()$exp.ns.HSPs.wtn.mat, 
     srvy.yrs(), "Survey", "Half-sibling pairs within samples"
+  )
+})
+
+# Half-sibling pairs within samples
+output$nsSMPsWtn <- renderPlot({
+  nsKPsPlot(
+    checks.lst()$ns.SMPs.wtn.mat, checks.lst()$exp.ns.SMPs.wtn.mat, 
+    srvy.yrs(), "Survey", "Same-mother pairs within samples"
   )
 })
 
