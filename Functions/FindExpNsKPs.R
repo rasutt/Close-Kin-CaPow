@@ -30,8 +30,11 @@ FindExpNsKPs <- function(
     exp.ns.HSPs.wtn[srvy.ind] <- prb.HSPs.wtn * choose(ns.caps[srvy.ind], 2)
   
     # Same-mother pairs
-    exp.ns.SMPs.wtn[srvy.ind] <- 2 * exp.N.srvy.yr * (1 - phi / lambda)^2 * 
-      (lambda / phi)^alpha * lambda * phi / (lambda - phi^2)^2
+    exp.ns.SMPs.wtn[srvy.ind] <- 4 / exp.N.srvy.yr * lambda * 
+      (1 - phi / lambda)^2 * 
+      (lambda / phi)^alpha * lambda * phi / (lambda - phi^2)^2 *
+      choose(ns.caps[srvy.ind], 2)
+    
   } 
   
   # Self and parent-offspring pairs between samples

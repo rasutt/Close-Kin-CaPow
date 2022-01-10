@@ -79,6 +79,10 @@ server <- function(input, output) {
   srvy.yrs = bindEvent(srvy.yrs.rct, input$simulate, ignoreNULL = F)
   # Capture probability
   p = bindEvent(reactive(input$p), input$simulate, ignoreNULL = F)
+  # Calving intervals
+  clvng.ints = bindEvent({
+    reactive(input$clvng.ints)
+  }, input$simulate, ignoreNULL = F)
   # Additional capture probability when calving
   clvng.p = bindEvent(reactive(input$clvng.p), input$simulate, ignoreNULL = F)
   # Probability of males being away from survey area
@@ -122,6 +126,9 @@ server <- function(input, output) {
     par_df[, 4] = as.integer(par_df[, 4])
     par_df
   }
+  
+  # Function to prepare proportion to print as percentage
+  perc = function(prpn) paste0(round(prpn * 100, 1), "%")
 
   # Load functions and outputs for simulating studies, checking simulations, and
   # analyzing model performance

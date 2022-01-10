@@ -6,7 +6,7 @@
 # beta, and population trajectory N.t.vec attached.
 SimPopStud <- function(
   phi, lambda, N.init, hist.len, srvy.yrs, k, f.year, p, clvng.p, tmp.emgn,
-  alpha
+  alpha, clvng.ints
 ) {
   # Record start-time
   s.time <- proc.time()
@@ -83,14 +83,21 @@ SimPopStud <- function(
 
     # If there are calves
     if (n.calves > 0) {
-      # Order possible mothers by time since last calving
-      mums.poss.ord <- mums.poss[order(t.lst.clf[mums.poss], na.last = F)]
-      
-      # Find possible mothers tied for longest time since last calving
-      lgst <- mums.poss.ord == mums.poss.ord[n.calves]
-      
-      # If more than one then order randomly
-      if (sum(lgst) > 1) mums.poss.ord[lgst] <- sample(mums.poss.ord[lgst])
+      # If calving intervals requested
+      if (clvng.ints) {
+        # Order possible mothers by time since last calving
+        mums.poss.ord <- mums.poss[order(t.lst.clf[mums.poss], na.last = F)]
+        
+        # Find possible mothers tied for longest time since last calving
+        lgst <- mums.poss.ord == mums.poss.ord[n.calves]
+        
+        # If more than one then order randomly
+        if (sum(lgst) > 1) mums.poss.ord[lgst] <- sample(mums.poss.ord[lgst])
+      } else {
+        # Randomly select mothers
+        if (length(mums.poss) > 1) mums.poss.ord <- sample(mums.poss)
+        else mums.poss.ord <- mums.poss
+      }
       
       # Find mothers
       mums.new <- mums.poss.ord[1:n.calves]

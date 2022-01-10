@@ -159,6 +159,21 @@ output$obsParVals = renderTable({
   df
 }, digits = 3)
 
+# Average simulated versus expected numbers of kin-pairs
+output$nsKPs = renderTable({
+  HSPs.wtn = (checks.lst()$ns.HSPs.wtn.mat - checks.lst()$exp.ns.HSPs.wtn.mat) /
+    checks.lst()$exp.ns.HSPs.wtn.mat
+  SMPs.wtn = (checks.lst()$ns.SMPs.wtn.mat - checks.lst()$exp.ns.SMPs.wtn.mat) /
+    checks.lst()$exp.ns.SMPs.wtn.mat
+  df = data.frame(
+    matrix(c(perc(mean(HSPs.wtn)), perc(mean(SMPs.wtn))), nrow = 1)
+  )
+  names(df) = c(
+    "Half-sibling pairs within surveys", "Same-mother pairs within surveys"
+  )
+  df
+})
+
 # Effect of dependency between births and numbers mature on probability of
 # breeding
 output$bthsNMtr = renderTable({

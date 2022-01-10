@@ -34,6 +34,11 @@ ui <- fluidPage(
         inputId = "p", label = "Base level capture probability:",
         0, 0.2, value = 0.1, step = 0.01
       ),
+      checkboxInput(
+        inputId = "clvng.ints", 
+        label = "Females breed in order of time since last breeding", 
+        value = F
+      ),
       sliderInput(
         inputId = "clvng.p", 
         label = "Additional capture probability when calving:",
@@ -54,7 +59,7 @@ ui <- fluidPage(
       ),
       sliderInput(
         inputId = "n_sims", label = "Number of studies to simulate:",
-        0, 1000, value = 10, step = 10
+        0, 1000, value = 100, step = 10
       ),
       actionButton(
         inputId = "simulate", label = "Simulate studies"
@@ -96,15 +101,17 @@ ui <- fluidPage(
           h4("Values observed"),
           plotOutput(outputId = "popPlot"),
           tableOutput(outputId = "obsParVals"),
-          tableOutput(outputId = "bthsNMtr"),
-          tableOutput(outputId = "alive"),
-          h4("Observed minus expected numbers of kin-pairs"),
+          h4("Simulated minus expected numbers of kin-pairs"),
+          tableOutput(outputId = "nsKPs"),
+          textOutput(outputId = "percUnknPrnts"),
           plotOutput(outputId = "nsPOPsWtn"),
           plotOutput(outputId = "nsHSPsWtn"),
           plotOutput(outputId = "nsSMPsWtn"),
           plotOutput(outputId = "nsPOPsBtn"),
           plotOutput(outputId = "nsSPsBtn"),
-          textOutput(outputId = "percUnknPrnts"),
+          h4("Head of first life-histories table"),
+          tableOutput(outputId = "alive"),
+          tableOutput(outputId = "bthsNMtr"),
           h4("Head of first dataset"),
           tableOutput(outputId = "dataHead")
         ), 

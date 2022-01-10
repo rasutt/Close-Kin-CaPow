@@ -4,8 +4,6 @@ n_pars = reactive(length(est.par.names()))
 mod_names = reactive(mod_choices[c(input$popan, input$close_kin)])
 # Number of models requested
 n_mods = reactive(input$popan + input$close_kin)
-# Function to prepare proportion to print as percentage
-perc = function(prpn) paste0(round(prpn * 100, 1), "%")
 
 # Display parameter values
 output$modParVals <- renderTable({
