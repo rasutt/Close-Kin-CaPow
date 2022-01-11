@@ -98,16 +98,20 @@ checks.lst = reactive({
     ns_bths = ns_bths,
     ns_dths = ns_dths,
     ns.mtr.mat = ns.mtr.mat,
-    ns.POPs.wtn.mat = ns.POPs.wtn.mat,
-    ns.HSPs.wtn.mat = ns.HSPs.wtn.mat,
-    ns.SMPs.wtn.mat = ns.SMPs.wtn.mat,
-    ns.POPs.btn.mat = ns.POPs.btn.mat,
-    ns.SPs.btn.mat = ns.SPs.btn.mat,
-    exp.ns.POPs.wtn.mat = exp.ns.POPs.wtn.mat,
-    exp.ns.HSPs.wtn.mat = exp.ns.HSPs.wtn.mat,
-    exp.ns.SMPs.wtn.mat = exp.ns.SMPs.wtn.mat,
-    exp.ns.POPs.btn.mat = exp.ns.POPs.btn.mat,
-    exp.ns.SPs.btn.mat = exp.ns.SPs.btn.mat,
+    ns.KPs.lst = list(
+      ns.SPs.btn.mat = ns.SPs.btn.mat,
+      ns.POPs.wtn.mat = ns.POPs.wtn.mat,
+      ns.POPs.btn.mat = ns.POPs.btn.mat,
+      ns.SMPs.wtn.mat = ns.SMPs.wtn.mat,
+      ns.HSPs.wtn.mat = ns.HSPs.wtn.mat
+    ),
+    exp.ns.KPs.lst = list(
+      exp.ns.SPs.btn.mat = exp.ns.SPs.btn.mat,
+      exp.ns.POPs.wtn.mat = exp.ns.POPs.wtn.mat,
+      exp.ns.POPs.btn.mat = exp.ns.POPs.btn.mat,
+      exp.ns.SMPs.wtn.mat = exp.ns.SMPs.wtn.mat,
+      exp.ns.HSPs.wtn.mat = exp.ns.HSPs.wtn.mat
+    ),
     prpn.prnts.unkn.vec = prpn.prnts.unkn.vec,
     ns.caps.mat = ns.caps.mat
   )
@@ -159,20 +163,85 @@ output$obsParVals = renderTable({
   df
 }, digits = 3)
 
-# Average simulated versus expected numbers of kin-pairs
+# Checks for numbers of kin-pairs
+
+# Names of types of kin-pairs
+KP_names = c(
+  "Self-pairs between surveys", "Parent-offspring pairs within surveys", 
+  "Parent-offspring pairs between surveys", "Same-mother pairs within surveys",
+  "Half-sibling pairs within surveys"
+)
+# Number of types of kin-pairs
+n_KP_types = length(KP_names)
+# Indices for types of kin-pairs
+KP_inds = c("Survey-pair", "Survey", "Survey-pair", "Survey", "Survey")
+
+# Show average percentage differences between simulated and expected numbers
+# of kin-pairs
 output$nsKPs = renderTable({
-  HSPs.wtn = (checks.lst()$ns.HSPs.wtn.mat - checks.lst()$exp.ns.HSPs.wtn.mat) /
-    checks.lst()$exp.ns.HSPs.wtn.mat
-  SMPs.wtn = (checks.lst()$ns.SMPs.wtn.mat - checks.lst()$exp.ns.SMPs.wtn.mat) /
-    checks.lst()$exp.ns.SMPs.wtn.mat
-  df = data.frame(
-    matrix(c(perc(mean(HSPs.wtn)), perc(mean(SMPs.wtn))), nrow = 1)
-  )
-  names(df) = c(
-    "Half-sibling pairs within surveys", "Same-mother pairs within surveys"
-  )
+  diffs = numeric(n_KP_types)
+  for (i in 1:n_KP_types) {
+    diffs[i] = perc(mean(
+      (checks.lst()$ns.KPs.lst[[i]] - checks.lst()$exp.ns.KPs.lst[[i]]) /
+      checks.lst()$exp.ns.KPs.lst[[i]]
+    ))
+  }
+  df = data.frame(matrix(diffs, nrow = 1))
+  names(df) = KP_names
   df
 })
+
+# Show percentage of animals captured for which the parents are unknown
+output$percUnknPrnts <- renderText({
+  paste0(
+    "Percentage of captured animals with unknown parents (1DP): ", 
+    round(mean(checks.lst()$prpn.prnts.unkn.vec) * 100, 1), "%"
+  )
+})
+
+# Function to plot simulated versus expected numbers of kin-pairs for one type
+# of kin-pair
+nsKPsPlot = function(i) {
+  diffs = checks.lst()$ns.KPs.lst[[i]] - checks.lst()$exp.ns.KPs.lst[[i]]
+  xlab = KP_inds[i]
+  if (xlab == "Survey") colnames(diffs) = srvy.yrs()
+  else colnames(diffs) = apply(combn(srvy.yrs(), 2), 2, paste, collapse = "-")
+  {
+    boxplot(
+      diffs, main = KP_names[i], xlab = xlab, 
+      ylab = "Observed - expected numbers"
+    )
+    abline(h = 0, col = 'red')
+    abline(h = mean(diffs), col = 'blue')
+    legend(
+      "topleft", col = c(2, 4), lty = 1,
+      legend = c(
+        "Expected difference over all surveys (zero)", 
+        "Average difference over all surveys"
+      ),
+    )
+  }
+}
+
+# Apply function to each type of kin-pair
+
+# Self-pairs between samples
+output$nsSPsBtn <- renderPlot(nsKPsPlot(1))
+# Parent-offspring pairs within samples
+output$nsPOPsWtn <- renderPlot(nsKPsPlot(2))
+# Parent-offspring pairs between samples
+output$nsPOPsBtn <- renderPlot(nsKPsPlot(3))
+# Same-mother pairs within samples
+output$nsSMPsWtn <- renderPlot(nsKPsPlot(4))
+# Half-sibling pairs within samples
+output$nsHSPsWtn <- renderPlot(nsKPsPlot(5))
+
+# First life histories from first study
+output$alive = renderTable({
+  df = data.frame(head(attributes(sim.lst()$hists.lst[[1]])$alv.mat))
+  names(df) = (f.year() - hist.len() + 1):f.year()
+  df
+}, rownames = T)
 
 # Effect of dependency between births and numbers mature on probability of
 # breeding
@@ -190,92 +259,6 @@ output$bthsNMtr = renderTable({
   colnames(df) = (f.year() - hist.len() + 2):f.year()
   df
 }, rownames = T, digits = 3)
-
-# First life histories from first study
-output$alive = renderTable({
-  df = data.frame(head(attributes(sim.lst()$hists.lst[[1]])$alv.mat))
-  names(df) = (f.year() - hist.len() + 1):f.year()
-  df
-}, rownames = T)
-
-# Function to plot simulated versus expected numbers of kin-pairs
-nsKPsPlot = function(n_obs, n_exp, x, xlab, kp_type) {
-  diffs = n_obs - n_exp
-  colnames(diffs) = x
-  boxplot(
-    diffs, main = kp_type, xlab = xlab, ylab = "Observed - expected numbers"
-  )
-  abline(h = 0, col = 'red')
-  abline(h = mean(diffs), col = 'blue')
-  legend(
-    "topleft", col = c(2, 4), lty = 1,
-    legend = c(
-      "Expected difference over all surveys (zero)", 
-      "Average difference over all surveys"
-    ),
-  )
-}
-
-# Parent-offspring pairs within samples
-output$nsPOPsWtn <- renderPlot({
-  nsKPsPlot(
-    checks.lst()$ns.POPs.wtn.mat, checks.lst()$exp.ns.POPs.wtn.mat, 
-    srvy.yrs(), "Survey", "Parent-offspring pairs within samples"
-  )
-})
-
-# Half-sibling pairs within samples
-output$nsHSPsWtn <- renderPlot({
-  nsKPsPlot(
-    checks.lst()$ns.HSPs.wtn.mat, checks.lst()$exp.ns.HSPs.wtn.mat, 
-    srvy.yrs(), "Survey", "Half-sibling pairs within samples"
-  )
-})
-
-# Half-sibling pairs within samples
-output$nsSMPsWtn <- renderPlot({
-  nsKPsPlot(
-    checks.lst()$ns.SMPs.wtn.mat, checks.lst()$exp.ns.SMPs.wtn.mat, 
-    srvy.yrs(), "Survey", "Same-mother pairs within samples"
-  )
-})
-
-# Parent-offspring pairs between samples
-output$nsPOPsBtn <- renderPlot({
-  nsKPsPlot(
-    checks.lst()$ns.POPs.btn.mat, checks.lst()$exp.ns.POPs.btn.mat, 
-    apply(combn(srvy.yrs(), 2), 2, paste, collapse = "-"), "Survey-pair", 
-    "Parent-offspring pairs between samples"
-  )
-})
-
-# Self-pairs between samples
-output$nsSPsBtn <- renderPlot({
-  nsKPsPlot(
-    checks.lst()$ns.SPs.btn.mat, checks.lst()$exp.ns.SPs.btn.mat, 
-    apply(combn(srvy.yrs(), 2), 2, paste, collapse = "-"), "Survey-pair", 
-    "Self-pairs between samples"
-  )
-})
-
-# Display percentage of animals captured for which the parents are unknown
-output$percUnknPrnts <- renderText({
-  # nPOPs = checks.lst()$ns.POPs.wtn.mat
-  # 
-  # # Pairs are lost quadratically with animals
-  # prpns.pairs.lost = 1 - (1 - checks.lst()$prpn.prnts.unkn.vec)^2
-  # 
-  # paste(
-  #   "Expected number of parent-offspring pairs within samples
-  #   lost due to unknown parents:",
-  #   signif(mean(prpns.pairs.lost * checks.lst()$ns.POPs.wtn.mat), 3),
-  #   "\n"
-  # )
-  paste0(
-    "Percentage of captured animals with unknown parents (1DP): ", 
-    round(mean(checks.lst()$prpn.prnts.unkn.vec) * 100, 1), "%"
-  )
-})
 
 # Print head of first study
 output$dataHead <- renderTable(head(data.frame(sim.lst()$hists.lst[[1]])))

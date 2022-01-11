@@ -50,13 +50,16 @@ server <- function(input, output) {
   })
   # Simulation values 
   sim.vals.rct = reactive({
-    data.frame(
-      Number_of_studies = input$n_sims, 
-      Population_history_length = input$hist.len,
-      Calving_capture_probability = input$clvng.p, 
-      Male_absense_probability = input$tmp.emgn,
-      Age_of_sexual_maturity = input$alpha
+    df = data.frame(
+      input$n_sims, input$hist.len, input$clvng.ints, input$clvng.p, 
+      input$tmp.emgn, input$alpha
     )
+    names(df) = c(
+      "Number of studies", "Population history length", 
+      "Female time-order breeding", "Calving capture probability", 
+      "Male absense probability", "Age of sexual maturity"
+    )
+    df
   })
   # Models to fit
   models = reactive(input$models) 
