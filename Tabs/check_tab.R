@@ -10,10 +10,14 @@ checks.lst = reactive({
   # Expected final population size
   exp.N.fin <- exp.N.t()[hist.len()]
   
-  # Create matrices for population trajectories (as columns), numbers of births
-  # and deaths, numbers captured, and expected and observed numbers of kin pairs
+  # Create matrices for population trajectories (as columns), numbers of mature
+  # animals, numbers of animals of ages up to the history length that survived
+  # to the final year, numbers of same-mother pairs with one born in final year,
+  # numbers of births and deaths, numbers captured, and expected and observed
+  # numbers of kin pairs
   N.t.mat <- ns.mtr.mat <- matrix(nrow = n_sims(), ncol = hist.len())
-  ns_bths <- ns_dths <- matrix(nrow = n_sims(), ncol = hist.len() - 1)
+  ns_bths <- ns_dths <- ns.srvvd.f.yr.mat <- ns.SMPs.f.yr.mat <-
+    matrix(nrow = n_sims(), ncol = hist.len() - 1)
   ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- ns.POPs.wtn.mat <- 
     ns.SMPs.wtn.mat <- ns.HSPs.wtn.mat <- 
     exp.ns.HSPs.wtn.mat <- exp.ns.POPs.wtn.mat <- 
@@ -51,6 +55,15 @@ checks.lst = reactive({
       # Record numbers of mature animals
       ns.mtr.mat[hist.ind, ] <- attributes(pop.cap.hist)$ns.mtr
       
+      # Record number animals of ages up to the history length that survived to
+      # the final year
+      ns.srvvd.f.yr.mat[hist.ind, ] <- table(
+        factor(
+          attributes(pop.cap.hist)$f.age[f_alv_mat[, hist.len()] == 1],
+          levels = (hist.len() - 2):0
+        )
+      )      
+      
       # Record super-population size
       Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
       
@@ -75,6 +88,17 @@ checks.lst = reactive({
       ns.POPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.POPs.btn
       ns.SPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.SPs.btn
       
+      # Same-mother pairs with one born in final year
+      age.0 = attributes(pop.cap.hist)$f.age == 0
+      mums.of.age.0 = attributes(pop.cap.hist)$mum[age.0]
+      alv.f.yr = f_alv_mat[, hist.len()] == 1
+      for (t in (hist.len() - 2):1) {
+        age.t = attributes(pop.cap.hist)$f.age == t & alv.f.yr
+        mums.of.age.t = attributes(pop.cap.hist)$mum[age.t]
+        ns.SMPs.f.yr.mat[hist.ind, hist.len() - 1 - t] = 
+          sum(mums.of.age.t %in% mums.of.age.0)
+      }
+
       # Find expected numbers of kin pairs
       exp.ns.kps.lst <- FindExpNsKPs(
         k(), n.srvy.prs(), exp.N.fin, lambda(), f.year(), srvy.yrs(), phi(), 
@@ -98,6 +122,7 @@ checks.lst = reactive({
     ns_bths = ns_bths,
     ns_dths = ns_dths,
     ns.mtr.mat = ns.mtr.mat,
+    ns.srvvd.f.yr.mat = ns.srvvd.f.yr.mat,
     ns.KPs.lst = list(
       ns.SPs.btn.mat = ns.SPs.btn.mat,
       ns.POPs.wtn.mat = ns.POPs.wtn.mat,
@@ -105,6 +130,7 @@ checks.lst = reactive({
       ns.SMPs.wtn.mat = ns.SMPs.wtn.mat,
       ns.HSPs.wtn.mat = ns.HSPs.wtn.mat
     ),
+    ns.SMPs.f.yr.mat = ns.SMPs.f.yr.mat,
     exp.ns.KPs.lst = list(
       exp.ns.SPs.btn.mat = exp.ns.SPs.btn.mat,
       exp.ns.POPs.wtn.mat = exp.ns.POPs.wtn.mat,
@@ -247,18 +273,31 @@ output$alive = renderTable({
 # breeding
 output$bthsNMtr = renderTable({
   mean_bths = colMeans(checks.lst()$ns_bths)
+  exp_bths = exp.N.t()[-1] * (1 - phi() / lambda())
   mean.ns.mtr = colMeans(checks.lst()$ns.mtr.mat[, -1])
-  ratio.mns = mean_bths / mean.ns.mtr
-  mn.ratio = 
-    colMeans(checks.lst()$ns_bths / checks.lst()$ns.mtr.mat[, -1])
-  df = rbind(mean_bths, mean.ns.mtr, mn.ratio, ratio.mns)
+  exp.ns.mtr = exp.N.t()[-1] * (phi() / lambda())^alpha()
+  mean.ns.srvvd.f.yr = colMeans(checks.lst()$ns.srvvd.f.yr.mat)
+  exp.ns.srvvd.f.yr = (1 - phi() / lambda()) * 
+    (phi() / lambda())^((hist.len() - 2):0) * exp.N.t()[hist.len()]
+  mean.ns.SMPs.f.yr = colMeans(checks.lst()$ns.SMPs.f.yr.mat)
+  exp.ns.SMPs.f.yr = 2 * exp.N.t()[hist.len()] * (1 - phi() / lambda())^2 *
+    (lambda() / phi())^alpha() * (phi()^2 / lambda())^((hist.len() - 2):1)
+  
+  df = rbind(
+    mean_bths, exp_bths, mean.ns.mtr, exp.ns.mtr, mean.ns.srvvd.f.yr,
+    exp.ns.srvvd.f.yr, mean.ns.SMPs.f.yr, c(exp.ns.SMPs.f.yr, NA)
+  )
   rownames(df) = c(
-    "Average numbers born", "Average numbers mature", "Average ratio",
-    "Ratio of averages"
+    "Average numbers born", "Expected numbers born", "Average numbers mature",
+    "Expected numbers mature", 
+    "Average numbers born and survived to final year",
+    "Expected numbers born and survived to final year",
+    "Average numbers same-mother pairs with one born in final year",
+    "Expected numbers same-mother pairs with one born in final year"
   )
   colnames(df) = (f.year() - hist.len() + 2):f.year()
   df
-}, rownames = T, digits = 3)
+}, rownames = T, digits = 1)
 
 # Print head of first study
 output$dataHead <- renderTable(head(data.frame(sim.lst()$hists.lst[[1]])))

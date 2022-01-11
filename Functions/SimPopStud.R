@@ -192,6 +192,8 @@ SimPopStud <- function(
   attributes(pop.hist)$Ns <- Ns
   attributes(pop.hist)$ns.clvng <- ns.clvng
   attributes(pop.hist)$alv.mat <- alv.mat
+  attributes(pop.hist)$f.age <- f.year - b.year
+  attributes(pop.hist)$mum <- mum
   # attributes(pop.hist)$mtr.mat <- mtr.mat
   attributes(pop.hist)$ns.mtr <- ns.mtr
   
