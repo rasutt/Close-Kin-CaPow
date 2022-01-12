@@ -6,7 +6,7 @@
 
 -   Check what data you're using from the sim, tidy up code, and see whether you can speed it up again. Replace alive matrix with numbers born and died?
 
--   Make the simulation and kin-pair probabilities consistent about the requirement that animals are mature at the time of their first calf's birth, rather than the year before.
+-   Make the simulation and kin-pair probabilities consistent about the requirement that animals be mature at the time of their first calf's birth, rather than the year before.
 
 -   Figure out why higher alpha causes bias in expected numbers of HSPs within samples.
 

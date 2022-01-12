@@ -1,9 +1,4 @@
-FindNsKinPairs <- function(k, n.srvy.prs, pop.cap.hist, ns.alv.srvy.yrs) {
-  # Find total numbers of pairs within each survey year, and between each pair
-  # of survey years
-  ns.APs.wtn = choose(ns.alv.srvy.yrs, 2)
-  ns.APs.btn = combn(ns.alv.srvy.yrs, 2, function(x) x[1] * x[2])
-  
+FindNsKinPairs <- function(k, n.srvy.prs, pop.cap.hist) {
   # Create vectors for POPs within each sample, and POPs and SPs between each
   # pair of samples
   ns.POPs.wtn <- ns.HSPs.wtn <- ns.SMPs.wtn <- numeric(k)
@@ -62,8 +57,6 @@ FindNsKinPairs <- function(k, n.srvy.prs, pop.cap.hist, ns.alv.srvy.yrs) {
 
   # Return numbers of kinpairs
   list(
-    ns.APs.wtn = ns.APs.wtn,
-    ns.APs.btn = ns.APs.btn,
     ns.POPs.wtn = ns.POPs.wtn, 
     ns.HSPs.wtn = ns.HSPs.wtn,
     ns.SMPs.wtn = ns.SMPs.wtn,

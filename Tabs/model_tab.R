@@ -24,11 +24,9 @@ fit.ck = reactive(if (input$close_kin) {
   ck.tmb.cnvg <- numeric(n_sims())
   
   # Create matrices for estimates and standard errors
-  ck.tmb.ests <- ck.tmb.ses <- 
-    matrix(
-      nrow = n_sims(), ncol = 4 + k(), 
-      dimnames = list(NULL, est.par.names())
-    )
+  ck.tmb.ests <- ck.tmb.ses <- matrix(
+    nrow = n_sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
+  )
   
   # Loop over histories
   withProgress({

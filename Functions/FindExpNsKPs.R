@@ -11,7 +11,7 @@ FindExpNsKPs <- function(
   # Create vectors for POPs within each sample, and POPs and SPs between each
   # pair of samples
   exp.ns.POPs.wtn <- exp.ns.HSPs.wtn <- exp.ns.SMPs.wtn <- numeric(k)
-  exp.ns.POPs.btn <- exp.ns.SPs.btn <- numeric(n.srvy.prs)
+  exp.ns.SPs.btn.pop <- exp.ns.POPs.btn <- exp.ns.SPs.btn <- numeric(n.srvy.prs)
   
   # Parent-offspring pairs within sample
   
@@ -69,6 +69,9 @@ FindExpNsKPs <- function(
       # Probability of SPs between samples
       prb.SPs.btn <- phi^srvy.gap / exp.N.srvy.yr
       
+      # SPs for whole population
+      exp.ns.SPs.btn.pop[smp.pr.cnt] = exp.N.srvy.yr * (phi / lambda)^srvy.gap
+      
       # Number of pairs between samples
       n.prs.btn <- ns.caps[srvy.ind.1] * ns.caps[srvy.ind.2]
       
@@ -90,6 +93,7 @@ FindExpNsKPs <- function(
   list(
     exp.ns.APs.wtn = exp.ns.APs.wtn, 
     exp.ns.APs.btn = exp.ns.APs.btn, 
+    exp.ns.SPs.btn.pop = exp.ns.SPs.btn.pop,
     exp.ns.POPs.wtn = exp.ns.POPs.wtn, 
     exp.ns.HSPs.wtn = exp.ns.HSPs.wtn,
     exp.ns.POPs.btn = exp.ns.POPs.btn,

@@ -5,7 +5,7 @@ output$checkParVals <- renderTable({
 # Display simulation values
 output$checkSimVals = renderTable(sim.vals())
 
-# Check simulated studies
+# Calculate checks for simulated studies
 checks.lst = reactive({
   # Expected final population size
   exp.N.fin <- exp.N.t()[hist.len()]
@@ -25,8 +25,8 @@ checks.lst = reactive({
     exp.ns.HSPs.wtn.mat <- exp.ns.POPs.wtn.mat <- 
     exp.ns.SMPs.wtn.mat <-
     matrix(nrow = n_sims(), ncol = k())
-  ns.APs.btn.mat <- ns.POPs.btn.mat <- ns.SPs.btn.mat <- exp.ns.APs.btn.mat <- 
-    exp.ns.POPs.btn.mat <- 
+  ns.APs.btn.mat <- ns.SPs.btn.pop.mat <- ns.POPs.btn.mat <- ns.SPs.btn.mat <-
+    exp.ns.APs.btn.mat <- exp.ns.SPs.btn.pop.mat <- exp.ns.POPs.btn.mat <- 
     exp.ns.SPs.btn.mat <- matrix(nrow = n_sims(), ncol = n.srvy.prs())
   
   # Create vectors for proportions with unknown parents, super-population
@@ -50,10 +50,10 @@ checks.lst = reactive({
       N.t.mat[hist.ind, ] <- attributes(pop.cap.hist)$N.t.vec
       
       # Find birth and survival rates
-      f_alv_mat = attributes(pop.cap.hist)$alv.mat
-      bs_n_ds = f_alv_mat[, -1] != f_alv_mat[, -hist.len()]
-      ns_bths[hist.ind, ] = colSums(bs_n_ds & f_alv_mat[, -hist.len()] == 0)
-      ns_dths[hist.ind, ] = colSums(bs_n_ds & f_alv_mat[, -hist.len()] == 1)
+      alv_mat = attributes(pop.cap.hist)$alv.mat
+      bs_n_ds = alv_mat[, -1] != alv_mat[, -hist.len()]
+      ns_bths[hist.ind, ] = colSums(bs_n_ds & alv_mat[, -hist.len()] == 0)
+      ns_dths[hist.ind, ] = colSums(bs_n_ds & alv_mat[, -hist.len()] == 1)
       
       # Record numbers of mature animals
       ns.mtr.mat[hist.ind, ] <- attributes(pop.cap.hist)$ns.mtr
@@ -62,7 +62,7 @@ checks.lst = reactive({
       # the final year
       ns.srvvd.f.yr.mat[hist.ind, ] <- table(
         factor(
-          attributes(pop.cap.hist)$f.age[f_alv_mat[, hist.len()] == 1],
+          attributes(pop.cap.hist)$f.age[alv_mat[, hist.len()] == 1],
           levels = (hist.len() - 2):0
         )
       )      
@@ -81,26 +81,42 @@ checks.lst = reactive({
       # Find proportion captured with unknown parents
       prpn.prnts.unkn.vec[hist.ind] <- mean(is.na(pop.cap.hist$mum))
       
-      ns.alv.srvy.yrs = 
-        attributes(pop.cap.hist)$N.t.vec[hist.len() + srvy.yrs() - f.year()]
-      
       # Find numbers of known kin pairs
-      ns.kps.lst <- 
-        FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist, ns.alv.srvy.yrs)
+      ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
       
       # Record in matrices
-      ns.APs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.APs.wtn
-      ns.APs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.APs.btn
       ns.POPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.POPs.wtn
       ns.HSPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.HSPs.wtn
       ns.SMPs.wtn.mat[hist.ind, ] <- ns.kps.lst$ns.SMPs.wtn
       ns.POPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.POPs.btn
       ns.SPs.btn.mat[hist.ind, ] <- ns.kps.lst$ns.SPs.btn
       
+      # Find total numbers of pairs within each survey year, and between each
+      # pair of survey years
+      ns.alv.srvy.yrs = 
+        attributes(pop.cap.hist)$N.t.vec[hist.len() + srvy.yrs() - f.year()]
+      ns.APs.wtn.mat[hist.ind, ] = choose(ns.alv.srvy.yrs, 2)
+      ns.APs.btn.mat[hist.ind, ] = 
+        combn(ns.alv.srvy.yrs, 2, function(x) x[1] * x[2])
+      
+      # Find numbers of self-pairs in whole population between survey years
+      IDs = rownames(alv_mat)
+      pr.cnt = 0
+      for (s1 in 1:(k() - 1)) {
+        srvy.yr.1 = srvy.yrs()[s1]
+        IDs1 = IDs[alv_mat[, hist.len() - f.year() + srvy.yr.1] == 1]
+        for (s2 in (s1 + 1):k()) {
+          pr.cnt = pr.cnt + 1
+          srvy.yr.2 = srvy.yrs()[s2]
+          IDs2 = IDs[alv_mat[, hist.len() - f.year() + srvy.yr.2] == 1]
+          ns.SPs.btn.pop.mat[hist.ind, pr.cnt] = sum(IDs1 %in% IDs2)
+        }
+      }
+      
       # Same-mother pairs with one born in final year
       age.0 = attributes(pop.cap.hist)$f.age == 0
       mums.of.age.0 = attributes(pop.cap.hist)$mum[age.0]
-      alv.f.yr = f_alv_mat[, hist.len()] == 1
+      alv.f.yr = alv_mat[, hist.len()] == 1
       for (t in (hist.len() - 2):1) {
         age.t = attributes(pop.cap.hist)$f.age == t & alv.f.yr
         mums.of.age.t = attributes(pop.cap.hist)$mum[age.t]
@@ -121,6 +137,7 @@ checks.lst = reactive({
       # Record in matrices
       exp.ns.APs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.APs.wtn
       exp.ns.APs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.APs.btn
+      exp.ns.SPs.btn.pop.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.SPs.btn.pop
       exp.ns.POPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.wtn
       exp.ns.HSPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.HSPs.wtn
       exp.ns.SMPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.SMPs.wtn
@@ -141,6 +158,7 @@ checks.lst = reactive({
     ns.KPs.lst = list(
       ns.APs.wtn.mat = ns.APs.wtn.mat,
       ns.APs.btn.mat = ns.APs.btn.mat,
+      ns.SPs.btn.pop.mat = ns.SPs.btn.pop.mat,
       ns.SPs.btn.mat = ns.SPs.btn.mat,
       ns.POPs.wtn.mat = ns.POPs.wtn.mat,
       ns.POPs.btn.mat = ns.POPs.btn.mat,
@@ -152,6 +170,7 @@ checks.lst = reactive({
     exp.ns.KPs.lst = list(
       exp.ns.APs.wtn.mat = exp.ns.APs.wtn.mat,
       exp.ns.APs.btn.mat = exp.ns.APs.btn.mat,
+      exp.ns.SPs.btn.pop.mat = exp.ns.SPs.btn.pop.mat,
       exp.ns.SPs.btn.mat = exp.ns.SPs.btn.mat,
       exp.ns.POPs.wtn.mat = exp.ns.POPs.wtn.mat,
       exp.ns.POPs.btn.mat = exp.ns.POPs.btn.mat,
@@ -191,29 +210,37 @@ output$popPlot <- renderPlot({
   )
 })
 
-# Observed parameter values
+# Table simulated versus expected per capita and per mature female birth rates,
+# population growth rate, and survival rate
 output$obsParVals = renderTable({
+  # Check simulated rates
   br = mean(checks.lst()$ns_bths / checks.lst()$N.t.mat[, -hist.len()])
   sr = 1 - mean(checks.lst()$ns_dths / checks.lst()$N.t.mat[, -hist.len()])
   gr = mean(checks.lst()$mean.N.t[-1] / checks.lst()$mean.N.t[-hist.len()])
   brmf = 2 * mean(checks.lst()$ns_bths / checks.lst()$ns.mtr.mat[, -1])
-  # Mature females the year before
-  # exp_brmf = 2 * (lambda() / phi() - 1) * (lambda() / phi())^alpha()
+  
+  # Expected birth rate among mature females
   exp_brmf = 2 * (1 - phi() / lambda()) * (lambda() / phi())^alpha()
-  df = data.frame(br, gr, sr, brmf, exp_brmf)
-  names(df) = c(
-    "Birth rate", "Growth rate", "Survival rate", 
-    "Birth rate among mature females", 
-    "Expected birth rate among mature females"
+  
+  # Make data frame for output
+  df = data.frame(
+    rbind(c(br, gr, sr, brmf), c(rho(), lambda(), phi(), exp_brmf))
   )
+  names(df) = c(
+    "Birth rate (per capita)", "Growth rate", "Survival rate", 
+    "Birth rate (mature females)"
+  )
+  rownames(df) = c("Simulated", "Expected")
   df
-}, digits = 3)
+}, rownames = T, digits = 3)
 
 # Checks for numbers of kin-pairs
 
 # Names of types of kin-pairs
 KP_names = c(
-  "All-pairs within surveys", "All-pairs between surveys",
+  "All-pairs within surveys (whole population)", 
+  "All-pairs between surveys (whole population)",
+  "Self-pairs between surveys (whole population)",
   "Self-pairs between surveys", "Parent-offspring pairs within surveys", 
   "Parent-offspring pairs between surveys", "Same-mother pairs within surveys",
   "Half-sibling pairs within surveys"
@@ -222,7 +249,8 @@ KP_names = c(
 n_KP_types = length(KP_names)
 # Indices for types of kin-pairs
 KP_inds = c(
-  "Survey", "Survey-pair", "Survey-pair", "Survey", "Survey-pair", "Survey",
+  "Survey", "Survey-pair", "Survey-pair", "Survey-pair", "Survey", 
+  "Survey-pair", "Survey",
   "Survey"
 )
 
@@ -233,7 +261,7 @@ output$nsKPs = renderTable({
   for (i in 1:n_KP_types) {
     diffs[i] = perc(mean(
       (checks.lst()$ns.KPs.lst[[i]] - checks.lst()$exp.ns.KPs.lst[[i]]) /
-      checks.lst()$exp.ns.KPs.lst[[i]]
+        checks.lst()$exp.ns.KPs.lst[[i]]
     ))
   }
   df = data.frame(matrix(diffs, nrow = 1))
@@ -244,7 +272,7 @@ output$nsKPs = renderTable({
 # Show percentage of animals captured for which the parents are unknown
 output$percUnknPrnts <- renderText({
   paste0(
-    "Percentage of captured animals with unknown parents (1DP): ", 
+    "Percentage of captured animals with unknown parents: ", 
     round(mean(checks.lst()$prpn.prnts.unkn.vec) * 100, 1), "%"
   )
 })
