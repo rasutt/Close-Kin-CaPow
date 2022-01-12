@@ -59,7 +59,7 @@ ui <- fluidPage(
       ),
       sliderInput(
         inputId = "n_sims", label = "Number of studies to simulate:",
-        0, 1000, value = 50, step = 10
+        0, 1000, value = 10, step = 10
       ),
       actionButton(
         inputId = "simulate", label = "Simulate studies"
@@ -104,6 +104,7 @@ ui <- fluidPage(
           h4("Simulated minus expected numbers of kin-pairs"),
           tableOutput(outputId = "nsKPs"),
           textOutput(outputId = "percUnknPrnts"),
+          tableOutput(outputId = "HSPDeriv"),
           plotOutput(outputId = "nsSPsBtn"),
           plotOutput(outputId = "nsPOPsWtn"),
           plotOutput(outputId = "nsPOPsBtn"),
@@ -111,7 +112,6 @@ ui <- fluidPage(
           plotOutput(outputId = "nsHSPsWtn"),
           h4("Head of first life-histories table"),
           tableOutput(outputId = "alive"),
-          tableOutput(outputId = "bthsNMtr"),
           h4("Head of first dataset"),
           tableOutput(outputId = "dataHead")
         ), 
