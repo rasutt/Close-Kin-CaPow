@@ -10,7 +10,7 @@ FindNsKinPairsPop = function(
     combn(ns.alv.srvy.yrs, 2, function(x) x[1] * x[2])
   
   # Self-pairs in whole population between survey years
-  alv_mat = attributes(pop.cap.hist)$alv_mat
+  alv_mat = attributes(pop.cap.hist)$alv.mat
   IDs = attributes(pop.cap.hist)$ID
   ns.SPs.btn.pop = numeric(n.srvy.prs)
   pr.cnt = 0
@@ -33,13 +33,11 @@ FindNsKinPairsPop = function(
       sum(choose(table(attributes(pop.cap.hist)$mum[alv.s.yr]), 2))
   }
   
-  lst = list(
+  # Return as list
+  list(
     ns.APs.wtn.pop = ns.APs.wtn.pop,
     ns.APs.btn.pop = ns.APs.btn.pop,
     ns.SPs.btn.pop = ns.SPs.btn.pop,
     ns.SMPs.wtn.pop = ns.SMPs.wtn.pop
   )
-  print(lst)
-  
-  lst
 }
