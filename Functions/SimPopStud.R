@@ -31,17 +31,15 @@ SimPopStud <- function(
   
   # Create vectors for population size and maturity statuses and enter first
   # value
-  N.t.vec <- ns.mtr <- numeric(hist.len)
+  N.t.vec <- numeric(hist.len)
   N.t.vec[1] <- N.init
-  ns.mtr[1] <- sum(alive & -b.year >= alpha)
-  
+
   # Create lists for life and calving statuses of animals in survey years, and
   # life in all years for testing
   alv.srvy <- clvng.srvy <- vector("list", k)
-  alv.all <- mtr.all <- vector("list", hist.len)
-  alv.all[[1]] <- alive
-  # mtr.all[[1]] <- alive & -b.year >= alpha
-  
+  alv.all = vector("list", hist.len)
+  alv.all[[1]] = alive
+
   # Set survey counter to zero
   srvy.cnt <- 0
   
@@ -59,20 +57,19 @@ SimPopStud <- function(
     # Display progress
     # if (t %% 20 == 1) cat('', f.year - hist.len + t)
     
-    # Find animals alive and mature last year
-    # mature <- alive & t - 1 - b.year >= alpha
+    # Find animals mature this year
+    mature <- t - b.year >= alpha
+    
+    # Find possible dads (alive last year and would be mature this year)
+    dads.poss <- which(alive & mature & !female)
 
     # Find survivors to current year
     alive[alive] <- as.logical(
       rbinom(N.t.vec[t - 1], 1, phi * (1 - pmt.emgn * !female[alive]))
     )
 
-    # Find animals alive and mature this year
-    mature <- alive & t - b.year >= alpha
-    
-    # Find possible parents (mothers must survive to give birth)
+    # Find possible mums (alive and mature this year)
     mums.poss <- which(alive & mature & female)
-    dads.poss <- which(mature & !female)
     
     # If there was at least one possible father find number of calves
     if (length(dads.poss) > 0) 
@@ -120,10 +117,7 @@ SimPopStud <- function(
     # Record population size
     N.t.vec[t] <- sum(alive)
     
-    # Add life and maturity statuses to list
-    alv.all[[t]] <- alive
-    # mtr.all[[t]] <- mature
-    ns.mtr[t] <- sum(mature)
+    alv.all[[t]] = alive
     
     # If survey year add life and calving statuses of animals to lists
     if ((f.year - hist.len + t) %in% srvy.yrs) {
@@ -140,15 +134,6 @@ SimPopStud <- function(
   # Adjust birth years with respect to final year
   b.year <- b.year + f.year - hist.len
   
-  # Create matrix and enter life and maturity statuses of animals over all years
-  # for testing
-  alv.mat <- mtr.mat <- matrix(0, length(alive), hist.len)
-  for (t in 1:hist.len) {
-    alv.mat[1:length(alv.all[[t]]), t] <- alv.all[[t]]
-    # mtr.mat[1:length(mtr.all[[t]]), t] <- mtr.all[[t]]
-  }
-  mode(alv.mat) <- mode(mtr.mat) <- "integer"
-
   # Create matrices and enter life and calving statuses of animals in survey
   # years
   cap.hists <- clvng.hists <- matrix(F, length(alive), k)
@@ -159,6 +144,13 @@ SimPopStud <- function(
   }
   clvng.hists[is.na(clvng.hists)] <- F
   mode(clvng.hists) <- "integer"
+  
+  # Make matrix for life histories 
+  alv.mat = matrix(F, length(alive), hist.len)
+  for (t in 1:hist.len) {
+    alv.mat[1:length(alv.all[[t]]), t] = alv.all[[t]]
+  }
+  mode(alv.mat) = "integer"
   
   # Find super-population size of study
   Ns <- sum(rowSums(cap.hists) > 0)
@@ -183,7 +175,7 @@ SimPopStud <- function(
   pop.hist <- 
     data.frame(ID, mum, dad, cap.hists, clvng.hists)[rowSums(cap.hists) > 0, ]
   
-  rownames(alv.mat) <- rownames(mtr.mat) <- ID
+  rownames(alv.mat) <- ID
   
   # Attach parameters and implied birthrate
   attributes(pop.hist)$beta <- beta
@@ -194,9 +186,8 @@ SimPopStud <- function(
   attributes(pop.hist)$alv.mat <- alv.mat
   attributes(pop.hist)$f.age <- f.year - b.year
   attributes(pop.hist)$mum <- mum
-  # attributes(pop.hist)$mtr.mat <- mtr.mat
-  attributes(pop.hist)$ns.mtr <- ns.mtr
-  
+  attributes(pop.hist)$ID <- ID
+
   # Display runtime
   # cat("Final population size:", tail(N.t.vec, 1), "\n")
   # cat("Sim took", (proc.time() - s.time)["user.self"], "seconds \n")

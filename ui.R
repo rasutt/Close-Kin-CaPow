@@ -105,7 +105,7 @@ ui <- fluidPage(
           h5("Whole population"),
           tableOutput(outputId = "nsKPsPop"),
           h5("Captured animals"),
-          tableOutput(outputId = "nsKPs"),
+          tableOutput(outputId = "nsKPsCap"),
           textOutput(outputId = "percUnknPrnts"),
           tableOutput(outputId = "HSPDeriv"),
           plotOutput(outputId = "nsSPsBtn"),
