@@ -263,19 +263,13 @@ exp.ns.KPs.pop.lst = reactive({
   exp.ns.APs.btn = as.vector(combn(exp.N.srvy.yrs, 2, function(x) x[1] * x[2]))
   
   # SPs for whole population
-  exp.ns.SPs.btn = numeric(n.srvy.prs())
-  pr.cnt = 0
-  for (s1 in 1:(k() - 1)) {
-    srvy.yr.1 = srvy.yrs()[s1]
-    for (s2 in (s1 + 1):k()) {
-      pr.cnt = pr.cnt + 1
-      srvy.yr.2 = srvy.yrs()[s2]
-      srvy.gap <- srvy.yr.2 - srvy.yr.1
-      exp.N.srvy.yr = exp.N.fin / lambda()^(f.year() - srvy.yr.2)
-      exp.ns.SPs.btn[pr.cnt] = exp.N.srvy.yr * (phi() / lambda())^srvy.gap
-    }
-  }
-  
+  exp.ns.SPs.btn = outer(
+    srvy.yrs(), srvy.yrs(),
+    function(srvy.yr.1, srvy.yr.2) exp.N.fin / lambda()^(f.year() - srvy.yr.1) *
+        phi()^(srvy.yr.2 - srvy.yr.1)
+  )
+  exp.ns.SPs.btn = t(exp.ns.SPs.btn)[lower.tri(exp.ns.SPs.btn)]
+
   list(
     exp.ns.APs.wtn = exp.ns.APs.wtn,
     exp.ns.APs.btn = exp.ns.APs.btn,
