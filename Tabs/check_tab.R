@@ -173,6 +173,14 @@ output$obsParVals = renderTable({
 
 # Checks for numbers of kin-pairs
 
+# Show percentage of animals captured for which the parents are unknown
+output$percUnknPrnts <- renderText({
+  paste0(
+    "Percentage of captured animals with unknown parents: ", 
+    round(mean(checks.lst()$prpn.prnts.unkn.vec) * 100, 1), "%"
+  )
+})
+
 # Names of types of kin-pairs
 KP_pop_names = c(
   "All-pairs within surveys", "All-pairs between surveys",
@@ -251,37 +259,25 @@ output$nsKPsCap = renderTable({
   )
 })
 
-# Show percentage of animals captured for which the parents are unknown
-output$percUnknPrnts <- renderText({
-  paste0(
-    "Percentage of captured animals with unknown parents: ", 
-    round(mean(checks.lst()$prpn.prnts.unkn.vec) * 100, 1), "%"
-  )
-})
-
-# Intermediate results in derivation of numbers of half-sibling pairs
-output$HSPDeriv = renderTable({
-  mean.ns.SMPs.f.yr = colMeans(checks.lst()$ns.SMPs.t.f.yr.pop.mat)
-  exp.ns.SMPs.f.yr = 2 * exp.N.t()[hist.len()] * (1 - phi() / lambda())^2 *
-    (lambda() / phi())^alpha() * (phi()^2 / lambda())^((hist.len() - 2):1)
-  
-  df = rbind(mean.ns.SMPs.f.yr, c(exp.ns.SMPs.f.yr, NA))
-  rownames(df) = c("Avg(SMP{t,f.yr,f.yr})", "E(SMP{t,f.yr,f.yr})")
-  colnames(df) = (f.year() - hist.len() + 2):f.year()
-  df
-}, rownames = T, digits = 1)
-
 # Function to plot simulated versus expected numbers of kin-pairs for one type
 # of kin-pair
-nsKPsPlot = function(i) {
-  diffs = checks.lst()$ns.KPs.lst[[i]] - checks.lst()$exp.ns.KPs.lst[[i]]
-  xlab = KP_inds[i]
+nsKPsPlot = function(i, pop = F) {
+  if (pop) {
+    diffs = 
+      t(t(checks.lst()$ns.KPs.pop.lst[[i]]) / exp.ns.KPs.pop.lst()[[i]] - 1)
+    xlab = KP_pop_inds[i]
+    main = KP_pop_names[i]
+  } else {
+    diffs = checks.lst()$ns.KPs.lst[[i]] / checks.lst()$exp.ns.KPs.lst[[i]] - 1 
+    xlab = KP_inds[i]
+    main = KP_names[i]
+  }
   if (xlab == "Survey") colnames(diffs) = srvy.yrs()
   else colnames(diffs) = apply(combn(srvy.yrs(), 2), 2, paste, collapse = "-")
   {
     boxplot(
-      diffs, main = KP_names[i], xlab = xlab, 
-      ylab = "Observed - expected numbers"
+      diffs, main = main, xlab = xlab, 
+      ylab = "(Observed - expected numbers) / expected numbers"
     )
     abline(h = 0, col = 'red')
     abline(h = mean(diffs), col = 'blue')
@@ -297,6 +293,15 @@ nsKPsPlot = function(i) {
 
 # Apply plot function to each type of kin-pair
 
+# All pairs within survey years for whole population
+output$nsAPsWtnPop <- renderPlot(nsKPsPlot(1, T))
+# All pairs between survey years for whole population
+output$nsAPsBtnPop <- renderPlot(nsKPsPlot(2, T))
+# Self-pairs between survey years for whole population
+output$nsSPsBtnPop <- renderPlot(nsKPsPlot(3, T))
+# Same-mother pairs within survey years for whole population
+output$nsSMPsWtnPop <- renderPlot(nsKPsPlot(4, T))
+
 # Self-pairs between samples
 output$nsSPsBtn <- renderPlot(nsKPsPlot(1))
 # Parent-offspring pairs within samples
@@ -307,6 +312,19 @@ output$nsPOPsBtn <- renderPlot(nsKPsPlot(3))
 output$nsSMPsWtn <- renderPlot(nsKPsPlot(4))
 # Half-sibling pairs within samples
 output$nsHSPsWtn <- renderPlot(nsKPsPlot(5))
+
+# Same-mother pairs in final year between animals born in final year and each
+# other year in population history
+output$SMPsFYear = renderTable({
+  mean.ns.SMPs.f.yr = colMeans(checks.lst()$ns.SMPs.t.f.yr.pop.mat)
+  exp.ns.SMPs.f.yr = 2 * exp.N.t()[hist.len()] * (1 - phi() / lambda())^2 *
+    (lambda() / phi())^alpha() * (phi()^2 / lambda())^((hist.len() - 2):1)
+  
+  df = rbind(mean.ns.SMPs.f.yr, c(exp.ns.SMPs.f.yr, NA))
+  rownames(df) = c("Avg(SMP{t,f.yr,f.yr})", "E(SMP{t,f.yr,f.yr})")
+  colnames(df) = (f.year() - hist.len() + 2):f.year()
+  df
+}, rownames = T, digits = 1)
 
 # First life histories from first study
 output$alive = renderTable({
