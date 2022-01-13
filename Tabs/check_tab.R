@@ -18,15 +18,15 @@ checks.lst = reactive({
   N.t.mat <- ns.mtr.mat <- matrix(nrow = n_sims(), ncol = hist.len())
   ns_bths <- ns_dths <- ns.srvvd.f.yr.mat <- ns.SMPs.f.yr.mat <-
     matrix(nrow = n_sims(), ncol = hist.len() - 1)
-  ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- ns.APs.wtn.mat <-
+  ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- ns.APs.wtn.pop.mat <-
     ns.POPs.wtn.mat <- 
     ns.SMPs.wtn.mat <- ns.HSPs.wtn.mat <- 
-    exp.ns.APs.wtn.mat <-
+    exp.ns.APs.wtn.pop.mat <-
     exp.ns.HSPs.wtn.mat <- exp.ns.POPs.wtn.mat <- 
     exp.ns.SMPs.wtn.mat <-
     matrix(nrow = n_sims(), ncol = k())
-  ns.APs.btn.mat <- ns.SPs.btn.pop.mat <- ns.POPs.btn.mat <- ns.SPs.btn.mat <-
-    exp.ns.APs.btn.mat <- exp.ns.SPs.btn.pop.mat <- exp.ns.POPs.btn.mat <- 
+  ns.APs.btn.pop.mat <- ns.SPs.btn.pop.mat <- ns.POPs.btn.mat <- ns.SPs.btn.mat <-
+    exp.ns.APs.btn.pop.mat <- exp.ns.SPs.btn.pop.mat <- exp.ns.POPs.btn.mat <- 
     exp.ns.SPs.btn.mat <- matrix(nrow = n_sims(), ncol = n.srvy.prs())
   
   # Create vectors for proportions with unknown parents, super-population
@@ -95,8 +95,8 @@ checks.lst = reactive({
       # pair of survey years
       ns.alv.srvy.yrs = 
         attributes(pop.cap.hist)$N.t.vec[hist.len() + srvy.yrs() - f.year()]
-      ns.APs.wtn.mat[hist.ind, ] = choose(ns.alv.srvy.yrs, 2)
-      ns.APs.btn.mat[hist.ind, ] = 
+      ns.APs.wtn.pop.mat[hist.ind, ] = choose(ns.alv.srvy.yrs, 2)
+      ns.APs.btn.pop.mat[hist.ind, ] = 
         combn(ns.alv.srvy.yrs, 2, function(x) x[1] * x[2])
       
       # Find numbers of self-pairs in whole population between survey years
@@ -135,9 +135,6 @@ checks.lst = reactive({
       )
       
       # Record in matrices
-      exp.ns.APs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.APs.wtn
-      exp.ns.APs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.APs.btn
-      exp.ns.SPs.btn.pop.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.SPs.btn.pop
       exp.ns.POPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.wtn
       exp.ns.HSPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.HSPs.wtn
       exp.ns.SMPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.SMPs.wtn
@@ -155,10 +152,12 @@ checks.lst = reactive({
     ns_dths = ns_dths,
     ns.mtr.mat = ns.mtr.mat,
     ns.srvvd.f.yr.mat = ns.srvvd.f.yr.mat,
+    ns.KPs.pop.lst = list(
+      ns.APs.wtn.pop.mat = ns.APs.wtn.pop.mat,
+      ns.APs.btn.pop.mat = ns.APs.btn.pop.mat,
+      ns.SPs.btn.pop.mat = ns.SPs.btn.pop.mat
+    ),
     ns.KPs.lst = list(
-      ns.APs.wtn.mat = ns.APs.wtn.mat,
-      ns.APs.btn.mat = ns.APs.btn.mat,
-      ns.SPs.btn.pop.mat = ns.SPs.btn.pop.mat,
       ns.SPs.btn.mat = ns.SPs.btn.mat,
       ns.POPs.wtn.mat = ns.POPs.wtn.mat,
       ns.POPs.btn.mat = ns.POPs.btn.mat,
@@ -168,9 +167,6 @@ checks.lst = reactive({
     ns.SMPs.f.yr.mat = ns.SMPs.f.yr.mat,
     n.SMPs.f.yr.vec = n.SMPs.f.yr.vec,
     exp.ns.KPs.lst = list(
-      exp.ns.APs.wtn.mat = exp.ns.APs.wtn.mat,
-      exp.ns.APs.btn.mat = exp.ns.APs.btn.mat,
-      exp.ns.SPs.btn.pop.mat = exp.ns.SPs.btn.pop.mat,
       exp.ns.SPs.btn.mat = exp.ns.SPs.btn.mat,
       exp.ns.POPs.wtn.mat = exp.ns.POPs.wtn.mat,
       exp.ns.POPs.btn.mat = exp.ns.POPs.btn.mat,
@@ -218,41 +214,89 @@ output$obsParVals = renderTable({
   sr = 1 - mean(checks.lst()$ns_dths / checks.lst()$N.t.mat[, -hist.len()])
   gr = mean(checks.lst()$mean.N.t[-1] / checks.lst()$mean.N.t[-hist.len()])
   brmf = 2 * mean(checks.lst()$ns_bths / checks.lst()$ns.mtr.mat[, -1])
-  
-  # Expected birth rate among mature females
+  spr = mean(checks.lst()$ns.KPs.pop.lst$ns.SPs.btn.pop.mat /
+               checks.lst()$ns.KPs.pop.lst$ns.APs.btn.pop.mat)
+
+  # Expected rates
   exp_brmf = 2 * (1 - phi() / lambda()) * (lambda() / phi())^alpha()
+  exp_spr = mean(exp.ns.KPs.pop.lst()$exp.ns.SPs.btn /
+                   exp.ns.KPs.pop.lst()$exp.ns.APs.btn)
   
   # Make data frame for output
-  df = data.frame(
-    rbind(c(br, gr, sr, brmf), c(rho(), lambda(), phi(), exp_brmf))
-  )
+  df = data.frame(rbind(
+    c(br, gr, sr, brmf, spr), 
+    c(rho(), lambda(), phi(), exp_brmf, exp_spr)
+  ))
   names(df) = c(
     "Birth rate (per capita)", "Growth rate", "Survival rate", 
-    "Birth rate (mature females)"
+    "Birth rate (mature females)", "Self-pair rate"
   )
   rownames(df) = c("Simulated", "Expected")
   df
-}, rownames = T, digits = 3)
+}, rownames = T, digits = 6)
 
 # Checks for numbers of kin-pairs
 
 # Names of types of kin-pairs
+KP_pop_names = c(
+  "All-pairs within surveys", "All-pairs between surveys",
+  "Self-pairs between surveys"
+)
 KP_names = c(
-  "All-pairs within surveys (whole population)", 
-  "All-pairs between surveys (whole population)",
-  "Self-pairs between surveys (whole population)",
   "Self-pairs between surveys", "Parent-offspring pairs within surveys", 
   "Parent-offspring pairs between surveys", "Same-mother pairs within surveys",
   "Half-sibling pairs within surveys"
 )
 # Number of types of kin-pairs
+n_KP_pop_types = length(KP_pop_names)
 n_KP_types = length(KP_names)
 # Indices for types of kin-pairs
-KP_inds = c(
-  "Survey", "Survey-pair", "Survey-pair", "Survey-pair", "Survey", 
-  "Survey-pair", "Survey",
-  "Survey"
-)
+KP_pop_inds = c("Survey", "Survey-pair", "Survey-pair")
+KP_inds = c("Survey-pair", "Survey", "Survey-pair", "Survey", "Survey")
+
+exp.ns.KPs.pop.lst = reactive({
+  # Expected numbers of pairs within each survey and between each pair of
+  # surveys
+  exp.N.fin = exp.N.t()[hist.len()]
+  exp.N.srvy.yrs = exp.N.fin / lambda()^(f.year() - srvy.yrs())
+  exp.ns.APs.wtn = choose(exp.N.srvy.yrs, 2)
+  exp.ns.APs.btn = as.vector(combn(exp.N.srvy.yrs, 2, function(x) x[1] * x[2]))
+  
+  # SPs for whole population
+  exp.ns.SPs.btn = numeric(n.srvy.prs())
+  pr.cnt = 0
+  for (s1 in 1:(k() - 1)) {
+    srvy.yr.1 = srvy.yrs()[s1]
+    for (s2 in (s1 + 1):k()) {
+      pr.cnt = pr.cnt + 1
+      srvy.yr.2 = srvy.yrs()[s2]
+      srvy.gap <- srvy.yr.2 - srvy.yr.1
+      exp.N.srvy.yr = exp.N.fin / lambda()^(f.year() - srvy.yr.2)
+      exp.ns.SPs.btn[pr.cnt] = exp.N.srvy.yr * (phi() / lambda())^srvy.gap
+    }
+  }
+  
+  list(
+    exp.ns.APs.wtn = exp.ns.APs.wtn,
+    exp.ns.APs.btn = exp.ns.APs.btn,
+    exp.ns.SPs.btn = exp.ns.SPs.btn
+  )
+})
+
+# Show average percentage differences between simulated and expected numbers
+# of kin-pairs
+output$nsKPsPop = renderTable({
+  diffs = numeric(n_KP_pop_types)
+  for (i in 1:n_KP_pop_types) {
+    diffs[i] = perc(mean(
+      t((t(checks.lst()$ns.KPs.pop.lst[[i]]) - exp.ns.KPs.pop.lst()[[i]]) /
+        exp.ns.KPs.pop.lst()[[i]])
+    ))
+  }
+  df = data.frame(matrix(diffs, nrow = 1))
+  names(df) = KP_pop_names
+  df
+})
 
 # Show average percentage differences between simulated and expected numbers
 # of kin-pairs

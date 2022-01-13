@@ -1,13 +1,7 @@
-# Function to find expected numbers of kinpairs 
+# Function to find expected numbers of kin-pairs 
 FindExpNsKPs <- function(
   k, n.srvy.prs, exp.N.fin, lambda, f.year, srvy.yrs, phi, rho, ns.caps, alpha
 ) {
-  # Expected numbers of pairs within each survey and between each pair of
-  # surveys
-  exp.N.srvy.yrs = exp.N.fin / lambda^(f.year - srvy.yrs)
-  exp.ns.APs.wtn = choose(exp.N.srvy.yrs, 2)
-  exp.ns.APs.btn = combn(exp.N.srvy.yrs, 2, function(x) x[1] * x[2])
-  
   # Create vectors for POPs within each sample, and POPs and SPs between each
   # pair of samples
   exp.ns.POPs.wtn <- exp.ns.HSPs.wtn <- exp.ns.SMPs.wtn <- numeric(k)
@@ -69,9 +63,6 @@ FindExpNsKPs <- function(
       # Probability of SPs between samples
       prb.SPs.btn <- phi^srvy.gap / exp.N.srvy.yr
       
-      # SPs for whole population
-      exp.ns.SPs.btn.pop[smp.pr.cnt] = exp.N.srvy.yr * (phi / lambda)^srvy.gap
-      
       # Number of pairs between samples
       n.prs.btn <- ns.caps[srvy.ind.1] * ns.caps[srvy.ind.2]
       
@@ -91,9 +82,6 @@ FindExpNsKPs <- function(
   
   # Return expected numbers of kinpairs
   list(
-    exp.ns.APs.wtn = exp.ns.APs.wtn, 
-    exp.ns.APs.btn = exp.ns.APs.btn, 
-    exp.ns.SPs.btn.pop = exp.ns.SPs.btn.pop,
     exp.ns.POPs.wtn = exp.ns.POPs.wtn, 
     exp.ns.HSPs.wtn = exp.ns.HSPs.wtn,
     exp.ns.POPs.btn = exp.ns.POPs.btn,
