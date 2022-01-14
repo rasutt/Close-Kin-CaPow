@@ -26,40 +26,28 @@ $$E(N_{t_1}) = \frac{E(N_{t_2})}{\lambda^{t_2 - t_1}}.$$
 
 The probability that an animal survives from time $t_1$ to time $t_2$ is $\phi^{t_2 - t_1}$, where $t_2 > t_1$.
 
-Let $S_{t_1, t_2}$ be the number of animals that survive from time $t_1$ to time $t_2$.  Then 
-$$S_{t_1, t_2} \sim Bin(N_{t_1}, \phi^{t_2 - t_1}),$$
-and
-$$E(S_{t_1, t_2}) = E\{E(S_{t_1, t_2}|N_{t_1})\}$$
-$$= E(N_{t_1} \phi^{t_2 - t_1})$$
-$$= E(N_{t_1}) \phi^{t_2 - t_1}$$
-$$= \frac{E(N_{t_2})}{\lambda^{t_2 - t_1}} \phi^{t_2 - t_1}$$
-$$= E(N_{t_2}) \left(\frac{\phi}{\lambda}\right)^{t_2 - t_1}.$$
+Let $S$ be the number of animals that survive from time $t - 1$ to time $t$. 
 
-Let $B_t$ be the number of animals that are born at time $t$.  Then
-$$B_t = N_t - S_{t - 1, t},$$
+Then 
+$$S \sim Bin(N_{t - 1}, \phi),$$
 and
-$$E(B_t) = E(N_t - S_{t - 1, t})$$
-$$= E(N_t) - E(S_{t - 1, t})$$
-$$= E(N_t) - E(N_t) \left(\frac{\phi}{\lambda}\right)^{t - (t - 1)}$$
+$$E(S) = E\{E(S|N_{t - 1})\}$$
+$$= E(N_{t - 1} \phi)$$
+$$= E(N_{t - 1}) \phi$$
+$$= \frac{E(N_t)}{\lambda}\phi$$
+$$= E(N_t)\frac{\phi}{\lambda}.$$
+
+Let $B_t$ be the number of animals that are born at time $t$.  
+
+Then
+$$B_t = N_t - S,$$
+and
+$$E(B_t) = E(N_t - S)$$
+$$= E(N_t) - E(S)$$
 $$= E(N_t) - E(N_t) \frac{\phi}{\lambda}$$
 $$= E(N_t) \left(1 - \frac{\phi}{\lambda} \right).$$
 
-Let $C_{t_1, t_2}$ be the number of animals that are born at time $t_1$ and survive until time $t_2$.  Then
-$$C_{t_1, t_2} \sim Bin(B_{t_1}, \phi^{t_2 - t_1}),$$
-and
-$$E(C_{t_1, t_2}) = E\{E(C_{t_1, t_2}|B_{t_1})\}$$
-$$= E(B_{t_1} \phi^{t_2 - t_1})$$
-$$= E(B_{t_1}) \phi^{t_2 - t_1}$$
-$$= E(N_{t_1}) \left(1 - \frac{\phi}{\lambda}\right) \phi^{t_2 - t_1}$$
-$$ = \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right) ^{t_2 - t_1} E(N_{t_2}).$$
-
-### Expected number of pairs of animals at time $t$ with the same mother
-
-Let $b_1$, and $b_2$ be the years of birth of a pair of animals that are alive at time $t$.  New Zealand southern right whales have one calf at a time.  So if the animals are maternal half-siblings then $b_1 \ne b_2$.  Let $b_1$ be the birth year of the older sibling, so that $b_1 < b_2$.  
-
-The expected number of animals that are born at time $b_1$ and survive until time $t$ is
-$$E(C_{b_1, t}) =  \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right) ^{t - b_1} E(N_t).$$
-The probability that the mother survives from time $b_1$ to time $b_2$ is $\phi^{b_2 - b_1}$.
+### Birth rate among mature females
 
 Let 
 
@@ -84,16 +72,34 @@ $$\beta = \frac{E(B_t)}{E(F_t)},$$
 $$= \frac{E(N_t) \left(1 - \frac{\phi}{\lambda} \right)}{\frac{E(N_t)}{2}\left(\frac{\phi}{\lambda}\right)^\alpha}$$
 $$= \frac{\left(1 - \frac{\phi}{\lambda} \right)}{\frac{1}{2}\left(\frac{\phi}{\lambda}\right)^\alpha}$$
 $$= 2\left(1 - \frac{\phi}{\lambda} \right)\left(\frac{\lambda}{\phi}\right)^\alpha.$$
-This is the probability that the mother has another calf at time $b_2$, given that she survives until then.
+
+### Expected number of same-mother pairs
+
+Let $b_1$, and $b_2$ be the years of birth of a pair of animals that are alive at time $t$.  New Zealand southern right whales have one calf at a time, so if the animals have the same mother then $b_1 \ne b_2$.  Let $b_1$ be the birth year of the older sibling, so that $b_1 < b_2$.
+
+For each animal born at time $b_1$ the probability that it survives to time $t$ is $\phi^{t - b_1}$.
+
+The probability that the mother survives from time $b_1$ to time $b_2$ is $\phi^{b_2 - b_1}$.
+
+The probability that the mother has another calf at time $b_2$, given that she survives until then, is $\beta$.
 
 The probability that this calf survives to time $t$ is $\phi^{t - b_2}$.
+
+For each animal born at time $b_1$ the probability that there is an animal born at time $b_2$ with the same mother, and that they both survive to time $t$ is then $\phi^{t - b_1}\phi^{b_2 - b_1}\beta\phi^{t - b_2} = \phi^{2(t - b_1)}\beta$.
 
 Let $SMP_{t, b_1, b_2}$ be the number of pairs of animals at time $t$, with birth years $b_1$ and $b_2$, where $b_1 < b_2$, and the same mother.  
 
 Then
-$$E(SMP_{t, b_1, b_2}) = \left(1 - \frac{\phi}{\lambda}\right)\left( \frac{\phi}{\lambda}\right)^{t - b_1}E(N_t)\phi^{b_2 - b_1}2\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\lambda}{\phi}\right)^\alpha\phi^{t - b_2}$$
-$$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\left(\frac{\phi}{\lambda}\right)^{t - b_1}\phi^{t - b_1}$$
-$$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}$$
+$$SMP_{t, b_1, b_2} \sim Bin(B_{b_1}, \phi^{2(t - b_1)}\beta),$$
+and
+$$E(SMP_{t, b_1, b_2}) = E(E(SMP_{t, b_1, b_2}|B_{b_1}))$$
+$$= E(B_{b_1}\phi^{2(t - b_1)}\beta)$$
+$$= E(B_{b_1})\phi^{2(t - b_1)}\beta$$
+$$= E(N_{b_1})\left(1 - \frac{\phi}{\lambda}\right)\phi^{2(t - b_1)}\beta$$
+$$= \frac{E(N_t)}{\lambda^{t - b_1}}\left(1 - \frac{\phi}{\lambda}\right)\phi^{2(t - b_1)}\beta$$
+$$= E(N_t)\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}\beta$$
+$$= E(N_t)\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}2\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\lambda}{\phi}\right)^\alpha$$
+$$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}.$$
 
 Let $SMP_t$ be the number of pairs of animals at time $t$ with the same mother and any birth years.
 
