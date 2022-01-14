@@ -186,6 +186,10 @@ KP_pop_names = c(
   "All-pairs within surveys", "All-pairs between surveys",
   "Self-pairs between surveys", "Same-mother pairs within surveys"
 )
+KP_prob_names = c(
+  "Self-pair probabilities between surveys", 
+  "Same-mother pair probabilities within surveys"
+)
 KP_names = c(
   "Self-pairs between surveys", "Parent-offspring pairs within surveys", 
   "Parent-offspring pairs between surveys", "Same-mother pairs within surveys",
@@ -193,9 +197,11 @@ KP_names = c(
 )
 # Number of types of kin-pairs
 n_KP_pop_types = length(KP_pop_names)
+n_KP_prob_types = length(KP_prob_names)
 n_KP_types = length(KP_names)
 # Indices for types of kin-pairs
 KP_pop_inds = c("Survey", "Survey-pair", "Survey-pair", "Survey")
+KP_prob_inds = c("Survey-pair", "Survey")
 KP_inds = c("Survey-pair", "Survey", "Survey-pair", "Survey", "Survey")
 
 # Expected numbers of kin-pairs for whole population
@@ -227,6 +233,26 @@ exp.ns.KPs.pop.lst = reactive({
   )
 })
 
+# Kin-pair probabilities
+KPs.prob.lst = reactive({
+  list(
+    SPs.btn = exp.ns.KPs.pop.lst()$exp.ns.SPs.btn / 
+      exp.ns.KPs.pop.lst()$exp.ns.APs.btn,
+    SMPs.wtn = exp.ns.KPs.pop.lst()$exp.ns.SMPs.wtn / 
+      exp.ns.KPs.pop.lst()$exp.ns.APs.wtn
+  )
+})
+
+# Kin-pair rates observed
+KPs.rate.lst = reactive({
+  list(
+    SPs.btn = checks.lst()$ns.KPs.pop.lst$ns.SPs.btn.pop.mat / 
+      checks.lst()$ns.KPs.pop.lst$ns.APs.btn.pop.mat,
+    SMPs.wtn = checks.lst()$ns.KPs.pop.lst$ns.SMPs.wtn.pop.mat / 
+      checks.lst()$ns.KPs.pop.lst$ns.APs.wtn.pop.mat
+  )
+})
+
 # Function to table average percentage differences between simulated and
 # expected numbers of kin-pairs
 KPstab = function(n_types, ns, exp.ns, type_names, pop) {
@@ -251,6 +277,14 @@ output$nsKPsPop = renderTable({
   )
 })
 
+# Table average percentage differences for whole population
+output$nsKPsProb = renderTable({
+  KPstab(
+    n_KP_prob_types, KPs.rate.lst(), 
+    KPs.prob.lst(), KP_prob_names, T
+  )
+})
+
 # Table average percentage differences for captured animals
 output$nsKPsCap = renderTable({
   KPstab(
@@ -261,7 +295,7 @@ output$nsKPsCap = renderTable({
 
 # Function to plot simulated versus expected numbers of kin-pairs for one type
 # of kin-pair
-nsKPsPlot = function(i, pop = F) {
+nsKPsPlot = function(i, pop = F, prob = F) {
   if (pop) {
     diffs = 
       t(t(checks.lst()$ns.KPs.pop.lst[[i]]) / exp.ns.KPs.pop.lst()[[i]] - 1)
@@ -271,6 +305,12 @@ nsKPsPlot = function(i, pop = F) {
     diffs = checks.lst()$ns.KPs.lst[[i]] / checks.lst()$exp.ns.KPs.lst[[i]] - 1 
     xlab = KP_inds[i]
     main = KP_names[i]
+  }
+  if (prob) {
+    diffs = 
+      t(t(KPs.rate.lst()[[i]]) / KPs.prob.lst()[[i]] - 1)
+    xlab = KP_prob_inds[i]
+    main = KP_prob_names[i]
   }
   if (xlab == "Survey") colnames(diffs) = srvy.yrs()
   else colnames(diffs) = apply(combn(srvy.yrs(), 2), 2, paste, collapse = "-")
@@ -301,6 +341,11 @@ output$nsAPsBtnPop <- renderPlot(nsKPsPlot(2, T))
 output$nsSPsBtnPop <- renderPlot(nsKPsPlot(3, T))
 # Same-mother pairs within survey years for whole population
 output$nsSMPsWtnPop <- renderPlot(nsKPsPlot(4, T))
+
+# Self-pair probabilities between survey years for whole population
+output$probSPsBtnPop <- renderPlot(nsKPsPlot(1, prob = T))
+# Same-mother pair probabilities within survey years for whole population
+output$probSMPsWtnPop <- renderPlot(nsKPsPlot(2, prob = T))
 
 # Self-pairs between samples
 output$nsSPsBtn <- renderPlot(nsKPsPlot(1))
