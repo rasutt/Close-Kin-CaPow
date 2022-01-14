@@ -167,7 +167,7 @@ output$obsParVals = renderTable({
                    exp.ns.KPs.pop.lst()$exp.ns.APs.btn)
   df = data.frame(c(spr, exp_spr))
   names(df) = c("Self-pair rate")
-  rownames(df) = c("Average simulated", "Expected")
+  rownames(df) = c("Average simulated", "Average Expected")
   df
 }, rownames = T, digits = 6)
 
