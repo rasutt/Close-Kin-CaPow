@@ -7,9 +7,6 @@ output$checkSimVals = renderTable(sim.vals())
 
 # Calculate checks for simulated studies
 checks.lst = reactive({
-  # Expected final population size
-  exp.N.fin <- exp.N.t()[hist.len()]
-  
   # Create matrices for population trajectories (as columns), numbers of mature
   # animals, numbers of animals of ages up to the history length that survived
   # to the final year, numbers of same-mother pairs with one born in final year,
@@ -62,7 +59,9 @@ checks.lst = reactive({
       
       # Numbers of kin-pairs in whole population
       ns.kps.pop.lst = FindNsKinPairsPop(
-        pop.cap.hist, hist.len(), srvy.yrs(), f.year(), n.srvy.prs(), k()
+        attributes(pop.cap.hist)$N.t.vec[s.yr.inds()], 
+        attributes(pop.cap.hist)$alv.mat[, s.yr.inds()], 
+        attributes(pop.cap.hist)$ID, attributes(pop.cap.hist)$mum, k()
       )
       ns.APs.wtn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.APs.wtn.pop
       ns.APs.btn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.APs.btn.pop
@@ -79,7 +78,7 @@ checks.lst = reactive({
       
       # Find expected numbers of kin pairs
       exp.ns.kps.lst <- FindExpNsKPs(
-        k(), n.srvy.prs(), exp.N.fin, lambda(), f.year(), srvy.yrs(), phi(), 
+        k(), n.srvy.prs(), exp.N.fin(), lambda(), f.year(), srvy.yrs(), phi(), 
         rho(), ns.caps, alpha()
       )
       exp.ns.POPs.wtn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.wtn
@@ -91,7 +90,7 @@ checks.lst = reactive({
       # Same-mother pairs whole population with one born in final year
       age.0 = attributes(pop.cap.hist)$f.age == 0
       mums.of.age.0 = attributes(pop.cap.hist)$mum[age.0]
-      alv.f.yr = attributes(pop.cap.hist)$alv_mat[, hist.len()] == 1
+      alv.f.yr = attributes(pop.cap.hist)$alv.mat[, hist.len()] == 1
       for (t in (hist.len() - 2):1) {
         age.t = attributes(pop.cap.hist)$f.age == t & alv.f.yr
         mums.of.age.t = attributes(pop.cap.hist)$mum[age.t]
@@ -207,18 +206,15 @@ KP_inds = c("Survey-pair", "Survey", "Survey-pair", "Survey", "Survey")
 # Expected numbers of kin-pairs for whole population
 exp.ns.KPs.pop.lst = reactive({
   # All pairs within surveys and between pairs of surveys
-  exp.N.fin = exp.N.t()[hist.len()]
-  exp.N.srvy.yrs = exp.N.fin / lambda()^(f.year() - srvy.yrs())
+  exp.N.srvy.yrs = exp.N.fin() / lambda()^(f.year() - srvy.yrs())
   exp.ns.APs.wtn = choose(exp.N.srvy.yrs, 2)
   exp.ns.APs.btn = as.vector(combn(exp.N.srvy.yrs, 2, function(x) x[1] * x[2]))
   
   # Self-pairs between pairs of surveys
-  exp.ns.SPs.btn = outer(
-    srvy.yrs(), srvy.yrs(),
-    function(srvy.yr.1, srvy.yr.2) exp.N.fin / lambda()^(f.year() - srvy.yr.1) *
-        phi()^(srvy.yr.2 - srvy.yr.1)
-  )
-  exp.ns.SPs.btn = t(exp.ns.SPs.btn)[lower.tri(exp.ns.SPs.btn)]
+  exp.ns.SPs.btn = as.vector(combn(srvy.yrs(), 2, function(srvy.pr) {
+    exp.N.fin() / lambda()^(f.year() - srvy.pr[1]) *
+      phi()^(srvy.pr[2] - srvy.pr[1])
+  }))
   
   # Same-mother pairs within surveys
   exp.ns.SMPs.wtn = 2 * exp.N.srvy.yrs * (1 - phi() / lambda())^2 *
@@ -373,7 +369,9 @@ output$SMPsFYear = renderTable({
 
 # First life histories from first study
 output$alive = renderTable({
-  df = data.frame(head(attributes(sim.lst()$hists.lst[[1]])$alv.mat))
+  alv_mat = attributes(sim.lst()$hists.lst[[1]])$alv.mat
+  mode(alv_mat) = "integer"
+  df = data.frame(head(alv_mat))
   names(df) = (f.year() - hist.len() + 1):f.year()
   df
 }, rownames = T)

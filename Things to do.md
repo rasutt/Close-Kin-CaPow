@@ -1,12 +1,10 @@
 ### Things to do
 
--   Check kin-pair numbers for whole population separately from numbers for surveys.
+-   Add POP numbers for whole population, and probabilities.
+
+-   Make the simulation and kin-pair probabilities consistent about whether it is required that animals be mature at the time of their first calves' births, or the year before.
 
 -   Find out why age of maturity zero gives wrong results for all kin-pair numbers.
-
--   Check what data you're using from the sim, tidy up code, and see whether you can speed it up again. Replace alive matrix with numbers born and died?
-
--   Make the simulation and kin-pair probabilities consistent about the requirement that animals be mature at the time of their first calf's birth, rather than the year before.
 
 -   Figure out why higher alpha causes bias in expected numbers of HSPs within samples.
 

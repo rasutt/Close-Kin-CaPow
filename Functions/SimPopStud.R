@@ -150,8 +150,7 @@ SimPopStud <- function(
   for (t in 1:hist.len) {
     alv.mat[1:length(alv.all[[t]]), t] = alv.all[[t]]
   }
-  mode(alv.mat) = "integer"
-  
+
   # Find super-population size of study
   Ns <- sum(rowSums(cap.hists) > 0)
   

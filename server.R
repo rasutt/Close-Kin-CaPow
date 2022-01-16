@@ -104,8 +104,16 @@ server <- function(input, output) {
   n.srvy.prs <- reactive(choose(k(), 2))
   # Final survey year
   f.year <- bindEvent(f.year.rct, input$simulate, ignoreNULL = F) 
+  # Indices of survey years within population histories
+  s.yr.inds <- bindEvent({
+    reactive(hist.len() + srvy.yrs() - f.year())
+  }, input$simulate, ignoreNULL = F) 
   # Expected population size over time
-  exp.N.t = bindEvent(exp.N.t.rct, input$simulate, ignoreNULL = F) 
+  exp.N.t = bindEvent(exp.N.t.rct, input$simulate, ignoreNULL = F)
+  # Expected final population size
+  exp.N.fin = bindEvent({
+    reactive(exp.N.t()[hist.len()])
+  }, input$simulate, ignoreNULL = F)
   # Expected super-population size
   exp.Ns = bindEvent(exp.Ns.rct, input$simulate, ignoreNULL = F) 
   # Simulation parameter values
