@@ -13,7 +13,9 @@ checks.lst = reactive({
   # numbers of births and deaths, numbers captured, and expected and observed
   # numbers of kin pairs
   N.t.mat <- matrix(nrow = n_sims(), ncol = hist.len())
-  ns.SMPs.t.f.yr.pop.mat <- matrix(nrow = n_sims(), ncol = hist.len() - 1)
+  ns.SMPs.t.f.yr.pop.mat <- ns.SFPs.t.f.yr.pop.mat <- 
+    ns.SFPs.t.f.f.yr.pop.mat <-
+    matrix(nrow = n_sims(), ncol = hist.len() - 1)
   ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- ns.APs.wtn.pop.mat <-
     ns.SMPs.wtn.pop.mat <-
     ns.POPs.wtn.mat <- ns.SMPs.wtn.mat <- ns.HSPs.wtn.mat <- 
@@ -87,15 +89,22 @@ checks.lst = reactive({
       exp.ns.POPs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.POPs.btn
       exp.ns.SPs.btn.mat[hist.ind, ] <- exp.ns.kps.lst$exp.ns.SPs.btn
       
-      # Same-mother pairs whole population with one born in final year
+      # Same-mother and father pairs whole population with one born in final
+      # year
       age.0 = attributes(pop.cap.hist)$f.age == 0
       mums.of.age.0 = attributes(pop.cap.hist)$mum[age.0]
+      dads.of.age.0 = attributes(pop.cap.hist)$dad[age.0]
       alv.f.yr = attributes(pop.cap.hist)$alv.mat[, hist.len()] == 1
       for (t in (hist.len() - 2):1) {
         age.t = attributes(pop.cap.hist)$f.age == t & alv.f.yr
         mums.of.age.t = attributes(pop.cap.hist)$mum[age.t]
+        dads.of.age.t = attributes(pop.cap.hist)$dad[age.t]
         ns.SMPs.t.f.yr.pop.mat[hist.ind, hist.len() - 1 - t] = 
           sum(mums.of.age.t %in% mums.of.age.0)
+        ns.SFPs.t.f.yr.pop.mat[hist.ind, hist.len() - 1 - t] = 
+          sum(dads.of.age.t %in% dads.of.age.0)
+        ns.SFPs.t.f.f.yr.pop.mat[hist.ind, hist.len() - 1 - t] = 
+          sum(dads.of.age.t[1] %in% dads.of.age.0)
       }
       
       incProgress(1/n_sims())
@@ -126,7 +135,9 @@ checks.lst = reactive({
       exp.ns.SMPs.wtn.mat = exp.ns.SMPs.wtn.mat,
       exp.ns.HSPs.wtn.mat = exp.ns.HSPs.wtn.mat
     ),
-    ns.SMPs.t.f.yr.pop.mat = ns.SMPs.t.f.yr.pop.mat
+    ns.SMPs.t.f.yr.pop.mat = ns.SMPs.t.f.yr.pop.mat,
+    ns.SFPs.t.f.yr.pop.mat = ns.SFPs.t.f.yr.pop.mat,
+    ns.SFPs.t.f.f.yr.pop.mat = ns.SFPs.t.f.f.yr.pop.mat
   )
 })
 
@@ -358,14 +369,30 @@ output$nsHSPsWtn <- renderPlot(nsKPsPlot(5))
 # other year in population history
 output$SMPsFYear = renderTable({
   mean.ns.SMPs.f.yr = colMeans(checks.lst()$ns.SMPs.t.f.yr.pop.mat)
+  mean.ns.SFPs.f.yr = colMeans(checks.lst()$ns.SFPs.t.f.yr.pop.mat)
+  mean.ns.SFPs.f.f.yr = colMeans(checks.lst()$ns.SFPs.t.f.f.yr.pop.mat)
   exp.ns.SMPs.f.yr = 2 * exp.N.t()[hist.len()] * (1 - phi() / lambda())^2 *
     (lambda() / phi())^alpha() * (phi()^2 / lambda())^((hist.len() - 2):1)
+  exp.ns.SFPs.f.yr = exp.ns.SMPs.f.yr * phi()
+  exp.ns.SFPs.f.f.yr = 2 * (1 - phi() / lambda()) *
+    (lambda() / phi())^alpha() * phi()^(2 * ((hist.len() - 2):1))
   
-  df = rbind(mean.ns.SMPs.f.yr, c(exp.ns.SMPs.f.yr, NA))
-  rownames(df) = c("Avg(SMP{t,f.yr,f.yr})", "E(SMP{t,f.yr,f.yr})")
+  print(mean(mean.ns.SFPs.f.f.yr, na.rm = T) / 
+          mean(exp.ns.SFPs.f.f.yr, na.rm = T) - 1)
+  
+  df = rbind(
+    mean.ns.SMPs.f.yr, c(exp.ns.SMPs.f.yr, NA), 
+    mean.ns.SFPs.f.yr, c(exp.ns.SFPs.f.yr, NA),
+    mean.ns.SFPs.f.f.yr, c(exp.ns.SFPs.f.f.yr, NA)
+  )
+  rownames(df) = c(
+    "Avg(SMP{t,f.yr,f.yr})", "E(SMP{t,f.yr,f.yr})",
+    "Avg(SFP{t,f.yr,f.yr})", "E(SFP{t,f.yr,f.yr})",
+    "Avg(SFP{t,f,f.yr,f.yr})", "E(SFP{t,f,f.yr,f.yr})"
+  )
   colnames(df) = (f.year() - hist.len() + 2):f.year()
   df
-}, rownames = T, digits = 1)
+}, rownames = T, digits = 3)
 
 # First life histories from first study
 output$alive = renderTable({

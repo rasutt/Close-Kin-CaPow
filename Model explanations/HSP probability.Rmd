@@ -10,7 +10,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Expected number of animals born at time $t_1$ and surviving until time $t_2$
+### Expected number of animals born at time $t$
 
 Let 
 
@@ -51,13 +51,17 @@ $$= E(N_t) \left(1 - \frac{\phi}{\lambda} \right).$$
 
 Let 
 
-- $\alpha$ be the age of sexual maturity for NZSRWs,
+- $\alpha$ be the age of sexual maturity for NZSRWs, and
 - $F_t$ be the number of mature females at time $t$,
-- births occur independently with probability (birth rate) $\beta$ among mature females, and
-- animals be equally likely to be born male or female.
 
-Then 
-$$F_t \sim Bin\left(N_{t - \alpha}, \frac{\phi^\alpha}{2}\right)$$
+and assume that
+
+- births occur independently with probability (birth rate) $\beta$ among mature females, and
+- animals are equally likely to be born male or female.
+
+Then the probability that an animal is mature at time $t$ (has survived since at least time $t - \alpha$) is $\phi^\alpha$, the probability that an animal is female is $\frac{1}{2}$, and
+
+$$F_t \sim Bin\left(N_{t - \alpha}, \frac{\phi^\alpha}{2}\right),$$
 $$E(F_t) = E(E(F_t|N_{t - \alpha}))$$
 $$= E\left(N_{t - \alpha}\frac{\phi^\alpha}{2}\right)$$
 $$= E(N_{t - \alpha})\frac{\phi^\alpha}{2}$$
@@ -105,7 +109,6 @@ Let $SMP_t$ be the number of pairs of animals at time $t$ with the same mother a
 
 Then
 $$SMP_t = \sum_{b_1 < t}\sum_{b_1 < b_2 \le t}SMP_{t, b_1, b_2},$$
-and
 $$E(SMP_t) = \sum_{b_1 < t}\sum_{b_1 < b_2 \le t}E(SMP_{t, b_1, b_2}),$$
 $$= \sum_{b_1 < t}\sum_{b_1 < b_2 \le t}2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}$$
 $$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\sum_{b_1 < t}\sum_{b_1 < b_2 \le t}\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}$$
@@ -120,10 +123,41 @@ $$= \frac{1}{1 - r}\frac{1}{1 - r}(r + r^2 + r^3 + ... - r^2 - r^3 - r^4 - ...)$
 $$= \frac{1}{1 - r}\frac{1}{1 - r}r,$$
 for $|r| < 1$,
 $$= \frac{r}{(1 - r)^2},$$
+and
 $$E(SMP_t) = 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\left\{\frac{\phi^2}{\lambda} + 2\left(\frac{\phi^2}{\lambda}\right)^2 + 3\left(\frac{\phi^2}{\lambda}\right)^3 + ...\right\}$$
 $$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\frac{\frac{\phi^2}{\lambda}}{\left( 1 - \frac{\phi^2}{\lambda} \right)^2}$$
 because $0 < \frac{\phi^2}{\lambda} < 1$,
 $$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\frac{\lambda\phi^2}{\left(\lambda - \phi^2\right)^2}.$$
+
+### Expected number of same-father pairs
+
+Male NZSRWs can breed with more than one female and have more than one offspring per year.  
+
+Let 
+
+- $M_t$ be the number of mature males at time $t$,
+- $SFB_{t, b, f}$ be the number of animals at time $t$, that are born at time $b$, with a particular father $f$, and 
+- $SFP_{t, b, f}$ be the number of pairs of animals at time $t$, that are both born at time $b$, with a particular father $f$, and 
+- $SFP_{t, b}$ be the total number of pairs of animals at time $t$, that are both born at time $b$, and have the same father,  
+
+and assume that 
+
+- mature males at time $t - 1$ are equally likely to be the father of any calf born at time $t$, and 
+- those events are independent.
+
+Then
+$$SFB_{t, b, f} \sim Bin\left(B_b, \frac{\phi^{2(t - 1)}}{M_{b - 1}}\right),$$
+and
+$$SFP_{t, b, f} = {SFB_{t, b, f}\choose2}.$$
+If we assume that
+
+$$E(SFP_{t, b}) = E(E(SMP_{t, b_1, b_2}|B_{b_1}))$$
+$$= E(B_{b_1}\phi^{2(t - b_1)}\beta)$$
+$$= E(B_{b_1})\phi^{2(t - b_1)}\beta$$
+$$= E(N_{b_1})\left(1 - \frac{\phi}{\lambda}\right)\phi^{2(t - b_1)}\beta$$
+$$= \frac{E(N_t)}{\lambda^{t - b_1}}\left(1 - \frac{\phi}{\lambda}\right)\phi^{2(t - b_1)}\beta$$
+$$= E(N_t)\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}\beta$$
+$$= E(N_t)\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}2\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\lambda}{\phi}\right)^\alpha$$
 
 **End of current work**
 

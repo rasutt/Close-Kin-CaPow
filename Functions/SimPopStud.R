@@ -185,6 +185,7 @@ SimPopStud <- function(
   attributes(pop.hist)$alv.mat <- alv.mat
   attributes(pop.hist)$f.age <- f.year - b.year
   attributes(pop.hist)$mum <- mum
+  attributes(pop.hist)$dad <- dad
   attributes(pop.hist)$ID <- ID
 
   # Display runtime
