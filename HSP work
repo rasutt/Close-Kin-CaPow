@@ -1,0 +1,28 @@
+Trying to figure out why the numbers of HSPs are wrong when alpha is changed.  
+
+When alpha is higher than usual the observed numbers are too high, and when it’s lower they’re too low.
+
+The POPs between samples include alpha, and they’re fine with it, so it’s not a simulation thing.
+
+I fixed the observed numbers but it didn’t fix the problem.
+
+So it seems like it must be the expressions.  I should test the intermediate results in the derivation.  Will be good checks to show, good coding practice too, tests.
+
+All the kin-pair numbers are wrong for alpha = 0.
+
+Calving intervals are a problem for SMPs and HSPs
+
+No intervals 500 sims alpha = 8 - 	2.9%	8.2%	5.8%	-5.6%	10.2%
+No Intervals 500 sims alpha = 16 - 	2.5%	8.2%	6.4%	-5.4%	31.6%
+Intervals 500 sims alpha = 8 - 	2.8%	8%	3.9%	-26.7%	-1.9%
+Intervals 500 sims alpha = 16 - 	3%	7.1%	5.4%	-1.8%	33.7%
+
+So the expression for the number of pairs with the same mother is only wrong when there are calving intervals, and the error depends on alpha.
+
+For HSPs it’s wrong, and the error depends on alpha, with or without calving intervals.
+
+Get them as close as possible and tidy up the code, check the expected number of pairs.
+
+So the approximation for all pairs is off by ~2% for the standard scenario, and the kin-pair probabilities are approximations due to taking the ratio of expectations, as well as due to the approximation for all pairs.  That ratio would be exact if the pairs were independent, as with the other binomial distributions, but they’re not, that’s the second source of error.  
+
+The numbers of self-pairs and same mother issues over the whole population are correct.  The bias for the samples comes from those approximations in the calculation of the probability above.
