@@ -5,7 +5,8 @@ TryCloseKinTMB <- function(
 ) {
   # Create TMB function
   data <- list(
-    nsPOPswtn = ns.kps.lst$ns.POPs.wtn, nsHSPswtn = ns.kps.lst$ns.HSPs.wtn, 
+    nsPOPswtn = ns.kps.lst$ns.POPs.wtn, 
+    # nsHSPswtn = ns.kps.lst$ns.HSPs.wtn, 
     nsPOPsbtn = ns.kps.lst$ns.POPs.btn, nsSPsbtn = ns.kps.lst$ns.SPs.btn, k = k, 
     srvygaps = srvy.gaps, fyear = f.year, srvyyrs = srvy.yrs, nscaps = ns.caps, 
     alpha = alpha

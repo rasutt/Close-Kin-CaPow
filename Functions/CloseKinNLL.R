@@ -35,21 +35,24 @@ CloseKinNLL <- function(params, k, f.year, srvy.yrs, ns.kps.lst, ns.caps) {
     # Store probability of POPs between samples
     prb.POPs.wtn.vec[srvy.ind] <- prb.POPs.wtn
     
-    # Probability of HSPs within sample
-    prb.HSPs.wtn <- 4 * rho / (exp.N.srvy.yr - 1) * (1 - phi / lambda) * 
-      (lambda / phi)^alpha * 
-      (lambda * (phi + lambda) / (lambda - phi^2)^2 -
-         4 * rho * (lambda / phi)^alpha * phi^2 * lambda / (lambda - phi^3)^2)
+    # # Probability of HSPs within sample - expression not matching sim
+    # prb.HSPs.wtn <- 4 * rho / (exp.N.srvy.yr - 1) * (1 - phi / lambda) * 
+    #   (lambda / phi)^alpha * 
+    #   (lambda * (phi + lambda) / (lambda - phi^2)^2 -
+    #      4 * rho * (lambda / phi)^alpha * phi^2 * lambda / (lambda - phi^3)^2)
     
     # Find number of POPs, HSPs, and non-POPs-non-HSPs within sample, assuming
     # no mixed kinships
     POPs.wtn <- ns.kps.lst$ns.POPs.wtn[srvy.ind]
-    HSPs.wtn <- ns.kps.lst$ns.HSPs.wtn[srvy.ind]
-    non.POPs.HSPs.wtn <- choose(ns.caps[srvy.ind], 2) - POPs.wtn - HSPs.wtn
+    # HSPs.wtn <- ns.kps.lst$ns.HSPs.wtn[srvy.ind]
+    # non.POPs.HSPs.wtn <- choose(ns.caps[srvy.ind], 2) - POPs.wtn - HSPs.wtn
+    non.POPs.wtn <- choose(ns.caps[srvy.ind], 2) - POPs.wtn
     
     # Add negative log likelihood from number of POPs within sample
-    nll <- nll - POPs.wtn * log(prb.POPs.wtn) - HSPs.wtn * log(prb.HSPs.wtn) -
-      non.POPs.HSPs.wtn * log(1 - prb.POPs.wtn - prb.HSPs.wtn)
+    # nll <- nll - POPs.wtn * log(prb.POPs.wtn) - HSPs.wtn * log(prb.HSPs.wtn) -
+    #   non.POPs.HSPs.wtn * log(1 - prb.POPs.wtn - prb.HSPs.wtn)
+    nll <- nll - POPs.wtn * log(prb.POPs.wtn) - 
+      non.POPs.wtn * log(1 - prb.POPs.wtn)
   } 
   
   # Self and parent-offspring pairs between samples

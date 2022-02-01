@@ -7,7 +7,7 @@ Type objective_function<Type>::operator() ()
 {
   // Declare data inputs
   DATA_IVECTOR(nsPOPswtn);
-  DATA_IVECTOR(nsHSPswtn);
+  // DATA_IVECTOR(nsHSPswtn);
   DATA_IVECTOR(nsPOPsbtn);
   DATA_IVECTOR(nsSPsbtn);
   DATA_INTEGER(k);
@@ -61,9 +61,11 @@ Type objective_function<Type>::operator() ()
   // Parent-offspring pairs within samples
 
   // Declare variables for loop
-  Type expNsurvyr, prbPOPswtn, prbHSPswtn;
+  Type expNsurvyr, prbPOPswtn;
+  // Type prbHSPswtn;
   vector<Type> prbPOPswtnvec(k);
-  int nonPOPsHSPswtn;
+  // int nonPOPsHSPswtn;
+  int nonPOPswtn;
   
   // Loop over number of surveys
   for(int srvyind = 0; srvyind < k; srvyind++) {
@@ -77,21 +79,25 @@ Type objective_function<Type>::operator() ()
     // Store probability of POPs between samples
     prbPOPswtnvec(srvyind) = prbPOPswtn;
     
-    // Probability of HSPs within sample
-    prbHSPswtn = Type(4.0) * rho / (expNsurvyr - Type(1.0)) * 
-      (Type(1.0) - phi / lambda) * pow(lambda / phi, alpha) * 
-      (lambda * (phi + lambda) / pow(lambda - pow(phi, 2), 2) -
-      Type(4.0) * rho * pow(lambda / phi, alpha) * 
-      pow(phi, 2) * lambda / pow(lambda - pow(phi, 3), 2));
+    // // Probability of HSPs within sample - expression not matching sim
+    // prbHSPswtn = Type(4.0) * rho / (expNsurvyr - Type(1.0)) * 
+    //   (Type(1.0) - phi / lambda) * pow(lambda / phi, alpha) * 
+    //   (lambda * (phi + lambda) / pow(lambda - pow(phi, 2), 2) -
+    //   Type(4.0) * rho * pow(lambda / phi, alpha) * 
+    //   pow(phi, 2) * lambda / pow(lambda - pow(phi, 3), 2));
 
     // Find number of non-POP-non-HSPs within sample
-    nonPOPsHSPswtn = nscaps(srvyind) * (nscaps(srvyind) - 1) / 2 -
-      nsPOPswtn(srvyind) - nsHSPswtn(srvyind);
-
+    // nonPOPsHSPswtn = nscaps(srvyind) * (nscaps(srvyind) - 1) / 2 -
+    //   nsPOPswtn(srvyind) - nsHSPswtn(srvyind);
+    nonPOPswtn = nscaps(srvyind) * (nscaps(srvyind) - 1) / 2 -
+      nsPOPswtn(srvyind);
+    
     // Add negative log likelihood from numbers of POPs and HSPs within sample
+    // nll = nll - nsPOPswtn(srvyind) * log(prbPOPswtn) -
+    //   nsHSPswtn(srvyind) * log(prbHSPswtn) -
+    //   nonPOPsHSPswtn * log(Type(1.0) - prbPOPswtn - prbHSPswtn);
     nll = nll - nsPOPswtn(srvyind) * log(prbPOPswtn) -
-      nsHSPswtn(srvyind) * log(prbHSPswtn) -
-      nonPOPsHSPswtn * log(Type(1.0) - prbPOPswtn - prbHSPswtn);
+      nonPOPswtn * log(Type(1.0) - prbPOPswtn);
   }
 
   // Self and parent-offspring pairs between samples
