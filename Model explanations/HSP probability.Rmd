@@ -142,16 +142,52 @@ Let
 
 and assume that 
 
+- there is always at least one mature male (this is a slight contradiction of our model so far, but that should only be significant when there is a significant chance of a population going extinct, in fact it is implied by the assumption of a constant birthrate for females, which requires that there is always at least one male to breed with),
 - mature males at time $t - 1$ are equally likely to be the father of any calf born at time $t$, and 
 - those events are independent.
 
 Then
-$$SFB_{t, b, f} \sim Bin\left(B_b, \frac{\phi^{2(t - 1)}}{M_{b - 1}}\right),$$
-and
-$$SFP_{t, b, f} = {SFB_{t, b, f}\choose2}.$$
-If we assume that
+$$SFB_{t, b, f} \sim Bin\left(B_b, \frac{\phi^{t - b}}{M_{b - 1}}\right),$$
+$$SFP_{t, b, f} = {SFB_{t, b, f} \choose 2},$$
+$$SFP_{t, b} = \sum_{f = 1}^{M_{b - 1}}SFP_{t, b, f},$$
+$$E(SFP_{t, b}) = E\left(\sum_{f = 1}^{M_{b - 1}}SFP_{t, b, f}\right),$$
+$$= E\left\{E\left(\sum_{f = 1}^{M_{b - 1}}SFP_{t, b, f}\Big|M_{b - 1} \right) \right\},$$
+$$\approx E\left\{\sum_{f = 1}^{M_{b - 1}}E(SFP_{t, b, f})\right\},$$
+the approximation obtained by treating $SFB_{t, b, f}$ for different fathers $f$ as independent, although they are not because if one father has more calves there are fewer mature females and thus calves available for the others.  Then
+$$E(SFP_{t, b}) \approx E\left\{M_{b - 1}E(SFP_{t, b, f})\right\}$$
+$$= E(M_{b - 1})E(SFP_{t, b, f})$$
+$$= E(M_{b - 1})E\left\{{SFB_{t, b, f} \choose 2}\right\}$$
+$$= E(M_{b - 1})E\left[E\left\{{SFB_{t, b, f} \choose 2}\Big|B_b, M_{b - 1}\right\}\right],$$
+When $X \sim Bin(n, p)$,
+$$E\left\{{X \choose 2}\right\} = \sum_{x = 0}^n {n \choose x}p^x (1 - p)^{n - x}{x \choose 2}$$
+$$= \sum_{x = 0}^n \frac{n!}{x!(n - x)!}p^x (1 - p)^{n - x}\frac{x!}{2!(x - 2)!}$$
+$$= \sum_{x = 0}^n \frac{n!}{x!(n - x)!}p^x (1 - p)^{n - x}\frac{x(x - 1)}{2}$$
+$$= \sum_{x = 2}^n \frac{n!}{x!(n - x)!}p^x (1 - p)^{n - x}\frac{x(x - 1)}{2}$$
+$$= \frac{1}{2} \sum_{x = 2}^n \frac{n!}{(x - 2)!(n - x)!}p^x (1 - p)^{n - x}$$
+$$= \frac{n(n - 1)p^2}{2} \sum_{x = 2}^n \frac{(n - 2)!}{(x - 2)!(n - x)!}p^{x - 2} (1 - p)^{n - x}$$
+$$= \frac{n(n - 1)p^2}{2} \sum_{x = 0}^{n - 2} \frac{(n - 2)!}{x!(n - (x + 2))!}p^x (1 - p)^{n - (x + 2)}$$
+$$= \frac{n(n - 1)p^2}{2} \sum_{x = 0}^{n - 2} \frac{(n - 2)!}{x!(n - 2 - x)!}p^x (1 - p)^{n - 2 - x}$$
+$$= \frac{n(n - 1)p^2}{2}$$
+$$= {n \choose 2} p^2.$$
+Then
+$$E(SFP_{t, b}) \approx E(M_{b - 1})E\left[E\left\{{SFB_{t, b, f} \choose 2}\Big|B_b, M_{b - 1}\right\}\right]$$
+$$= E(M_{b - 1})E\left\{{B_b \choose 2}\left(\frac{\phi^{t - b}}{M_{b - 1}}\right)^2\right\}$$
+$$\approx E(M_{b - 1})E\left\{{B_b \choose 2}\right\}E\left\{\left(\frac{1}{M_{b - 1}}\right)^2\right\}\phi^{2(t - b)},$$
+the approximation obtained by treating $B_b$ and $M_{b - 1}$ as independent although they are both dependent on $N_{b - 1}$,
+$$\approx E(M_{b - 1})E\left\{{B_b \choose 2}\right\}\left\{E\left(\frac{1}{M_{b - 1}}\right)\right\}^2\phi^{2(t - b)},$$
+$$\approx E(M_{b - 1})E\left\{{B_b \choose 2}\right\}\left\{\frac{1}{E(M_{b - 1})}\right\}^2\phi^{2(t - b)},$$
+the latter approximation being more accurate as $M_{b - 1} \rightarrow \infty$ and the derivative of $\frac{1}{M_{b - 1}} \rightarrow 0$ so that it is close to a linear (constant) function of $M_{b - 1}$.  Then
+$$E(SFP_{t, b}) \approx E\left\{{B_b \choose 2}\right\}\frac{\phi^{2(t - b)}}{E(M_{b - 1})}$$
+$$= E\left[E\left\{{B_b \choose 2}\Big|F_b\right\}\right]\frac{\phi^{2(t - b)}}{E(M_{b - 1})}$$
+$$= E\left\{{F_b \choose 2}\beta^2\right\}\frac{\phi^{2(t - b)}}{E(M_{b - 1})}$$
+$$= E\left[E\left\{{F_b \choose 2}\Big|N_{t - \alpha}\right\}\right]\frac{\beta^2 \phi^{2(t - b)}}{E(M_{b - 1})}$$
+$$= E\left\{{N_{t - \alpha} \choose 2}\left(\frac{\phi^\alpha}{2}\right)^2 \right\}\frac{\beta^2 \phi^{2(t - b)}}{E(M_{b - 1})}$$
+$$= E\left\{{N_{t - \alpha} \choose 2} \right\}\frac{\beta^2 \phi^{2 (t - b + \alpha)}}{2 E(M_{b - 1})}$$
 
-$$E(SFP_{t, b}) = E(E(SMP_{t, b_1, b_2}|B_{b_1}))$$
+
+**End of current work**
+
+$$= E(E(SMP_{t, b_1, b_2}|B_{b_1}))$$
 $$= E(B_{b_1}\phi^{2(t - b_1)}\beta)$$
 $$= E(B_{b_1})\phi^{2(t - b_1)}\beta$$
 $$= E(N_{b_1})\left(1 - \frac{\phi}{\lambda}\right)\phi^{2(t - b_1)}\beta$$
@@ -159,7 +195,6 @@ $$= \frac{E(N_t)}{\lambda^{t - b_1}}\left(1 - \frac{\phi}{\lambda}\right)\phi^{2
 $$= E(N_t)\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}\beta$$
 $$= E(N_t)\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}2\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\lambda}{\phi}\right)^\alpha$$
 
-**End of current work**
 
 ### Expected number of half-sibling pairs at time $t$
 
