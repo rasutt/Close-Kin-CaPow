@@ -1,14 +1,14 @@
 ### Things to do
 
--   Add POP numbers for whole population, and probabilities.
+-   The expression for the expected numbers of half-sibling pairs within samples is wrong and the error depends on the age of maturity alpha. The one for same-father pairs is now correct, but the one for same-mother pairs is wrong when there are calving intervals, and the error depends on alpha. It would be good to derive the new expression for half-sibling pairs and check it. I should write up the derivation of the one for same-father pairs first though.
 
--   Make the simulation and kin-pair probabilities consistent about whether it is required that animals be mature at the time of their first calves' births, or the year before.
+-   There are some outputs in the check tab to show the average numbers of kin-pairs that include an animal of ages up to the length of the population history in the final year of the simulation, and compare them to the expected values. They are just tables but it would be good to try plotting them.
 
--   Find out why age of maturity zero gives wrong results for all kin-pair numbers.
+-   When the age of maturity is set to zero none of the expressions for the expected numbers of kin-pairs match the simulation, and it would be good to find out why.
 
--   Figure out why higher alpha causes bias in expected numbers of HSPs within samples.
+-   It would be good to add outputs to show the numbers of parent-offspring pairs within and between survey years in the whole population, show that they match the expressions for the expected numbers, and check the bias in the approximations for their probabilities. I think I changed those expressions as well as the simulation to allow animals to have calves as soon as they are mature, rather than requiring them to be mature when the calves are conceived, but I should check it and rewrite the derivations for them.
 
--   Add combined model, and other simulation checks.
+-   Add combined model, and more simulation checks.
 
 -   Allow selection of kin-pair types to include in close-kin model. Add half-sibling pairs between surveys.
 

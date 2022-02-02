@@ -14,10 +14,10 @@ checks.lst = reactive({
   # numbers of kin pairs
   N.t.mat <- matrix(nrow = n_sims(), ncol = hist.len())
   ns.SMPs.t.f.yr.pop.mat <- ns.SFPs.t.f.yr.pop.mat <- 
-    ns.SFPs.t.f.f.yr.pop.mat <-
+    ns.SFPs.t.f.f.yr.pop.mat <- ns.SFPs.t.t.pop.mat <-
     matrix(nrow = n_sims(), ncol = hist.len() - 1)
   ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- ns.APs.wtn.pop.mat <-
-    ns.SMPs.wtn.pop.mat <-
+    ns.SMPs.wtn.pop.mat <- ns.SFPs.wtn.pop.mat <-
     ns.POPs.wtn.mat <- ns.SMPs.wtn.mat <- ns.HSPs.wtn.mat <- 
     exp.ns.HSPs.wtn.mat <- exp.ns.POPs.wtn.mat <- exp.ns.SMPs.wtn.mat <-
     matrix(nrow = n_sims(), ncol = k())
@@ -63,12 +63,16 @@ checks.lst = reactive({
       ns.kps.pop.lst = FindNsKinPairsPop(
         attributes(pop.cap.hist)$N.t.vec[s.yr.inds()], 
         attributes(pop.cap.hist)$alv.mat[, s.yr.inds()], 
-        attributes(pop.cap.hist)$ID, attributes(pop.cap.hist)$mum, k()
+        attributes(pop.cap.hist)$ID, 
+        attributes(pop.cap.hist)$mum, 
+        attributes(pop.cap.hist)$dad, 
+        k()
       )
       ns.APs.wtn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.APs.wtn.pop
       ns.APs.btn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.APs.btn.pop
       ns.SPs.btn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.SPs.btn.pop
       ns.SMPs.wtn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.SMPs.wtn.pop
+      ns.SFPs.wtn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.SFPs.wtn.pop
       
       # Find numbers of known kin pairs
       ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
@@ -101,10 +105,25 @@ checks.lst = reactive({
         dads.of.age.t = attributes(pop.cap.hist)$dad[age.t]
         ns.SMPs.t.f.yr.pop.mat[hist.ind, hist.len() - 1 - t] = 
           sum(mums.of.age.t %in% mums.of.age.0)
+        
+        # There may be more than one animal born in the final year with the same
+        # father, and there is one same-father pair for each of them, for each
+        # animal born in the current year with that father.  This code
+        # multiplies the corresponding counts for each father and takes the sum
+        # (computes the dot product).
+        max.dad.id = max(dads.of.age.t, dads.of.age.0)
         ns.SFPs.t.f.yr.pop.mat[hist.ind, hist.len() - 1 - t] = 
-          sum(dads.of.age.t %in% dads.of.age.0)
+          tabulate(dads.of.age.t, max.dad.id) %*% 
+          tabulate(dads.of.age.0, max.dad.id)
+        
+        # Number for one animal of the current age - might not need this
+        # anymore.
         ns.SFPs.t.f.f.yr.pop.mat[hist.ind, hist.len() - 1 - t] = 
-          sum(dads.of.age.t[1] %in% dads.of.age.0)
+          sum(dads.of.age.0 == dads.of.age.t[1])
+        
+        # Same-father pairs born in the current year
+        ns.SFPs.t.t.pop.mat[hist.ind, hist.len() - 1 - t] =
+          sum(choose(tabulate(dads.of.age.t), 2))
       }
       
       incProgress(1/n_sims())
@@ -119,7 +138,8 @@ checks.lst = reactive({
       ns.APs.wtn.pop.mat = ns.APs.wtn.pop.mat,
       ns.APs.btn.pop.mat = ns.APs.btn.pop.mat,
       ns.SPs.btn.pop.mat = ns.SPs.btn.pop.mat,
-      ns.SMPs.wtn.pop.mat = ns.SMPs.wtn.pop.mat
+      ns.SMPs.wtn.pop.mat = ns.SMPs.wtn.pop.mat,
+      ns.SFPs.wtn.pop.mat = ns.SFPs.wtn.pop.mat
     ),
     ns.KPs.lst = list(
       ns.SPs.btn.mat = ns.SPs.btn.mat,
@@ -137,7 +157,8 @@ checks.lst = reactive({
     ),
     ns.SMPs.t.f.yr.pop.mat = ns.SMPs.t.f.yr.pop.mat,
     ns.SFPs.t.f.yr.pop.mat = ns.SFPs.t.f.yr.pop.mat,
-    ns.SFPs.t.f.f.yr.pop.mat = ns.SFPs.t.f.f.yr.pop.mat
+    ns.SFPs.t.f.f.yr.pop.mat = ns.SFPs.t.f.f.yr.pop.mat,
+    ns.SFPs.t.t.pop.mat = ns.SFPs.t.t.pop.mat
   )
 })
 
@@ -194,7 +215,8 @@ output$percUnknPrnts <- renderText({
 # Names of types of kin-pairs
 KP_pop_names = c(
   "All-pairs within surveys", "All-pairs between surveys",
-  "Self-pairs between surveys", "Same-mother pairs within surveys"
+  "Self-pairs between surveys", "Same-mother pairs within surveys",
+  "Same-father pairs within surveys"
 )
 KP_prob_names = c(
   "Self-pair probabilities between surveys", 
@@ -210,7 +232,7 @@ n_KP_pop_types = length(KP_pop_names)
 n_KP_prob_types = length(KP_prob_names)
 n_KP_types = length(KP_names)
 # Indices for types of kin-pairs
-KP_pop_inds = c("Survey", "Survey-pair", "Survey-pair", "Survey")
+KP_pop_inds = c("Survey", "Survey-pair", "Survey-pair", "Survey", "Survey")
 KP_prob_inds = c("Survey-pair", "Survey")
 KP_inds = c("Survey-pair", "Survey", "Survey-pair", "Survey", "Survey")
 
@@ -230,13 +252,22 @@ exp.ns.KPs.pop.lst = reactive({
   # Same-mother pairs within surveys
   exp.ns.SMPs.wtn = 2 * exp.N.srvy.yrs * (1 - phi() / lambda())^2 *
     (lambda() / phi())^alpha() * lambda() * phi()^2 / (lambda() - phi()^2)^2
-
+  
+  # Same-mother pairs within surveys
+  exp.ns.SFPs.wtn = (1 - phi() / lambda())^2 *
+    (lambda() / phi())^alpha() * lambda() * 
+    (exp.N.srvy.yrs * 
+       (2 * phi()^3 / (lambda() - phi()^2)^2 + 
+          lambda() / (lambda() - phi()^2)) -
+       lambda()^alpha() / (1 - phi()^2))
+  
   # Return as list
   list(
     exp.ns.APs.wtn = exp.ns.APs.wtn,
     exp.ns.APs.btn = exp.ns.APs.btn,
     exp.ns.SPs.btn = exp.ns.SPs.btn,
-    exp.ns.SMPs.wtn = exp.ns.SMPs.wtn
+    exp.ns.SMPs.wtn = exp.ns.SMPs.wtn,
+    exp.ns.SFPs.wtn = exp.ns.SFPs.wtn
   )
 })
 
@@ -300,6 +331,39 @@ output$nsKPsCap = renderTable({
   )
 })
 
+# Same-mother pairs in final year between animals born in final year and each
+# other year in population history
+output$SMPsFYear = renderTable({
+  mean.ns.SMPs.f.yr = colMeans(checks.lst()$ns.SMPs.t.f.yr.pop.mat)
+  mean.ns.SFPs.f.yr = colMeans(checks.lst()$ns.SFPs.t.f.yr.pop.mat)
+  mean.ns.SFPs.f.f.yr = colMeans(checks.lst()$ns.SFPs.t.f.f.yr.pop.mat)
+  mean.ns.SFPs.t.t = colMeans(checks.lst()$ns.SFPs.t.t.pop.mat)
+  
+  exp.ns.SMPs.f.yr = 2 * exp.N.t()[hist.len()] * (1 - phi() / lambda())^2 *
+    (lambda() / phi())^alpha() * (phi()^2 / lambda())^((hist.len() - 2):1)
+  exp.ns.SFPs.f.yr = exp.ns.SMPs.f.yr * phi()
+  exp.ns.SFPs.f.f.yr = 2 * (1 - phi() / lambda()) *
+    (lambda() / phi())^alpha() * phi()^(2 * (hist.len() - 2):1)
+  exp.ns.SFPs.t.t = phi()^(2 * (hist.len() - 2):1) * 
+    (exp.N.t()[hist.len()] / lambda()^(alpha() + (hist.len() - 2):1) - 1) *
+    (lambda()^2 / phi())^alpha() * lambda() * (1 - phi() / lambda())^2
+  
+  df = rbind(
+    mean.ns.SMPs.f.yr, c(exp.ns.SMPs.f.yr, NA), 
+    mean.ns.SFPs.f.yr, c(exp.ns.SFPs.f.yr, NA),
+    mean.ns.SFPs.f.f.yr, c(exp.ns.SFPs.f.f.yr, NA),
+    mean.ns.SFPs.t.t, c(exp.ns.SFPs.t.t, NA)
+  )
+  rownames(df) = c(
+    "Avg(SMP{t,f.yr,f.yr})", "E(SMP{t,f.yr,f.yr})",
+    "Avg(SFP{t,f.yr,f.yr})", "E(SFP{t,f.yr,f.yr})",
+    "Avg(SFP{t,f,f.yr,f.yr})", "E(SFP{t,f,f.yr,f.yr})",
+    "Avg(SFP{t,t,f.yr})", "E(SFP{t,t,f.yr})"
+  )
+  colnames(df) = (f.year() - hist.len() + 2):f.year()
+  df
+}, rownames = T, digits = 3)
+
 # Function to plot simulated versus expected numbers of kin-pairs for one type
 # of kin-pair
 nsKPsPlot = function(i, pop = F, prob = F) {
@@ -348,6 +412,8 @@ output$nsAPsBtnPop <- renderPlot(nsKPsPlot(2, T))
 output$nsSPsBtnPop <- renderPlot(nsKPsPlot(3, T))
 # Same-mother pairs within survey years for whole population
 output$nsSMPsWtnPop <- renderPlot(nsKPsPlot(4, T))
+# Same-father pairs within survey years for whole population
+output$nsSFPsWtnPop <- renderPlot(nsKPsPlot(5, T))
 
 # Self-pair probabilities between survey years for whole population
 output$probSPsBtnPop <- renderPlot(nsKPsPlot(1, prob = T))
@@ -364,35 +430,6 @@ output$nsPOPsBtn <- renderPlot(nsKPsPlot(3))
 output$nsSMPsWtn <- renderPlot(nsKPsPlot(4))
 # Half-sibling pairs within samples
 output$nsHSPsWtn <- renderPlot(nsKPsPlot(5))
-
-# Same-mother pairs in final year between animals born in final year and each
-# other year in population history
-output$SMPsFYear = renderTable({
-  mean.ns.SMPs.f.yr = colMeans(checks.lst()$ns.SMPs.t.f.yr.pop.mat)
-  mean.ns.SFPs.f.yr = colMeans(checks.lst()$ns.SFPs.t.f.yr.pop.mat)
-  mean.ns.SFPs.f.f.yr = colMeans(checks.lst()$ns.SFPs.t.f.f.yr.pop.mat)
-  exp.ns.SMPs.f.yr = 2 * exp.N.t()[hist.len()] * (1 - phi() / lambda())^2 *
-    (lambda() / phi())^alpha() * (phi()^2 / lambda())^((hist.len() - 2):1)
-  exp.ns.SFPs.f.yr = exp.ns.SMPs.f.yr * phi()
-  exp.ns.SFPs.f.f.yr = 2 * (1 - phi() / lambda()) *
-    (lambda() / phi())^alpha() * phi()^(2 * ((hist.len() - 2):1))
-  
-  print(mean(mean.ns.SFPs.f.f.yr, na.rm = T) / 
-          mean(exp.ns.SFPs.f.f.yr, na.rm = T) - 1)
-  
-  df = rbind(
-    mean.ns.SMPs.f.yr, c(exp.ns.SMPs.f.yr, NA), 
-    mean.ns.SFPs.f.yr, c(exp.ns.SFPs.f.yr, NA),
-    mean.ns.SFPs.f.f.yr, c(exp.ns.SFPs.f.f.yr, NA)
-  )
-  rownames(df) = c(
-    "Avg(SMP{t,f.yr,f.yr})", "E(SMP{t,f.yr,f.yr})",
-    "Avg(SFP{t,f.yr,f.yr})", "E(SFP{t,f.yr,f.yr})",
-    "Avg(SFP{t,f,f.yr,f.yr})", "E(SFP{t,f,f.yr,f.yr})"
-  )
-  colnames(df) = (f.year() - hist.len() + 2):f.year()
-  df
-}, rownames = T, digits = 3)
 
 # First life histories from first study
 output$alive = renderTable({
