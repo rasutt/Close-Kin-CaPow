@@ -146,18 +146,18 @@ and assume that
 - mature males at time $t - 1$ are equally likely to be the father of any calf born at time $t$, and 
 - those events are independent.
 
-Then
+Then the probability that an animal born at time $b$ has a particular father $f$ is $\frac{1}{M_{b - 1}}$, the probability that it also survives to time $t$ is $\frac{\phi^{t - b}}{M_{b - 1}}$, and
 $$SFB_{t, b, f} \sim Bin\left(B_b, \frac{\phi^{t - b}}{M_{b - 1}}\right),$$
 $$SFP_{t, b, f} = {SFB_{t, b, f} \choose 2},$$
 $$SFP_{t, b} = \sum_{f = 1}^{M_{b - 1}}SFP_{t, b, f},$$
-$$E(SFP_{t, b}) = E\left(\sum_{f = 1}^{M_{b - 1}}SFP_{t, b, f}\right),$$
-$$= E\left\{E\left(\sum_{f = 1}^{M_{b - 1}}SFP_{t, b, f}\Big|M_{b - 1} \right) \right\},$$
-$$\approx E\left\{\sum_{f = 1}^{M_{b - 1}}E(SFP_{t, b, f})\right\},$$
-the approximation obtained by treating $SFB_{t, b, f}$ for different fathers $f$ as independent, although they are not because if one father has more calves there are fewer mature females and thus calves available for the others.  Then
-$$E(SFP_{t, b}) \approx E\left\{M_{b - 1}E(SFP_{t, b, f})\right\}$$
+and
+$$E(SFP_{t, b}) = E\left(\sum_{f = 1}^{M_{b - 1}}SFP_{t, b, f}\right)$$
+$$= E\left\{E\left(\sum_{f = 1}^{M_{b - 1}}SFP_{t, b, f}\Big|M_{b - 1} \right) \right\}$$
+$$= E\left\{\sum_{f = 1}^{M_{b - 1}}E(SFP_{t, b, f})\right\}$$
+$$= E\left\{M_{b - 1}E(SFP_{t, b, f})\right\}$$
 $$= E(M_{b - 1})E(SFP_{t, b, f})$$
 $$= E(M_{b - 1})E\left\{{SFB_{t, b, f} \choose 2}\right\}$$
-$$= E(M_{b - 1})E\left[E\left\{{SFB_{t, b, f} \choose 2}\Big|B_b, M_{b - 1}\right\}\right],$$
+$$= E(M_{b - 1})E\left[E\left\{{SFB_{t, b, f} \choose 2}\Big|B_b, M_{b - 1}\right\}\right].$$
 When $X \sim Bin(n, p)$,
 $$E\left\{{X \choose 2}\right\} = \sum_{x = 0}^n {n \choose x}p^x (1 - p)^{n - x}{x \choose 2}$$
 $$= \sum_{x = 0}^n \frac{n!}{x!(n - x)!}p^x (1 - p)^{n - x}\frac{x!}{2!(x - 2)!}$$
@@ -169,20 +169,30 @@ $$= \frac{n(n - 1)p^2}{2} \sum_{x = 0}^{n - 2} \frac{(n - 2)!}{x!(n - (x + 2))!}
 $$= \frac{n(n - 1)p^2}{2} \sum_{x = 0}^{n - 2} \frac{(n - 2)!}{x!(n - 2 - x)!}p^x (1 - p)^{n - 2 - x}$$
 $$= \frac{n(n - 1)p^2}{2}$$
 $$= {n \choose 2} p^2.$$
-Then
-$$E(SFP_{t, b}) \approx E(M_{b - 1})E\left[E\left\{{SFB_{t, b, f} \choose 2}\Big|B_b, M_{b - 1}\right\}\right]$$
+So
+$$E(SFP_{t, b}) = E(M_{b - 1})E\left[E\left\{{SFB_{t, b, f} \choose 2}\Big|B_b, M_{b - 1}\right\}\right]$$
 $$= E(M_{b - 1})E\left\{{B_b \choose 2}\left(\frac{\phi^{t - b}}{M_{b - 1}}\right)^2\right\}$$
 $$\approx E(M_{b - 1})E\left\{{B_b \choose 2}\right\}E\left\{\left(\frac{1}{M_{b - 1}}\right)^2\right\}\phi^{2(t - b)},$$
-the approximation obtained by treating $B_b$ and $M_{b - 1}$ as independent although they are both dependent on $N_{b - 1}$,
+the approximation obtained by treating $B_b$ and $M_{b - 1}$ as independent although they are both dependent on $N_{b - 1 - \alpha}$, and remembering that we assume $M_{b - 1} \ge 1$,
 $$\approx E(M_{b - 1})E\left\{{B_b \choose 2}\right\}\left\{E\left(\frac{1}{M_{b - 1}}\right)\right\}^2\phi^{2(t - b)},$$
 $$\approx E(M_{b - 1})E\left\{{B_b \choose 2}\right\}\left\{\frac{1}{E(M_{b - 1})}\right\}^2\phi^{2(t - b)},$$
-the latter approximation being more accurate as $M_{b - 1} \rightarrow \infty$ and the derivative of $\frac{1}{M_{b - 1}} \rightarrow 0$ so that it is close to a linear (constant) function of $M_{b - 1}$.  Then
+the two approximations being more accurate as $E(M_{b - 1}) \rightarrow \infty$ so that the derivatives of $\left(\frac{1}{M_{b - 1}}\right)^2$ and $\frac{1}{M_{b - 1}}$ approach zero for the most likely values of $M_{b - 1}$, so that they are close to linear (constant) functions of $M_{b - 1}$.  Then
 $$E(SFP_{t, b}) \approx E\left\{{B_b \choose 2}\right\}\frac{\phi^{2(t - b)}}{E(M_{b - 1})}$$
 $$= E\left[E\left\{{B_b \choose 2}\Big|F_b\right\}\right]\frac{\phi^{2(t - b)}}{E(M_{b - 1})}$$
 $$= E\left\{{F_b \choose 2}\beta^2\right\}\frac{\phi^{2(t - b)}}{E(M_{b - 1})}$$
-$$= E\left[E\left\{{F_b \choose 2}\Big|N_{t - \alpha}\right\}\right]\frac{\beta^2 \phi^{2(t - b)}}{E(M_{b - 1})}$$
-$$= E\left\{{N_{t - \alpha} \choose 2}\left(\frac{\phi^\alpha}{2}\right)^2 \right\}\frac{\beta^2 \phi^{2(t - b)}}{E(M_{b - 1})}$$
-$$= E\left\{{N_{t - \alpha} \choose 2} \right\}\frac{\beta^2 \phi^{2 (t - b + \alpha)}}{2 E(M_{b - 1})}$$
+$$= E\left[E\left\{{F_b \choose 2}\Big|N_{b - \alpha}\right\}\right]\frac{\beta^2 \phi^{2(t - b)}}{E(M_{b - 1})}$$
+$$= E\left\{{N_{b - \alpha} \choose 2}\left(\frac{\phi^\alpha}{2}\right)^2 \right\}\frac{\beta^2 \phi^{2(t - b)}}{E(M_{b - 1})}$$
+$$= E\left\{{N_{b - \alpha} \choose 2} \right\}\frac{\beta^2 \phi^{2 (t - b + \alpha)}}{4 E(M_{b - 1})}$$
+$$= E\left\{\frac{N_{b - \alpha}(N_{b - \alpha} - 1)}{2} \right\}\frac{\beta^2 \phi^{2 (t - b + \alpha)}}{4 E(M_{b - 1})}$$
+$$\approx \frac{E(N_{b - \alpha})E(N_{b - \alpha} - 1)}{2} \frac{\beta^2 \phi^{2 (t - b + \alpha)}}{4 E(M_{b - 1})}$$
+$$= \frac{E(N_t)}{\lambda^{t - b + \alpha}} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \frac{\beta^2 \phi^{2 (t - b + \alpha)}}{8 E(M_{b - 1})}$$
+$$= \frac{E(N_t)}{\lambda^{t - b + \alpha}} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left\{ 2 \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \frac{\phi^{2 (t - b + \alpha)}}{8 \frac{E(N_{b - 1})}{2} \left( \frac{\phi}{\lambda} \right)^\alpha}$$
+$$= \frac{E(N_t)}{\lambda^{t - b + \alpha}} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left\{ 2 \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \frac{\phi^{2 (t - b + \alpha)}}{8 } \frac{2}{E(N_{b - 1})} \left( \frac{\lambda}{\phi} \right)^\alpha$$
+$$= \frac{E(N_t)}{\lambda^{t - b + \alpha}} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left\{ \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \phi^{2 (t - b + \alpha)} \frac{1}{E(N_{b - 1})} \left( \frac{\lambda}{\phi} \right)^\alpha$$
+$$= \frac{E(N_t)}{\lambda^{t - b + \alpha}} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left\{ \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \phi^{2 (t - b + \alpha)} \frac{\lambda^{t - b + 1}}{E(N_t)} \left( \frac{\lambda}{\phi} \right)^\alpha$$
+$$= \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left\{ \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2 \phi^{2 (t - b + \alpha)} \lambda \left( \frac{1}{\phi} \right)^\alpha$$
+$$= \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left(1 - \frac{\phi}{\lambda} \right)^2  \left( \frac{\lambda}{\phi}\right)^{2 \alpha} \phi^{2 (t - b + \alpha)} \lambda \left( \frac{1}{\phi} \right)^\alpha$$
+$$= \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left(1 - \frac{\phi}{\lambda} \right)^2  \left( \frac{\lambda^2}{\phi}\right)^{\alpha} \phi^{2 (t - b)} \lambda.$$
 
 
 **End of current work**
