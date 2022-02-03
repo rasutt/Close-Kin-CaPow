@@ -139,6 +139,7 @@ checks.lst = reactive({
     prpn.prnts.unkn.vec = prpn.prnts.unkn.vec,
     ns.caps.mat = ns.caps.mat,
     ns.KPs.pop.lst = list(
+      N.wtn.pop.mat = N.t.mat[, s.yr.inds()],
       ns.APs.wtn.pop.mat = ns.APs.wtn.pop.mat,
       ns.APs.btn.pop.mat = ns.APs.btn.pop.mat,
       ns.SPs.btn.pop.mat = ns.SPs.btn.pop.mat,
@@ -220,6 +221,7 @@ output$percUnknPrnts <- renderText({
 
 # Names of types of kin-pairs
 KP_pop_names = c(
+  "Population sizes in survey years",
   "All-pairs within surveys", "All-pairs between surveys",
   "Self-pairs between surveys", "Same-mother pairs within surveys",
   "Same-father pairs within surveys", "Full-sibling pairs within surveys",
@@ -240,7 +242,8 @@ n_KP_prob_types = length(KP_prob_names)
 n_KP_types = length(KP_names)
 # Indices for types of kin-pairs
 KP_pop_inds = c(
-  "Survey", "Survey-pair", "Survey-pair", "Survey", "Survey", "Survey", "Survey"
+  "Survey", "Survey", "Survey-pair", "Survey-pair", "Survey", "Survey", 
+  "Survey", "Survey"
 )
 KP_prob_inds = c("Survey-pair", "Survey")
 KP_inds = c("Survey-pair", "Survey", "Survey-pair", "Survey", "Survey")
@@ -280,6 +283,7 @@ exp.ns.KPs.pop.lst = reactive({
   
   # Return as list
   list(
+    exp.N.srvy.yrs = exp.N.srvy.yrs,
     exp.ns.APs.wtn = exp.ns.APs.wtn,
     exp.ns.APs.btn = exp.ns.APs.btn,
     exp.ns.SPs.btn = exp.ns.SPs.btn,
