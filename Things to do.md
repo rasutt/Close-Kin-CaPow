@@ -1,26 +1,24 @@
 ### Things to do
 
--   The derivation of the expected number of half-sibling pairs includes some steps that are skipped. It would be good to fill them in.
+-   It would be good to make a file that explains what the different files and folders are for and how the app works.
 
--   The expression for the expected numbers of same-father pairs is now correct. The ones for same-mother, full-sibling, and half-sibling pairs are now only wrong when there are calving intervals, and the errors depend on alpha.
+-   The derivation of the expected number of full-sibling pairs skips some steps. It would be good to fill them in.
 
-    -   It would be good to implement the new expression for half-sibling pairs in the close-kin likelihood, and also allow the included kin-pairs to be selected.
+-   It would be good to implement the new expression for half-sibling pairs in the close-kin likelihood, and also allow the included kin-pairs to be selected.
 
--   There are some outputs in the check tab to show the average numbers of kin-pairs that include an animal of ages up to the length of the population history in the final year of the simulation, and compare them to the expected values. They are just tables but it would be good to try plotting them.
+-   It would be good to tidy and speed up the checking code somehow. Maybe use arrays rather than lists of matrices? That would make the code nicer anyway. Also check if any outputs can be removed, and maybe use dynamic UI to include multiple outputs?
 
--   When the age of maturity is set to zero none of the expressions for the expected numbers of kin-pairs match the simulation, and it would be good to find out why. I think it's because the fathers should be alive the year before to conceive the calves, which they can't be if they're age zero, so the expressions would have to take that into account. Just make the minimum age of maturity one.
+-   There are some outputs in the check tab to show the average numbers of kin-pairs that include an animal of ages up to the length of the population history in the final year of the simulation, and compare them to the expected values. They are just tables but it might be good to try plotting them too.
 
 -   It would be good to add outputs to show the numbers of parent-offspring pairs within and between survey years in the whole population, show that they match the expressions for the expected numbers, and check the bias in the approximations for their probabilities. I think I changed those expressions as well as the simulation to allow animals to have calves as soon as they are mature, rather than requiring them to be mature when the calves are conceived, but I should check it and rewrite the derivations for them.
 
--   Add combined model, and more simulation checks.
+-   It would be good to add the combined model to the app.
 
--   Allow selection of kin-pair types to include in close-kin model. Add half-sibling pairs between surveys.
+-   It would be good to derive the expressions for half-sibling pairs between surveys and include them in the app.
 
--   Allow for just one survey for close kin model.
+-   It would be good to allow for just one survey for the close kin models.
 
--   Allow results to be downloaded, as both R objects and pdf report.
-
--   Include mathematical explanations. Can use includeMarkdown() or withMathJax().
+-   It might be good to include mathematical explanations and notes. I can use includeMarkdown() or withMathJax().
 
 -   Investigate when close kin does and does not do better than popan
 
