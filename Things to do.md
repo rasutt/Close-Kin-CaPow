@@ -1,10 +1,10 @@
 ### Things to do
 
--   The expression for the expected numbers of half-sibling pairs within samples is wrong and the error depends on the age of maturity alpha. The one for same-father pairs is now correct, and the ones for same-mother and full-sibling pairs are only wrong when there are calving intervals, and the errors depend on alpha. It would be good to implement the new expression for half-sibling pairs.
+-   The expression for the expected numbers of same-father pairs is now correct. The ones for same-mother, full-sibling, and half-sibling pairs are now only wrong when there are calving intervals, and the errors depend on alpha.
 
 -   There are some outputs in the check tab to show the average numbers of kin-pairs that include an animal of ages up to the length of the population history in the final year of the simulation, and compare them to the expected values. They are just tables but it would be good to try plotting them.
 
--   When the age of maturity is set to zero none of the expressions for the expected numbers of kin-pairs match the simulation, and it would be good to find out why.
+-   When the age of maturity is set to zero none of the expressions for the expected numbers of kin-pairs match the simulation, and it would be good to find out why. I think it's because the fathers should be alive the year before to conceive the calves, which they can't be if they're age zero, so the expressions would have to take that into account. Just make the minimum age of maturity one.
 
 -   It would be good to add outputs to show the numbers of parent-offspring pairs within and between survey years in the whole population, show that they match the expressions for the expected numbers, and check the bias in the approximations for their probabilities. I think I changed those expressions as well as the simulation to allow animals to have calves as soon as they are mature, rather than requiring them to be mature when the calves are conceived, but I should check it and rewrite the derivations for them.
 

@@ -51,7 +51,7 @@ ui <- fluidPage(
       ),
       sliderInput(
         inputId = "alpha", label = "Age of sexual maturity:",
-        0, 16, value = 8, step = 1
+        1, 15, value = 8, step = 1
       ),
       sliderInput(
         inputId = "hist.len", label = "Length of population histories:",

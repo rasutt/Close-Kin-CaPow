@@ -35,6 +35,7 @@ FindNsKinPairsPop = function(
     ns.SPs.btn.pop = ns.SPs.btn.pop,
     ns.SMPs.wtn.pop = ns.SMPs.wtn.pop,
     ns.SFPs.wtn.pop = ns.SFPs.wtn.pop,
-    ns.FSPs.wtn.pop = ns.FSPs.wtn.pop
+    ns.FSPs.wtn.pop = ns.FSPs.wtn.pop,
+    ns.HSPs.wtn.pop = ns.SMPs.wtn.pop + ns.SFPs.wtn.pop - 2 * ns.FSPs.wtn.pop
   )
 }

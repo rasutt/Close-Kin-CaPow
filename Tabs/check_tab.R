@@ -18,6 +18,7 @@ checks.lst = reactive({
     matrix(nrow = n_sims(), ncol = hist.len() - 1)
   ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- ns.APs.wtn.pop.mat <-
     ns.SMPs.wtn.pop.mat <- ns.SFPs.wtn.pop.mat <- ns.FSPs.wtn.pop.mat <-
+    ns.HSPs.wtn.pop.mat <-
     ns.POPs.wtn.mat <- ns.SMPs.wtn.mat <- ns.HSPs.wtn.mat <- 
     exp.ns.HSPs.wtn.mat <- exp.ns.POPs.wtn.mat <- exp.ns.SMPs.wtn.mat <-
     matrix(nrow = n_sims(), ncol = k())
@@ -75,6 +76,7 @@ checks.lst = reactive({
       ns.SMPs.wtn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.SMPs.wtn.pop
       ns.SFPs.wtn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.SFPs.wtn.pop
       ns.FSPs.wtn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.FSPs.wtn.pop
+      ns.HSPs.wtn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.HSPs.wtn.pop
       
       # Find numbers of known kin pairs
       ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
@@ -142,7 +144,8 @@ checks.lst = reactive({
       ns.SPs.btn.pop.mat = ns.SPs.btn.pop.mat,
       ns.SMPs.wtn.pop.mat = ns.SMPs.wtn.pop.mat,
       ns.SFPs.wtn.pop.mat = ns.SFPs.wtn.pop.mat,
-      ns.FSPs.wtn.pop.mat = ns.FSPs.wtn.pop.mat
+      ns.FSPs.wtn.pop.mat = ns.FSPs.wtn.pop.mat,
+      ns.HSPs.wtn.pop.mat = ns.HSPs.wtn.pop.mat
     ),
     ns.KPs.lst = list(
       ns.SPs.btn.mat = ns.SPs.btn.mat,
@@ -219,7 +222,8 @@ output$percUnknPrnts <- renderText({
 KP_pop_names = c(
   "All-pairs within surveys", "All-pairs between surveys",
   "Self-pairs between surveys", "Same-mother pairs within surveys",
-  "Same-father pairs within surveys", "Full-sibling pairs within surveys"
+  "Same-father pairs within surveys", "Full-sibling pairs within surveys",
+  "Half-sibling pairs within surveys"
 )
 KP_prob_names = c(
   "Self-pair probabilities between surveys", 
@@ -236,7 +240,7 @@ n_KP_prob_types = length(KP_prob_names)
 n_KP_types = length(KP_names)
 # Indices for types of kin-pairs
 KP_pop_inds = c(
-  "Survey", "Survey-pair", "Survey-pair", "Survey", "Survey", "Survey"
+  "Survey", "Survey-pair", "Survey-pair", "Survey", "Survey", "Survey", "Survey"
 )
 KP_prob_inds = c("Survey-pair", "Survey")
 KP_inds = c("Survey-pair", "Survey", "Survey-pair", "Survey", "Survey")
@@ -271,6 +275,9 @@ exp.ns.KPs.pop.lst = reactive({
     (lambda() / phi())^(2 * alpha()) * 
     phi()^4 / ((lambda() - phi()^3) * (1 - phi()^2))
   
+  # Half-sibling pairs within surveys
+  exp.ns.HSPs.wtn = exp.ns.SMPs.wtn + exp.ns.SFPs.wtn - 2 * exp.ns.FSPs.wtn
+  
   # Return as list
   list(
     exp.ns.APs.wtn = exp.ns.APs.wtn,
@@ -278,7 +285,8 @@ exp.ns.KPs.pop.lst = reactive({
     exp.ns.SPs.btn = exp.ns.SPs.btn,
     exp.ns.SMPs.wtn = exp.ns.SMPs.wtn,
     exp.ns.SFPs.wtn = exp.ns.SFPs.wtn,
-    exp.ns.FSPs.wtn = exp.ns.FSPs.wtn
+    exp.ns.FSPs.wtn = exp.ns.FSPs.wtn,
+    exp.ns.HSPs.wtn = exp.ns.HSPs.wtn
   )
 })
 
