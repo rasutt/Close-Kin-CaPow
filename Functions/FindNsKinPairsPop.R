@@ -21,12 +21,20 @@ FindNsKinPairsPop = function(
     sum(choose(table(dad[ID[alv_s_yrs[, s.ind]]]), 2))
   })
   
+  # Full-sibling pairs whole population in survey years
+  ns.FSPs.wtn.pop = sapply(1:k, function(s.ind) {
+    sum(choose(
+      table(mum[ID[alv_s_yrs[, s.ind]]], dad[ID[alv_s_yrs[, s.ind]]]), 2
+    ))
+  })
+  
   # Return as list
   list(
     ns.APs.wtn.pop = ns.APs.wtn.pop,
     ns.APs.btn.pop = ns.APs.btn.pop,
     ns.SPs.btn.pop = ns.SPs.btn.pop,
     ns.SMPs.wtn.pop = ns.SMPs.wtn.pop,
-    ns.SFPs.wtn.pop = ns.SFPs.wtn.pop
+    ns.SFPs.wtn.pop = ns.SFPs.wtn.pop,
+    ns.FSPs.wtn.pop = ns.FSPs.wtn.pop
   )
 }

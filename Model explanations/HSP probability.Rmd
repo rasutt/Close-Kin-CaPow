@@ -129,22 +129,52 @@ $$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\rig
 because $0 < \frac{\phi^2}{\lambda} < 1$,
 $$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\frac{\lambda\phi^2}{\left(\lambda - \phi^2\right)^2}.$$
 
-### Expected number of same-father pairs
+### Expected number of same-father pairs with different birth years
 
 Male NZSRWs can breed with more than one female and have more than one offspring per year.  
 
 Let 
 
-- $M_t$ be the number of mature males at time $t$,
-- $SFB_{t, b, f}$ be the number of animals at time $t$, that are born at time $b$, with a particular father $f$, and 
-- $SFP_{t, b, f}$ be the number of pairs of animals at time $t$, that are both born at time $b$, with a particular father $f$, and 
-- $SFP_{t, b}$ be the total number of pairs of animals at time $t$, that are both born at time $b$, and have the same father,  
+- $M_t$ be the number of males at time $t$, that would be mature at time $t + 1$,
+- $SFP_{t, b_1, b_2, i}$ be the number of pairs of animals at time $t$, that include a particular animal $i$, that is born at time $b_1$, and an animal born at a later time $b_2$, that has the same father, and 
+- $SFP_{t, b_1, b_2}$ be the total number of pairs at time $t$ that include any animal born at time $b_1$, and an animal born at a later time $b_2$, that has the same father.
 
-and assume that 
+Assume that 
 
 - there is always at least one mature male (this is a slight contradiction of our model so far, but that should only be significant when there is a significant chance of a population going extinct, in fact it is implied by the assumption of a constant birthrate for females, which requires that there is always at least one male to breed with),
 - mature males at time $t - 1$ are equally likely to be the father of any calf born at time $t$, and 
 - those events are independent.
+
+Then the probability that an animal born at time $b_1$ survives to time $t$ is $\phi^{t - b_1}$, the probability that the father survives from time $b_1 - 1$ to time $b_2 - 1$ is $\phi^{b_2 - 1 - (b_1 - 1)} = \phi^{b_2 - b_1}$, the probability that a calf born at time $b_2$ has that father is $\frac{1}{M_{b_2 - 1}}$, and the probability that it also survives to time $t$ is $\phi^{t - b_2}$. So for any animal born at time $b_1$, the probability that an animal born at time $b_2$ forms a same-father pair with it at time $t$ is $\frac{\phi^{2(t - b_1)}}{M_{b_2 - 1}}$.  Then
+$$SFP_{t, b_1, b_2, i} \sim Bin\left(B_{b_2}, \frac{\phi^{2(t - b_1)}}{M_{b_2 - 1}}\right),$$
+$$SFP_{t, b_1, b_2} = \sum_{i = 1}^{B_{b_1}}SFP_{t, b_1, b_2, i},$$
+and
+$$E(SFP_{t, b_1, b_2}) = E\left(\sum_{i = 1}^{B_{b_1}}SFP_{t, b_1, b_2, i}\right)$$
+$$= E\left\{E\left(\sum_{i = 1}^{B_{b_1}}SFP_{t, b_1, b_2, i}\Big|B_{b_1} \right) \right\}$$
+$$= E\left\{\sum_{i = 1}^{B_{b_1}}E(SFP_{t, b_1, b_2, i})\right\}$$
+$$= E\left\{B_{b_1}E(SFP_{t, b_1, b_2, i})\right\}$$
+$$= E(B_{b_1})E(SFP_{t, b_1, b_2, i})$$
+$$= E(B_{b_1})E\left\{E(SFP_{t, b_1, b_2, i}|B_{b_2}, M_{b_2 - 1})\right\}$$
+$$= E(B_{b_1})E\left\{B_{b_2} \frac{\phi^{2(t - b_1)}}{M_{b_2 - 1}}\right\}$$
+$$= E(B_{b_1})E\left\{ \frac{B_{b_2}}{M_{b_2 - 1}}\right\} \phi^{2(t - b_1)}$$
+$$\approx E(B_{b_1})E(B_{b_2}) E\left(\frac{1}{M_{b_2 - 1}}\right) \phi^{2(t - b_1)},$$
+as $B_{b_2}$ and $M_{b_2 - 1}$ are not independent but both depend on $N_{b_2 - 1 - \alpha}$,
+$$= E(B_{b_1})E(B_{b_2}) \frac{1}{E(M_{b_2 - 1})} \phi^{2(t - b_1)}$$
+$$= E(B_{b_1})E(B_{b_2}) \frac{1}{\frac{E(N_{b_2 - 1})}{2} \left(\frac{\phi}{\lambda}\right)^{\alpha - 1}} \phi^{2(t - b_1)}$$
+$$= E(B_{b_1})E(B_{b_2}) \frac{2}{E(N_{b_2 - 1})} \left(\frac{\lambda}{\phi}\right)^{\alpha - 1} \phi^{2(t - b_1)}$$
+$$= E(B_{b_1})E(B_{b_2}) \frac{2 \lambda}{E(N_{b_2})} \left(\frac{\lambda}{\phi}\right)^{\alpha - 1} \phi^{2(t - b_1)}$$
+$$= E(B_{b_1})E(B_{b_2}) \frac{2 \phi}{E(N_{b_2})} \left(\frac{\lambda}{\phi}\right)^{\alpha} \phi^{2(t - b_1)}$$
+$$= E(B_{b_1})E(B_{b_2}) \phi \frac{1}{E(F_{b_2})} \phi^{2(t - b_1)}$$
+$$= E(B_{b_1}) \beta \phi^{2(t - b_1) + 1}$$
+$$= E(SMP_{t, b_1, b_2}) \phi.$$
+
+### Expected number of same-father pairs with the same birth year
+
+Let 
+
+- $SFB_{t, b, f}$ be the number of animals at time $t$, that are born at time $b$, with a particular father $f$, 
+- $SFP_{t, b, f}$ be the number of pairs of animals at time $t$, that are both born at time $b$, with a particular father $f$, and 
+- $SFP_{t, b}$ be the total number of pairs of animals at time $t$, that are both born at time $b$, and have the same father.
 
 Then the probability that an animal born at time $b$ has a particular father $f$ is $\frac{1}{M_{b - 1}}$, the probability that it also survives to time $t$ is $\frac{\phi^{t - b}}{M_{b - 1}}$, and
 $$SFB_{t, b, f} \sim Bin\left(B_b, \frac{\phi^{t - b}}{M_{b - 1}}\right),$$
@@ -194,28 +224,68 @@ $$= \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left\{ \left(1
 $$= \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left(1 - \frac{\phi}{\lambda} \right)^2  \left( \frac{\lambda}{\phi}\right)^{2 \alpha} \phi^{2 (t - b + \alpha)} \lambda \left( \frac{1}{\phi} \right)^\alpha$$
 $$= \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left(1 - \frac{\phi}{\lambda} \right)^2  \left( \frac{\lambda^2}{\phi}\right)^{\alpha} \phi^{2 (t - b)} \lambda.$$
 
+### Expected number of same-father pairs
 
-**End of current work**
+Let $SFP_t$ be the total number of pairs of animals at time $t$ with the same father.  Then
+$$SFP_t = \sum_{b_1 < t}\sum_{b_1 < b_2 \le t}SFP_{t, b_1, b_2} + \sum_{b \le t} SFP_{t, b}$$
+$$E(SFP_t) = E\left(\sum_{b_1 < t}\sum_{b_1 < b_2 \le t}SFP_{t, b_1, b_2} + \sum_{b \le t} SFP_{t, b}\right)$$
+$$= \sum_{b_1 < t}\sum_{b_1 < b_2 \le t} E(SFP_{t, b_1, b_2}) + \sum_{b \le t} E(SFP_{t, b})$$
+$$= \sum_{b_1 < t}\sum_{b_1 < b_2 \le t} E(SMP_{t, b_1, b_2}) \phi + \sum_{b \le t} E(SFP_{t, b})$$
+$$= \phi \sum_{b_1 < t}\sum_{b_1 < b_2 \le t} E(SMP_{t, b_1, b_2}) + \sum_{b \le t} E(SFP_{t, b})$$
+$$= \phi E(SMP_t) + \sum_{b \le t} E(SFP_{t, b}),$$
+$$\sum_{b \le t} E(SFP_{t, b}) = \sum_{b \le t} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left(1 - \frac{\phi}{\lambda} \right)^2  \left( \frac{\lambda^2}{\phi}\right)^{\alpha} \phi^{2 (t - b)} \lambda$$
+$$= \left(1 - \frac{\phi}{\lambda} \right)^2 \left( \frac{\lambda^2}{\phi}\right)^{\alpha} \lambda \sum_{b \le t} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\}   \phi^{2 (t - b)},$$
+$$\sum_{b \le t} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\}   \phi^{2 (t - b)} = \sum_{b \le t} \left\{ \frac{E(N_t)}{\lambda^{\alpha}} \left(\frac{\phi^2}{\lambda}\right)^{t - b} - \phi^{2 (t - b)} \right\}$$
+$$= \sum_{b \le t} \frac{E(N_t)}{\lambda^{\alpha}} \left(\frac{\phi^2}{\lambda}\right)^{t - b} - \sum_{b \le t} \phi^{2 (t - b)} $$
+$$= \frac{E(N_t)}{\lambda^{\alpha}} \sum_{b \le t}  \left(\frac{\phi^2}{\lambda}\right)^{t - b} - \sum_{b \le t} \phi^{2 (t - b)} $$
+$$= \frac{E(N_t)}{\lambda^{\alpha}} \left\{1 + \frac{\phi^2}{\lambda} + \left(\frac{\phi^2}{\lambda}\right)^2 + ... \right\} - (1 + \phi^2 + \phi^4 + ...) $$
+$$= \frac{E(N_t)}{\lambda^{\alpha}} \frac{1}{1 - \frac{\phi^2}{\lambda}} - \frac{1}{1 - \phi^2} $$
+$$= \frac{E(N_t)}{\lambda^{\alpha}} \frac{\lambda}{\lambda - \phi^2} - \frac{1}{1 - \phi^2} $$
+$$\sum_{b \le t} E(SFP_{t, b}) = \left(1 - \frac{\phi}{\lambda} \right)^2 \left( \frac{\lambda^2}{\phi}\right)^{\alpha} \lambda \left\{\frac{E(N_t)}{\lambda^{\alpha}} \frac{\lambda}{\lambda - \phi^2} - \frac{1}{1 - \phi^2}\right\}$$
+$$E(SFP_t) = \phi E(SMP_t) + \sum_{b \le t} E(SFP_{t, b})$$
+$$ = \phi 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2 \left(\frac{\lambda}{\phi}\right)^\alpha \frac{\lambda\phi^2}{\left(\lambda - \phi^2\right)^2} +$$
+$$\left(1 - \frac{\phi}{\lambda} \right)^2 \left( \frac{\lambda^2}{\phi}\right)^{\alpha} \lambda \left\{\frac{E(N_t)}{\lambda^{\alpha}} \frac{\lambda}{\lambda - \phi^2} - \frac{1}{1 - \phi^2} \right\}$$
+$$= \left(1 - \frac{\phi}{\lambda}\right)^2 \left(\frac{\lambda}{\phi}\right)^\alpha \lambda \left[ \frac{2E(N_t)\phi^3}{\left(\lambda - \phi^2\right)^2} + \lambda^\alpha \left\{\frac{E(N_t)}{\lambda^{\alpha}} \frac{\lambda}{\lambda - \phi^2} - \frac{1}{1 - \phi^2} \right\} \right] $$
+$$= \left(1 - \frac{\phi}{\lambda}\right)^2 \left(\frac{\lambda}{\phi}\right)^\alpha \lambda \left\{ \frac{2E(N_t)\phi^3}{\left(\lambda - \phi^2\right)^2} + \frac{E(N_t)\lambda}{\lambda - \phi^2} - \frac{\lambda^\alpha}{1 - \phi^2} \right\} $$
+$$= \left(1 - \frac{\phi}{\lambda}\right)^2 \left(\frac{\lambda}{\phi}\right)^\alpha \lambda \left\{ \frac{E(N_t)}{\lambda - \phi^2} \left( \frac{2\phi^3}{\lambda - \phi^2} + \lambda \right) - \frac{\lambda^\alpha}{1 - \phi^2} \right\} $$
 
-$$= E(E(SMP_{t, b_1, b_2}|B_{b_1}))$$
-$$= E(B_{b_1}\phi^{2(t - b_1)}\beta)$$
-$$= E(B_{b_1})\phi^{2(t - b_1)}\beta$$
-$$= E(N_{b_1})\left(1 - \frac{\phi}{\lambda}\right)\phi^{2(t - b_1)}\beta$$
-$$= \frac{E(N_t)}{\lambda^{t - b_1}}\left(1 - \frac{\phi}{\lambda}\right)\phi^{2(t - b_1)}\beta$$
-$$= E(N_t)\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}\beta$$
-$$= E(N_t)\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}2\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\lambda}{\phi}\right)^\alpha$$
+### Expected number of full-sibling pairs
 
+Let 
+
+- $FSP_{t, b_1, b_2, i}$ be the number of pairs of animals at time $t$, that include a particular animal $i$, that is born at time $b_1$, and an animal born at a later time $b_2$, that has the same mother and the same father (full-sibling pairs), and 
+- $FSP_{t, b_1, b_2}$ be the total number of pairs at time $t$ that include any animal born at time $b_1$, and an animal born at a later time $b_2$, that has the same mother and the same father.
+
+Then following the logic as the cases for same-mother and same-father pairs we have that the probability that an animal born at time $b_1$ survives to time $t$ and an animal born at time $b_2$ forms a same-father pair with it at time $t$ is $\frac{\phi^{2(t - b_1)}}{M_{b_2 - 1}F_{b_2}}$.  Also following the logic through we find that
+$$E(FSP_{t, b_1, b_2}) = \frac{E(SMP_{t, b_1, b_2}) \phi^{b_2 - b_1 + 1}}{E(F_{b_2})}$$
+$$= \frac{2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\left(\frac{\phi^2}{\lambda}\right)^{t - b_1} \phi^{b_2 - b_1 + 1}}{\frac{E(N_{b_2})}{2}\left(\frac{\phi}{\lambda}\right)^\alpha}$$
+$$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha \left(\frac{\phi^2}{\lambda}\right)^{t - b_1} \phi^{b_2 - b_1 + 1} \frac{2}{E(N_{b_2})}\left(\frac{\lambda}{\phi}\right)^\alpha$$
+$$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha \left(\frac{\phi^2}{\lambda}\right)^{t - b_1} \frac{2 \phi^{b_2 - b_1 + 1} \lambda^{t - b_2}}{E(N_t)} \left(\frac{\lambda}{\phi}\right)^\alpha$$
+$$= 4 \left(1 - \frac{\phi}{\lambda}\right)^2 \left(\frac{\lambda}{\phi}\right)^{2 \alpha} \left(\frac{\phi^2}{\lambda}\right)^{t - b_1} \phi^{b_2 - b_1 + 1} \lambda^{t - b_2},$$
+$$E(FSP_{t}) = \sum_{b_1 < t}\sum_{b_1 < b_2 \le t}E(FSP_{t, b_1, b_2})$$
+$$= \sum_{b_1 < t}\sum_{b_1 < b_2 \le t} 4 \left(1 - \frac{\phi}{\lambda}\right)^2 \left(\frac{\lambda}{\phi}\right)^{2 \alpha} \left(\frac{\phi^2}{\lambda}\right)^{t - b_1} \phi^{b_2 - b_1 + 1} \lambda^{t - b_2}$$
+$$= 4 \left(1 - \frac{\phi}{\lambda}\right)^2 \left(\frac{\lambda}{\phi}\right)^{2 \alpha} \phi \sum_{b_1 < t} \left(\frac{\phi^2}{\lambda}\right)^{t - b_1} \sum_{b_1 < b_2 \le t} \phi^{b_2 - b_1} \lambda^{t - b_2},$$
+$$\sum_{b_1 < t} \left(\frac{\phi^2}{\lambda}\right)^{t - b_1} \sum_{b_1 < b_2 \le t} \phi^{b_2 - b_1} \lambda^{t - b_2} = \frac{\phi^2}{\lambda}\phi + \left(\frac{\phi^2}{\lambda}\right)^2 (\phi^2 + \phi \lambda) + \left(\frac{\phi^2}{\lambda}\right)^3 (\phi^3 + \phi^2\lambda + \phi\lambda^2) + ...$$
+$$= \frac{1}{1 - \frac{\phi^2}{\lambda}\phi} \left\{ \frac{\phi^2}{\lambda}\phi + \left(\frac{\phi^2}{\lambda}\right)^2 \phi\lambda + \left(\frac{\phi^2}{\lambda}\right)^3 \phi\lambda^2 + ... \right\}$$
+$$= \frac{\phi\lambda}{\lambda - \phi^3} \left\{ \frac{\phi^2}{\lambda} + \frac{\phi^4}{\lambda} + \frac{\phi^6}{\lambda} + ... \right\}$$
+$$= \frac{\phi}{\lambda - \phi^3} \left\{\phi^2 + \phi^4 + \phi^6 + ... \right\}$$
+$$= \frac{\phi}{\lambda - \phi^3} \frac{\phi^2}{1 - \phi^2}$$
+$$= \frac{\phi^3}{(\lambda - \phi^3)(1 - \phi^2)},$$
+$$E(FSP_{t}) = 4 \left(1 - \frac{\phi}{\lambda}\right)^2 \left(\frac{\lambda}{\phi}\right)^{2 \alpha} \phi \frac{\phi^3}{(\lambda - \phi^3)(1 - \phi^2)}$$
+$$= 4 \left(1 - \frac{\phi}{\lambda}\right)^2 \left(\frac{\lambda}{\phi}\right)^{2 \alpha} \frac{\phi^4}{(\lambda - \phi^3)(1 - \phi^2)}$$
 
 ### Expected number of half-sibling pairs at time $t$
 
-The same process as above gives the expected total number of pairs at time $t$ with the same father
-$$ E(SFP_t) = \sum_{b_1 \le t} \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right)^{t - b_1} E(N_t) \sum_{b_1 \le b_2 \le t} \phi^{b_2 - b_1} 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{t - b_2}. $$
-Here we allow $b_1 = b_2$ since a male may breed multiple times in one breeding period.  We also include the probability, $\phi$ that the father survives from the time of conception of the first animal to the time of its birth.  The probability that the mother has a calf at time $b_2$ is replaced with the expected number of calves that the father has at $b_2$, which takes the same form if we ignore the small difference in the case when $b1 = b_2$. 
+Let $HSP_t$ be the number of half-sibling pairs at time $t$.  Then
+$$HSP_t = SMP_t + SFP_t - 2 FSP_t,$$
+and
+$$E(HSP_t) = E(SMP_t + SFP_t - 2 FSP_t)$$
+$$= E(SMP_t) + E(SFP_t) - 2 E(FSP_t)$$
+$$= $$
 
-$$ E(SFP_t) = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \sum_{b_1 \le t} \left( \frac{\phi^2}{\lambda} \right)^{t - b_1} (t - b_1 + 1) $$
-$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \left( 1 + 2 \frac{\phi^2}{\lambda} + ... \right) $$
-$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \frac{1}{\left( 1 - \frac{\phi^2}{\lambda} \right)^2} $$
-$$ = \left(1 - \frac{\phi}{\lambda} \right) E(N_t) 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \left( \frac{\lambda}{\lambda - \phi^2} \right)^2. $$
+**End of current work**
+
+
 
 The expected total number of pairs at time $t$ with both the same mother, and the same father (full-sibling pairs), is
 $$ E(FSP_t) = \sum_{b_1 < t} \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right)^{t - b_1} E(N_t) \sum_{b_1 < b_2 \le t} \phi^{b_2 - b_1} \phi^{b_2 - b_1} \left\{ 2 (\lambda - \phi) \left( \frac{\lambda}{\phi} \right)^\alpha \phi^{t - b_2} \right\}^2 $$

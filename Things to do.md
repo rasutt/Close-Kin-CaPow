@@ -1,6 +1,6 @@
 ### Things to do
 
--   The expression for the expected numbers of half-sibling pairs within samples is wrong and the error depends on the age of maturity alpha. The one for same-father pairs is now correct, but the one for same-mother pairs is wrong when there are calving intervals, and the error depends on alpha. It would be good to derive the new expression for half-sibling pairs and check it. I should write up the derivation of the one for same-father pairs first though.
+-   The expression for the expected numbers of half-sibling pairs within samples is wrong and the error depends on the age of maturity alpha. The one for same-father pairs is now correct, and the ones for same-mother and full-sibling pairs are only wrong when there are calving intervals, and the errors depend on alpha. It would be good to implement the new expression for half-sibling pairs.
 
 -   There are some outputs in the check tab to show the average numbers of kin-pairs that include an animal of ages up to the length of the population history in the final year of the simulation, and compare them to the expected values. They are just tables but it would be good to try plotting them.
 
