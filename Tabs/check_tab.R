@@ -13,8 +13,7 @@ checks.lst = reactive({
   # numbers of births and deaths, numbers captured, and expected and observed
   # numbers of kin pairs
   N.t.mat <- matrix(nrow = n_sims(), ncol = hist.len())
-  ns.SMPs.t.f.yr.pop.mat <- ns.SFPs.t.f.yr.pop.mat <- 
-    ns.SFPs.t.f.f.yr.pop.mat <- ns.SFPs.t.t.pop.mat <-
+  ns.SMPs.t.f.yr.pop.mat <- ns.SFPs.t.f.yr.pop.mat <- ns.SFPs.t.t.pop.mat <-
     matrix(nrow = n_sims(), ncol = hist.len() - 1)
   ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- ns.APs.wtn.pop.mat <-
     ns.SMPs.wtn.pop.mat <- ns.SFPs.wtn.pop.mat <- ns.FSPs.wtn.pop.mat <-
@@ -60,8 +59,7 @@ checks.lst = reactive({
       # Find proportion captured with unknown parents
       prpn.prnts.unkn.vec[hist.ind] <- mean(is.na(pop.cap.hist$mum))
       
-      # Numbers of kin-pairs in whole population - Seems like I might not need
-      # ID in this function, copied from finding pairs samples?
+      # Numbers of kin-pairs in whole population
       ns.kps.pop.lst = FindNsKinPairsPop(
         attributes(pop.cap.hist)$N.t.vec[s.yr.inds()], 
         attributes(pop.cap.hist)$alv.mat[, s.yr.inds()], 
@@ -120,11 +118,6 @@ checks.lst = reactive({
           tabulate(dads.of.age.t, max.dad.id) %*% 
           tabulate(dads.of.age.0, max.dad.id)
         
-        # Number for one animal of the current age - might not need this
-        # anymore.
-        ns.SFPs.t.f.f.yr.pop.mat[hist.ind, hist.len() - 1 - t] = 
-          sum(dads.of.age.0 == dads.of.age.t[1])
-        
         # Same-father pairs born in the current year
         ns.SFPs.t.t.pop.mat[hist.ind, hist.len() - 1 - t] =
           sum(choose(tabulate(dads.of.age.t), 2))
@@ -164,7 +157,6 @@ checks.lst = reactive({
     ),
     ns.SMPs.t.f.yr.pop.mat = ns.SMPs.t.f.yr.pop.mat,
     ns.SFPs.t.f.yr.pop.mat = ns.SFPs.t.f.yr.pop.mat,
-    ns.SFPs.t.f.f.yr.pop.mat = ns.SFPs.t.f.f.yr.pop.mat,
     ns.SFPs.t.t.pop.mat = ns.SFPs.t.t.pop.mat
   )
 })
@@ -359,14 +351,15 @@ output$nsKPsCap = renderTable({
 output$SMPsFYear = renderTable({
   mean.ns.SMPs.f.yr = colMeans(checks.lst()$ns.SMPs.t.f.yr.pop.mat)
   mean.ns.SFPs.f.yr = colMeans(checks.lst()$ns.SFPs.t.f.yr.pop.mat)
-  mean.ns.SFPs.f.f.yr = colMeans(checks.lst()$ns.SFPs.t.f.f.yr.pop.mat)
   mean.ns.SFPs.t.t = colMeans(checks.lst()$ns.SFPs.t.t.pop.mat)
   
+  # Same-mother pairs
   exp.ns.SMPs.f.yr = 2 * exp.N.t()[hist.len()] * (1 - phi() / lambda())^2 *
     (lambda() / phi())^alpha() * (phi()^2 / lambda())^((hist.len() - 2):1)
+  # Same-father pairs with different ages (one always age zero)
   exp.ns.SFPs.f.yr = exp.ns.SMPs.f.yr * phi()
-  exp.ns.SFPs.f.f.yr = 2 * (1 - phi() / lambda()) *
-    (lambda() / phi())^alpha() * phi()^(2 * (hist.len() - 2):1)
+  # Same-father pairs with same ages (for all ages up to length of population
+  # history)
   exp.ns.SFPs.t.t = phi()^(2 * (hist.len() - 2):1) * 
     (exp.N.t()[hist.len()] / lambda()^(alpha() + (hist.len() - 2):1) - 1) *
     (lambda()^2 / phi())^alpha() * lambda() * (1 - phi() / lambda())^2
@@ -374,13 +367,11 @@ output$SMPsFYear = renderTable({
   df = rbind(
     mean.ns.SMPs.f.yr, c(exp.ns.SMPs.f.yr, NA), 
     mean.ns.SFPs.f.yr, c(exp.ns.SFPs.f.yr, NA),
-    mean.ns.SFPs.f.f.yr, c(exp.ns.SFPs.f.f.yr, NA),
     mean.ns.SFPs.t.t, c(exp.ns.SFPs.t.t, NA)
   )
   rownames(df) = c(
     "Avg(SMP{t,f.yr,f.yr})", "E(SMP{t,f.yr,f.yr})",
     "Avg(SFP{t,f.yr,f.yr})", "E(SFP{t,f.yr,f.yr})",
-    "Avg(SFP{t,f,f.yr,f.yr})", "E(SFP{t,f,f.yr,f.yr})",
     "Avg(SFP{t,t,f.yr})", "E(SFP{t,t,f.yr})"
   )
   colnames(df) = (f.year() - hist.len() + 2):f.year()

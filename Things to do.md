@@ -1,6 +1,10 @@
 ### Things to do
 
+-   The derivation of the expected number of half-sibling pairs includes some steps that are skipped. It would be good to fill them in.
+
 -   The expression for the expected numbers of same-father pairs is now correct. The ones for same-mother, full-sibling, and half-sibling pairs are now only wrong when there are calving intervals, and the errors depend on alpha.
+
+    -   It would be good to implement the new expression for half-sibling pairs in the close-kin likelihood, and also allow the included kin-pairs to be selected.
 
 -   There are some outputs in the check tab to show the average numbers of kin-pairs that include an animal of ages up to the length of the population history in the final year of the simulation, and compare them to the expected values. They are just tables but it would be good to try plotting them.
 
