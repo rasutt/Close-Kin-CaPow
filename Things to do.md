@@ -2,7 +2,9 @@
 
 -   It would be good to make a file that explains what the different files and folders are for and how the app works.
 
--   The derivation of the expected number of full-sibling pairs skips some steps. It would be good to fill them in.
+-   The derivation of the expected number of full-sibling pairs skips some steps. It would be good to fill them in. The whole derivation for half-sibling pairs can probably be tidied up and simplified quite a bit by treating the same-mother pairs in the same way as same-father pairs with different birth years, in terms of expected numbers being equivalent to birth rate.
+
+-   It would be good to derive the expressions for half-sibling pairs between surveys and include them in the app.
 
 -   It would be good to implement the new expression for half-sibling pairs in the close-kin likelihood, and also allow the included kin-pairs to be selected.
 
@@ -13,8 +15,6 @@
 -   It would be good to add outputs to show the numbers of parent-offspring pairs within and between survey years in the whole population, show that they match the expressions for the expected numbers, and check the bias in the approximations for their probabilities. I think I changed those expressions as well as the simulation to allow animals to have calves as soon as they are mature, rather than requiring them to be mature when the calves are conceived, but I should check it and rewrite the derivations for them.
 
 -   It would be good to add the combined model to the app.
-
--   It would be good to derive the expressions for half-sibling pairs between surveys and include them in the app.
 
 -   It would be good to allow for just one survey for the close kin models.
 
