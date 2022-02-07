@@ -21,7 +21,8 @@ checks.lst = reactive({
     ns.POPs.wtn.mat <- ns.SMPs.wtn.mat <- ns.HSPs.wtn.mat <- 
     exp.ns.HSPs.wtn.mat <- exp.ns.POPs.wtn.mat <- exp.ns.SMPs.wtn.mat <-
     matrix(nrow = n_sims(), ncol = k())
-  ns.APs.btn.pop.mat <- ns.SPs.btn.pop.mat <- ns.POPs.btn.mat <- 
+  ns.APs.btn.pop.mat <- ns.SPs.btn.pop.mat <- ns.SMPs.btn.pop.mat <-
+    ns.SFPs.btn.pop.mat <- ns.POPs.btn.mat <- 
     ns.SPs.btn.mat <- exp.ns.POPs.btn.mat <- exp.ns.SPs.btn.mat <- 
     matrix(nrow = n_sims(), ncol = n.srvy.prs())
   
@@ -75,6 +76,9 @@ checks.lst = reactive({
       ns.SFPs.wtn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.SFPs.wtn.pop
       ns.FSPs.wtn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.FSPs.wtn.pop
       ns.HSPs.wtn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.HSPs.wtn.pop
+      ns.SMPs.btn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.SMPs.btn.pop
+      ns.SFPs.btn.pop.mat[hist.ind, ] = ns.kps.pop.lst$ns.SFPs.btn.pop
+      
       
       # Find numbers of known kin pairs
       ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
@@ -139,7 +143,8 @@ checks.lst = reactive({
       ns.SMPs.wtn.pop.mat = ns.SMPs.wtn.pop.mat,
       ns.SFPs.wtn.pop.mat = ns.SFPs.wtn.pop.mat,
       ns.FSPs.wtn.pop.mat = ns.FSPs.wtn.pop.mat,
-      ns.HSPs.wtn.pop.mat = ns.HSPs.wtn.pop.mat
+      ns.HSPs.wtn.pop.mat = ns.HSPs.wtn.pop.mat,
+      ns.SMPs.btn.pop.mat = ns.SMPs.btn.pop.mat
     ),
     ns.KPs.lst = list(
       ns.SPs.btn.mat = ns.SPs.btn.mat,
@@ -217,7 +222,7 @@ KP_pop_names = c(
   "All-pairs within surveys", "All-pairs between surveys",
   "Self-pairs between surveys", "Same-mother pairs within surveys",
   "Same-father pairs within surveys", "Full-sibling pairs within surveys",
-  "Half-sibling pairs within surveys"
+  "Half-sibling pairs within surveys", "Same-mother pairs between surveys"
 )
 KP_prob_names = c(
   "Self-pair probabilities between surveys", 
@@ -235,7 +240,7 @@ n_KP_types = length(KP_names)
 # Indices for types of kin-pairs
 KP_pop_inds = c(
   "Survey", "Survey", "Survey-pair", "Survey-pair", "Survey", "Survey", 
-  "Survey", "Survey"
+  "Survey", "Survey", "Survey-pair"
 )
 KP_prob_inds = c("Survey-pair", "Survey")
 KP_inds = c("Survey-pair", "Survey", "Survey-pair", "Survey", "Survey")
@@ -273,6 +278,12 @@ exp.ns.KPs.pop.lst = reactive({
   # Half-sibling pairs within surveys
   exp.ns.HSPs.wtn = exp.ns.SMPs.wtn + exp.ns.SFPs.wtn - 2 * exp.ns.FSPs.wtn
   
+  # Same-mother pairs between surveys
+  exp.ns.SMPs.btn = as.vector(combn(1:k(), 2, function(s.inds) {
+    exp.ns.SMPs.wtn[s.inds[1]] * phi()^(s.inds[2] - s.inds[1]) *
+      ((lambda() - phi()^2) / lambda() * (s.inds[2] - s.inds[1]) + 1)
+  }))
+  
   # Return as list
   list(
     exp.N.srvy.yrs = exp.N.srvy.yrs,
@@ -282,7 +293,8 @@ exp.ns.KPs.pop.lst = reactive({
     exp.ns.SMPs.wtn = exp.ns.SMPs.wtn,
     exp.ns.SFPs.wtn = exp.ns.SFPs.wtn,
     exp.ns.FSPs.wtn = exp.ns.FSPs.wtn,
-    exp.ns.HSPs.wtn = exp.ns.HSPs.wtn
+    exp.ns.HSPs.wtn = exp.ns.HSPs.wtn,
+    exp.ns.SMPs.btn = exp.ns.SMPs.btn
   )
 })
 
@@ -428,6 +440,8 @@ output$nsSPsBtnPop <- renderPlot(nsKPsPlot(3, T))
 output$nsSMPsWtnPop <- renderPlot(nsKPsPlot(4, T))
 # Same-father pairs within survey years for whole population
 output$nsSFPsWtnPop <- renderPlot(nsKPsPlot(5, T))
+# Same-mother pairs between survey years for whole population
+output$nsSMPsBtnPop <- renderPlot(nsKPsPlot(9, T))
 
 # Self-pair probabilities between survey years for whole population
 output$probSPsBtnPop <- renderPlot(nsKPsPlot(1, prob = T))

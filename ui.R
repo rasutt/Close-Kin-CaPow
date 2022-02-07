@@ -117,6 +117,7 @@ ui <- fluidPage(
           plotOutput(outputId = "nsSPsBtnPop"),
           plotOutput(outputId = "nsSMPsWtnPop"),
           plotOutput(outputId = "nsSFPsWtnPop"),
+          plotOutput(outputId = "nsSMPsBtnPop"),
           h4("Kin-pair probability errors"),
           plotOutput(outputId = "probSPsBtnPop"),
           plotOutput(outputId = "probSMPsWtnPop"),
