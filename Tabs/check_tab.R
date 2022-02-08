@@ -281,7 +281,7 @@ exp.ns.KPs.pop.lst = reactive({
   # Same-mother pairs between surveys
   exp.ns.SMPs.btn = as.vector(combn(1:k(), 2, function(s.inds) {
     exp.ns.SMPs.wtn[s.inds[1]] * phi()^(s.inds[2] - s.inds[1]) *
-      ((lambda() - phi()^2) / lambda() * (s.inds[2] - s.inds[1]) + 1)
+      ((lambda() - phi()^2) / phi()^2 * (s.inds[2] - s.inds[1]) + 2)
   }))
   
   # Return as list
