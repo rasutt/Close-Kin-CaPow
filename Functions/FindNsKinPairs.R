@@ -57,10 +57,7 @@ FindNsKinPairs <- function(k, n.srvy.prs, pop.cap.hist) {
 
   # Return numbers of kinpairs
   list(
-    ns.POPs.wtn = ns.POPs.wtn, 
-    ns.HSPs.wtn = ns.HSPs.wtn,
-    ns.SMPs.wtn = ns.SMPs.wtn,
-    ns.POPs.btn = ns.POPs.btn,
-    ns.SPs.btn = ns.SPs.btn
+    wtn = rbind(ns.POPs.wtn, ns.SMPs.wtn, ns.HSPs.wtn),
+    btn = rbind(ns.SPs.btn, ns.POPs.btn)
   )
 }

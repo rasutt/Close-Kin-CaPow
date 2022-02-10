@@ -82,10 +82,7 @@ FindExpNsKPs <- function(
   
   # Return expected numbers of kinpairs
   list(
-    exp.ns.POPs.wtn = exp.ns.POPs.wtn, 
-    exp.ns.HSPs.wtn = exp.ns.HSPs.wtn,
-    exp.ns.POPs.btn = exp.ns.POPs.btn,
-    exp.ns.SPs.btn = exp.ns.SPs.btn,
-    exp.ns.SMPs.wtn = exp.ns.SMPs.wtn
+    wtn = rbind(exp.ns.POPs.wtn, exp.ns.SMPs.wtn, exp.ns.HSPs.wtn),
+    btn = rbind(exp.ns.SPs.btn, exp.ns.POPs.btn)
   )
 }
