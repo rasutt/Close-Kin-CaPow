@@ -10,15 +10,9 @@ sim.lst = reactive({
   # Create vectors for final and super-population sizes
   N.fin.vec <- Ns.vec <- numeric(n_sims())
   
-  # Display progress
-  cat("Simulating study: ")
-  
   # Loop over histories
   withProgress({
     for (hist.ind in 1:n_sims()) {
-      # Display progress
-      if (hist.ind %% 100 == 1) cat(hist.ind, "")
-      
       # Simulate family and capture histories of population of animals over
       # time
       hists.lst[[hist.ind]] <- SimPopStud(

@@ -20,15 +20,9 @@ checks.lst = reactive({
     array(dim = c(n_sims(), n.srvy.prs(), 2))
   prpn.prnts.unkn.vec <- Ns.vec <- numeric(n_sims())
   
-  # Display progress
-  cat("Checking study: ")
-  
   # Loop over histories
   withProgress({
     for (hist.ind in 1:n_sims()) {
-      # Display progress
-      if (hist.ind %% 100 == 1) cat(hist.ind, "")
-      
       # Get simulated family and capture histories of population of animals
       # over time
       pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
@@ -72,10 +66,11 @@ checks.lst = reactive({
       # animals born in each year in the population history
       SMFPs.t.arr[hist.ind, , ] = t(FindSMFPsT(pop.cap.hist, hist.len()))
       
+      # Increment progress-bar
       incProgress(1/n_sims())
     }
   }, value = 0, message = "Checking simulations")
-  
+
   # Insert population sizes in survey years for comparison with numbers of kin
   # pairs
   ns.KPs.wtn.pop.arr[, , 1] = N.t.mat[, s.yr.inds()]
@@ -123,7 +118,7 @@ output$popPlot <- renderPlot({
 })
 
 # Table simulated versus expected self-pair probability
-output$obsParVals = renderTable({
+output$slfPrPrb = renderTable({
   spr = mean(checks.lst()$ns.KPs.pop.lst$ns.SPs.btn.pop.mat /
                checks.lst()$ns.KPs.pop.lst$ns.APs.btn.pop.mat)
   exp_spr = mean(exp.ns.KPs.pop.lst()$exp.ns.SPs.btn /
@@ -144,34 +139,24 @@ output$percUnknPrnts <- renderText({
   )
 })
 
-# Names of types of kin-pairs
+# Types of kin-pairs
 kn.pr.wtn.pop.tps = c(
-  "Population sizes in survey years",
-  "All-pairs within surveys", "Same-mother pairs within surveys",
-  "Same-father pairs within surveys", "Full-sibling pairs within surveys",
-  "Half-sibling pairs within surveys"
+  "Population sizes", "All-pairs", "Same-mother pairs", "Same-father pairs",
+  "Full-sibling pairs", "Half-sibling pairs"
 )
-kn.pr.btn.pop.tps = c(
-  "All-pairs between surveys", "Self-pairs between surveys", 
-  "Same-mother pairs between surveys"
-)
-KP_prob_names = c(
-  "Self-pair probabilities between surveys", 
-  "Same-mother pair probabilities within surveys"
-)
-kn.pr.wtn.cap.tps = c(
-  "Parent-offspring pairs within surveys", "Same-mother pairs within surveys",
-  "Half-sibling pairs within surveys"
-)
-kn.pr.btn.cap.tps = c(
-  "Self-pairs between surveys", "Parent-offspring pairs between surveys"
-)
-# Number of types of kin-pairs
+kn.pr.btn.pop.tps = c("All-pairs", "Self-pairs", "Same-mother pairs")
+kn.pr.prb.tps = c("Self-pair", "Same-mother pair")
+kn.pr.wtn.cap.tps = 
+  c("Parent-offspring pairs", "Same-mother pairs", "Half-sibling pairs")
+kn.pr.btn.cap.tps = c("Self-pairs", "Parent-offspring pairs")
+
+# Numbers of types of kin-pairs
 n.kn.pr.wtn.pop.tps = length(kn.pr.wtn.pop.tps)
 n.kn.pr.btn.pop.tps = length(kn.pr.btn.pop.tps)
 n.kn.pr.wtn.cap.tps = length(kn.pr.wtn.cap.tps)
 n.kn.pr.btn.cap.tps = length(kn.pr.btn.cap.tps)
-n_KP_prob_types = length(KP_prob_names)
+n.kn.pr.prb.tps = length(kn.pr.prb.tps)
+
 # Indices for types of kin-pairs
 KP_pop_inds = c(
   "Survey", "Survey", "Survey-pair", "Survey-pair", "Survey", "Survey", 
@@ -182,54 +167,31 @@ KP_inds = c("Survey-pair", "Survey", "Survey-pair", "Survey", "Survey")
 
 # Expected numbers of kin-pairs for whole population
 exp.ns.KPs.pop.lst = reactive({
-  # All pairs within surveys and between pairs of surveys
-  exp.N.srvy.yrs = exp.N.fin() / lambda()^(f.year() - srvy.yrs())
+  # Expected population sizes in survey years
+  exp.N.srvy.yrs = exp.N.t()[s.yr.inds()]
+  # Approximation for expected number of pairs of animals in survey years
   exp.ns.APs.wtn = choose(exp.N.srvy.yrs, 2)
+  # All pairs within surveys and between pairs of surveys
   exp.ns.APs.btn = as.vector(combn(exp.N.srvy.yrs, 2, function(x) x[1] * x[2]))
   
-  # Self-pairs between pairs of surveys
-  exp.ns.SPs.btn = as.vector(combn(srvy.yrs(), 2, function(srvy.pr) {
-    exp.N.fin() / lambda()^(f.year() - srvy.pr[1]) *
-      phi()^(srvy.pr[2] - srvy.pr[1])
-  }))
-  
-  # Same-mother pairs within surveys
-  exp.ns.SMPs.wtn = 2 * exp.N.srvy.yrs * (1 - phi() / lambda())^2 *
-    (lambda() / phi())^alpha() * lambda() * phi()^2 / (lambda() - phi()^2)^2
-  
-  # Same-father pairs within surveys
-  exp.ns.SFPs.wtn = (1 - phi() / lambda())^2 *
-    (lambda() / phi())^alpha() * lambda() * 
-    (exp.N.srvy.yrs * 
-       (2 * phi()^3 / (lambda() - phi()^2)^2 + 
-          lambda() / (lambda() - phi()^2)) -
-       lambda()^alpha() / (1 - phi()^2))
-  
-  # Full-sibling pairs within surveys
-  exp.ns.FSPs.wtn = 4 *  (1 - phi() / lambda())^2 *
-    (lambda() / phi())^(2 * alpha()) * 
-    phi()^4 / ((lambda() - phi()^3) * (1 - phi()^2))
-  
-  # Half-sibling pairs within surveys
-  exp.ns.HSPs.wtn = exp.ns.SMPs.wtn + exp.ns.SFPs.wtn - 2 * exp.ns.FSPs.wtn
-  
-  # Same-mother pairs between surveys
-  exp.ns.SMPs.btn = as.vector(combn(1:k(), 2, function(s.inds) {
-    exp.ns.SMPs.wtn[s.inds[1]] * phi()^(s.inds[2] - s.inds[1]) *
-      ((lambda() - phi()^2) / phi()^2 * (s.inds[2] - s.inds[1]) + 2)
-  }))
-  
+  # Find kin-pair probabilities
+  kp.prbs.lst = FindKPProbs(
+    exp.N.srvy.yrs, exp.ns.APs.wtn, phi(), lambda(), alpha(), srvy.yrs(), k()
+  )
+  exp.ns.kps.wtn = kp.prbs.lst$wtn * exp.ns.APs.wtn
+  exp.ns.kps.btn = kp.prbs.lst$btn * exp.ns.APs.btn
+
   # Return as list
   list(
     exp.N.srvy.yrs = exp.N.srvy.yrs,
     exp.ns.APs.wtn = exp.ns.APs.wtn,
     exp.ns.APs.btn = exp.ns.APs.btn,
-    exp.ns.SPs.btn = exp.ns.SPs.btn,
-    exp.ns.SMPs.wtn = exp.ns.SMPs.wtn,
-    exp.ns.SFPs.wtn = exp.ns.SFPs.wtn,
-    exp.ns.FSPs.wtn = exp.ns.FSPs.wtn,
-    exp.ns.HSPs.wtn = exp.ns.HSPs.wtn,
-    exp.ns.SMPs.btn = exp.ns.SMPs.btn
+    exp.ns.SPs.btn = exp.ns.kps.btn[1, ],
+    exp.ns.SMPs.wtn = exp.ns.kps.wtn[1, ],
+    exp.ns.SFPs.wtn = exp.ns.kps.wtn[2, ],
+    exp.ns.FSPs.wtn = exp.ns.kps.wtn[3, ],
+    exp.ns.HSPs.wtn = exp.ns.kps.wtn[4, ],
+    exp.ns.SMPs.btn = exp.ns.kps.btn[2, ]
   )
 })
 
@@ -301,18 +263,11 @@ output$nsKPsPopBtn = renderTable({
 
 # Table average percentage differences for whole population
 output$nsKPsProb = renderTable({
-  KPstab(
-    n_KP_prob_types, KPs.rate.lst(), 
-    KPs.prob.lst(), KP_prob_names, T
-  )
+  KPstab(n.kn.pr.prb.tps, KPs.rate.lst(), KPs.prob.lst(), kn.pr.prb.tps, T)
 })
 
 # Table average percentage differences for captured animals
 output$nsKPsCapWtn = renderTable({
-  # KPstab(
-  #   n_KP_types, checks.lst()$ns.KPs.lst, 
-  #   checks.lst()$exp.ns.KPs.lst, KP_names, F
-  # )
   kn.prs.tbl.arr(
     n.kn.pr.wtn.cap.tps, checks.lst()$ns.KPs.wtn.cap.arr, 
     checks.lst()$exp.ns.KPs.wtn.cap.arr, kn.pr.wtn.cap.tps, F
@@ -327,7 +282,7 @@ output$nsKPsCapBtn = renderTable({
 
 # Numbers of same-mother/father pairs in the population including animals born
 # in each year in the population history
-output$SMFPsT = renderTable({
+output$nsSMFPsT = renderTable({
   # Find average values simulated
   mean.SMFPs.t = colMeans(checks.lst()$SMFPs.t.arr)
   

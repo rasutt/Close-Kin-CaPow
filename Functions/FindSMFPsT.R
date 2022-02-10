@@ -21,20 +21,17 @@ FindSMFPsT <- function(pop.cap.hist, hist.len) {
     
     # Same-mother pairs between animals born in current and final years (max one
     # per mum)
-    # ns.SMPs.t.f.yr[hist.len - 1 - t] = 
     SMFPs.t.mat[1, hist.len - 1 - t] = 
       sum(mums.of.brn.yr.t %in% mums.of.brn.f.yr)
     
     # Same-father pairs between animals born in current and final years (many
     # possible per dad)
     max.dad.id = max(dads.of.brn.yr.t, dads.of.brn.f.yr)
-    # ns.SFPs.t.f.yr[hist.len - 1 - t] = 
     SMFPs.t.mat[2, hist.len - 1 - t] = 
       tabulate(dads.of.brn.yr.t, max.dad.id) %*% 
       tabulate(dads.of.brn.f.yr, max.dad.id)
     
     # Same-father pairs born in the current year (many possible per dad)
-    # ns.SFPs.t.t[hist.len - 1 - t] = sum(choose(tabulate(dads.of.brn.yr.t), 2))
     SMFPs.t.mat[3, hist.len - 1 - t] = sum(choose(tabulate(dads.of.brn.yr.t), 2))
       
     # Same-mother pairs between each year in population history, and final year.  
@@ -47,7 +44,6 @@ FindSMFPsT <- function(pop.cap.hist, hist.len) {
     born.tm2.alv.f.yr = attributes(pop.cap.hist)$f.age == t + 2 & alv.f.yr
     born.tm1.alv.t = attributes(pop.cap.hist)$f.age == t + 1 & 
       attributes(pop.cap.hist)$alv.mat[, hist.len - t] == 1
-    # ns.SMPs.tm2.tm1.t.f.yr[hist.len - 1 - t] =
     SMFPs.t.mat[4, hist.len - 1 - t] = 
       sum(
         attributes(pop.cap.hist)$mum[born.tm2.alv.t] %in% 
@@ -59,7 +55,6 @@ FindSMFPsT <- function(pop.cap.hist, hist.len) {
     # One born after first year - birth years are years before first and second
     # years.
     born.f.yrm1.alv.f.yr = attributes(pop.cap.hist)$f.age == 1 & alv.f.yr
-    # ns.SMPs.tm1.f.yrm1.t.f.yr[hist.len - 1 - t] =
     SMFPs.t.mat[5, hist.len - 1 - t] = 
       sum(
         attributes(pop.cap.hist)$mum[born.tm1.alv.t] %in% 
@@ -70,7 +65,6 @@ FindSMFPsT <- function(pop.cap.hist, hist.len) {
     # all years between first and second years.  Doesn't match expression...
     born.btwn.t.f.yr.alv.f.yr = 
       attributes(pop.cap.hist)$f.age < t & alv.f.yr
-    # ns.SMPs.tm1.btwn.t.f.yr.t.f.yr[hist.len - 1 - t] =
     SMFPs.t.mat[6, hist.len - 1 - t] = 
       sum(
         attributes(pop.cap.hist)$mum[born.tm1.alv.t] %in% 
@@ -90,7 +84,6 @@ FindSMFPsT <- function(pop.cap.hist, hist.len) {
       attributes(pop.cap.hist)$f.age < hist.len - 1 &
       attributes(pop.cap.hist)$f.age > t & 
       attributes(pop.cap.hist)$alv.mat[, hist.len - t] == 1
-    # ns.SMPs.fst.yr.btwn.t.f.yr[hist.len - 1 - t] =
     SMFPs.t.mat[7, hist.len - 1 - t] = 
       sum(
         attributes(pop.cap.hist)$mum[born.fst.yr.alv.t] %in% 

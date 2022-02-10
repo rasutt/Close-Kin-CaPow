@@ -28,7 +28,8 @@ ui <- fluidPage(
       ),
       textInput(
         inputId = "srvy.yrs", label = "Survey years:",
-        value = "1995:1998, 2006:2009, 2020"
+        # value = "1995:1998, 2006:2009, 2020"
+        value = "2000, 2010, 2020"
       ),
       sliderInput(
         inputId = "p", label = "Base level capture probability:",
@@ -98,21 +99,32 @@ ui <- fluidPage(
           h4("Values simulated"),
           tableOutput(outputId = "checkParVals"),
           tableOutput(outputId = "checkSimVals"),
+          
           h4("Values observed"),
           plotOutput(outputId = "popPlot"),
-          tableOutput(outputId = "obsParVals"),
+          tableOutput(outputId = "slfPrPrb"),
           textOutput(outputId = "percUnknPrnts"),
-          h4("Kin-pair estimate bias - Whole population"),
+          
+          h2("Kin-pair estimator bias"),
+          h3("Numbers among population"),
+          h4("Within survey years"),
           tableOutput(outputId = "nsKPsPopWtn"),
+          h4("Between survey years"),
           tableOutput(outputId = "nsKPsPopBtn"),
-          h4("Kin-pair probability bias"),
+          
+          h3("Probabilies"),
           tableOutput(outputId = "nsKPsProb"),
-          h4("Kin-pair estimate bias - Captured animals"),
+          
+          h3("Numbers among sampled animals"),
+          h4("Within survey years"),
           tableOutput(outputId = "nsKPsCapWtn"),
+          h4("Between survey years"),
           tableOutput(outputId = "nsKPsCapBtn"),
+          
           h4("Same-mother/father pairs in whole population including animals 
           born in each year in the population history"),
-          tableOutput(outputId = "SMFPsT"),
+          tableOutput(outputId = "nsSMFPsT"),
+          
           h4("Kin-pair estimate errors - Whole population"),
           # plotOutput(outputId = "nsAPsWtnPop"),
           # plotOutput(outputId = "nsAPsBtnPop"),
