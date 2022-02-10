@@ -178,9 +178,9 @@ exp.ns.KPs.pop.lst = reactive({
   kp.prbs.lst = FindKPProbs(
     exp.N.srvy.yrs, exp.ns.APs.wtn, phi(), lambda(), alpha(), srvy.yrs(), k()
   )
-  exp.ns.kps.wtn = kp.prbs.lst$wtn * exp.ns.APs.wtn
-  exp.ns.kps.btn = kp.prbs.lst$btn * exp.ns.APs.btn
-
+  exp.ns.kps.wtn = t(t(kp.prbs.lst$wtn) * exp.ns.APs.wtn)
+  exp.ns.kps.btn = t(t(kp.prbs.lst$btn) * exp.ns.APs.btn)
+  
   # Return as list
   list(
     exp.N.srvy.yrs = exp.N.srvy.yrs,
