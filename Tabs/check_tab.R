@@ -237,7 +237,7 @@ kn.prs.tbl.arr = function(n_types, ns, exp.ns, type_names, pop) {
   diffs = numeric(n_types)
   for (i in 1:n_types) {
     if (pop) {
-      diffs[i] = perc(mean(t((t(ns[, , i]) - exp.ns[[i]]) / exp.ns[[i]])))
+      diffs[i] = perc(mean(t(t(ns[, , i]) / exp.ns[[i]])) - 1)
     } else {
       diffs[i] = perc(mean(ns[, , i] / exp.ns[, , i]) - 1)
     }

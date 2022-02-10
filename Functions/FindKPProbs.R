@@ -4,8 +4,8 @@ FindKPProbs = function(
 ) {
   # Intermediate results
   
-  # Probability that an animal is new-born
-  prb.nw.brn = 1 - phi / lambda
+  # Probability that two animals are new-born independently
+  prb.nw.brn.sq = (1 - phi / lambda)^2
   # Probability that an animal is mature
   prb.mtr = (lambda / phi)^alpha
   # Lambda minus phi-squared
@@ -14,16 +14,16 @@ FindKPProbs = function(
   # Kin-pair probabilities
   
   # Same-mother pairs within survey years
-  prbs.SMPs.wtn = 4 / (exp.N.srvy.yrs - 1) * prb.nw.brn^2 * prb.mtr * lambda *
+  prbs.SMPs.wtn = 4 / (exp.N.srvy.yrs - 1) * prb.nw.brn.sq * prb.mtr * lambda *
     phi^2 / lmb.m.ph.sq^2
   
   # Same-father pairs within survey years
-  prbs.SFPs.wtn = prb.nw.brn^2 * prb.mtr * lambda * 
-    ((2 * phi^3 / lmb.m.ph.sq^2 + lambda / lmb.m.ph.sq) / 
-       (exp.N.srvy.yrs - 1) - lambda^alpha / (1 - phi^2) / exp.ns.APs.wtn)
+  prbs.SFPs.wtn = prb.nw.brn.sq * prb.mtr * lambda * 
+    (exp.N.srvy.yrs / lmb.m.ph.sq * (2 * phi^3 / lmb.m.ph.sq + lambda) - 
+       lambda^alpha / (1 - phi^2)) / exp.ns.APs.wtn
   
   # Full-sibling pairs within survey years
-  prbs.FSPs.wtn = 4 / exp.ns.APs.wtn * prb.nw.brn^2 * prb.mtr^2 * phi^4 / 
+  prbs.FSPs.wtn = 4 / exp.ns.APs.wtn * prb.nw.brn.sq * prb.mtr^2 * phi^4 / 
     (lambda - phi^3) / (1 - phi^2)
   
   # Half-sibling pairs within survey years
