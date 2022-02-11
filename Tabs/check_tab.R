@@ -27,7 +27,7 @@ n.kn.pr.prb.tps = length(kpts.prbs)
 checks.lst = reactive({
   # Objects to store results
   N.t.mat <- matrix(nrow = n_sims(), ncol = hist.len())
-  SMFPs.t.arr = array(dim = c(n_sims(), hist.len() - 2, 7))
+  ns.SMFPs.t.arr = array(dim = c(n_sims(), hist.len() - 2, 7))
   # ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- 
   #   matrix(nrow = n_sims(), ncol = k())
   ns.kps.pop.wtn.arr <- array(dim = c(n_sims(), k(), n.kpts.pop.wtn))
@@ -82,8 +82,8 @@ checks.lst = reactive({
 
       # Find numbers of same-mother/father pairs in the population including
       # animals born in each year in the population history
-      SMFPs.t.arr[hist.ind, , ] = t(FindSMFPsT(pop.cap.hist, hist.len()))
-      
+      ns.SMFPs.t.arr[hist.ind, , ] = t(FindNsSMFPsT(pop.cap.hist, hist.len()))
+
       # Increment progress-bar
       incProgress(1/n_sims())
     }
@@ -103,7 +103,7 @@ checks.lst = reactive({
     ns.kps.cap.btn.arr = ns.kps.cap.btn.arr,
     exp.ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr,
     exp.ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr,
-    SMFPs.t.arr = SMFPs.t.arr
+    SMFPs.t.arr = ns.SMFPs.t.arr
   )
 })
 
@@ -272,7 +272,7 @@ output$nsSMFPsT = renderTable({
   mean.SMFPs.t = t(apply(checks.lst()$SMFPs.t.arr, 2:3, mean))
 
   # Find estimated values
-  exp.SMFPs.t = FindNsSMFPsT(
+  exp.SMFPs.t = FindExpNsSMFPsT(
     exp.N.fin(), phi(), lambda(), alpha(), hist.len(), exp.N.t()
   )
   

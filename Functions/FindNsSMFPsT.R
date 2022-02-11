@@ -1,58 +1,97 @@
-# Function to estimate numbers of same-mother/father pairs in the population
+# Function to find numbers of same-mother/father pairs in the population
 # including animals born in each year in the population history
-FindNsSMFPsT = function(
-  exp.N.fin, phi, lambda, alpha, hist.len, exp.N.t
-) {
-  # Intermediate results
+FindNsSMFPsT <- function(pop.cap.hist, hist.len) {
+  # Parents of animals born in final year
+  brn.f.yr = attributes(pop.cap.hist)$f.age == 0
+  mums.of.brn.f.yr = attributes(pop.cap.hist)$mum[brn.f.yr]
+  dads.of.brn.f.yr = attributes(pop.cap.hist)$dad[brn.f.yr]
   
-  # Probability that two animals are new-born independently
-  prb.nw.brn.sq = (1 - phi / lambda)^2
-  # Probability that an animal is mature
-  prb.mtr = (lambda / phi)^alpha
-  # Phi-squared over lambda
-  ph.sq.ovr.lmd = phi^2 / lambda
-  # Each year in history except first and last
-  t.vec = 2:(hist.len - 1)
-  # Final year minus each prior year except the first
-  f.yr.m.t = hist.len - t.vec
+  # Animals alive in final year
+  alv.f.yr = attributes(pop.cap.hist)$alv.mat[, hist.len] == 1
   
-  # Same-mother pairs
-  exp.ns.SMPs.f.yr = 
-    2 * exp.N.fin * prb.nw.brn.sq * prb.mtr * ph.sq.ovr.lmd^f.yr.m.t
+  # Matrix for numbers of kin-pairs
+  SMFPs.t.mat = matrix(NA, 7, hist.len - 2)
   
-  # Same-father pairs with different ages (one always age zero)
-  exp.ns.SFPs.f.yr = exp.ns.SMPs.f.yr * phi
-  
-  # Same-father pairs with same ages (for all ages up to length of population
-  # history)
-  exp.ns.SFPs.t.t = phi^(2 * f.yr.m.t) * 
-    (exp.N.fin / lambda^(alpha + f.yr.m.t) - 1) *
-    (lambda^2 / phi)^alpha * lambda * prb.nw.brn.sq
-  
-  # Same-mother pairs between each year and final year, born in two years
-  # preceding each year
-  exp.ns.SMPs.tm2.tm1.t.f.yr = 4 * exp.N.t[t.vec] * 
-    prb.nw.brn.sq * prb.mtr * ph.sq.ovr.lmd^2 * phi^f.yr.m.t
-  
-  # Same-mother pairs between each year and final year, born in years
-  # preceding both
-  exp.ns.SMPs.tm1.f.yrm1.t.f.yr = 2 * exp.N.t[t.vec] * 
-    prb.nw.brn.sq * prb.mtr * ph.sq.ovr.lmd * phi^f.yr.m.t
-  
-  # Same-mother pairs between each year and final year, born year before each
-  # year, and all years in between each year and final year
-  exp.ns.SMPs.tm1.btwn.t.f.yr.t.f.yr = 2 * exp.N.t[t.vec] * 
-    prb.nw.brn.sq * prb.mtr * ph.sq.ovr.lmd * phi^f.yr.m.t * f.yr.m.t
-  
-  # Same-mother pairs between each year and final year, born in first year of
-  # history, and all years in between first of history and each year
-  exp.ns.SMPs.fst.yr.btwn.t.f.yr = 4 * exp.N.t[t.vec] * prb.nw.brn.sq * 
-    prb.mtr * ph.sq.ovr.lmd^(t.vec - 1) * phi^f.yr.m.t * (t.vec - 1)
+  # Loop over years between second and last in population history
+  for (t in (hist.len - 2):1) {
+    # Parents of animals born in current year
+    brn.yr.t = attributes(pop.cap.hist)$f.age == t & alv.f.yr
+    mums.of.brn.yr.t = attributes(pop.cap.hist)$mum[brn.yr.t]
+    dads.of.brn.yr.t = attributes(pop.cap.hist)$dad[brn.yr.t]
+    
+    # Same-mother pairs between animals born in current and final years (max one
+    # per mum)
+    SMFPs.t.mat[1, hist.len - 1 - t] = 
+      sum(mums.of.brn.yr.t %in% mums.of.brn.f.yr)
+    
+    # Same-father pairs between animals born in current and final years (many
+    # possible per dad)
+    max.dad.id = max(dads.of.brn.yr.t, dads.of.brn.f.yr)
+    SMFPs.t.mat[2, hist.len - 1 - t] = 
+      tabulate(dads.of.brn.yr.t, max.dad.id) %*% 
+      tabulate(dads.of.brn.f.yr, max.dad.id)
+    
+    # Same-father pairs born in the current year (many possible per dad)
+    SMFPs.t.mat[3, hist.len - 1 - t] = sum(choose(tabulate(dads.of.brn.yr.t), 2))
+      
+    # Same-mother pairs between each year in population history, and final year.  
 
-  # Combine and return
-  rbind(
-    exp.ns.SMPs.f.yr, exp.ns.SFPs.f.yr, exp.ns.SFPs.t.t, 
-    exp.ns.SMPs.tm2.tm1.t.f.yr, exp.ns.SMPs.tm1.f.yrm1.t.f.yr,
-    exp.ns.SMPs.tm1.btwn.t.f.yr.t.f.yr, exp.ns.SMPs.fst.yr.btwn.t.f.yr
-  )
+    # Both born before first year - birth years are the two years before the
+    # first year.
+    born.tm2.alv.t = attributes(pop.cap.hist)$f.age == t + 2 & 
+      attributes(pop.cap.hist)$alv.mat[, hist.len - t] == 1
+    born.tm1.alv.f.yr = attributes(pop.cap.hist)$f.age == t + 1 & alv.f.yr
+    born.tm2.alv.f.yr = attributes(pop.cap.hist)$f.age == t + 2 & alv.f.yr
+    born.tm1.alv.t = attributes(pop.cap.hist)$f.age == t + 1 & 
+      attributes(pop.cap.hist)$alv.mat[, hist.len - t] == 1
+    SMFPs.t.mat[4, hist.len - 1 - t] = 
+      sum(
+        attributes(pop.cap.hist)$mum[born.tm2.alv.t] %in% 
+          attributes(pop.cap.hist)$mum[born.tm1.alv.f.yr],
+        attributes(pop.cap.hist)$mum[born.tm2.alv.f.yr] %in% 
+          attributes(pop.cap.hist)$mum[born.tm1.alv.t]
+      )
+    
+    # One born after first year - birth years are years before first and second
+    # years.
+    born.f.yrm1.alv.f.yr = attributes(pop.cap.hist)$f.age == 1 & alv.f.yr
+    SMFPs.t.mat[5, hist.len - 1 - t] = 
+      sum(
+        attributes(pop.cap.hist)$mum[born.tm1.alv.t] %in% 
+          attributes(pop.cap.hist)$mum[born.f.yrm1.alv.f.yr]
+      )
+    
+    # One born after first year - birth years are years before first years, and
+    # all years between first and second years.  Doesn't match expression...
+    born.btwn.t.f.yr.alv.f.yr = 
+      attributes(pop.cap.hist)$f.age < t & alv.f.yr
+    SMFPs.t.mat[6, hist.len - 1 - t] = 
+      sum(
+        attributes(pop.cap.hist)$mum[born.tm1.alv.t] %in% 
+          attributes(pop.cap.hist)$mum[born.btwn.t.f.yr.alv.f.yr]
+      )
+    
+    # Both born before first year - birth years are first year in history, and
+    # all years between it and first years.  Just always gives zero...
+    born.fst.yr.alv.t = attributes(pop.cap.hist)$f.age == hist.len - 1 & 
+      attributes(pop.cap.hist)$alv.mat[, hist.len - t] == 1
+    born.aftr.fst.yr.bfr.t.alv.f.yr = 
+      attributes(pop.cap.hist)$f.age < hist.len - 1 &
+      attributes(pop.cap.hist)$f.age > t & alv.f.yr
+    born.fst.yr.alv.f.yr = 
+      attributes(pop.cap.hist)$f.age == hist.len - 1 & alv.f.yr
+    born.aftr.fst.yr.bfr.t.alv.t = 
+      attributes(pop.cap.hist)$f.age < hist.len - 1 &
+      attributes(pop.cap.hist)$f.age > t & 
+      attributes(pop.cap.hist)$alv.mat[, hist.len - t] == 1
+    SMFPs.t.mat[7, hist.len - 1 - t] = 
+      sum(
+        attributes(pop.cap.hist)$mum[born.fst.yr.alv.t] %in% 
+          attributes(pop.cap.hist)$mum[born.aftr.fst.yr.bfr.t.alv.f.yr],
+        attributes(pop.cap.hist)$mum[born.fst.yr.alv.f.yr] %in% 
+          attributes(pop.cap.hist)$mum[born.aftr.fst.yr.bfr.t.alv.t]
+      )
+  }
+  
+  SMFPs.t.mat
 }
