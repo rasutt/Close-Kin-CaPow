@@ -123,7 +123,7 @@ ui <- fluidPage(
           
           h4("Same-mother/father pairs in whole population including animals 
           born in each year in the population history"),
-          tableOutput(outputId = "nsSMFPsT"),
+          tableOutput(outputId = "nsKPsT"),
           
           h4("Kin-pair estimate errors - Whole population"),
           # plotOutput(outputId = "nsAPsWtnPop"),

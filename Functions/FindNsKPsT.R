@@ -1,6 +1,6 @@
 # Function to find numbers of same-mother/father pairs in the population
 # including animals born in each year in the population history
-FindNsSMFPsT <- function(pop.cap.hist, hist.len) {
+FindNsKPsT <- function(pop.cap.hist, hist.len) {
   # Parents of animals born in final year
   brn.f.yr = attributes(pop.cap.hist)$f.age == 0
   mums.of.brn.f.yr = attributes(pop.cap.hist)$mum[brn.f.yr]

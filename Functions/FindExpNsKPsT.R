@@ -1,6 +1,6 @@
 # Function to estimate numbers of same-mother/father pairs in the population
 # including animals born in each year in the population history
-FindExpNsSMFPsT = function(
+FindExpNsKPsT = function(
   exp.N.fin, phi, lambda, alpha, hist.len, exp.N.t
 ) {
   # Intermediate results
