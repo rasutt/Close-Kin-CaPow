@@ -248,7 +248,7 @@ output$nsKPsPopBtn = renderTable({
 
 # Table average percentage differences for whole population
 output$nsKPsProb = renderTable({
-  KPstab(n.kn.pr.prb.tps, KPs.rate.lst(), KPs.prob.lst(), kpts.prbs)
+  KPstab(n.kn.pr.prb.tps, KPs.rate.lst(), KPs.prob.lst(), kpts.prbs, T)
 })
 
 # Table average percentage differences for captured animals
@@ -269,53 +269,15 @@ output$nsKPsCapBtn = renderTable({
 # in each year in the population history
 output$nsSMFPsT = renderTable({
   # Find average values simulated
-  mean.SMFPs.t = colMeans(checks.lst()$SMFPs.t.arr)
-  
-  # Expected numbers
-  
-  # Same-mother pairs
-  exp.ns.SMPs.f.yr = 2 * exp.N.t()[hist.len()] * (1 - phi() / lambda())^2 *
-    (lambda() / phi())^alpha() * (phi()^2 / lambda())^((hist.len() - 2):1)
-  # Same-father pairs with different ages (one always age zero)
-  exp.ns.SFPs.f.yr = exp.ns.SMPs.f.yr * phi()
-  # Same-father pairs with same ages (for all ages up to length of population
-  # history)
-  exp.ns.SFPs.t.t = phi()^(2 * (hist.len() - 2):1) * 
-    (exp.N.t()[hist.len()] / lambda()^(alpha() + (hist.len() - 2):1) - 1) *
-    (lambda()^2 / phi())^alpha() * lambda() * (1 - phi() / lambda())^2
-  # Same-mother pairs between each year and final year, born in two years
-  # preceding each year
-  exp.ns.SMPs.tm2.tm1.t.f.yr = 4 * exp.N.t()[2:(hist.len() - 1)] * 
-    (1 - phi() / lambda())^2 * (lambda() / phi())^alpha() * 
-    (phi()^2 / lambda())^2 * phi()^((hist.len() - 2):1)
-  # Same-mother pairs between each year and final year, born in years
-  # preceding both
-  exp.ns.SMPs.tm1.f.yrm1.t.f.yr = 2 * exp.N.t()[2:(hist.len() - 1)] * 
-    (1 - phi() / lambda())^2 * (lambda() / phi())^alpha() * 
-    (phi()^2 / lambda()) * phi()^((hist.len() - 2):1)
-  # Same-mother pairs between each year and final year, born year before each
-  # year, and all years in between each year and final year
-  exp.ns.SMPs.tm1.btwn.t.f.yr.t.f.yr = 2 * exp.N.t()[2:(hist.len() - 1)] * 
-    (1 - phi() / lambda())^2 * (lambda() / phi())^alpha() * 
-    (phi()^2 / lambda()) * phi()^((hist.len() - 2):1) * (hist.len() - 2):1
-    
-  # Same-mother pairs between each year and final year, born in first year of
-  # history, and all years in between first of history and each year
-  exp.ns.SMPs.fst.yr.btwn.t.f.yr = 4 * exp.N.t()[2:(hist.len() - 1)] * 
-    (1 - phi() / lambda())^2 * (lambda() / phi())^alpha() * 
-    (phi()^2 / lambda())^(1:(hist.len() - 2)) * phi()^((hist.len() - 2):1) *
-    1:(hist.len() - 2)
+  mean.SMFPs.t = t(apply(checks.lst()$SMFPs.t.arr, 2:3, mean))
+
+  # Find estimated values
+  exp.SMFPs.t = FindNsSMFPsT(
+    exp.N.fin(), phi(), lambda(), alpha(), hist.len(), exp.N.t()
+  )
   
   # Combine for output
-  df = rbind(
-    mean.SMFPs.t[, 1], exp.ns.SMPs.f.yr, 
-    mean.SMFPs.t[, 2], exp.ns.SFPs.f.yr,
-    mean.SMFPs.t[, 3], exp.ns.SFPs.t.t,
-    mean.SMFPs.t[, 4], exp.ns.SMPs.tm2.tm1.t.f.yr,
-    mean.SMFPs.t[, 5], exp.ns.SMPs.tm1.f.yrm1.t.f.yr,
-    mean.SMFPs.t[, 6], exp.ns.SMPs.tm1.btwn.t.f.yr.t.f.yr,
-    mean.SMFPs.t[, 7], exp.ns.SMPs.fst.yr.btwn.t.f.yr
-  )
+  df = rbind(mean.SMFPs.t, exp.SMFPs.t)[rep(seq(1:7), each = 2) + c(0, 7), ]
   rownames(df) = c(
     "Avg(SMP{t,f.yr,f.yr})", "E(SMP{t,f.yr,f.yr})",
     "Avg(SFP{t,f.yr,f.yr})", "E(SFP{t,f.yr,f.yr})",
