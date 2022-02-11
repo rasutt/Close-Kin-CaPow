@@ -48,10 +48,10 @@ FindNsKinPairsPop = function(pop.cap.hist, s.yr.inds, k) {
     mum_tab_lst[[s.inds[1]]] %*% mum_tab_lst[[s.inds[2]]]
   }))
   
-  # Same-father pairs between survey years
-  ns.SFPs.btn.pop = as.vector(combn(1:k, 2, function(s.inds) {
-    dad_tab_lst[[s.inds[1]]] %*% dad_tab_lst[[s.inds[2]]]
-  }))
+  # # Same-father pairs between survey years
+  # ns.SFPs.btn.pop = as.vector(combn(1:k, 2, function(s.inds) {
+  #   dad_tab_lst[[s.inds[1]]] %*% dad_tab_lst[[s.inds[2]]]
+  # }))
   
   # Return as list
   list(
@@ -60,7 +60,8 @@ FindNsKinPairsPop = function(pop.cap.hist, s.yr.inds, k) {
       ns.HSPs.wtn.pop
     ),
     btn = rbind(
-      ns.APs.btn.pop, ns.SPs.btn.pop, ns.SMPs.btn.pop, ns.SFPs.btn.pop
+      ns.APs.btn.pop, ns.SPs.btn.pop, ns.SMPs.btn.pop
+      # , ns.SFPs.btn.pop
     )
   )
 }
