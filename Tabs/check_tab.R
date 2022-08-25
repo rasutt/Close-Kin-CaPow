@@ -12,7 +12,7 @@ kptps.pop.wtn = c(
   "Full-sibling pairs", "Half-sibling pairs"
 )
 kptps.pop.btn = c("All-pairs", "Self-pairs", "Same-mother pairs")
-kptps.prbs = c("Self-pair", "Same-mother pair")
+kptps.prbs = kptps.pop.btn[-1]
 kptps.cap.wtn = 
   c("Parent-offspring pairs", "Same-mother pairs", "Half-sibling pairs")
 kptps.cap.btn = c("Self-pairs", "Parent-offspring pairs")
@@ -162,24 +162,8 @@ KP_inds = c("Survey-pair", "Survey", "Survey-pair", "Survey", "Survey")
 
 # Expected/estimated numbers of kin-pairs for whole population
 exp.ns.KPs.pop.lst = reactive({
-  # Expected population sizes in survey years
-  exp.N.srvy.yrs = exp.N.t()[s.yr.inds()]
-  # Approximation for expected number of pairs of animals in survey years
-  exp.ns.APs.wtn = choose(exp.N.srvy.yrs, 2)
-  # All pairs within surveys and between pairs of surveys
-  exp.ns.APs.btn = as.vector(combn(exp.N.srvy.yrs, 2, function(x) x[1] * x[2]))
-  
-  # Kin-pair probabilities
-  kp.prbs.lst = FindExpKPProbs(
-    exp.N.srvy.yrs, exp.ns.APs.wtn, phi(), lambda(), alpha(), srvy.yrs(), k()
-  )
-
-  # Combine and return
-  list(
-    wtn = rbind(
-      exp.N.srvy.yrs, exp.ns.APs.wtn, t(t(kp.prbs.lst$wtn) * exp.ns.APs.wtn)
-    ),
-    btn = rbind(exp.ns.APs.btn, t(t(kp.prbs.lst$btn) * exp.ns.APs.btn))
+  FindExpNsKPsPop(
+    exp.N.t(), s.yr.inds(), phi(), lambda(), alpha(), srvy.yrs(), k()
   )
 })
 
@@ -201,25 +185,18 @@ probs.KPs.lst = reactive({
   )
 })
 
-# Function to table average percentage differences between simulated and
-# expected numbers of kin-pairs
-KPstab = function(n_types, ns, exp.ns, type_names, pop) {
-  diffs = numeric(n_types)
-  for (i in 1:n_types) {
-    if (pop) {
-      diffs[i] = perc(mean(t((t(ns[[i]]) - exp.ns[[i]]) / exp.ns[[i]])))
-    } else {
-      diffs[i] = perc(mean((ns[[i]] - exp.ns[[i]]) / exp.ns[[i]]))
-    }
-  }
-  df = data.frame(matrix(diffs, nrow = 1))
+# Function to find kin-pair estimator bias, average percentage differences
+# between simulated and estimated numbers of kin-pairs
+kp.est.bias = function(ns, exp.ns, type_names) {
+  rep.exp.ns = rep(t(exp.ns), each = n_sims())
+  df = data.frame(
+    matrix(perc(colMeans(ns / rep.exp.ns, dims = 2) - 1), nrow = 1)
+  )
   names(df) = type_names
   df
 }
 
-# Function to find kin-pair estimator bias, average percentage differences
-# between simulated and estimated numbers of kin-pairs
-kp.est.bias = function(ns, exp.ns, type_names) {
+kp.est.bias.cap = function(ns, exp.ns, type_names) {
   df = data.frame(matrix(perc(colMeans(ns / exp.ns, dims = 2) - 1), nrow = 1))
   names(df) = type_names
   df
@@ -232,29 +209,37 @@ kp.est.bias = function(ns, exp.ns, type_names) {
 # Within surveys
 output$nsKPsPopWtn = renderTable({
   kp.est.bias(
-    checks.lst()$ns.kps.pop.wtn.arr, 
-    rep(t(exp.ns.KPs.pop.lst()$wtn), each = n_sims()), kptps.pop.wtn
+    checks.lst()$ns.kps.pop.wtn.arr, exp.ns.KPs.pop.lst()$wtn, kptps.pop.wtn
   )
 })
 
 # Between surveys
 output$nsKPsPopBtn = renderTable({
   kp.est.bias(
-    checks.lst()$ns.kps.pop.btn.arr, 
-    rep(t(exp.ns.KPs.pop.lst()$btn), each = n_sims()), kptps.pop.btn
+    checks.lst()$ns.kps.pop.btn.arr, exp.ns.KPs.pop.lst()$btn, kptps.pop.btn
   )
 })
 
 ## Probabilities
-output$probsKPs = renderTable({
-  KPstab(n.kp.prb.tps, probs.KPs.lst(), exp.probs.KPs.lst(), kptps.prbs, T)
+
+# Between surveys
+output$probsKPsBtn = renderTable({
+  kp.est.bias(
+    checks.lst()$ns.kps.pop.btn.arr[, , -1] / 
+      array(
+        rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kp.prb.tps), 
+        c(n_sims(), n.srvy.prs(), n.kp.prb.tps)
+      ), 
+    exp.ns.KPs.pop.lst()$btn[-1, ] / exp.ns.KPs.pop.lst()$btn[1, ], 
+    kptps.prbs
+  )
 })
 
 ## Numbers among sampled animals
 
 # Within surveys
 output$nsKPsCapWtn = renderTable({
-  kp.est.bias(
+  kp.est.bias.cap(
     checks.lst()$ns.kps.cap.wtn.arr, 
     checks.lst()$exp.ns.kps.cap.wtn.arr, kptps.cap.wtn
   )
@@ -262,7 +247,7 @@ output$nsKPsCapWtn = renderTable({
 
 # Between surveys
 output$nsKPsCapBtn = renderTable({
-  kp.est.bias(
+  kp.est.bias.cap(
     checks.lst()$ns.kps.cap.btn.arr, 
     checks.lst()$exp.ns.kps.cap.btn.arr, kptps.cap.btn
   )
