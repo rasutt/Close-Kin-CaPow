@@ -1,5 +1,5 @@
 # Function to find kin-pair probabilities
-FindKPProbs = function(
+FindExpKPProbs = function(
   exp.N.srvy.yrs, exp.ns.APs.wtn, phi, lambda, alpha, srvy.yrs, k
 ) {
   # Intermediate results

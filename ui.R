@@ -65,7 +65,7 @@ ui <- fluidPage(
       actionButton(
         inputId = "simulate", label = "Simulate studies"
       ),
-      helpText("~3 seconds per 100 populations"),
+      # helpText("~3 seconds per 100 populations"),
       checkboxInput(
         inputId = "popan", label = "Popan model", value = T
       ),
@@ -96,53 +96,79 @@ ui <- fluidPage(
         tabPanel(
           title = "Check simulation",
           value = "check_tab",
-          h4("Values simulated"),
+          h2("Values simulated"),
           tableOutput(outputId = "checkParVals"),
           tableOutput(outputId = "checkSimVals"),
           
-          h4("Values observed"),
+          h2("Values observed"),
           plotOutput(outputId = "popPlot"),
-          tableOutput(outputId = "slfPrPrb"),
           textOutput(outputId = "percUnknPrnts"),
           
-          h2("Kin-pair estimator bias"),
-          h3("Numbers among population"),
-          h4("Within survey years"),
+          h2("Kin-pair estimator biases"),
+          
+          h3("Numbers in whole population"),
+          
+          h4("Within surveys"),
           tableOutput(outputId = "nsKPsPopWtn"),
-          h4("Between survey years"),
+          
+          h4("Between surveys"),
           tableOutput(outputId = "nsKPsPopBtn"),
           
-          h3("Probabilies"),
-          tableOutput(outputId = "nsKPsProb"),
+          h3("Probabilities"),
+          
+          h4("Between surveys"),
+          tableOutput(outputId = "probsKPs"),
           
           h3("Numbers among sampled animals"),
-          h4("Within survey years"),
+          
+          h4("Within surveys"),
           tableOutput(outputId = "nsKPsCapWtn"),
-          h4("Between survey years"),
+          
+          h4("Between surveys"),
           tableOutput(outputId = "nsKPsCapBtn"),
           
-          h4("Same-mother/father pairs in whole population including animals 
-          born in each year in the population history"),
-          tableOutput(outputId = "nsKPsT"),
+          # h2("Temporal estimates vs observed averages"),
+          # 
+          # h4("Same-mother/father pairs in whole population including animals 
+          # born in each year in the population history"),
+          # tableOutput(outputId = "nsKPsTemp"),
           
-          h4("Kin-pair estimate errors - Whole population"),
+          # h2("Kin-pair estimator error distributions"),
+          # 
+          # h3("Numbers in whole population"),
+          # 
+          # h4("Within surveys"),
           # plotOutput(outputId = "nsAPsWtnPop"),
-          # plotOutput(outputId = "nsAPsBtnPop"),
-          # plotOutput(outputId = "nsSPsBtnPop"),
           # plotOutput(outputId = "nsSMPsWtnPop"),
           # plotOutput(outputId = "nsSFPsWtnPop"),
+          # 
+          # h4("Between surveys"),
+          # plotOutput(outputId = "nsAPsBtnPop"),
+          # plotOutput(outputId = "nsSPsBtnPop"),
           # plotOutput(outputId = "nsSMPsBtnPop"),
-          h4("Kin-pair probability errors"),
-          # plotOutput(outputId = "probSPsBtnPop"),
+          # 
+          # h3("Probabilities"),
+          # 
+          # h4("Within surveys"),
           # plotOutput(outputId = "probSMPsWtnPop"),
-          h4("Kin-pair estimate errors - Captured animals"),
-          # plotOutput(outputId = "nsSPsBtn"),
+          # 
+          # h4("Between surveys"),
+          # plotOutput(outputId = "probSPsBtnPop"),
+          # 
+          # h3("Numbers among sampled animals"),
+          # 
+          # h4("Within surveys"),
           # plotOutput(outputId = "nsPOPsWtn"),
-          # plotOutput(outputId = "nsPOPsBtn"),
           # plotOutput(outputId = "nsSMPsWtn"),
           # plotOutput(outputId = "nsHSPsWtn"),
+          # 
+          # h4("Between surveys"),
+          # plotOutput(outputId = "nsSPsBtn"),
+          # plotOutput(outputId = "nsPOPsBtn"),
+          
           h4("Head of first life-histories table"),
           tableOutput(outputId = "alive"),
+          
           h4("Head of first dataset"),
           tableOutput(outputId = "dataHead")
         ), 

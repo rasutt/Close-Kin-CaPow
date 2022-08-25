@@ -2,6 +2,7 @@
 output$checkParVals <- renderTable({
   par_vals_df(sim.par.vals(), sim.par.names())
 }, digits = 3)
+
 # Display simulation values
 output$checkSimVals = renderTable(sim.vals())
 
@@ -141,18 +142,6 @@ output$popPlot <- renderPlot({
   )
 })
 
-# Table simulated versus expected self-pair probability
-output$slfPrPrb = renderTable({
-  spr = mean(checks.lst()$ns.KPs.pop.lst$ns.SPs.btn.pop.mat /
-               checks.lst()$ns.KPs.pop.lst$ns.APs.btn.pop.mat)
-  exp_spr = mean(exp.ns.KPs.pop.lst()$exp.ns.SPs.btn /
-                   exp.ns.KPs.pop.lst()$exp.ns.APs.btn)
-  df = data.frame(c(spr, exp_spr))
-  names(df) = c("Self-pair rate")
-  rownames(df) = c("Average simulated", "Average Expected")
-  df
-}, rownames = T, digits = 6)
-
 # Checks for numbers of kin-pairs
 
 # Show percentage of animals captured for which the parents are unknown
@@ -181,7 +170,7 @@ exp.ns.KPs.pop.lst = reactive({
   exp.ns.APs.btn = as.vector(combn(exp.N.srvy.yrs, 2, function(x) x[1] * x[2]))
   
   # Kin-pair probabilities
-  kp.prbs.lst = FindKPProbs(
+  kp.prbs.lst = FindExpKPProbs(
     exp.N.srvy.yrs, exp.ns.APs.wtn, phi(), lambda(), alpha(), srvy.yrs(), k()
   )
 
@@ -194,23 +183,21 @@ exp.ns.KPs.pop.lst = reactive({
   )
 })
 
-# Kin-pair probabilities
-KPs.prob.lst = reactive({
+# Kin-pair probability estimates
+exp.probs.KPs.lst = reactive({
   list(
-    SPs.btn = exp.ns.KPs.pop.lst()$exp.ns.SPs.btn / 
-      exp.ns.KPs.pop.lst()$exp.ns.APs.btn,
-    SMPs.wtn = exp.ns.KPs.pop.lst()$exp.ns.SMPs.wtn / 
-      exp.ns.KPs.pop.lst()$exp.ns.APs.wtn
+    SPs.btn = exp.ns.KPs.pop.lst()$btn[2, ] / exp.ns.KPs.pop.lst()$btn[1, ],
+    SMPs.wtn = exp.ns.KPs.pop.lst()$btn[3, ] / exp.ns.KPs.pop.lst()$btn[1, ]
   )
 })
 
-# Kin-pair rates observed
-KPs.rate.lst = reactive({
+# Kin-pair probabilities observed
+probs.KPs.lst = reactive({
   list(
-    SPs.btn = checks.lst()$ns.KPs.pop.lst$ns.SPs.btn.pop.mat / 
-      checks.lst()$ns.KPs.pop.lst$ns.APs.btn.pop.mat,
-    SMPs.wtn = checks.lst()$ns.KPs.pop.lst$ns.SMPs.wtn.pop.mat / 
-      checks.lst()$ns.KPs.pop.lst$ns.APs.wtn.pop.mat
+    SPs.btn = checks.lst()$ns.kps.pop.btn.arr[, , 2] / 
+      checks.lst()$ns.kps.pop.btn.arr[, , 1],
+    SMPs.wtn = checks.lst()$ns.kps.pop.btn.arr[, , 3] / 
+      checks.lst()$ns.kps.pop.btn.arr[, , 1]
   )
 })
 
@@ -238,13 +225,19 @@ kp.est.bias = function(ns, exp.ns, type_names) {
   df
 }
 
-# Table average percentage differences for whole population
+### Kin-pair estimator biases (tables of average percentage differences)
+
+## Numbers in whole population
+
+# Within surveys
 output$nsKPsPopWtn = renderTable({
   kp.est.bias(
     checks.lst()$ns.kps.pop.wtn.arr, 
     rep(t(exp.ns.KPs.pop.lst()$wtn), each = n_sims()), kptps.pop.wtn
   )
 })
+
+# Between surveys
 output$nsKPsPopBtn = renderTable({
   kp.est.bias(
     checks.lst()$ns.kps.pop.btn.arr, 
@@ -252,18 +245,22 @@ output$nsKPsPopBtn = renderTable({
   )
 })
 
-# Table average percentage differences for whole population
-output$nsKPsProb = renderTable({
-  KPstab(n.kp.prb.tps, KPs.rate.lst(), KPs.prob.lst(), kptps.prbs, T)
+## Probabilities
+output$probsKPs = renderTable({
+  KPstab(n.kp.prb.tps, probs.KPs.lst(), exp.probs.KPs.lst(), kptps.prbs, T)
 })
 
-# Table average percentage differences for captured animals
+## Numbers among sampled animals
+
+# Within surveys
 output$nsKPsCapWtn = renderTable({
   kp.est.bias(
     checks.lst()$ns.kps.cap.wtn.arr, 
     checks.lst()$exp.ns.kps.cap.wtn.arr, kptps.cap.wtn
   )
 })
+
+# Between surveys
 output$nsKPsCapBtn = renderTable({
   kp.est.bias(
     checks.lst()$ns.kps.cap.btn.arr, 
@@ -271,26 +268,28 @@ output$nsKPsCapBtn = renderTable({
   )
 })
 
-# Numbers of same-mother/father pairs in the population including animals born
-# in each year in the population history
-output$nsKPsT = renderTable({
-  # Find average values simulated
-  mean.kps.t = t(apply(checks.lst()$kps.t.arr, 2:3, mean))
-
-  # Find estimated values
-  exp.kps.t = FindExpNsKPsT(
-    exp.N.fin(), phi(), lambda(), alpha(), hist.len(), exp.N.t()
-  )
-  
-  # Combine for output
-  df = rbind(mean.kps.t, exp.kps.t)
-  rownames(df) = paste0(
-    rep(c("Avg", "Exp"), each = n.kp.t.tps),
-    rep(kp.t.tps, 2)
-  )
-  colnames(df) = (f.year() - hist.len() + 2):(f.year() - 1)
-  df[rep(seq(1:n.kp.t.tps), each = 2) + c(0, n.kp.t.tps), ]
-}, rownames = T, digits = 1)
+# # Temporal estimates vs observed averages (mainly for debugging)
+# 
+# # Numbers of same-mother/father pairs in the population including animals born
+# # in each year in the population history
+# output$nsKPsTemp = renderTable({
+#   # Find average values simulated
+#   mean.kps.t = t(apply(checks.lst()$kps.t.arr, 2:3, mean))
+# 
+#   # Find estimated values
+#   exp.kps.t = FindExpNsKPsT(
+#     exp.N.fin(), phi(), lambda(), alpha(), hist.len(), exp.N.t()
+#   )
+#   
+#   # Combine for output
+#   df = rbind(mean.kps.t, exp.kps.t)
+#   rownames(df) = paste0(
+#     rep(c("Avg", "Exp"), each = n.kp.t.tps),
+#     rep(kp.t.tps, 2)
+#   )
+#   colnames(df) = (f.year() - hist.len() + 2):(f.year() - 1)
+#   df[rep(seq(1:n.kp.t.tps), each = 2) + c(0, n.kp.t.tps), ]
+# }, rownames = T, digits = 1)
 
 # Function to plot simulated versus expected numbers of kin-pairs for one type
 # of kin-pair
@@ -307,7 +306,7 @@ nsKPsPlot = function(i, pop = F, prob = F) {
   }
   if (prob) {
     diffs = 
-      t(t(KPs.rate.lst()[[i]]) / KPs.prob.lst()[[i]] - 1)
+      t(t(probs.KPs.lst()[[i]]) / exp.probs.KPs.lst()[[i]] - 1)
     xlab = KP_prob_inds[i]
     main = KP_prob_names[i]
   }

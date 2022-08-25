@@ -1,6 +1,6 @@
 ### Things to do
 
--   It would be good to make a file that explains what the different files and folders are for and how the app works.
+-   It would be good to make a file that explains what the different files and folders are for and how the app works. The readme would be the right place for that info.
 
 -   The derivation of the expected number of full-sibling pairs skips some steps. It would be good to fill them in. The whole derivation for half-sibling pairs can probably be tidied up and simplified quite a bit by treating the same-mother pairs in the same way as same-father pairs with different birth years, in terms of expected numbers being equivalent to birth rate.
 
