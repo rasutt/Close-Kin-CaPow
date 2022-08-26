@@ -116,6 +116,9 @@ ui <- fluidPage(
           
           h3("Probabilities"),
           
+          h4("Within surveys"),
+          tableOutput(outputId = "probsKPsWtn"),
+          
           h4("Between surveys"),
           tableOutput(outputId = "probsKPsBtn"),
           

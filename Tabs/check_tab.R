@@ -12,7 +12,8 @@ kptps.pop.wtn = c(
   "Full-sibling pairs", "Half-sibling pairs"
 )
 kptps.pop.btn = c("All-pairs", "Self-pairs", "Same-mother pairs")
-kptps.prbs = kptps.pop.btn[-1]
+kptps.prbs.wtn = kptps.pop.wtn[-1:-2]
+kptps.prbs.btn = kptps.pop.btn[-1]
 kptps.cap.wtn = 
   c("Parent-offspring pairs", "Same-mother pairs", "Half-sibling pairs")
 kptps.cap.btn = c("Self-pairs", "Parent-offspring pairs")
@@ -27,7 +28,8 @@ n.kptps.pop.wtn = length(kptps.pop.wtn)
 n.kptps.pop.btn = length(kptps.pop.btn)
 n.kptps.cap.wtn = length(kptps.cap.wtn)
 n.kptps.cap.btn = length(kptps.cap.btn)
-n.kp.prb.tps = length(kptps.prbs)
+n.kptps.prb.wtn = length(kptps.prbs.wtn)
+n.kptps.prb.btn = length(kptps.prbs.btn)
 n.kp.t.tps = length(kp.t.tps)
 
 # Calculate checks for simulated studies
@@ -185,24 +187,19 @@ probs.KPs.lst = reactive({
   )
 })
 
-# Function to find kin-pair estimator bias, average percentage differences
-# between simulated and estimated numbers of kin-pairs
-kp.est.bias = function(ns, exp.ns, type_names) {
-  rep.exp.ns = rep(t(exp.ns), each = n_sims())
+### Kin-pair estimator biases (tables of average percentage differences)
+
+## Function to find them from true and expected values
+kp.est.bias = function(vals, exp.vals, type_names, cap = F) {
+  # For the sampled animals the expected values are different for each study but
+  # otherwise they are repeated
+  if (!cap) exp.vals = rep(t(exp.vals), each = n_sims())
   df = data.frame(
-    matrix(perc(colMeans(ns / rep.exp.ns, dims = 2) - 1), nrow = 1)
+    matrix(perc(colMeans(vals / exp.vals, dims = 2) - 1), nrow = 1)
   )
   names(df) = type_names
   df
 }
-
-kp.est.bias.cap = function(ns, exp.ns, type_names) {
-  df = data.frame(matrix(perc(colMeans(ns / exp.ns, dims = 2) - 1), nrow = 1))
-  names(df) = type_names
-  df
-}
-
-### Kin-pair estimator biases (tables of average percentage differences)
 
 ## Numbers in whole population
 
@@ -220,18 +217,31 @@ output$nsKPsPopBtn = renderTable({
   )
 })
 
-## Probabilities
+## Probabilities (numbers divided by total number of pairs)
+
+# Within surveys
+output$probsKPsWtn = renderTable({
+  kp.est.bias(
+    checks.lst()$ns.kps.pop.wtn.arr[, , -1:-2] / 
+      array(
+        rep(checks.lst()$ns.kps.pop.wtn.arr[, , 2], n.kptps.prb.wtn), 
+        c(n_sims(), n.srvy.prs(), n.kptps.prb.wtn)
+      ), 
+    exp.ns.KPs.pop.lst()$wtn[-1:-2, ] / exp.ns.KPs.pop.lst()$wtn[2, ], 
+    kptps.prbs.wtn
+  )
+})
 
 # Between surveys
 output$probsKPsBtn = renderTable({
   kp.est.bias(
     checks.lst()$ns.kps.pop.btn.arr[, , -1] / 
       array(
-        rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kp.prb.tps), 
-        c(n_sims(), n.srvy.prs(), n.kp.prb.tps)
+        rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kptps.prb.btn), 
+        c(n_sims(), n.srvy.prs(), n.kptps.prb.btn)
       ), 
     exp.ns.KPs.pop.lst()$btn[-1, ] / exp.ns.KPs.pop.lst()$btn[1, ], 
-    kptps.prbs
+    kptps.prbs.btn
   )
 })
 
@@ -239,17 +249,19 @@ output$probsKPsBtn = renderTable({
 
 # Within surveys
 output$nsKPsCapWtn = renderTable({
-  kp.est.bias.cap(
+  kp.est.bias(
     checks.lst()$ns.kps.cap.wtn.arr, 
-    checks.lst()$exp.ns.kps.cap.wtn.arr, kptps.cap.wtn
+    checks.lst()$exp.ns.kps.cap.wtn.arr, kptps.cap.wtn,
+    cap = T
   )
 })
 
 # Between surveys
 output$nsKPsCapBtn = renderTable({
-  kp.est.bias.cap(
+  kp.est.bias(
     checks.lst()$ns.kps.cap.btn.arr, 
-    checks.lst()$exp.ns.kps.cap.btn.arr, kptps.cap.btn
+    checks.lst()$exp.ns.kps.cap.btn.arr, kptps.cap.btn,
+    cap = T
   )
 })
 
