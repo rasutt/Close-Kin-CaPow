@@ -53,10 +53,10 @@ FindExpNsKPsPop = function(
   
   # Return as list
   list(
-    wtn = rbind(
+    wtn = cbind(
       exp.N.srvy.yrs, exp.ns.APs.wtn, exp.ns.SMPs.wtn, exp.ns.SFPs.wtn, 
       exp.ns.FSPs.wtn, exp.ns.HSPs.wtn
     ),
-    btn = rbind(exp.ns.APs.btn, exp.ns.SPs.btn, exp.ns.SMPs.btn)
+    btn = cbind(exp.ns.APs.btn, exp.ns.SPs.btn, exp.ns.SMPs.btn)
   )
 }

@@ -76,22 +76,22 @@ checks.lst = reactive({
       ns.kps.pop.wtn.arr[hist.ind, , -1] = t(ns.kps.pop.lst$wtn)
       ns.kps.pop.btn.arr[hist.ind, , ] = t(ns.kps.pop.lst$btn)
       
-      # Find numbers of kin pairs among samples
-      ns.kps.cap.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
-      ns.kps.cap.wtn.arr[hist.ind, , ] = t(ns.kps.cap.lst$wtn)
-      ns.kps.cap.btn.arr[hist.ind, , ] = t(ns.kps.cap.lst$btn)
-      
-      # Find expected numbers of kin pairs among samples
-      exp.ns.kps.cap.lst <- FindExpNsKPs(
-        k(), n.srvy.prs(), exp.N.fin(), lambda(), f.year(), srvy.yrs(), phi(), 
-        rho(), ns.caps, alpha()
-      )
-      exp.ns.kps.cap.wtn.arr[hist.ind, , ] = t(exp.ns.kps.cap.lst$wtn)
-      exp.ns.kps.cap.btn.arr[hist.ind, , ] = t(exp.ns.kps.cap.lst$btn)
+      # # Find numbers of kin pairs among samples
+      # ns.kps.cap.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
+      # ns.kps.cap.wtn.arr[hist.ind, , ] = t(ns.kps.cap.lst$wtn)
+      # ns.kps.cap.btn.arr[hist.ind, , ] = t(ns.kps.cap.lst$btn)
+      # 
+      # # Find expected numbers of kin pairs among samples
+      # exp.ns.kps.cap.lst <- FindExpNsKPs(
+      #   k(), n.srvy.prs(), exp.N.fin(), lambda(), f.year(), srvy.yrs(), phi(), 
+      #   rho(), ns.caps, alpha()
+      # )
+      # exp.ns.kps.cap.wtn.arr[hist.ind, , ] = t(exp.ns.kps.cap.lst$wtn)
+      # exp.ns.kps.cap.btn.arr[hist.ind, , ] = t(exp.ns.kps.cap.lst$btn)
 
       # Find numbers of same-mother/father pairs in the population including
       # animals born in each year in the population history
-      ns.kps.t.arr[hist.ind, , ] = t(FindNsKPsT(pop.cap.hist, hist.len()))
+      # ns.kps.t.arr[hist.ind, , ] = t(FindNsKPsT(pop.cap.hist, hist.len()))
 
       # Increment progress-bar
       incProgress(1/n_sims())
@@ -107,12 +107,12 @@ checks.lst = reactive({
     prpn.prnts.unkn.vec = prpn.prnts.unkn.vec,
     # ns.caps.mat = ns.caps.mat,
     ns.kps.pop.wtn.arr = ns.kps.pop.wtn.arr,
-    ns.kps.pop.btn.arr = ns.kps.pop.btn.arr,
-    ns.kps.cap.wtn.arr = ns.kps.cap.wtn.arr,
-    ns.kps.cap.btn.arr = ns.kps.cap.btn.arr,
-    exp.ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr,
-    exp.ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr,
-    kps.t.arr = ns.kps.t.arr
+    ns.kps.pop.btn.arr = ns.kps.pop.btn.arr
+    # ns.kps.cap.wtn.arr = ns.kps.cap.wtn.arr,
+    # ns.kps.cap.btn.arr = ns.kps.cap.btn.arr,
+    # exp.ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr,
+    # exp.ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr,
+    # kps.t.arr = ns.kps.t.arr
   )
 })
 
@@ -193,7 +193,7 @@ probs.KPs.lst = reactive({
 kp.est.bias = function(vals, exp.vals, type_names, cap = F) {
   # For the sampled animals the expected values are different for each study but
   # otherwise they are repeated
-  if (!cap) exp.vals = rep(t(exp.vals), each = n_sims())
+  if (!cap) exp.vals = rep(exp.vals, each = n_sims())
   df = data.frame(
     matrix(perc(colMeans(vals / exp.vals, dims = 2) - 1), nrow = 1)
   )
@@ -217,7 +217,7 @@ output$nsKPsPopBtn = renderTable({
   )
 })
 
-## Probabilities (numbers divided by total number of pairs)
+## Probabilities (numbers divided by total numbers of pairs)
 
 # Within surveys
 output$probsKPsWtn = renderTable({
@@ -225,9 +225,9 @@ output$probsKPsWtn = renderTable({
     checks.lst()$ns.kps.pop.wtn.arr[, , -1:-2] / 
       array(
         rep(checks.lst()$ns.kps.pop.wtn.arr[, , 2], n.kptps.prb.wtn), 
-        c(n_sims(), n.srvy.prs(), n.kptps.prb.wtn)
+        c(n_sims(), k(), n.kptps.prb.wtn)
       ), 
-    exp.ns.KPs.pop.lst()$wtn[-1:-2, ] / exp.ns.KPs.pop.lst()$wtn[2, ], 
+    exp.ns.KPs.pop.lst()$wtn[, -1:-2] / exp.ns.KPs.pop.lst()$wtn[, 2], 
     kptps.prbs.wtn
   )
 })
@@ -240,30 +240,30 @@ output$probsKPsBtn = renderTable({
         rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kptps.prb.btn), 
         c(n_sims(), n.srvy.prs(), n.kptps.prb.btn)
       ), 
-    exp.ns.KPs.pop.lst()$btn[-1, ] / exp.ns.KPs.pop.lst()$btn[1, ], 
+    exp.ns.KPs.pop.lst()$btn[, -1] / exp.ns.KPs.pop.lst()$btn[, 1], 
     kptps.prbs.btn
   )
 })
 
-## Numbers among sampled animals
-
-# Within surveys
-output$nsKPsCapWtn = renderTable({
-  kp.est.bias(
-    checks.lst()$ns.kps.cap.wtn.arr, 
-    checks.lst()$exp.ns.kps.cap.wtn.arr, kptps.cap.wtn,
-    cap = T
-  )
-})
-
-# Between surveys
-output$nsKPsCapBtn = renderTable({
-  kp.est.bias(
-    checks.lst()$ns.kps.cap.btn.arr, 
-    checks.lst()$exp.ns.kps.cap.btn.arr, kptps.cap.btn,
-    cap = T
-  )
-})
+# ## Numbers among sampled animals
+# 
+# # Within surveys
+# output$nsKPsCapWtn = renderTable({
+#   kp.est.bias(
+#     checks.lst()$ns.kps.cap.wtn.arr, 
+#     checks.lst()$exp.ns.kps.cap.wtn.arr, kptps.cap.wtn,
+#     cap = T
+#   )
+# })
+# 
+# # Between surveys
+# output$nsKPsCapBtn = renderTable({
+#   kp.est.bias(
+#     checks.lst()$ns.kps.cap.btn.arr, 
+#     checks.lst()$exp.ns.kps.cap.btn.arr, kptps.cap.btn,
+#     cap = T
+#   )
+# })
 
 # # Temporal estimates vs observed averages (mainly for debugging)
 # 
