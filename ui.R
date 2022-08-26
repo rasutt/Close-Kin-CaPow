@@ -109,26 +109,26 @@ ui <- fluidPage(
           h3("Numbers in whole population"),
           
           h4("Within surveys"),
-          tableOutput(outputId = "nsKPsPopWtn"),
+          tableOutput(outputId = "biasNsKPsPopWtn"),
           
           h4("Between surveys"),
-          tableOutput(outputId = "nsKPsPopBtn"),
+          tableOutput(outputId = "biasNsKPsPopBtn"),
           
           h3("Probabilities"),
           
           h4("Within surveys"),
-          tableOutput(outputId = "probsKPsWtn"),
+          tableOutput(outputId = "biasProbsKPsWtn"),
           
           h4("Between surveys"),
-          tableOutput(outputId = "probsKPsBtn"),
+          tableOutput(outputId = "biasProbsKPsBtn"),
           
           h3("Numbers among sampled animals"),
           
           h4("Within surveys"),
-          tableOutput(outputId = "nsKPsCapWtn"),
+          # tableOutput(outputId = "biasNsKPsCapWtn"),
           
           h4("Between surveys"),
-          tableOutput(outputId = "nsKPsCapBtn"),
+          # tableOutput(outputId = "biasNsKPsCapBtn"),
           
           # h2("Temporal estimates vs observed averages"),
           # 
@@ -169,11 +169,19 @@ ui <- fluidPage(
           # plotOutput(outputId = "nsSPsBtn"),
           # plotOutput(outputId = "nsPOPsBtn"),
           
-          h4("Head of first life-histories table"),
-          tableOutput(outputId = "alive"),
+          h2("First study simulated"),
+
+          h3("First life-histories"),
+          tableOutput(outputId = "firstLifeHists"),
           
-          h4("Head of first dataset"),
-          tableOutput(outputId = "dataHead")
+          h3("First sample-histories"),
+          tableOutput(outputId = "firstSampHists"),
+        
+          h3("Numbers of kin-pairs"),
+          h4("Within surveys"),
+          tableOutput(outputId = "firstNsKPsPopWtn"),
+          h4("Between surveys"),
+          tableOutput(outputId = "firstNsKPsPopBtn")
         ), 
         # ----
         # Model tab ----

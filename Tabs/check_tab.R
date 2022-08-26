@@ -1,5 +1,5 @@
 # Display parameter values
-output$checkParVals <- renderTable({
+output$checkParVals = renderTable({
   par_vals_df(sim.par.vals(), sim.par.names())
 }, digits = 3)
 
@@ -7,69 +7,71 @@ output$checkParVals <- renderTable({
 output$checkSimVals = renderTable(sim.vals())
 
 # Types of kin-pairs to be displayed
-kptps.pop.wtn = c(
-  "Population sizes", "All-pairs", "Same-mother pairs", "Same-father pairs",
-  "Full-sibling pairs", "Half-sibling pairs"
+kp.tps = c(
+  "Population sizes", "All-pairs", "Self-pairs", "Parent-offspring pairs", 
+  "Same-mother pairs", "Same-father pairs", "Full-sibling pairs", 
+  "Half-sibling pairs"
 )
-kptps.pop.btn = c("All-pairs", "Self-pairs", "Same-mother pairs")
-kptps.prbs.wtn = kptps.pop.wtn[-1:-2]
-kptps.prbs.btn = kptps.pop.btn[-1]
-kptps.cap.wtn = 
-  c("Parent-offspring pairs", "Same-mother pairs", "Half-sibling pairs")
-kptps.cap.btn = c("Self-pairs", "Parent-offspring pairs")
-kp.t.tps = c(
+kp.tps.pop.wtn = kp.tps[c(1:2, 5:8)]
+kp.tps.pop.btn = kp.tps[c(2:3, 5)]
+kp.tps.prbs.wtn = kp.tps[5:8]
+kp.tps.prbs.btn = kp.tps[c(3, 5)]
+kp.tps.cap.wtn = kp.tps[c(4:5, 8)]
+kp.tps.cap.btn = kp.tps[3:4]
+
+kp.tps.t = c(
   "SMP{t,f.yr,f.yr}", "SFP{t,f.yr,f.yr}", "SFP{t,t,f.yr}", 
   "SMP{t,f.yr,tm2,tm1}", "SMP{t,f.yr,tm1,f.yrm1}",
   "SMP{t,f.yr,tm1,btwn.t.f.yr}", "SMP{t,f.yr,fst.yr,btwn}"
 )
 
 # Numbers of types of kin-pairs
-n.kptps.pop.wtn = length(kptps.pop.wtn)
-n.kptps.pop.btn = length(kptps.pop.btn)
-n.kptps.cap.wtn = length(kptps.cap.wtn)
-n.kptps.cap.btn = length(kptps.cap.btn)
-n.kptps.prb.wtn = length(kptps.prbs.wtn)
-n.kptps.prb.btn = length(kptps.prbs.btn)
-n.kp.t.tps = length(kp.t.tps)
+n.kp.tps.pop.wtn = length(kp.tps.pop.wtn)
+n.kp.tps.pop.btn = length(kp.tps.pop.btn)
+n.kp.tps.cap.wtn = length(kp.tps.cap.wtn)
+n.kp.tps.cap.btn = length(kp.tps.cap.btn)
+n.kp.tps.prb.wtn = length(kp.tps.prbs.wtn)
+n.kp.tps.prb.btn = length(kp.tps.prbs.btn)
+n.kp.tps.t = length(kp.tps.t)
 
 # Calculate checks for simulated studies
 checks.lst = reactive({
   # Objects to store results
-  N.t.mat <- matrix(nrow = n_sims(), ncol = hist.len())
-  ns.kps.t.arr = array(dim = c(n_sims(), hist.len() - 2, n.kp.t.tps))
-  # ns.caps.mat <- ns.clvng.caps.mat <- ns.clvng.mat <- 
+  N.t.mat = matrix(nrow = n_sims(), ncol = hist.len())
+  ns.kps.t.arr = array(dim = c(n_sims(), hist.len() - 2, n.kp.tps.t))
+  # ns.caps.mat = ns.clvng.caps.mat = ns.clvng.mat = 
   #   matrix(nrow = n_sims(), ncol = k())
-  ns.kps.pop.wtn.arr <- array(dim = c(n_sims(), k(), n.kptps.pop.wtn))
-  ns.kps.pop.btn.arr <- array(dim = c(n_sims(), n.srvy.prs(), n.kptps.pop.btn))
-  ns.kps.cap.wtn.arr <- exp.ns.kps.cap.wtn.arr <- 
-    array(dim = c(n_sims(), k(), n.kptps.cap.wtn))
-  ns.kps.cap.btn.arr <- exp.ns.kps.cap.btn.arr <- 
-    array(dim = c(n_sims(), n.srvy.prs(), n.kptps.cap.btn))
-  prpn.prnts.unkn.vec <- Ns.vec <- numeric(n_sims())
+  ns.kps.pop.wtn.arr = array(dim = c(n_sims(), k(), n.kp.tps.pop.wtn))
+  ns.kps.pop.btn.arr = array(dim = c(n_sims(), n.srvy.prs(), n.kp.tps.pop.btn))
+  ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr = 
+    array(dim = c(n_sims(), k(), n.kp.tps.cap.wtn))
+  ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr = 
+    array(dim = c(n_sims(), n.srvy.prs(), n.kp.tps.cap.btn))
+  prpn.prnts.unkn.vec = Ns.vec = numeric(n_sims())
   
   # Loop over histories
   withProgress({
     for (hist.ind in 1:n_sims()) {
       # Get simulated family and capture histories of population of animals
       # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
+      pop.cap.hist = sim.lst()$hists.lst[[hist.ind]]
       
       # Record population curve
-      N.t.mat[hist.ind, ] <- attributes(pop.cap.hist)$N.t.vec
+      N.t.mat[hist.ind, ] = attributes(pop.cap.hist)$N.t.vec
       
       # Record super-population size
-      Ns.vec[hist.ind] <- attributes(pop.cap.hist)$Ns
+      Ns.vec[hist.ind] = attributes(pop.cap.hist)$Ns
       
       # Get numbers captured and calving in each survey
-      ns.caps <- attributes(pop.cap.hist)$ns.caps
-      # ns.caps.mat[hist.ind, ] <- ns.caps
-      # ns.clvng.mat[hist.ind, ] <- attributes(pop.cap.hist)$ns.clvng
-      # ns.clvng.caps.mat[hist.ind, ] <- colSums(
+      ns.caps = attributes(pop.cap.hist)$ns.caps
+      # ns.caps.mat[hist.ind, ] = ns.caps
+      # ns.clvng.mat[hist.ind, ] = attributes(pop.cap.hist)$ns.clvng
+      # ns.clvng.caps.mat[hist.ind, ] = colSums(
       #   pop.cap.hist[, 4:(3 + k())] * pop.cap.hist[, (4 + k()):(3 + 2 * k())]
       # )
       
       # Find proportion captured with unknown parents
-      prpn.prnts.unkn.vec[hist.ind] <- mean(is.na(pop.cap.hist$mum))
+      prpn.prnts.unkn.vec[hist.ind] = mean(is.na(pop.cap.hist$mum))
       
       # Numbers of kin-pairs in whole population
       ns.kps.pop.lst = FindNsKinPairsPop(pop.cap.hist, s.yr.inds(), k())
@@ -77,12 +79,12 @@ checks.lst = reactive({
       ns.kps.pop.btn.arr[hist.ind, , ] = t(ns.kps.pop.lst$btn)
       
       # # Find numbers of kin pairs among samples
-      # ns.kps.cap.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
+      # ns.kps.cap.lst = FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
       # ns.kps.cap.wtn.arr[hist.ind, , ] = t(ns.kps.cap.lst$wtn)
       # ns.kps.cap.btn.arr[hist.ind, , ] = t(ns.kps.cap.lst$btn)
       # 
       # # Find expected numbers of kin pairs among samples
-      # exp.ns.kps.cap.lst <- FindExpNsKPs(
+      # exp.ns.kps.cap.lst = FindExpNsKPs(
       #   k(), n.srvy.prs(), exp.N.fin(), lambda(), f.year(), srvy.yrs(), phi(), 
       #   rho(), ns.caps, alpha()
       # )
@@ -119,7 +121,7 @@ checks.lst = reactive({
 # Show check results
 
 # Plot population sizes over time
-output$popPlot <- renderPlot({
+output$popPlot = renderPlot({
   # Plot population trajectories
   matplot(
     (f.year() - hist.len() + 1):f.year(), t(checks.lst()$N.t.mat), type = 'l',
@@ -147,20 +149,12 @@ output$popPlot <- renderPlot({
 # Checks for numbers of kin-pairs
 
 # Show percentage of animals captured for which the parents are unknown
-output$percUnknPrnts <- renderText({
+output$percUnknPrnts = renderText({
   paste0(
     "Percentage of captured animals with unknown parents: ", 
     round(mean(checks.lst()$prpn.prnts.unkn.vec) * 100, 1), "%"
   )
 })
-
-# Indices for types of kin-pairs
-KP_pop_inds = c(
-  "Survey", "Survey", "Survey-pair", "Survey-pair", "Survey", "Survey", 
-  "Survey", "Survey", "Survey-pair"
-)
-KP_prob_inds = c("Survey-pair", "Survey")
-KP_inds = c("Survey-pair", "Survey", "Survey-pair", "Survey", "Survey")
 
 # Expected/estimated numbers of kin-pairs for whole population
 exp.ns.KPs.pop.lst = reactive({
@@ -168,6 +162,109 @@ exp.ns.KPs.pop.lst = reactive({
     exp.N.t(), s.yr.inds(), phi(), lambda(), alpha(), srvy.yrs(), k()
   )
 })
+
+### Kin-pair estimator biases (tables of average percentage differences)
+
+## Function to find them from true and expected values
+kp.est.bias = function(vals, exp.vals, type_names, samp = F) {
+  # For the sampled animals the expected values are different for each study but
+  # otherwise they are repeated
+  if (!samp) exp.vals = rep(exp.vals, each = n_sims())
+  df = data.frame(
+    matrix(perc(colMeans(vals / exp.vals, dims = 2) - 1), nrow = 1)
+  )
+  names(df) = type_names
+  df
+}
+
+## Numbers in whole population
+
+# Within surveys
+output$biasNsKPsPopWtn = renderTable({
+  kp.est.bias(
+    checks.lst()$ns.kps.pop.wtn.arr, exp.ns.KPs.pop.lst()$wtn, kp.tps.pop.wtn
+  )
+})
+
+# Between surveys
+output$biasNsKPsPopBtn = renderTable({
+  kp.est.bias(
+    checks.lst()$ns.kps.pop.btn.arr, exp.ns.KPs.pop.lst()$btn, kp.tps.pop.btn
+  )
+})
+
+## Probabilities (numbers divided by total numbers of pairs)
+
+# Within surveys
+output$biasProbsKPsWtn = renderTable({
+  # Remove population sizes and total numbers of pairs then divide by the latter
+  kp.est.bias(
+    checks.lst()$ns.kps.pop.wtn.arr[, , -1:-2] / 
+      array(
+        rep(checks.lst()$ns.kps.pop.wtn.arr[, , 2], n.kp.tps.prb.wtn), 
+        c(n_sims(), k(), n.kp.tps.prb.wtn)
+      ), 
+    exp.ns.KPs.pop.lst()$wtn[, -1:-2] / exp.ns.KPs.pop.lst()$wtn[, 2], 
+    kp.tps.prbs.wtn
+  )
+})
+
+# Between surveys
+output$biasProbsKPsBtn = renderTable({
+  kp.est.bias(
+    # Remove total numbers of pairs then divide by them
+    checks.lst()$ns.kps.pop.btn.arr[, , -1] / 
+      array(
+        rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kp.tps.prb.btn), 
+        c(n_sims(), n.srvy.prs(), n.kp.tps.prb.btn)
+      ), 
+    exp.ns.KPs.pop.lst()$btn[, -1] / exp.ns.KPs.pop.lst()$btn[, 1], 
+    kp.tps.prbs.btn
+  )
+})
+
+## Numbers among sampled animals
+
+# Within surveys
+output$biasNsKPsCapWtn = renderTable({
+  kp.est.bias(
+    checks.lst()$ns.kps.cap.wtn.arr,
+    checks.lst()$exp.ns.kps.cap.wtn.arr, kp.tps.cap.wtn,
+    cap = T
+  )
+})
+
+# Between surveys
+output$biasNsKPsCapBtn = renderTable({
+  kp.est.bias(
+    checks.lst()$ns.kps.cap.btn.arr,
+    checks.lst()$exp.ns.kps.cap.btn.arr, kp.tps.cap.btn,
+    cap = T
+  )
+})
+
+## Temporal estimates vs observed averages (mainly for debugging)
+
+# Numbers of same-mother/father pairs in the population including animals born
+# in each year in the population history
+output$nsKPsTemp = renderTable({
+  # Find average values simulated
+  mean.kps.t = t(apply(checks.lst()$kps.t.arr, 2:3, mean))
+
+  # Find estimated values
+  exp.kps.t = FindExpNsKPsT(
+    exp.N.fin(), phi(), lambda(), alpha(), hist.len(), exp.N.t()
+  )
+
+  # Combine for output
+  df = rbind(mean.kps.t, exp.kps.t)
+  rownames(df) = paste0(
+    rep(c("Avg", "Exp"), each = n.kp.t.tps),
+    rep(kp.t.tps, 2)
+  )
+  colnames(df) = (f.year() - hist.len() + 2):(f.year() - 1)
+  df[rep(seq(1:n.kp.t.tps), each = 2) + c(0, n.kp.t.tps), ]
+}, rownames = T, digits = 1)
 
 # Kin-pair probability estimates
 exp.probs.KPs.lst = reactive({
@@ -187,106 +284,13 @@ probs.KPs.lst = reactive({
   )
 })
 
-### Kin-pair estimator biases (tables of average percentage differences)
-
-## Function to find them from true and expected values
-kp.est.bias = function(vals, exp.vals, type_names, cap = F) {
-  # For the sampled animals the expected values are different for each study but
-  # otherwise they are repeated
-  if (!cap) exp.vals = rep(exp.vals, each = n_sims())
-  df = data.frame(
-    matrix(perc(colMeans(vals / exp.vals, dims = 2) - 1), nrow = 1)
-  )
-  names(df) = type_names
-  df
-}
-
-## Numbers in whole population
-
-# Within surveys
-output$nsKPsPopWtn = renderTable({
-  kp.est.bias(
-    checks.lst()$ns.kps.pop.wtn.arr, exp.ns.KPs.pop.lst()$wtn, kptps.pop.wtn
-  )
-})
-
-# Between surveys
-output$nsKPsPopBtn = renderTable({
-  kp.est.bias(
-    checks.lst()$ns.kps.pop.btn.arr, exp.ns.KPs.pop.lst()$btn, kptps.pop.btn
-  )
-})
-
-## Probabilities (numbers divided by total numbers of pairs)
-
-# Within surveys
-output$probsKPsWtn = renderTable({
-  kp.est.bias(
-    checks.lst()$ns.kps.pop.wtn.arr[, , -1:-2] / 
-      array(
-        rep(checks.lst()$ns.kps.pop.wtn.arr[, , 2], n.kptps.prb.wtn), 
-        c(n_sims(), k(), n.kptps.prb.wtn)
-      ), 
-    exp.ns.KPs.pop.lst()$wtn[, -1:-2] / exp.ns.KPs.pop.lst()$wtn[, 2], 
-    kptps.prbs.wtn
-  )
-})
-
-# Between surveys
-output$probsKPsBtn = renderTable({
-  kp.est.bias(
-    checks.lst()$ns.kps.pop.btn.arr[, , -1] / 
-      array(
-        rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kptps.prb.btn), 
-        c(n_sims(), n.srvy.prs(), n.kptps.prb.btn)
-      ), 
-    exp.ns.KPs.pop.lst()$btn[, -1] / exp.ns.KPs.pop.lst()$btn[, 1], 
-    kptps.prbs.btn
-  )
-})
-
-# ## Numbers among sampled animals
-# 
-# # Within surveys
-# output$nsKPsCapWtn = renderTable({
-#   kp.est.bias(
-#     checks.lst()$ns.kps.cap.wtn.arr, 
-#     checks.lst()$exp.ns.kps.cap.wtn.arr, kptps.cap.wtn,
-#     cap = T
-#   )
-# })
-# 
-# # Between surveys
-# output$nsKPsCapBtn = renderTable({
-#   kp.est.bias(
-#     checks.lst()$ns.kps.cap.btn.arr, 
-#     checks.lst()$exp.ns.kps.cap.btn.arr, kptps.cap.btn,
-#     cap = T
-#   )
-# })
-
-# # Temporal estimates vs observed averages (mainly for debugging)
-# 
-# # Numbers of same-mother/father pairs in the population including animals born
-# # in each year in the population history
-# output$nsKPsTemp = renderTable({
-#   # Find average values simulated
-#   mean.kps.t = t(apply(checks.lst()$kps.t.arr, 2:3, mean))
-# 
-#   # Find estimated values
-#   exp.kps.t = FindExpNsKPsT(
-#     exp.N.fin(), phi(), lambda(), alpha(), hist.len(), exp.N.t()
-#   )
-#   
-#   # Combine for output
-#   df = rbind(mean.kps.t, exp.kps.t)
-#   rownames(df) = paste0(
-#     rep(c("Avg", "Exp"), each = n.kp.t.tps),
-#     rep(kp.t.tps, 2)
-#   )
-#   colnames(df) = (f.year() - hist.len() + 2):(f.year() - 1)
-#   df[rep(seq(1:n.kp.t.tps), each = 2) + c(0, n.kp.t.tps), ]
-# }, rownames = T, digits = 1)
+# Indices for types of kin-pairs
+KP_pop_inds = c(
+  "Survey", "Survey", "Survey-pair", "Survey-pair", "Survey", "Survey", 
+  "Survey", "Survey", "Survey-pair"
+)
+KP_prob_inds = c("Survey-pair", "Survey")
+KP_inds = c("Survey-pair", "Survey", "Survey-pair", "Survey", "Survey")
 
 # Function to plot simulated versus expected numbers of kin-pairs for one type
 # of kin-pair
@@ -329,36 +333,37 @@ nsKPsPlot = function(i, pop = F, prob = F) {
 # Apply plot function to each type of kin-pair
 
 # # All pairs within survey years for whole population
-# output$nsAPsWtnPop <- renderPlot(nsKPsPlot(1, T))
+# output$nsAPsWtnPop = renderPlot(nsKPsPlot(1, T))
 # # All pairs between survey years for whole population
-# output$nsAPsBtnPop <- renderPlot(nsKPsPlot(2, T))
+# output$nsAPsBtnPop = renderPlot(nsKPsPlot(2, T))
 # # Self-pairs between survey years for whole population
-# output$nsSPsBtnPop <- renderPlot(nsKPsPlot(3, T))
+# output$nsSPsBtnPop = renderPlot(nsKPsPlot(3, T))
 # # Same-mother pairs within survey years for whole population
-# output$nsSMPsWtnPop <- renderPlot(nsKPsPlot(4, T))
+# output$nsSMPsWtnPop = renderPlot(nsKPsPlot(4, T))
 # # Same-father pairs within survey years for whole population
-# output$nsSFPsWtnPop <- renderPlot(nsKPsPlot(5, T))
+# output$nsSFPsWtnPop = renderPlot(nsKPsPlot(5, T))
 # # Same-mother pairs between survey years for whole population
-# output$nsSMPsBtnPop <- renderPlot(nsKPsPlot(9, T))
+# output$nsSMPsBtnPop = renderPlot(nsKPsPlot(9, T))
 
 # # Self-pair probabilities between survey years for whole population
-# output$probSPsBtnPop <- renderPlot(nsKPsPlot(1, prob = T))
+# output$probSPsBtnPop = renderPlot(nsKPsPlot(1, prob = T))
 # # Same-mother pair probabilities within survey years for whole population
-# output$probSMPsWtnPop <- renderPlot(nsKPsPlot(2, prob = T))
+# output$probSMPsWtnPop = renderPlot(nsKPsPlot(2, prob = T))
 
 # # Self-pairs between samples
-# output$nsSPsBtn <- renderPlot(nsKPsPlot(1))
+# output$nsSPsBtn = renderPlot(nsKPsPlot(1))
 # # Parent-offspring pairs within samples
-# output$nsPOPsWtn <- renderPlot(nsKPsPlot(2))
+# output$nsPOPsWtn = renderPlot(nsKPsPlot(2))
 # # Parent-offspring pairs between samples
-# output$nsPOPsBtn <- renderPlot(nsKPsPlot(3))
+# output$nsPOPsBtn = renderPlot(nsKPsPlot(3))
 # # Same-mother pairs within samples
-# output$nsSMPsWtn <- renderPlot(nsKPsPlot(4))
+# output$nsSMPsWtn = renderPlot(nsKPsPlot(4))
 # # Half-sibling pairs within samples
-# output$nsHSPsWtn <- renderPlot(nsKPsPlot(5))
+# output$nsHSPsWtn = renderPlot(nsKPsPlot(5))
 
-# First life histories from first study
-output$alive = renderTable({
+### First study simulated
+## First life-histories
+output$firstLifeHists = renderTable({
   alv_mat = attributes(sim.lst()$hists.lst[[1]])$alv.mat
   mode(alv_mat) = "integer"
   df = data.frame(head(alv_mat))
@@ -366,5 +371,24 @@ output$alive = renderTable({
   df
 }, rownames = T)
 
-# Print head of first study
-output$dataHead <- renderTable(head(data.frame(sim.lst()$hists.lst[[1]])))
+## First sample-histories
+output$firstSampHists = renderTable(head(data.frame(sim.lst()$hists.lst[[1]])))
+
+## Numbers of kin-pairs
+# Within surveys
+output$firstNsKPsPopWtn = renderTable({
+  kps.mat = t(checks.lst()$ns.kps.pop.wtn.arr[1, , ])
+  mode(kps.mat) = 'integer'
+  df = data.frame(kps.mat, row.names = kp.tps.pop.wtn)
+  names(df) = srvy.yrs()
+  df
+}, rownames = T)
+
+# Between surveys
+output$firstNsKPsPopBtn = renderTable({
+  kps.mat = t(checks.lst()$ns.kps.pop.btn.arr[1, , ])
+  mode(kps.mat) = 'integer'
+  df = data.frame(kps.mat, row.names = kp.tps.pop.btn)
+  names(df) = apply(combn(srvy.yrs(), 2), 2, paste, collapse = "-")
+  df
+}, rownames = T)
