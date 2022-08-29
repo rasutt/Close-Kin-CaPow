@@ -156,17 +156,31 @@ output$percUnknPrnts = renderText({
   )
 })
 
-# Expected/estimated numbers of kin-pairs for whole population
-exp.ns.KPs.pop.lst = reactive({
-  FindExpNsKPsPop(
+# Estimated numbers of kin-pairs for whole population
+est.ns.kps.pop.lst = reactive({
+  FindEstNsKPsPop(
     exp.N.t(), s.yr.inds(), phi(), lambda(), alpha(), srvy.yrs(), k()
   )
 })
 
 ### Kin-pair estimator biases (tables of average percentage differences)
 
+# Function to find estimate errors as proportions of estimates
+find.est.errs = function(vals, ests, samp = F) {
+  # For sampled animals the expected values are different for each study but
+  # otherwise they are repeated
+  if (!samp) ests = rep(ests, each = n_sims())
+  vals / ests - 1
+}
+
+# Errors in estimates for numbers of kin-pairs in whole population within
+# surveys
+ns.kps.pop.wtn.est.errs = reactive({
+  find.est.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn)
+})
+
 ## Function to find them from true and expected values
-kp.est.bias = function(vals, exp.vals, type_names, samp = F) {
+est.bias = function(vals, exp.vals, type_names, samp = F) {
   # For the sampled animals the expected values are different for each study but
   # otherwise they are repeated
   if (!samp) exp.vals = rep(exp.vals, each = n_sims())
@@ -181,15 +195,15 @@ kp.est.bias = function(vals, exp.vals, type_names, samp = F) {
 
 # Within surveys
 output$biasNsKPsPopWtn = renderTable({
-  kp.est.bias(
-    checks.lst()$ns.kps.pop.wtn.arr, exp.ns.KPs.pop.lst()$wtn, kp.tps.pop.wtn
+  est.bias(
+    checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn, kp.tps.pop.wtn
   )
 })
 
 # Between surveys
 output$biasNsKPsPopBtn = renderTable({
-  kp.est.bias(
-    checks.lst()$ns.kps.pop.btn.arr, exp.ns.KPs.pop.lst()$btn, kp.tps.pop.btn
+  est.bias(
+    checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn, kp.tps.pop.btn
   )
 })
 
@@ -198,27 +212,27 @@ output$biasNsKPsPopBtn = renderTable({
 # Within surveys
 output$biasProbsKPsWtn = renderTable({
   # Remove population sizes and total numbers of pairs then divide by the latter
-  kp.est.bias(
+  est.bias(
     checks.lst()$ns.kps.pop.wtn.arr[, , -1:-2] / 
       array(
         rep(checks.lst()$ns.kps.pop.wtn.arr[, , 2], n.kp.tps.prb.wtn), 
         c(n_sims(), k(), n.kp.tps.prb.wtn)
       ), 
-    exp.ns.KPs.pop.lst()$wtn[, -1:-2] / exp.ns.KPs.pop.lst()$wtn[, 2], 
+    est.ns.kps.pop.lst()$wtn[, -1:-2] / est.ns.kps.pop.lst()$wtn[, 2], 
     kp.tps.prbs.wtn
   )
 })
 
 # Between surveys
 output$biasProbsKPsBtn = renderTable({
-  kp.est.bias(
+  est.bias(
     # Remove total numbers of pairs then divide by them
     checks.lst()$ns.kps.pop.btn.arr[, , -1] / 
       array(
         rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kp.tps.prb.btn), 
         c(n_sims(), n.srvy.prs(), n.kp.tps.prb.btn)
       ), 
-    exp.ns.KPs.pop.lst()$btn[, -1] / exp.ns.KPs.pop.lst()$btn[, 1], 
+    est.ns.kps.pop.lst()$btn[, -1] / est.ns.kps.pop.lst()$btn[, 1], 
     kp.tps.prbs.btn
   )
 })
@@ -227,7 +241,7 @@ output$biasProbsKPsBtn = renderTable({
 
 # Within surveys
 output$biasNsKPsCapWtn = renderTable({
-  kp.est.bias(
+  est.bias(
     checks.lst()$ns.kps.cap.wtn.arr,
     checks.lst()$exp.ns.kps.cap.wtn.arr, kp.tps.cap.wtn,
     cap = T
@@ -236,7 +250,7 @@ output$biasNsKPsCapWtn = renderTable({
 
 # Between surveys
 output$biasNsKPsCapBtn = renderTable({
-  kp.est.bias(
+  est.bias(
     checks.lst()$ns.kps.cap.btn.arr,
     checks.lst()$exp.ns.kps.cap.btn.arr, kp.tps.cap.btn,
     cap = T
@@ -269,8 +283,8 @@ output$nsKPsTemp = renderTable({
 # Kin-pair probability estimates
 exp.probs.KPs.lst = reactive({
   list(
-    SPs.btn = exp.ns.KPs.pop.lst()$btn[2, ] / exp.ns.KPs.pop.lst()$btn[1, ],
-    SMPs.wtn = exp.ns.KPs.pop.lst()$btn[3, ] / exp.ns.KPs.pop.lst()$btn[1, ]
+    SPs.btn = est.ns.kps.pop.lst()$btn[2, ] / est.ns.kps.pop.lst()$btn[1, ],
+    SMPs.wtn = est.ns.kps.pop.lst()$btn[3, ] / est.ns.kps.pop.lst()$btn[1, ]
   )
 })
 
@@ -296,10 +310,9 @@ KP_inds = c("Survey-pair", "Survey", "Survey-pair", "Survey", "Survey")
 # of kin-pair
 nsKPsPlot = function(i, pop = F, prob = F) {
   if (pop) {
-    diffs = 
-      t(t(checks.lst()$ns.KPs.pop.lst[[i]]) / exp.ns.KPs.pop.lst()[[i]] - 1)
+    diffs = ns.kps.pop.wtn.est.errs()[, , i]
     xlab = KP_pop_inds[i]
-    main = KP_pop_names[i]
+    main = kp.tps.pop.wtn[i]
   } else {
     diffs = checks.lst()$ns.KPs.lst[[i]] / checks.lst()$exp.ns.KPs.lst[[i]] - 1 
     xlab = KP_inds[i]
@@ -332,8 +345,8 @@ nsKPsPlot = function(i, pop = F, prob = F) {
 
 # Apply plot function to each type of kin-pair
 
-# # All pairs within survey years for whole population
-# output$nsAPsWtnPop = renderPlot(nsKPsPlot(1, T))
+# All pairs within survey years for whole population
+output$nsAPsWtnPop = renderPlot(nsKPsPlot(1, T))
 # # All pairs between survey years for whole population
 # output$nsAPsBtnPop = renderPlot(nsKPsPlot(2, T))
 # # Self-pairs between survey years for whole population

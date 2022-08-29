@@ -130,41 +130,41 @@ ui <- fluidPage(
           h4("Between surveys"),
           # tableOutput(outputId = "biasNsKPsCapBtn"),
           
-          # h2("Temporal estimates vs observed averages"),
-          # 
-          # h4("Same-mother/father pairs in whole population including animals 
-          # born in each year in the population history"),
+          h2("Temporal estimates vs observed averages"),
+
+          h4("Same-mother/father pairs in whole population including animals
+          born in each year in the population history"),
           # tableOutput(outputId = "nsKPsTemp"),
-          
-          # h2("Kin-pair estimator error distributions"),
-          # 
-          # h3("Numbers in whole population"),
-          # 
-          # h4("Within surveys"),
-          # plotOutput(outputId = "nsAPsWtnPop"),
+
+          h2("Kin-pair estimator error distributions"),
+
+          h3("Numbers in whole population"),
+
+          h4("Within surveys"),
+          plotOutput(outputId = "nsAPsWtnPop"),
           # plotOutput(outputId = "nsSMPsWtnPop"),
           # plotOutput(outputId = "nsSFPsWtnPop"),
-          # 
+          #
           # h4("Between surveys"),
           # plotOutput(outputId = "nsAPsBtnPop"),
           # plotOutput(outputId = "nsSPsBtnPop"),
           # plotOutput(outputId = "nsSMPsBtnPop"),
-          # 
+          #
           # h3("Probabilities"),
-          # 
+          #
           # h4("Within surveys"),
           # plotOutput(outputId = "probSMPsWtnPop"),
-          # 
+          #
           # h4("Between surveys"),
           # plotOutput(outputId = "probSPsBtnPop"),
-          # 
+          #
           # h3("Numbers among sampled animals"),
-          # 
+          #
           # h4("Within surveys"),
           # plotOutput(outputId = "nsPOPsWtn"),
           # plotOutput(outputId = "nsSMPsWtn"),
           # plotOutput(outputId = "nsHSPsWtn"),
-          # 
+          #
           # h4("Between surveys"),
           # plotOutput(outputId = "nsSPsBtn"),
           # plotOutput(outputId = "nsPOPsBtn"),
