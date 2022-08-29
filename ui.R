@@ -177,11 +177,17 @@ ui <- fluidPage(
           h3("First sample-histories"),
           tableOutput(outputId = "firstSampHists"),
         
-          h3("Numbers of kin-pairs"),
+          h3("Numbers of kin-pairs in whole population"),
           h4("Within surveys"),
           tableOutput(outputId = "firstNsKPsPopWtn"),
           h4("Between surveys"),
-          tableOutput(outputId = "firstNsKPsPopBtn")
+          tableOutput(outputId = "firstNsKPsPopBtn"),
+          
+          h3("Estimated numbers of kin-pairs in whole population"),
+          h4("Within surveys"),
+          tableOutput(outputId = "firstEstNsKPsPopWtn"),
+          h4("Between surveys"),
+          tableOutput(outputId = "firstEstNsKPsPopBtn")
         ), 
         # ----
         # Model tab ----
