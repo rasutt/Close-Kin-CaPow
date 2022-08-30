@@ -6,7 +6,7 @@ ui <- fluidPage(
   includeMarkdown("README.md"),
   
   navbarPage(
-    "Function",
+    "Close-kin CaPow!",
     # Sim tab ----
     tabPanel(
       title = "Simulate studies",
@@ -108,6 +108,28 @@ ui <- fluidPage(
           tableOutput(outputId = "checkSimVals")
         ),
         tabPanel(
+          title = "First study",
+          value = "first_study",
+          h2("First study simulated"),
+          h3("First life-histories"),
+          tableOutput(outputId = "firstLifeHists"),
+          
+          h3("First sample-histories"),
+          tableOutput(outputId = "firstSampHists"),
+          
+          h3("Numbers of kin-pairs in whole population"),
+          h4("Within surveys"),
+          tableOutput(outputId = "firstNsKPsPopWtn"),
+          h4("Between surveys"),
+          tableOutput(outputId = "firstNsKPsPopBtn"),
+          
+          h3("Estimated numbers of kin-pairs in whole population"),
+          h4("Within surveys"),
+          tableOutput(outputId = "firstEstNsKPsPopWtn"),
+          h4("Between surveys"),
+          tableOutput(outputId = "firstEstNsKPsPopBtn")
+        ),
+        tabPanel(
           title = "Populations",
           value = "populations",
           h2("Populations"),
@@ -115,8 +137,8 @@ ui <- fluidPage(
           textOutput(outputId = "percUnknPrnts")
         ),
         tabPanel(
-          title = "Kin-pair estimator biases",
-          value = "kin_pair_est_bias",
+          title = "Kin-pairs",
+          value = "kin_pairs",
           h2("Kin-pair estimator biases"),
           h3("Numbers in whole population"),
           h4("Within surveys"),
@@ -172,28 +194,6 @@ ui <- fluidPage(
           # h4("Between surveys"),
           # plotOutput(outputId = "nsSPsBtn"),
           # plotOutput(outputId = "nsPOPsBtn")
-        ),
-        tabPanel(
-          title = "First study",
-          value = "first_study",
-          h2("First study simulated"),
-          h3("First life-histories"),
-          tableOutput(outputId = "firstLifeHists"),
-          
-          h3("First sample-histories"),
-          tableOutput(outputId = "firstSampHists"),
-          
-          h3("Numbers of kin-pairs in whole population"),
-          h4("Within surveys"),
-          tableOutput(outputId = "firstNsKPsPopWtn"),
-          h4("Between surveys"),
-          tableOutput(outputId = "firstNsKPsPopBtn"),
-          
-          h3("Estimated numbers of kin-pairs in whole population"),
-          h4("Within surveys"),
-          tableOutput(outputId = "firstEstNsKPsPopWtn"),
-          h4("Between surveys"),
-          tableOutput(outputId = "firstEstNsKPsPopBtn")
         )
       )
     ), 

@@ -146,5 +146,10 @@ server <- function(input, output) {
   # analyzing model performance
   source("Tabs/sim_tab.R", local = T)
   source("Tabs/check_tab.R", local = T)
+  source("Tabs/Check_sub_tabs/first_study.R", local = T)
+  source("Tabs/Check_sub_tabs/vals_simed_pops.R", local = T)
+  source("Tabs/Check_sub_tabs/kin_pairs.R", local = T)
+  source("Tabs/Check_sub_tabs/temp_ests.R", local = T)
+  source("Tabs/Check_sub_tabs/err_dists.R", local = T)
   source("Tabs/model_tab.R", local = T)
 }
