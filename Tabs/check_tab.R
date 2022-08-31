@@ -29,7 +29,9 @@ n.kp.tps.prb.btn = length(kp.tps.prbs.btn)
 n.kp.tps.t = length(kp.tps.t)
 
 # Calculate checks for simulated studies
-checks.lst = reactive({
+load("C:\\Users\\rasut\\Downloads\\checks.Rdata")
+checks.lst = reactiveVal(checks)
+observeEvent(sim.lst(), checks.lst({
   # Objects to store results
   N.t.mat = matrix(nrow = n_sims(), ncol = hist.len())
   ns.kps.t.arr = array(dim = c(n_sims(), hist.len() - 2, n.kp.tps.t))
@@ -110,4 +112,26 @@ checks.lst = reactive({
     # exp.ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr,
     # kps.t.arr = ns.kps.t.arr
   )
+}))
+observeEvent(input$file, {
+  load(input$file$datapath)
+  checks.lst(checks)
+})
+
+# Save checks
+output$downloadData <- downloadHandler(
+  filename = "checks.Rdata",
+  content = function(file) {
+    checks = checks.lst()
+    save(checks, file = file)
+  }
+)
+
+# Load checks
+# checks.lst({
+#   load(input$file1$datapath)
+# })
+output$upStr <- renderText({
+  # req(input$file)
+  
 })

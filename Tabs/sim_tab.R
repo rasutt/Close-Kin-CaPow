@@ -35,12 +35,15 @@ sim.lst = reactive({
 # Display simulation parameter values
 output$simParVals <- renderTable({
   # Force simulation when starting app in sim tab
-  req(sim.lst())
+  # req(sim.lst())
+  
   # Make data frame for display
   par_vals_df(sim.par.vals(), sim.par.names())
 }, digits = 3)
+
 # Display last simulation values
 output$lastSimVals = renderTable(sim.vals())
+
 # Plot expected population size over time
 output$simExpPop <- renderPlot({
   plot(
@@ -60,15 +63,17 @@ output$simExpPop <- renderPlot({
   )
 })
 
-# Reactive outputs for proposed simulation
+## Reactive outputs for proposed simulation
 
 # Display selected parameter values
 output$selParVals <- renderTable({
   # Make data frame for display
   par_vals_df(sim.par.vals.rct(), sim.par.names.rct())
 }, digits = 3)
+
 # Display next simulation values
 output$nextSimVals = renderTable(sim.vals.rct())
+
 # Plot expected population size over time
 output$selExpPop <- renderPlot({
   plot(

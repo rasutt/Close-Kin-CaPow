@@ -96,7 +96,7 @@ ui <- fluidPage(
     # Check tab ----
     tabPanel(
       title = "Check simulation",
-      value = "check_tab",
+      value = "sim_tab",
       tabsetPanel(
         id = "check_sub_tabs",
         selected = "values_simulated",
@@ -194,6 +194,15 @@ ui <- fluidPage(
           # h4("Between surveys"),
           # plotOutput(outputId = "nsSPsBtn"),
           # plotOutput(outputId = "nsPOPsBtn")
+        ),
+        tabPanel(
+          title = "Save/load checks",
+          value = "save_checks",
+          h2("Save checks"),
+          downloadButton("downloadData", "Download"),
+          h2("Load checks"),
+          fileInput("file", "Choose File", accept = ".Rdata"),
+          textOutput("upStr")
         )
       )
     ), 
