@@ -29,7 +29,7 @@ n.kp.tps.prb.btn = length(kp.tps.prbs.btn)
 n.kp.tps.t = length(kp.tps.t)
 
 # Calculate checks for simulated studies
-load("C:\\Users\\rasut\\Downloads\\checks.Rdata")
+load("checks.Rdata")
 checks.lst = reactiveVal(checks)
 observeEvent(sim.lst(), checks.lst({
   # Objects to store results
@@ -113,6 +113,8 @@ observeEvent(sim.lst(), checks.lst({
     # kps.t.arr = ns.kps.t.arr
   )
 }))
+
+# Load checks
 observeEvent(input$file, {
   load(input$file$datapath)
   checks.lst(checks)
@@ -127,11 +129,9 @@ output$downloadData <- downloadHandler(
   }
 )
 
-# Load checks
-# checks.lst({
-#   load(input$file1$datapath)
-# })
-output$upStr <- renderText({
-  # req(input$file)
-  
+# Show number of files uploaded
+up.msg = reactiveVal("No files uploaded")
+observeEvent(input$file, {
+  up.msg(paste0("File uploaded!"))
 })
+output$upMsg = renderText(up.msg())

@@ -202,7 +202,7 @@ ui <- fluidPage(
           downloadButton("downloadData", "Download"),
           h2("Load checks"),
           fileInput("file", "Choose File", accept = ".Rdata"),
-          textOutput("upStr")
+          textOutput("upMsg")
         )
       )
     ), 
