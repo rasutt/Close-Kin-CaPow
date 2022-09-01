@@ -2,10 +2,11 @@
 
 # Save checks
 output$downloadData <- downloadHandler(
-  filename = "checks.Rdata",
+  filename = "sims_and_checks.Rdata",
   content = function(file) {
+    sims = sim.lst()
     checks = checks.lst()
-    save(checks, file = file)
+    save(sims, checks, file = file)
   }
 )
 

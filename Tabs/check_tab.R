@@ -29,9 +29,8 @@ n.kp.tps.prb.btn = length(kp.tps.prbs.btn)
 n.kp.tps.t = length(kp.tps.t)
 
 # Calculate checks for simulated studies
-load("checks.Rdata")
 checks.lst = reactiveVal(checks)
-observeEvent(sim.lst(), checks.lst({
+observeEvent(sim.lst(), {
   # Objects to store results
   N.t.mat = matrix(nrow = n_sims(), ncol = hist.len())
   ns.kps.t.arr = array(dim = c(n_sims(), hist.len() - 2, n.kp.tps.t))
@@ -86,21 +85,21 @@ observeEvent(sim.lst(), checks.lst({
       # )
       # exp.ns.kps.cap.wtn.arr[hist.ind, , ] = t(exp.ns.kps.cap.lst$wtn)
       # exp.ns.kps.cap.btn.arr[hist.ind, , ] = t(exp.ns.kps.cap.lst$btn)
-
+      
       # Find numbers of same-mother/father pairs in the population including
       # animals born in each year in the population history
       # ns.kps.t.arr[hist.ind, , ] = t(FindNsKPsT(pop.cap.hist, hist.len()))
-
+      
       # Increment progress-bar
       incProgress(1/n_sims())
     }
   }, value = 0, message = "Checking simulations")
-
+  
   # Insert population sizes in survey years for comparison with numbers of kin
   # pairs
   ns.kps.pop.wtn.arr[, , 1] = N.t.mat[, s.yr.inds()]
-
-  list(
+  
+  checks.lst(list(
     N.t.mat = N.t.mat, 
     prpn.prnts.unkn.vec = prpn.prnts.unkn.vec,
     # ns.caps.mat = ns.caps.mat,
@@ -111,6 +110,6 @@ observeEvent(sim.lst(), checks.lst({
     # exp.ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr,
     # exp.ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr,
     # kps.t.arr = ns.kps.t.arr
-  )
-}))
+  ))
+})
 

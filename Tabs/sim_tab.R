@@ -1,7 +1,10 @@
 # Simulation and outputs bound to simulate button
 
+load("sims_and_checks.Rdata")
+sim.lst = reactiveVal(sims)
+
 # Simulate population and capture histories
-sim.lst = reactive({
+observeEvent(input$simulate, {
   # Initial population size
   N.init = round(exp.N.t()[1])
   
@@ -29,7 +32,7 @@ sim.lst = reactive({
     }
   }, value = 0, message = "Simulating populations")
   
-  list(hists.lst = hists.lst, N.fin.vec = N.fin.vec, Ns.vec = Ns.vec)
+  sim.lst(list(hists.lst = hists.lst, N.fin.vec = N.fin.vec, Ns.vec = Ns.vec))
 })
 
 ## Last simulation
