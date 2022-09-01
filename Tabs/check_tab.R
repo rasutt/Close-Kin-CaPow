@@ -30,7 +30,7 @@ n.kp.tps.t = length(kp.tps.t)
 
 # Calculate checks for simulated studies
 checks.lst = reactiveVal(checks)
-observeEvent(sim.lst(), {
+observeEvent(input$simulate, {
   # Objects to store results
   N.t.mat = matrix(nrow = n_sims(), ncol = hist.len())
   ns.kps.t.arr = array(dim = c(n_sims(), hist.len() - 2, n.kp.tps.t))
