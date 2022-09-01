@@ -32,6 +32,8 @@ sim.lst = reactive({
   list(hists.lst = hists.lst, N.fin.vec = N.fin.vec, Ns.vec = Ns.vec)
 })
 
+## Last simulation
+
 # Display simulation parameter values
 output$simParVals <- renderTable({
   # Force simulation when starting app in sim tab
@@ -63,7 +65,7 @@ output$simExpPop <- renderPlot({
   )
 })
 
-## Reactive outputs for proposed simulation
+## Next simulation
 
 # Display selected parameter values
 output$selParVals <- renderTable({

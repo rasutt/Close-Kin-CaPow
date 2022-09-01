@@ -194,15 +194,6 @@ ui <- fluidPage(
           # h4("Between surveys"),
           # plotOutput(outputId = "nsSPsBtn"),
           # plotOutput(outputId = "nsPOPsBtn")
-        ),
-        tabPanel(
-          title = "Save/load checks",
-          value = "save_checks",
-          h2("Save checks"),
-          downloadButton("downloadData", "Download"),
-          h2("Load checks"),
-          fileInput("file", "Choose File", accept = ".Rdata"),
-          textOutput("upMsg")
         )
       )
     ), 
@@ -224,6 +215,17 @@ ui <- fluidPage(
       tableOutput(outputId = "firstResults"),
       h4("95% confidence intervals for lambda"),
       plotOutput(outputId = "CIPlot")
+    ),
+    # ----
+    # Save/load tab ----
+    tabPanel(
+      title = "Save/load",
+      value = "save_load",
+      h2("Save results"),
+      downloadButton("downloadData", "Download"),
+      h2("Load results"),
+      fileInput("file", "Choose File", accept = ".Rdata"),
+      textOutput("upMsg")
     )
     # ----
   )

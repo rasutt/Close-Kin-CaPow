@@ -114,24 +114,3 @@ observeEvent(sim.lst(), checks.lst({
   )
 }))
 
-# Load checks
-observeEvent(input$file, {
-  load(input$file$datapath)
-  checks.lst(checks)
-})
-
-# Save checks
-output$downloadData <- downloadHandler(
-  filename = "checks.Rdata",
-  content = function(file) {
-    checks = checks.lst()
-    save(checks, file = file)
-  }
-)
-
-# Show number of files uploaded
-up.msg = reactiveVal("No files uploaded")
-observeEvent(input$file, {
-  up.msg(paste0("File uploaded!"))
-})
-output$upMsg = renderText(up.msg())
