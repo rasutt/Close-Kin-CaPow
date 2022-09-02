@@ -14,7 +14,7 @@ form.tab = function(data, rw.nms, cl.nms) {
 output$firstLifeHists = renderTable({
   form.tab(
     head(attributes(sim.lst()$hists.lst[[1]])$alv.mat), NULL,
-    (f.year() - hist.len() + 1):f.year()
+    sim.yrs()
   )
 })
 

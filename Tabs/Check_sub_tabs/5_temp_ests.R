@@ -19,7 +19,7 @@ output$nsKPsTemp = renderTable({
     rep(c("Avg", "Exp"), each = n.kp.t.tps),
     rep(kp.t.tps, 2)
   )
-  colnames(df) = (f.year() - hist.len() + 2):(f.year() - 1)
+  colnames(df) = sim.yrs()[-c(1, hist.len())]
   df[rep(seq(1:n.kp.t.tps), each = 2) + c(0, n.kp.t.tps), ]
 }, rownames = T, digits = 1)
 

@@ -4,7 +4,7 @@
 output$downloadData <- downloadHandler(
   filename = "ckc_saved_objs.Rdata",
   content = function(file) {
-    saved_objs = list(
+    saved.objs = list(
       phi = phi(),
       rho = rho(),
       lambda = lambda(),
@@ -21,7 +21,9 @@ output$downloadData <- downloadHandler(
       srvy.gaps = srvy.gaps(),
       k = k(),
       n.srvy.prs = n.srvy.prs(),
-      f.year = f.year(),
+      fnl.year = fnl.year(),
+      fst.year = fst.year(),
+      sim.yrs = sim.yrs(),
       s.yr.inds = s.yr.inds(),
       exp.N.t = exp.N.t(),
       exp.N.fin = exp.N.fin(),
@@ -32,7 +34,7 @@ output$downloadData <- downloadHandler(
       sim.lst = sim.lst(),
       checks.lst = checks.lst()
     )
-    save(saved_objs, file = file)
+    save(saved.objs, file = file)
   }
 )
 

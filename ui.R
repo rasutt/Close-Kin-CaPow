@@ -131,13 +131,13 @@ ui <- fluidPage(
           title = "Populations",
           value = "populations",
           h2("Populations"),
-          plotOutput(outputId = "popPlot"),
-          textOutput(outputId = "percUnknPrnts")
+          plotOutput(outputId = "checkExpPop")
         ),
         tabPanel(
           title = "Kin-pairs",
           value = "kin_pairs",
           h2("Kin-pair estimator biases"),
+          textOutput(outputId = "percUnknPrnts"),
           h3("Numbers in whole population"),
           h4("Within surveys"),
           tableOutput(outputId = "biasNsKPsPopWtn"),

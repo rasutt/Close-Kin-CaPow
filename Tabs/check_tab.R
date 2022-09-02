@@ -79,7 +79,7 @@ observeEvent(input$simulate, {
       # 
       # # Find expected numbers of kin pairs among samples
       # exp.ns.kps.cap.lst = FindExpNsKPs(
-      #   k(), n.srvy.prs(), exp.N.fin(), lambda(), f.year(), srvy.yrs(), phi(), 
+      #   k(), n.srvy.prs(), exp.N.fin(), lambda(), fnl.year(), srvy.yrs(), phi(), 
       #   rho(), ns.caps, alpha()
       # )
       # exp.ns.kps.cap.wtn.arr[hist.ind, , ] = t(exp.ns.kps.cap.lst$wtn)

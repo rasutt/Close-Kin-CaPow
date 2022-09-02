@@ -7,7 +7,7 @@ n_mods = reactive(input$popan + input$close_kin)
 
 # Display parameter values
 output$modParVals <- renderTable({
-  par_vals_df(par.vals(), par.names())
+  par.vals.df(par.vals(), par.names())
 }, digits = 3)
 
 # Display simulation values
@@ -50,7 +50,7 @@ fit.ck = reactive(if (input$close_kin) {
       
       # Try to fit model
       ck.tmb.res <- TryCloseKinTMB(
-        k(), srvy.gaps(), f.year(), srvy.yrs(), ns.caps, ns.kps.lst, 
+        k(), srvy.gaps(), fnl.year(), srvy.yrs(), ns.caps, ns.kps.lst, 
         ck.start, ck.lwr, ck.upr, alpha()
       )
       ck.tmb.ests[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
@@ -168,7 +168,7 @@ check.ests = reactive({
     # Bounds are matrices for studies x parameters, true_vals is a vector for
     # parameters, and cis_ok is a vector for studies
     ci_cov[[i]] = 
-      t(sim.par.vals() > t(lcbs[[i]]) & sim.par.vals() < t(ucbs[[i]])) &
+      t(par.vals() > t(lcbs[[i]]) & par.vals() < t(ucbs[[i]])) &
       cis_ok[[i]]
     
     # Overwrite for population parameters
@@ -243,7 +243,7 @@ output$CICov = renderTable({
 # Print results for first study
 output$firstResults <- renderTable({
   # True parameter values
-  res.mat = matrix(sim.par.vals(), nrow = 1)
+  res.mat = matrix(par.vals(), nrow = 1)
   res.mat[1, 3:4] = c(sim.lst()$N.fin.vec[1], sim.lst()$Ns.vec[1])
   colnames(res.mat) = est.par.names()
   
@@ -300,7 +300,7 @@ output$CIPlot = renderPlot({
         col = 1 + !check.ests()$ci_cov[[m]][ord, p]
       )
       # True parameter value
-      abline(h = sim.par.vals()[p], col = 2)
+      abline(h = par.vals()[p], col = 2)
       # abline(h = c(lb(), ub()))
       # legend(
       #   "topleft", col = 1:2, lwd = c(1, 1), 

@@ -22,19 +22,23 @@ server <- function(input, output) {
   })
   # Number of surveys 
   k.rct = reactive(length(srvy.yrs.rct()))
-  # Final survey year 
-  f.year.rct = reactive(tail(srvy.yrs.rct(), 1))  
+  # Final survey/simulation year 
+  fnl.year.rct = reactive(tail(srvy.yrs.rct(), 1))  
+  # First simulation year
+  fst.year.rct = reactive(fnl.year.rct() - input$hist.len + 1)
+  # Simulation years
+  sim.yrs.rct = reactive(fst.year.rct():fnl.year.rct())
   # Survey gaps
   srvy.gaps.rct <- reactive(as.integer(diff(srvy.yrs.rct())))
   # Expected population size over time
   exp.N.t.rct = reactive({
-    input$exp.N.base * lambda.rct()^(f.year.rct() - input$base.yr) / 
+    input$exp.N.base * lambda.rct()^(fnl.year.rct() - input$base.yr) / 
       lambda.rct()^((input$hist.len - 1):0)
   })
   # Expected super-population size
   exp.Ns.rct = reactive({
     exp.N.srvy.yrs = 
-      exp.N.t.rct()[input$hist.len - f.year.rct() + srvy.yrs.rct()]
+      exp.N.t.rct()[input$hist.len - fnl.year.rct() + srvy.yrs.rct()]
     sum(exp.N.srvy.yrs) - sum(exp.N.srvy.yrs[-length(srvy.yrs.rct())] * 
                                 input$phi^(srvy.gaps.rct()))
   })
@@ -68,33 +72,35 @@ server <- function(input, output) {
   
   # Load saved objects ----
   load("ckc_saved_objs.Rdata")
-  phi = reactiveVal(saved_objs$phi)
-  rho = reactiveVal(saved_objs$rho)
-  lambda = reactiveVal(saved_objs$lambda)
-  base.yr = reactiveVal(saved_objs$base.yr)
-  exp.N.base = reactiveVal(saved_objs$exp.N.base)
-  srvy.yrs = reactiveVal(saved_objs$srvy.yrs)
-  p = reactiveVal(saved_objs$p)
-  clvng.ints = reactiveVal(saved_objs$clvng.ints)
-  clvng.p = reactiveVal(saved_objs$clvng.p)
-  tmp.emgn = reactiveVal(saved_objs$tmp.emgn)
-  alpha = reactiveVal(saved_objs$alpha)
-  hist.len = reactiveVal(saved_objs$hist.len)
-  n.sims = reactiveVal(saved_objs$n.sims)
-  srvy.gaps = reactiveVal(saved_objs$srvy.gaps)
-  k = reactiveVal(saved_objs$k)
-  n.srvy.prs = reactiveVal(saved_objs$n.srvy.prs)
-  f.year = reactiveVal(saved_objs$f.year)
-  s.yr.inds = reactiveVal(saved_objs$s.yr.inds)
-  exp.N.t = reactiveVal(saved_objs$exp.N.t)
-  exp.N.fin = reactiveVal(saved_objs$exp.N.fin)
-  exp.Ns = reactiveVal(saved_objs$exp.Ns)
-  par.names = reactiveVal(saved_objs$par.names)
-  par.vals = reactiveVal(saved_objs$par.vals)
-  est.par.names = reactiveVal(saved_objs$est.par.names)
-  sim.opts = reactiveVal(saved_objs$sim.opts)
-  sim.lst = reactiveVal(saved_objs$sim.lst)
-  checks.lst = reactiveVal(saved_objs$checks.lst)
+  phi = reactiveVal(saved.objs$phi)
+  rho = reactiveVal(saved.objs$rho)
+  lambda = reactiveVal(saved.objs$lambda)
+  base.yr = reactiveVal(saved.objs$base.yr)
+  exp.N.base = reactiveVal(saved.objs$exp.N.base)
+  srvy.yrs = reactiveVal(saved.objs$srvy.yrs)
+  p = reactiveVal(saved.objs$p)
+  clvng.ints = reactiveVal(saved.objs$clvng.ints)
+  clvng.p = reactiveVal(saved.objs$clvng.p)
+  tmp.emgn = reactiveVal(saved.objs$tmp.emgn)
+  alpha = reactiveVal(saved.objs$alpha)
+  hist.len = reactiveVal(saved.objs$hist.len)
+  n.sims = reactiveVal(saved.objs$n.sims)
+  srvy.gaps = reactiveVal(saved.objs$srvy.gaps)
+  k = reactiveVal(saved.objs$k)
+  n.srvy.prs = reactiveVal(saved.objs$n.srvy.prs)
+  fnl.year = reactiveVal(saved.objs$fnl.year)
+  fst.year = reactiveVal(saved.objs$fst.year)
+  sim.yrs = reactiveVal(saved.objs$sim.yrs)
+  s.yr.inds = reactiveVal(saved.objs$s.yr.inds)
+  exp.N.t = reactiveVal(saved.objs$exp.N.t)
+  exp.N.fin = reactiveVal(saved.objs$exp.N.fin)
+  exp.Ns = reactiveVal(saved.objs$exp.Ns)
+  par.names = reactiveVal(saved.objs$par.names)
+  par.vals = reactiveVal(saved.objs$par.vals)
+  est.par.names = reactiveVal(saved.objs$est.par.names)
+  sim.opts = reactiveVal(saved.objs$sim.opts)
+  sim.lst = reactiveVal(saved.objs$sim.lst)
+  checks.lst = reactiveVal(saved.objs$checks.lst)
   # ----
 
   # Variables bound to simulate button (for last simulation) ----
@@ -131,10 +137,14 @@ server <- function(input, output) {
     k(k.rct())
     # Number of pairs of surveys
     n.srvy.prs(choose(k(), 2))
-    # Final survey year
-    f.year(f.year.rct())
+    # Final survey/simulation year
+    fnl.year(fnl.year.rct())
+    # First simulation year
+    fst.year(fst.year.rct())
+    # Simulation years
+    sim.yrs(sim.yrs.rct())
     # Indices of survey years within population histories
-    s.yr.inds(hist.len() + srvy.yrs() - f.year())
+    s.yr.inds(hist.len() + srvy.yrs() - fnl.year())
     # Expected population size over time
     exp.N.t(exp.N.t.rct())
     # Expected final population size
@@ -153,13 +163,13 @@ server <- function(input, output) {
   # ----
   
   # Function to make data frame of parameter values for display
-  par_vals_df = function(par_vals, par_names) {
-    par_mat = matrix(par_vals, nrow = 1)
-    colnames(par_mat) = par_names
-    par_df = data.frame(par_mat)
-    par_df[, 3] = as.integer(par_df[, 3])
-    par_df[, 4] = as.integer(par_df[, 4])
-    par_df
+  par.vals.df = function(par.vals, par.names) {
+    par.mat = matrix(par.vals, nrow = 1)
+    colnames(par.mat) = par.names
+    par.df = data.frame(par.mat)
+    par.df[, 3] = as.integer(par.df[, 3])
+    par.df[, 4] = as.integer(par.df[, 4])
+    par.df
   }
   
   # Function to prepare proportion to print as percentage

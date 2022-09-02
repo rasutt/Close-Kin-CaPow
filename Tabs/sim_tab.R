@@ -16,7 +16,7 @@ observeEvent(input$simulate, {
       # Simulate family and capture histories of population of animals over
       # time
       hists.lst[[hist.ind]] <- SimPopStud(
-        phi(), lambda(), N.init, hist.len(), srvy.yrs(), k(), f.year(), p(),
+        phi(), lambda(), N.init, hist.len(), srvy.yrs(), k(), fnl.year(), p(),
         clvng.p(), tmp.emgn(), alpha(), clvng.ints()
       )
       # Collect final and super-population sizes
@@ -37,7 +37,7 @@ observeEvent(input$simulate, {
 # Display simulation parameter values
 output$lastParVals <- renderTable({
   # Make data frame for display
-  par_vals_df(par.vals(), par.names())
+  par.vals.df(par.vals(), par.names())
 }, digits = 3)
 
 # Display last simulation values
@@ -46,7 +46,7 @@ output$lastSimOpts = renderTable(sim.opts())
 # Plot expected population size over time
 output$lastExpPop <- renderPlot({
   plot(
-    (f.year() - input$hist.len + 1):f.year(), exp.N.t(), 
+    sim.yrs(), exp.N.t(), 
     col = 'red', lwd = 2, t = 'l', ylim = c(0, max(exp.N.t())),
     xlab = 'Year', ylab = 'Exp_N_t', 
     main = "Expected population size over time"
@@ -67,7 +67,7 @@ output$lastExpPop <- renderPlot({
 # Display selected parameter values
 output$nextParVals <- renderTable({
   # Make data frame for display
-  par_vals_df(par.vals.rct(), par.names.rct())
+  par.vals.df(par.vals.rct(), par.names.rct())
 }, digits = 3)
 
 # Display next simulation values
@@ -76,7 +76,7 @@ output$nextSimOpts = renderTable(sim.opts.rct())
 # Plot expected population size over time
 output$nextExpPop <- renderPlot({
   plot(
-    (f.year.rct() - input$hist.len + 1):f.year.rct(), exp.N.t.rct(), 
+    sim.yrs.rct(), exp.N.t.rct(), 
     col = 'red', lwd = 2, t = 'l', ylim = c(0, max(exp.N.t.rct())),
     xlab = 'Year', ylab = 'Exp_N_t', 
     main = "Expected population size over time"
