@@ -12,10 +12,7 @@ form.tab = function(data, rw.nms, cl.nms) {
 
 ## First life-histories
 output$firstLifeHists = renderTable({
-  form.tab(
-    head(attributes(sim.lst()$hists.lst[[1]])$alv.mat), NULL,
-    sim.yrs()
-  )
+  form.tab(head(attributes(sim.lst()$hists.lst[[1]])$alv.mat), NULL, sim.yrs())
 })
 
 ## First sample-histories
