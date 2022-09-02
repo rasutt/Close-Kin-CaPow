@@ -43,23 +43,27 @@ output$lastParVals <- renderTable({
 # Display last simulation values
 output$lastSimOpts = renderTable(sim.opts())
 
-# Plot expected population size over time
-output$lastExpPop <- renderPlot({
+plt.exp.N.t = function(sim.yrs, exp.N.t, base.yr, exp.N.base, srvy.yrs) {
   plot(
-    sim.yrs(), exp.N.t(), 
-    col = 'red', lwd = 2, t = 'l', ylim = c(0, max(exp.N.t())),
-    xlab = 'Year', ylab = 'Exp_N_t', 
+    sim.yrs, exp.N.t, 
+    col = 'red', lwd = 2, type = 'l',
+    xlab = 'Year', ylab = 'Population size', 
     main = "Expected population size over time"
   )
   # Base year
-  abline(v = base.yr(), h = exp.N.base(), col = 2)
+  abline(v = base.yr, h = exp.N.base, col = 2)
   # Surveys
-  abline(v = srvy.yrs(), lty = 2)
+  abline(v = srvy.yrs, lty = 2)
   # Add legend
   legend(
     "topleft", legend = c("Over time", "In base year", "Survey years"),
     col = c(2, 2, 1), lwd = c(2, 1, 1), lty = c(1, 1, 2)
   )
+}
+
+# Plot expected population size over time
+output$lastExpPop <- renderPlot({
+  plt.exp.N.t(sim.yrs(), exp.N.t(), base.yr(), exp.N.base(), srvy.yrs())
 })
 
 ## Next simulation
@@ -75,19 +79,8 @@ output$nextSimOpts = renderTable(sim.opts.rct())
 
 # Plot expected population size over time
 output$nextExpPop <- renderPlot({
-  plot(
-    sim.yrs.rct(), exp.N.t.rct(), 
-    col = 'red', lwd = 2, t = 'l', ylim = c(0, max(exp.N.t.rct())),
-    xlab = 'Year', ylab = 'Exp_N_t', 
-    main = "Expected population size over time"
-  )
-  # Base year
-  abline(v = input$base.yr, h = input$exp.N.base, col = 2)
-  # Surveys
-  abline(v = srvy.yrs.rct(), lty = 2)
-  # Add legend
-  legend(
-    "topleft", legend = c("Over time", "In base year", "Survey years"),
-    col = c(2, 2, 1), lwd = c(2, 1, 1), lty = c(1, 1, 2)
+  plt.exp.N.t(
+    sim.yrs.rct(), exp.N.t.rct(), input$base.yr, input$exp.N.base, 
+    srvy.yrs.rct()
   )
 })
