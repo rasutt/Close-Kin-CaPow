@@ -52,7 +52,7 @@ server <- function(input, output) {
   # Simulation options 
   sim.opts.rct = reactive({
     df = data.frame(
-      input$n_sims, input$hist.len, input$clvng.ints, input$clvng.p, 
+      input$n.sims, input$hist.len, input$clvng.ints, input$clvng.p, 
       input$tmp.emgn, input$alpha
     )
     names(df) = c(
@@ -80,7 +80,7 @@ server <- function(input, output) {
   tmp.emgn = reactiveVal(saved_objs$tmp.emgn)
   alpha = reactiveVal(saved_objs$alpha)
   hist.len = reactiveVal(saved_objs$hist.len)
-  n_sims = reactiveVal(saved_objs$n_sims)
+  n.sims = reactiveVal(saved_objs$n.sims)
   srvy.gaps = reactiveVal(saved_objs$srvy.gaps)
   k = reactiveVal(saved_objs$k)
   n.srvy.prs = reactiveVal(saved_objs$n.srvy.prs)
@@ -124,7 +124,7 @@ server <- function(input, output) {
     # Length of simulation
     hist.len(input$hist.len)
     # Number of simulations
-    n_sims(input$n_sims)
+    n.sims(input$n.sims)
     # Survey gaps
     srvy.gaps(srvy.gaps.rct())
     # Number of surveys
@@ -169,10 +169,11 @@ server <- function(input, output) {
   # simulations, and analyzing model performance
   source("Tabs/sim_tab.R", local = T)
   source("Tabs/check_tab.R", local = T)
-  source("Tabs/Check_sub_tabs/first_study.R", local = T)
-  source("Tabs/Check_sub_tabs/kin_pairs.R", local = T)
-  source("Tabs/Check_sub_tabs/temp_ests.R", local = T)
-  source("Tabs/Check_sub_tabs/err_dists.R", local = T)
+  source("Tabs/Check_sub_tabs/1_first_study.R", local = T)
+  source("Tabs/Check_sub_tabs/2_populations.R", local = T)
+  source("Tabs/Check_sub_tabs/3_kin_pairs.R", local = T)
+  source("Tabs/Check_sub_tabs/4_err_dists.R", local = T)
+  source("Tabs/Check_sub_tabs/5_temp_ests.R", local = T)
   source("Tabs/model_tab.R", local = T)
   source("Tabs/save_load_tab.R", local = T)
 }

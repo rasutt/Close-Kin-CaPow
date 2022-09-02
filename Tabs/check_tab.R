@@ -31,21 +31,21 @@ n.kp.tps.t = length(kp.tps.t)
 # Calculate checks for simulated studies
 observeEvent(input$simulate, {
   # Objects to store results
-  N.t.mat = matrix(nrow = n_sims(), ncol = hist.len())
-  ns.kps.t.arr = array(dim = c(n_sims(), hist.len() - 2, n.kp.tps.t))
+  N.t.mat = matrix(nrow = n.sims(), ncol = hist.len())
+  ns.kps.t.arr = array(dim = c(n.sims(), hist.len() - 2, n.kp.tps.t))
   # ns.caps.mat = ns.clvng.caps.mat = ns.clvng.mat = 
-  #   matrix(nrow = n_sims(), ncol = k())
-  ns.kps.pop.wtn.arr = array(dim = c(n_sims(), k(), n.kp.tps.pop.wtn))
-  ns.kps.pop.btn.arr = array(dim = c(n_sims(), n.srvy.prs(), n.kp.tps.pop.btn))
+  #   matrix(nrow = n.sims(), ncol = k())
+  ns.kps.pop.wtn.arr = array(dim = c(n.sims(), k(), n.kp.tps.pop.wtn))
+  ns.kps.pop.btn.arr = array(dim = c(n.sims(), n.srvy.prs(), n.kp.tps.pop.btn))
   ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr = 
-    array(dim = c(n_sims(), k(), n.kp.tps.cap.wtn))
+    array(dim = c(n.sims(), k(), n.kp.tps.cap.wtn))
   ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr = 
-    array(dim = c(n_sims(), n.srvy.prs(), n.kp.tps.cap.btn))
-  prpn.prnts.unkn.vec = Ns.vec = numeric(n_sims())
+    array(dim = c(n.sims(), n.srvy.prs(), n.kp.tps.cap.btn))
+  prpn.prnts.unkn.vec = Ns.vec = numeric(n.sims())
   
   # Loop over histories
   withProgress({
-    for (hist.ind in 1:n_sims()) {
+    for (hist.ind in 1:n.sims()) {
       # Get simulated family and capture histories of population of animals
       # over time
       pop.cap.hist = sim.lst()$hists.lst[[hist.ind]]
@@ -90,7 +90,7 @@ observeEvent(input$simulate, {
       # ns.kps.t.arr[hist.ind, , ] = t(FindNsKPsT(pop.cap.hist, hist.len()))
       
       # Increment progress-bar
-      incProgress(1/n_sims())
+      incProgress(1/n.sims())
     }
   }, value = 0, message = "Checking simulations")
   

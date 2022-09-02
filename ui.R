@@ -65,7 +65,7 @@ ui <- fluidPage(
             0, 100, value = 80, step = 10
           ),
           sliderInput(
-            inputId = "n_sims", label = "Number of studies to simulate:",
+            inputId = "n.sims", label = "Number of studies to simulate:",
             0, 1000, value = 10, step = 10
           ),
           actionButton(

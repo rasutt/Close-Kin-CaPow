@@ -17,7 +17,7 @@ output$downloadData <- downloadHandler(
       tmp.emgn = tmp.emgn(),
       alpha = alpha(),
       hist.len = hist.len(),
-      n_sims = n_sims(),
+      n.sims = n.sims(),
       srvy.gaps = srvy.gaps(),
       k = k(),
       n.srvy.prs = n.srvy.prs(),

@@ -21,16 +21,16 @@ fit.ck = reactive(if (input$close_kin) {
   ck.upr <- c(0.35, 1, Inf)
   
   # Create vector for model convergences
-  ck.tmb.cnvg <- numeric(n_sims())
+  ck.tmb.cnvg <- numeric(n.sims())
   
   # Create matrices for estimates and standard errors
   ck.tmb.ests <- ck.tmb.ses <- matrix(
-    nrow = n_sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
+    nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
   )
   
   # Loop over histories
   withProgress({
-    for (hist.ind in 1:n_sims()) {
+    for (hist.ind in 1:n.sims()) {
       # Display progress
       cat("History:", hist.ind, "\n")
       
@@ -57,7 +57,7 @@ fit.ck = reactive(if (input$close_kin) {
       ck.tmb.ses[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 2]
       ck.tmb.cnvg[hist.ind] = ck.tmb.res$cnvg
       
-      incProgress(1/n_sims())
+      incProgress(1/n.sims())
     }
   }, value = 0, message = "Fitting close-kin model")
   
@@ -77,15 +77,15 @@ fit.ppn = reactive(if (input$popan) {
   ppn.upr <- cbd.upr <- c(ck.upr, rep(1, k()))
   
   # Create vector model convergences
-  ppn.tmb.cnvg <- numeric(n_sims())
+  ppn.tmb.cnvg <- numeric(n.sims())
   
   # Create matrices for estimates and standard errors
   ppn.tmb.ests <- ppn.tmb.ses <- 
-    matrix(nrow = n_sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names()))
+    matrix(nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names()))
   
   # Loop over histories
   withProgress({
-    for (hist.ind in 1:n_sims()) {
+    for (hist.ind in 1:n.sims()) {
       # Display progress
       cat("History:", hist.ind, "\n")
       
@@ -111,7 +111,7 @@ fit.ppn = reactive(if (input$popan) {
       ppn.tmb.ses[hist.ind, ] <- ppn.tmb.res$est.se.df[, 2]
       ppn.tmb.cnvg[hist.ind] = ppn.tmb.res$cnvg
       
-      incProgress(1/n_sims())
+      incProgress(1/n.sims())
     }
   }, value = 0, message = "Fitting Popan model")
   
@@ -283,19 +283,19 @@ output$CIPlot = renderPlot({
       ord = order(fit.lst()$ests[[m]][, p])
       # Setup plot
       plot(
-        rep(1:n_sims(), 2), 
+        rep(1:n.sims(), 2), 
         c(check.ests()$lcbs[[m]][, p], check.ests()$ucbs[[m]][, p]), 
         main = mod_names()[m], ylab = est.par.names()[p], xlab = "", type = 'n'
       )
       # Plot estimates
       points(
-        1:n_sims(), fit.lst()$ests[[m]][ord, p], pch = "-", 
+        1:n.sims(), fit.lst()$ests[[m]][ord, p], pch = "-", 
         col = 1 + !check.ests()$ci_cov[[m]][ord, p]
       )
       # Plot intervals
       arrows(
-        1:n_sims(), check.ests()$lcbs[[m]][ord, p], 
-        1:n_sims(), check.ests()$ucbs[[m]][ord, p], 
+        1:n.sims(), check.ests()$lcbs[[m]][ord, p], 
+        1:n.sims(), check.ests()$ucbs[[m]][ord, p], 
         code = 3, length = 0.02, angle = 90, 
         col = 1 + !check.ests()$ci_cov[[m]][ord, p]
       )

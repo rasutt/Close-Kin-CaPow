@@ -6,13 +6,13 @@ observeEvent(input$simulate, {
   N.init = round(exp.N.t()[1])
   
   # Create list for population and capture histories
-  hists.lst <- vector("list", n_sims())
+  hists.lst <- vector("list", n.sims())
   # Create vectors for final and super-population sizes
-  N.fin.vec <- Ns.vec <- numeric(n_sims())
+  N.fin.vec <- Ns.vec <- numeric(n.sims())
   
   # Loop over histories
   withProgress({
-    for (hist.ind in 1:n_sims()) {
+    for (hist.ind in 1:n.sims()) {
       # Simulate family and capture histories of population of animals over
       # time
       hists.lst[[hist.ind]] <- SimPopStud(
@@ -25,7 +25,7 @@ observeEvent(input$simulate, {
       
       # Update progress. Unexplained "Error in as.vector: object 'x' not
       # found" seen 19/12/2021 coming from incProgress...
-      incProgress(1/n_sims())
+      incProgress(1/n.sims())
     }
   }, value = 0, message = "Simulating populations")
   

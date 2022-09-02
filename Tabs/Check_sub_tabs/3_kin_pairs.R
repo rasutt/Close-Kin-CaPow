@@ -21,7 +21,7 @@ est.ns.kps.pop.lst = reactive({
 find.est.errs = function(vals, ests, samp = F) {
   # For sampled animals the expected values are different for each study but
   # otherwise they are repeated
-  if (!samp) ests = rep(ests, each = n_sims())
+  if (!samp) ests = rep(ests, each = n.sims())
   vals / ests - 1
 }
 
@@ -35,7 +35,7 @@ ns.kps.pop.wtn.est.errs = reactive({
 est.bias = function(vals, exp.vals, type_names, samp = F) {
   # For the sampled animals the expected values are different for each study but
   # otherwise they are repeated
-  if (!samp) exp.vals = rep(exp.vals, each = n_sims())
+  if (!samp) exp.vals = rep(exp.vals, each = n.sims())
   df = data.frame(
     matrix(perc(colMeans(vals / exp.vals, dims = 2) - 1), nrow = 1)
   )
@@ -68,7 +68,7 @@ output$biasProbsKPsWtn = renderTable({
     checks.lst()$ns.kps.pop.wtn.arr[, , -1:-2] / 
       array(
         rep(checks.lst()$ns.kps.pop.wtn.arr[, , 2], n.kp.tps.prb.wtn), 
-        c(n_sims(), k(), n.kp.tps.prb.wtn)
+        c(n.sims(), k(), n.kp.tps.prb.wtn)
       ), 
     est.ns.kps.pop.lst()$wtn[, -1:-2] / est.ns.kps.pop.lst()$wtn[, 2], 
     kp.tps.prbs.wtn
@@ -82,7 +82,7 @@ output$biasProbsKPsBtn = renderTable({
     checks.lst()$ns.kps.pop.btn.arr[, , -1] / 
       array(
         rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kp.tps.prb.btn), 
-        c(n_sims(), n.srvy.prs(), n.kp.tps.prb.btn)
+        c(n.sims(), n.srvy.prs(), n.kp.tps.prb.btn)
       ), 
     est.ns.kps.pop.lst()$btn[, -1] / est.ns.kps.pop.lst()$btn[, 1], 
     kp.tps.prbs.btn
