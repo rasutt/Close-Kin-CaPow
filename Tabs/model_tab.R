@@ -7,11 +7,11 @@ n_mods = reactive(input$popan + input$close_kin)
 
 # Display parameter values
 output$modParVals <- renderTable({
-  par_vals_df(sim.par.vals(), sim.par.names())
+  par_vals_df(par.vals(), par.names())
 }, digits = 3)
 
 # Display simulation values
-output$modSimVals = renderTable(sim.vals())
+output$modSimVals = renderTable(sim.opts())
 
 # Fit close-kin model
 fit.ck = reactive(if (input$close_kin) {
