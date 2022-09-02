@@ -30,8 +30,44 @@ find.est.errs = function(vals, ests, samp = F) {
 ns.kps.pop.wtn.est.errs = reactive({
   find.est.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn)
 })
+ns.kps.pop.btn.est.errs = reactive({
+  find.est.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn)
+})
+ns.kps.prb.wtn.est.errs = reactive({
+  # Remove population sizes and total numbers of pairs then divide by the latter
+  find.est.errs(
+    checks.lst()$ns.kps.pop.wtn.arr[, , -1:-2] / 
+      array(
+        rep(checks.lst()$ns.kps.pop.wtn.arr[, , 2], n.kp.tps.prb.wtn), 
+        c(n.sims(), k(), n.kp.tps.prb.wtn)
+      ), 
+    est.ns.kps.pop.lst()$wtn[, -1:-2] / est.ns.kps.pop.lst()$wtn[, 2]
+  )
+})
+ns.kps.prb.btn.est.errs = reactive({
+  # Remove population sizes and total numbers of pairs then divide by the latter
+  find.est.errs(
+    checks.lst()$ns.kps.pop.btn.arr[, , -1] / 
+      array(
+        rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kp.tps.prb.btn), 
+        c(n.sims(), n.srvy.prs(), n.kp.tps.prb.btn)
+      ), 
+    est.ns.kps.pop.lst()$btn[, -1] / est.ns.kps.pop.lst()$btn[, 1]
+  )
+})
+ns.kps.cap.wtn.est.errs = reactive({
+  find.est.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn, T)
+})
+ns.kps.cap.btn.est.errs = reactive({
+  find.est.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn, T)
+})
 
 ## Function to find them from true and expected values
+find.est.bias = function(est.errs, type_names) {
+  df = data.frame(matrix(perc(colMeans(est.errs, dims = 2)), nrow = 1))
+  names(df) = type_names
+  df
+}
 est.bias = function(vals, exp.vals, type_names, samp = F) {
   # For the sampled animals the expected values are different for each study but
   # otherwise they are repeated
@@ -47,64 +83,34 @@ est.bias = function(vals, exp.vals, type_names, samp = F) {
 
 # Within surveys
 output$biasNsKPsPopWtn = renderTable({
-  est.bias(
-    checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn, kp.tps.pop.wtn
-  )
+  find.est.bias(ns.kps.pop.wtn.est.errs(), kp.tps.pop.wtn)
 })
 
 # Between surveys
 output$biasNsKPsPopBtn = renderTable({
-  est.bias(
-    checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn, kp.tps.pop.btn
-  )
+  find.est.bias(ns.kps.pop.btn.est.errs(), kp.tps.pop.btn)
 })
 
 ## Probabilities (numbers divided by total numbers of pairs)
 
 # Within surveys
 output$biasProbsKPsWtn = renderTable({
-  # Remove population sizes and total numbers of pairs then divide by the latter
-  est.bias(
-    checks.lst()$ns.kps.pop.wtn.arr[, , -1:-2] / 
-      array(
-        rep(checks.lst()$ns.kps.pop.wtn.arr[, , 2], n.kp.tps.prb.wtn), 
-        c(n.sims(), k(), n.kp.tps.prb.wtn)
-      ), 
-    est.ns.kps.pop.lst()$wtn[, -1:-2] / est.ns.kps.pop.lst()$wtn[, 2], 
-    kp.tps.prbs.wtn
-  )
+  find.est.bias(ns.kps.prb.wtn.est.errs(), kp.tps.prb.wtn)
 })
 
 # Between surveys
 output$biasProbsKPsBtn = renderTable({
-  est.bias(
-    # Remove total numbers of pairs then divide by them
-    checks.lst()$ns.kps.pop.btn.arr[, , -1] / 
-      array(
-        rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kp.tps.prb.btn), 
-        c(n.sims(), n.srvy.prs(), n.kp.tps.prb.btn)
-      ), 
-    est.ns.kps.pop.lst()$btn[, -1] / est.ns.kps.pop.lst()$btn[, 1], 
-    kp.tps.prbs.btn
-  )
+  find.est.bias(ns.kps.prb.btn.est.errs(), kp.tps.prb.btn)
 })
 
 ## Numbers among sampled animals
 
 # Within surveys
 output$biasNsKPsCapWtn = renderTable({
-  est.bias(
-    checks.lst()$ns.kps.cap.wtn.arr,
-    checks.lst()$exp.ns.kps.cap.wtn.arr, kp.tps.cap.wtn,
-    cap = T
-  )
+  find.est.bias(ns.kps.cap.wtn.est.errs(), kp.tps.cap.wtn)
 })
 
 # Between surveys
 output$biasNsKPsCapBtn = renderTable({
-  est.bias(
-    checks.lst()$ns.kps.cap.btn.arr,
-    checks.lst()$exp.ns.kps.cap.btn.arr, kp.tps.cap.btn,
-    cap = T
-  )
+  find.est.bias(ns.kps.cap.btn.est.errs(), kp.tps.cap.btn)
 })

@@ -79,7 +79,7 @@ ui <- fluidPage(
             inputId = "close_kin", label = "Close-kin model", value = T
           )
         ),
-        # ----
+        # Outputs ---- 
         mainPanel(
           h2("Last simulation"),
           h3("Parameter values"),
@@ -105,6 +105,7 @@ ui <- fluidPage(
       tabsetPanel(
         id = "check_sub_tabs",
         selected = "first_study",
+        # First study ----
         tabPanel(
           title = "First study",
           value = "first_study",
@@ -127,12 +128,14 @@ ui <- fluidPage(
           h4("Between surveys"),
           tableOutput(outputId = "firstEstNsKPsPopBtn")
         ),
+        # Populations ----
         tabPanel(
           title = "Populations",
           value = "populations",
           h2("Populations"),
           plotOutput(outputId = "checkExpPop")
         ),
+        # Kin-pairs ----
         tabPanel(
           title = "Kin-pairs",
           value = "kin_pairs",
@@ -156,6 +159,37 @@ ui <- fluidPage(
           h4("Between surveys")
           # tableOutput(outputId = "biasNsKPsCapBtn")
         ),
+        # Error distributions ----
+        tabPanel(
+          title = "Error distributions",
+          value = "err_dists",
+          h2("Kin-pair estimator error distributions"),
+          h3("Numbers in whole population"),
+          h4("Within surveys"),
+          plotOutput(outputId = "nsAPsWtnPop"),
+          # plotOutput(outputId = "nsSMPsWtnPop"),
+          # plotOutput(outputId = "nsSFPsWtnPop"),
+          # h4("Between surveys"),
+          # plotOutput(outputId = "nsAPsBtnPop"),
+          # plotOutput(outputId = "nsSPsBtnPop"),
+          # plotOutput(outputId = "nsSMPsBtnPop"),
+          
+          h3("Probabilities"),
+          h4("Within surveys"),
+          plotOutput(outputId = "probSMPsWtnPop"),
+          # h4("Between surveys"),
+          # plotOutput(outputId = "probSPsBtnPop"),
+
+          h3("Numbers among sampled animals"),
+          h4("Within surveys"),
+          plotOutput(outputId = "nsPOPsWtn")
+          # plotOutput(outputId = "nsSMPsWtn"),
+          # plotOutput(outputId = "nsHSPsWtn"),
+          # h4("Between surveys"),
+          # plotOutput(outputId = "nsSPsBtn"),
+          # plotOutput(outputId = "nsPOPsBtn")
+        ),
+        # Temporal estimates ----
         tabPanel(
           title = "Temporal estimates",
           value = "temp_ests",
@@ -163,39 +197,10 @@ ui <- fluidPage(
           h4("Same-mother/father pairs in whole population including animals
           born in each year in the population history")
           # tableOutput(outputId = "nsKPsTemp")
-        ),
-        tabPanel(
-          title = "Error distributions",
-          value = "err_dists",
-          h2("Kin-pair estimator error distributions"),
-          h3("Numbers in whole population"),
-          h4("Within surveys"),
-          plotOutput(outputId = "nsAPsWtnPop")
-          # plotOutput(outputId = "nsSMPsWtnPop"),
-          # plotOutput(outputId = "nsSFPsWtnPop"),
-          # h4("Between surveys"),
-          # plotOutput(outputId = "nsAPsBtnPop"),
-          # plotOutput(outputId = "nsSPsBtnPop"),
-          # plotOutput(outputId = "nsSMPsBtnPop"),
-          #
-          # h3("Probabilities"),
-          # h4("Within surveys"),
-          # plotOutput(outputId = "probSMPsWtnPop"),
-          # h4("Between surveys"),
-          # plotOutput(outputId = "probSPsBtnPop"),
-          #
-          # h3("Numbers among sampled animals"),
-          # h4("Within surveys"),
-          # plotOutput(outputId = "nsPOPsWtn"),
-          # plotOutput(outputId = "nsSMPsWtn"),
-          # plotOutput(outputId = "nsHSPsWtn"),
-          # h4("Between surveys"),
-          # plotOutput(outputId = "nsSPsBtn"),
-          # plotOutput(outputId = "nsPOPsBtn")
         )
+        # ----
       )
     ), 
-    # ----
     # Model tab ----
     tabPanel(
       title = "Analyze model performance",
@@ -214,7 +219,6 @@ ui <- fluidPage(
       h4("95% confidence intervals for lambda"),
       plotOutput(outputId = "CIPlot")
     ),
-    # ----
     # Save/load tab ----
     tabPanel(
       title = "Save/load",
