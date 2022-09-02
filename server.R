@@ -13,7 +13,7 @@ dyn.load(dynlib("TMB_objective_functions/CloseKinNLL"))
 
 # Define server logic for app
 server <- function(input, output) {
-  # Reactive variables ----
+  # Reactive variables (for next simulation) ----
   # Population growth rate
   lambda.rct <- reactive(input$rho + input$phi) 
   # Survey years
@@ -38,26 +38,26 @@ server <- function(input, output) {
     sum(exp.N.srvy.yrs) - sum(exp.N.srvy.yrs[-length(srvy.yrs.rct())] * 
       input$phi^(srvy.gaps.rct()))
   })
-  # Simulation parameter values
-  sim.par.vals.rct = reactive({
+  # Parameter names
+  par.names.rct = reactive({
+    c("lambda", "phi", "Exp_N_final", "Exp_Ns", paste0("p", srvy.yrs.rct()))
+  })
+  # Parameter values
+  par.vals.rct = reactive({
     c(
       lambda.rct(), input$phi, exp.N.t.rct()[input$hist.len], exp.Ns.rct(), 
       rep(input$p, k.rct())
     )
   })
-  # Simulation parameter names
-  sim.par.names.rct = reactive({
-    c("lambda", "phi", "Exp_N_final", "Exp_Ns", paste0("p", srvy.yrs.rct()))
-  })
-  # Simulation values 
-  sim.vals.rct = reactive({
+  # Simulation options 
+  sim.opts.rct = reactive({
     df = data.frame(
       input$n_sims, input$hist.len, input$clvng.ints, input$clvng.p, 
       input$tmp.emgn, input$alpha
     )
     names(df) = c(
       "Number of studies", "Population history length", 
-      "Female time-order breeding", "Calving capture probability", 
+      "Female time-order breeding", "Additional calving-capture probability", 
       "Male absense probability", "Age of sexual maturity"
     )
     df
@@ -66,7 +66,7 @@ server <- function(input, output) {
   models = reactive(input$models) 
   # ----
   
-  # Variables bound to simulate button ----
+  # Variables bound to simulate button (for last simulation) ----
   # Individual survival rate
   phi <- bindEvent(reactive(input$phi), input$simulate, ignoreNULL = F)
   # Birthrate
@@ -117,16 +117,17 @@ server <- function(input, output) {
   }, input$simulate, ignoreNULL = F)
   # Expected super-population size
   exp.Ns = bindEvent(exp.Ns.rct, input$simulate, ignoreNULL = F) 
-  # Simulation parameter values
-  sim.par.vals = bindEvent(sim.par.vals.rct, input$simulate, ignoreNULL = F) 
   # Simulation parameter names
-  sim.par.names = bindEvent(sim.par.names.rct, input$simulate, ignoreNULL = F) 
+  par.names = reactiveVal()
+  par.names = bindEvent(par.names.rct, input$simulate, ignoreNULL = F) 
+  # Parameter values
+  par.vals = bindEvent(par.vals.rct, input$simulate, ignoreNULL = F) 
   # Estimate parameter names
   est.par.names = bindEvent({
     reactive(c("lambda", "phi", "N_final", "Ns", paste0("p", srvy.yrs())))
   }, input$simulate, ignoreNULL = F) 
-  # Simulation values 
-  sim.vals = bindEvent(sim.vals.rct, input$simulate, ignoreNULL = F) 
+  # Simulation options 
+  sim.opts = bindEvent(sim.opts.rct, input$simulate, ignoreNULL = F) 
   # ----
 
   # Function to make data frame of parameter values for display
@@ -142,12 +143,18 @@ server <- function(input, output) {
   # Function to prepare proportion to print as percentage
   perc = function(prpn) paste0(round(prpn * 100, 1), "%")
 
-  # Load functions and outputs for simulating studies, checking simulations, and
-  # analyzing model performance
+  # Load data, functions, and outputs for simulating studies, checking
+  # simulations, and analyzing model performance
+  load("ckc_saved_objs.Rdata")
+  par.names = reactiveVal(saved_objs$par.names)
+  par.vals = reactiveVal(saved_objs$par.vals)
+  sim.opts = reactiveVal(saved_objs$sim.opts)
+  sim.lst = reactiveVal(saved_objs$sim.lst)
+  checks.lst = reactiveVal(saved_objs$checks.lst)
+  
   source("Tabs/sim_tab.R", local = T)
   source("Tabs/check_tab.R", local = T)
   source("Tabs/Check_sub_tabs/first_study.R", local = T)
-  source("Tabs/Check_sub_tabs/vals_simed_pops.R", local = T)
   source("Tabs/Check_sub_tabs/kin_pairs.R", local = T)
   source("Tabs/Check_sub_tabs/temp_ests.R", local = T)
   source("Tabs/Check_sub_tabs/err_dists.R", local = T)

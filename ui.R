@@ -81,14 +81,19 @@ ui <- fluidPage(
         ),
         # ----
         mainPanel(
-          h4("Last simulation"),
-          tableOutput(outputId = "simParVals"),
-          tableOutput(outputId = "lastSimVals"),
-          plotOutput(outputId = "simExpPop"),
-          h4("Next simulation"),
-          tableOutput(outputId = "selParVals"),
-          tableOutput(outputId = "nextSimVals"),
-          plotOutput(outputId = "selExpPop")
+          h2("Last simulation"),
+          h3("Parameter values"),
+          tableOutput(outputId = "lastParVals"),
+          h3("Simulation options"),
+          tableOutput(outputId = "lastSimOpts"),
+          plotOutput(outputId = "lastExpPop"),
+          
+          h2("Next simulation"),
+          h3("Parameter values"),
+          tableOutput(outputId = "nextParVals"),
+          h3("Simulation options"),
+          tableOutput(outputId = "nextSimOpts"),
+          plotOutput(outputId = "nextExpPop")
         ),
         # ----
       )
@@ -99,14 +104,7 @@ ui <- fluidPage(
       value = "sim_tab",
       tabsetPanel(
         id = "check_sub_tabs",
-        selected = "values_simulated",
-        tabPanel(
-          title = "Values simulated",
-          value = "values_simulated",
-          h2("Values simulated"),
-          tableOutput(outputId = "checkParVals"),
-          tableOutput(outputId = "checkSimVals")
-        ),
+        selected = "first_study",
         tabPanel(
           title = "First study",
           value = "first_study",

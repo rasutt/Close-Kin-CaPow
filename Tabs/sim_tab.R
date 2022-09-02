@@ -1,8 +1,5 @@
 # Simulation and outputs bound to simulate button
 
-load("sims_and_checks.Rdata")
-sim.lst = reactiveVal(sims)
-
 # Simulate population and capture histories
 observeEvent(input$simulate, {
   # Initial population size
@@ -38,19 +35,16 @@ observeEvent(input$simulate, {
 ## Last simulation
 
 # Display simulation parameter values
-output$simParVals <- renderTable({
-  # Force simulation when starting app in sim tab
-  # req(sim.lst())
-  
+output$lastParVals <- renderTable({
   # Make data frame for display
-  par_vals_df(sim.par.vals(), sim.par.names())
+  par_vals_df(par.vals(), par.names())
 }, digits = 3)
 
 # Display last simulation values
-output$lastSimVals = renderTable(sim.vals())
+output$lastSimOpts = renderTable(sim.opts())
 
 # Plot expected population size over time
-output$simExpPop <- renderPlot({
+output$lastExpPop <- renderPlot({
   plot(
     (f.year() - input$hist.len + 1):f.year(), exp.N.t(), 
     col = 'red', lwd = 2, t = 'l', ylim = c(0, max(exp.N.t())),
@@ -71,16 +65,16 @@ output$simExpPop <- renderPlot({
 ## Next simulation
 
 # Display selected parameter values
-output$selParVals <- renderTable({
+output$nextParVals <- renderTable({
   # Make data frame for display
-  par_vals_df(sim.par.vals.rct(), sim.par.names.rct())
+  par_vals_df(par.vals.rct(), par.names.rct())
 }, digits = 3)
 
 # Display next simulation values
-output$nextSimVals = renderTable(sim.vals.rct())
+output$nextSimOpts = renderTable(sim.opts.rct())
 
 # Plot expected population size over time
-output$selExpPop <- renderPlot({
+output$nextExpPop <- renderPlot({
   plot(
     (f.year.rct() - input$hist.len + 1):f.year.rct(), exp.N.t.rct(), 
     col = 'red', lwd = 2, t = 'l', ylim = c(0, max(exp.N.t.rct())),

@@ -2,11 +2,16 @@
 
 # Save checks
 output$downloadData <- downloadHandler(
-  filename = "sims_and_checks.Rdata",
+  filename = "ckc_saved_objs.Rdata",
   content = function(file) {
-    sims = sim.lst()
-    checks = checks.lst()
-    save(sims, checks, file = file)
+    saved_objs = list(
+      par.names = par.names(),
+      par.vals = par.vals(),
+      sim.opts= sim.opts(),
+      sim.lst = sim.lst(),
+      checks.lst = checks.lst()
+    )
+    save(saved_objs, file = file)
   }
 )
 

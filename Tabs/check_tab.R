@@ -29,7 +29,6 @@ n.kp.tps.prb.btn = length(kp.tps.prbs.btn)
 n.kp.tps.t = length(kp.tps.t)
 
 # Calculate checks for simulated studies
-checks.lst = reactiveVal(checks)
 observeEvent(input$simulate, {
   # Objects to store results
   N.t.mat = matrix(nrow = n_sims(), ncol = hist.len())
