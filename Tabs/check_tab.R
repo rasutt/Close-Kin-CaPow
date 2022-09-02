@@ -32,16 +32,26 @@ n.kp.tps.t = length(kp.tps.t)
 observeEvent(input$simulate, {
   # Objects to store results
   N.t.mat = matrix(nrow = n.sims(), ncol = hist.len())
-  ns.kps.t.arr = array(dim = c(n.sims(), hist.len() - 2, n.kp.tps.t))
   # ns.caps.mat = ns.clvng.caps.mat = ns.clvng.mat = 
   #   matrix(nrow = n.sims(), ncol = k())
-  ns.kps.pop.wtn.arr = array(dim = c(n.sims(), k(), n.kp.tps.pop.wtn))
-  ns.kps.pop.btn.arr = array(dim = c(n.sims(), n.srvy.prs(), n.kp.tps.pop.btn))
-  ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr = 
-    array(dim = c(n.sims(), k(), n.kp.tps.cap.wtn))
-  ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr = 
-    array(dim = c(n.sims(), n.srvy.prs(), n.kp.tps.cap.btn))
   prpn.prnts.unkn.vec = Ns.vec = numeric(n.sims())
+  ns.kps.pop.wtn.arr = array(
+    dim = c(n.sims(), k(), n.kp.tps.pop.wtn),
+    dimnames = list(NULL, Survey = srvy.yrs(), kp.type = kp.tps.pop.wtn)
+  )
+  ns.kps.pop.btn.arr = array(
+    dim = c(n.sims(), n.srvy.prs(), n.kp.tps.pop.btn),
+    dimnames = list(NULL, Survey_pair = srvy.prs(), kp.type = kp.tps.pop.btn)
+  )
+  ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr = array(
+    dim = c(n.sims(), k(), n.kp.tps.cap.wtn),
+    dimnames = list(NULL, Survey = srvy.yrs(), kp.type = kp.tps.cap.wtn)
+  )
+  ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr = array(
+    dim = c(n.sims(), n.srvy.prs(), n.kp.tps.cap.btn),
+    dimnames = list(NULL, Survey_pair = srvy.prs(), kp.type = kp.tps.cap.btn)
+  )
+  # ns.kps.t.arr = array(dim = c(n.sims(), hist.len() - 2, n.kp.tps.t))
   
   # Loop over histories
   withProgress({
@@ -112,3 +122,53 @@ observeEvent(input$simulate, {
   ))
 })
 
+# Estimated numbers of kin-pairs for whole population
+est.ns.kps.pop.lst = reactive({
+  FindEstNsKPsPop(
+    exp.N.t(), s.yr.inds(), phi(), lambda(), alpha(), srvy.yrs(), k()
+  )
+})
+
+# Function to find estimate errors as proportions of estimates
+find.est.errs = function(vals, ests, samp = F) {
+  # For sampled animals the expected values are different for each study but
+  # otherwise they are repeated
+  if (!samp) ests = rep(ests, each = n.sims())
+  vals / ests - 1
+}
+
+# Estimate errors as proportions of estimates
+ns.kps.pop.wtn.est.errs = reactive({
+  find.est.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn)
+})
+ns.kps.pop.btn.est.errs = reactive({
+  find.est.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn)
+})
+ns.kps.prb.wtn.est.errs = reactive({
+  # Remove population sizes and total numbers of pairs then divide by the latter
+  find.est.errs(
+    checks.lst()$ns.kps.pop.wtn.arr[, , -1:-2] / 
+      array(
+        rep(checks.lst()$ns.kps.pop.wtn.arr[, , 2], n.kp.tps.prb.wtn), 
+        c(n.sims(), k(), n.kp.tps.prb.wtn)
+      ), 
+    est.ns.kps.pop.lst()$wtn[, -1:-2] / est.ns.kps.pop.lst()$wtn[, 2]
+  )
+})
+ns.kps.prb.btn.est.errs = reactive({
+  # Remove population sizes and total numbers of pairs then divide by the latter
+  find.est.errs(
+    checks.lst()$ns.kps.pop.btn.arr[, , -1] / 
+      array(
+        rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kp.tps.prb.btn), 
+        c(n.sims(), n.srvy.prs(), n.kp.tps.prb.btn)
+      ), 
+    est.ns.kps.pop.lst()$btn[, -1] / est.ns.kps.pop.lst()$btn[, 1]
+  )
+})
+ns.kps.cap.wtn.est.errs = reactive({
+  find.est.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn, T)
+})
+ns.kps.cap.btn.est.errs = reactive({
+  find.est.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn, T)
+})

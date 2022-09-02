@@ -2,16 +2,11 @@
 
 # Function to plot simulated versus expected numbers of kin-pairs for one type
 # of kin-pair
-nsKPsPlot = function(errs, kp.type, wtn = T) {
-  if (wtn) {
-    xlab = "Survey"
-    colnames(errs) = srvy.yrs()
-  } else {
-    xlab = "Survey-pair"
-    colnames(errs) = apply(combn(srvy.yrs(), 2), 2, paste, collapse = "-")
-  }
-  
-  boxplot(errs, main = kp.type, xlab = xlab, ylab = "Proportional errors")
+nsKPsPlot = function(errs, kp.type) {
+  boxplot(
+    errs, main = kp.type, xlab = names(dimnames(errs))[2],
+    ylab = "Proportional errors"
+  )
   abline(h = 0, col = 'red')
   abline(h = mean(errs), col = 'blue')
   legend(
@@ -34,16 +29,26 @@ output$nsAPsWtnPop = renderPlot(
     kp.tps.pop.wtn[2]
   )
 )
-# # All pairs between survey years 
-# output$nsAPsBtnPop = renderPlot(nsKPsPlot(2, T))
+# All pairs between survey years
+output$nsAPsBtnPop = renderPlot(
+  nsKPsPlot(
+    ns.kps.pop.btn.est.errs()[, , 1],
+    kp.tps.pop.btn[1]
+  )
+)
 # # Self-pairs between survey years 
 # output$nsSPsBtnPop = renderPlot(nsKPsPlot(3, T))
 # # Same-mother pairs within survey years 
 # output$nsSMPsWtnPop = renderPlot(nsKPsPlot(4, T))
 # # Same-father pairs within survey years 
 # output$nsSFPsWtnPop = renderPlot(nsKPsPlot(5, T))
-# # Same-mother pairs between survey years 
-# output$nsSMPsBtnPop = renderPlot(nsKPsPlot(9, T))
+# Same-mother pairs between survey years
+output$nsSMPsBtnPop = renderPlot(
+  nsKPsPlot(
+    ns.kps.pop.btn.est.errs()[, , 3],
+    kp.tps.pop.btn[3]
+  )
+)
 
 ## Probabilities
 

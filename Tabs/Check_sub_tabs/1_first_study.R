@@ -29,23 +29,17 @@ output$firstNsKPsPopWtn = renderTable({
 # Between surveys
 output$firstNsKPsPopBtn = renderTable({
   form.tab(
-    t(checks.lst()$ns.kps.pop.btn.arr[1, , ]), kp.tps.pop.btn,
-    apply(combn(srvy.yrs(), 2), 2, paste, collapse = "-")
+    t(checks.lst()$ns.kps.pop.btn.arr[1, , ]), kp.tps.pop.btn, srvy.prs()
   )
 }, rownames = T)
 
 ## Estimated numbers of kin-pairs in whole population
 # Within surveys
 output$firstEstNsKPsPopWtn = renderTable({
-  form.tab(
-    t(est.ns.kps.pop.lst()$wtn), kp.tps.pop.wtn, srvy.yrs()
-  )
+  form.tab(t(est.ns.kps.pop.lst()$wtn), kp.tps.pop.wtn, srvy.yrs())
 }, rownames = T)
 
 # Between surveys
 output$firstEstNsKPsPopBtn = renderTable({
-  form.tab(
-    t(est.ns.kps.pop.lst()$btn), kp.tps.pop.btn, 
-    apply(combn(srvy.yrs(), 2), 2, paste, collapse = "-")
-  )
+  form.tab(t(est.ns.kps.pop.lst()$btn), kp.tps.pop.btn, srvy.prs())
 }, rownames = T)

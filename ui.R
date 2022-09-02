@@ -169,10 +169,10 @@ ui <- fluidPage(
           plotOutput(outputId = "nsAPsWtnPop"),
           # plotOutput(outputId = "nsSMPsWtnPop"),
           # plotOutput(outputId = "nsSFPsWtnPop"),
-          # h4("Between surveys"),
-          # plotOutput(outputId = "nsAPsBtnPop"),
+          h4("Between surveys"),
+          plotOutput(outputId = "nsAPsBtnPop"),
           # plotOutput(outputId = "nsSPsBtnPop"),
-          # plotOutput(outputId = "nsSMPsBtnPop"),
+          plotOutput(outputId = "nsSMPsBtnPop"),
           
           h3("Probabilities"),
           h4("Within surveys"),

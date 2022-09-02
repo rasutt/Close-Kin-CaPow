@@ -88,6 +88,7 @@ server <- function(input, output) {
   srvy.gaps = reactiveVal(saved.objs$srvy.gaps)
   k = reactiveVal(saved.objs$k)
   n.srvy.prs = reactiveVal(saved.objs$n.srvy.prs)
+  srvy.prs = reactiveVal(saved.objs$srvy.prs)
   fnl.year = reactiveVal(saved.objs$fnl.year)
   fst.year = reactiveVal(saved.objs$fst.year)
   sim.yrs = reactiveVal(saved.objs$sim.yrs)
@@ -137,6 +138,8 @@ server <- function(input, output) {
     k(k.rct())
     # Number of pairs of surveys
     n.srvy.prs(choose(k(), 2))
+    # Survey pairs
+    srvy.prs(apply(combn(srvy.yrs(), 2), 2, paste, collapse = "-"))
     # Final survey/simulation year
     fnl.year(fnl.year.rct())
     # First simulation year

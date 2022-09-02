@@ -21,6 +21,7 @@ output$downloadData <- downloadHandler(
       srvy.gaps = srvy.gaps(),
       k = k(),
       n.srvy.prs = n.srvy.prs(),
+      srvy.prs = srvy.prs(),
       fnl.year = fnl.year(),
       fst.year = fst.year(),
       sim.yrs = sim.yrs(),
