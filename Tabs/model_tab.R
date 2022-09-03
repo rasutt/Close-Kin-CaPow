@@ -1,9 +1,9 @@
 # Number of parameters
-n_pars = reactive(length(est.par.names()))
+n.pars = reactive(length(est.par.names()))
 # Names of models requested
-mod_names = reactive(mod_choices[c(input$popan, input$close_kin)])
+mod.names = reactive(mod.choices[c(input$popan, input$close.kin)])
 # Number of models requested
-n_mods = reactive(input$popan + input$close_kin)
+n.mods = reactive(input$popan + input$close.kin)
 
 # Display parameter values
 output$modParVals <- renderTable({
@@ -11,10 +11,10 @@ output$modParVals <- renderTable({
 }, digits = 3)
 
 # Display simulation values
-output$modSimVals = renderTable(sim.opts())
+output$modSimOpts = renderTable(sim.opts())
 
 # Fit close-kin model
-fit.ck = reactive(if (input$close_kin) {
+fit.ck = reactive(if (input$close.kin) {
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), NA)
   ck.lwr <- c(0, 0.75, NA)
@@ -50,7 +50,7 @@ fit.ck = reactive(if (input$close_kin) {
       
       # Try to fit model
       ck.tmb.res <- TryCloseKinTMB(
-        k(), srvy.gaps(), fnl.year(), srvy.yrs(), ns.caps, ns.kps.lst, 
+        ns.kps.lst, k(), srvy.gaps(), fnl.year(), srvy.yrs(), ns.caps, 
         ck.start, ck.lwr, ck.upr, alpha()
       )
       ck.tmb.ests[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
@@ -123,36 +123,36 @@ fit.ppn = reactive(if (input$popan) {
 # Combine model estimates
 fit.lst = reactive({
   # Boolean for models requested 
-  mod.bool = c(input$popan, input$close_kin)
+  mod.bool = c(input$popan, input$close.kin)
   
   list(
-    ests = list(popan = fit.ppn()$ests, close_kin = fit.ck()$ests)[mod.bool],
-    ses = list(popan = fit.ppn()$ses, close_kin = fit.ck()$ses)[mod.bool],
-    cnvgs = list(popan = fit.ppn()$cnvgs, close_kin = fit.ck()$cnvgs)[mod.bool]
+    ests = list(popan = fit.ppn()$ests, close.kin = fit.ck()$ests)[mod.bool],
+    ses = list(popan = fit.ppn()$ses, close.kin = fit.ck()$ses)[mod.bool],
+    cnvgs = list(popan = fit.ppn()$cnvgs, close.kin = fit.ck()$cnvgs)[mod.bool]
   )
 })
 
 # Check when optimizer converged and standard errors calculable
 check.ests = reactive({
   # Lists for retained model estimate and standard error matrices
-  ests = ses = ses_ok = cis_ok = lcbs = ucbs = ci_cov = N.fin.errs = Ns.errs =
-    list(n_mods())
+  ests = ses = ses.ok = cis.ok = lcbs = ucbs = ci.cov = N.fin.errs = Ns.errs =
+    list(n.mods())
   # Vectors for model stats
-  prpn_cnvgd = prpn_ses_ok = prpn_cis_ok = numeric(n_mods())
+  prpn.cnvgd = prpn.ses.ok = prpn.cis.ok = numeric(n.mods())
   # Matrix for confidence interval coverage
-  prpn_ci_cov = matrix(NA, n_mods(), n_pars())
+  prpn.ci.cov = matrix(NA, n.mods(), n.pars())
   
   # Loop over models requested
-  for (i in 1:n_mods()) {
+  for (i in 1:n.mods()) {
     # Find where model fit successfully
-    ses_ok[[i]] = rowSums(is.na(fit.lst()$ses[[i]][, 1:4])) == 0
-    cis_ok[[i]] = fit.lst()$cnvgs[[i]] & ses_ok[[i]]
-    ests[[i]] = fit.lst()$ests[[i]][cis_ok[[i]], ]
-    ses[[i]] = fit.lst()$ses[[i]][cis_ok[[i]], ]
+    ses.ok[[i]] = rowSums(is.na(fit.lst()$ses[[i]][, 1:4])) == 0
+    cis.ok[[i]] = fit.lst()$cnvgs[[i]] & ses.ok[[i]]
+    ests[[i]] = fit.lst()$ests[[i]][cis.ok[[i]], ]
+    ses[[i]] = fit.lst()$ses[[i]][cis.ok[[i]], ]
     
     # Find differences between population parameter estimates and true values
-    N.fin.errs[[i]] = ests[[i]][, 3] / sim.lst()$N.fin.vec[cis_ok[[i]]] - 1
-    Ns.errs[[i]] = ests[[i]][, 4] / sim.lst()$Ns.vec[cis_ok[[i]]] - 1
+    N.fin.errs[[i]] = ests[[i]][, 3] / sim.lst()$N.fin.vec[cis.ok[[i]]] - 1
+    Ns.errs[[i]] = ests[[i]][, 4] / sim.lst()$Ns.vec[cis.ok[[i]]] - 1
 
     # Confidence intervals (creates matrices of correct size)
     radius = 1.96 * fit.lst()$ses[[i]]
@@ -160,38 +160,38 @@ check.ests = reactive({
     ucbs[[i]] = fit.lst()$ests[[i]] + radius
     
     # Overwrite with log-normal CI's for population parameters
-    l_vars = log(1 + (fit.lst()$ses[[i]][, 3:4] / fit.lst()$ests[[i]][, 3:4])^2)
-    fctr <- exp(1.959964 * sqrt(l_vars))
+    l.vars = log(1 + (fit.lst()$ses[[i]][, 3:4] / fit.lst()$ests[[i]][, 3:4])^2)
+    fctr <- exp(1.959964 * sqrt(l.vars))
     lcbs[[i]][, 3:4] <- fit.lst()$ests[[i]][, 3:4] / fctr
     ucbs[[i]][, 3:4] <- fit.lst()$ests[[i]][, 3:4] * fctr
     
-    # Bounds are matrices for studies x parameters, true_vals is a vector for
-    # parameters, and cis_ok is a vector for studies
-    ci_cov[[i]] = 
+    # Bounds are matrices for studies x parameters, par.vals is a vector for
+    # parameters, and cis.ok is a vector for studies
+    ci.cov[[i]] = 
       t(par.vals() > t(lcbs[[i]]) & par.vals() < t(ucbs[[i]])) &
-      cis_ok[[i]]
+      cis.ok[[i]]
     
     # Overwrite for population parameters
-    true_pops = cbind(sim.lst()$N.fin.vec, sim.lst()$Ns.vec)
-    ci_cov[[i]][, 3:4] = 
-      true_pops > lcbs[[i]][, 3:4] & true_pops < ucbs[[i]][, 3:4] & cis_ok[[i]]
+    true.pops = cbind(sim.lst()$N.fin.vec, sim.lst()$Ns.vec)
+    ci.cov[[i]][, 3:4] = 
+      true.pops > lcbs[[i]][, 3:4] & true.pops < ucbs[[i]][, 3:4] & cis.ok[[i]]
     
     # Find proportions
-    prpn_ci_cov[i, ] = colMeans(ci_cov[[i]])
-    prpn_cnvgd[i] = mean(fit.lst()$cnvgs[[i]])
-    prpn_ses_ok[i] = mean(ses_ok[[i]])
-    prpn_cis_ok[i] = mean(cis_ok[[i]])
+    prpn.ci.cov[i, ] = colMeans(ci.cov[[i]])
+    prpn.cnvgd[i] = mean(fit.lst()$cnvgs[[i]])
+    prpn.ses.ok[i] = mean(ses.ok[[i]])
+    prpn.cis.ok[i] = mean(cis.ok[[i]])
   }
   
-  names(ests) = names(ses) = names(cis_ok) = names(lcbs) = names(ucbs) = 
-    names(ci_cov) = names(N.fin.errs) = names(Ns.errs) = names(fit.lst()$ests)
-  colnames(prpn_ci_cov) = est.par.names()
+  names(ests) = names(ses) = names(cis.ok) = names(lcbs) = names(ucbs) = 
+    names(ci.cov) = names(N.fin.errs) = names(Ns.errs) = names(fit.lst()$ests)
+  colnames(prpn.ci.cov) = est.par.names()
   
   list(
-    ests = ests, ses = ses, lcbs = lcbs, ucbs = ucbs, ci_cov = ci_cov,
-    ses_ok = ses_ok, cis_ok = cis_ok, prpn_ci_cov = prpn_ci_cov,
-    prpn_cnvgd = prpn_cnvgd, prpn_ses_ok = prpn_ses_ok, 
-    prpn_cis_ok = prpn_cis_ok, N.fin.errs = N.fin.errs, Ns.errs = Ns.errs
+    ests = ests, ses = ses, lcbs = lcbs, ucbs = ucbs, ci.cov = ci.cov,
+    ses.ok = ses.ok, cis.ok = cis.ok, prpn.ci.cov = prpn.ci.cov,
+    prpn.cnvgd = prpn.cnvgd, prpn.ses.ok = prpn.ses.ok, 
+    prpn.cis.ok = prpn.cis.ok, N.fin.errs = N.fin.errs, Ns.errs = Ns.errs
   )
 })
 
@@ -200,10 +200,10 @@ check.ests = reactive({
 output$modStats = renderTable({
   perc = function(stat) paste0(round(stat * 100, 1), "%")
   data.frame(
-    model = mod_names(), 
-    optimizer_converged = perc(check.ests()$prpn_cnvgd), 
-    standard_errors_found = perc(check.ests()$prpn_ses_ok), 
-    fit_successful = perc(check.ests()$prpn_cis_ok)
+    model = mod.names(), 
+    optimizer_converged = perc(check.ests()$prpn.cnvgd), 
+    standard_errors_found = perc(check.ests()$prpn.ses.ok), 
+    fit_successful = perc(check.ests()$prpn.cis.ok)
   )
 })
 
@@ -232,9 +232,9 @@ output$modComp <- renderPlot({
 # Print CI coverage
 output$CICov = renderTable({
   data.frame(
-    model = mod_names(), 
+    model = mod.names(), 
     matrix(
-      perc(check.ests()$prpn_ci_cov), n_mods(), n_pars(), 
+      perc(check.ests()$prpn.ci.cov), n.mods(), n.pars(), 
       dimnames = list(NULL, est.par.names())
     )
   )
@@ -248,7 +248,7 @@ output$firstResults <- renderTable({
   colnames(res.mat) = est.par.names()
   
   # Model estimates
-  for (i in 1:n_mods()) {
+  for (i in 1:n.mods()) {
     res.mat = rbind(
       res.mat, 
       fit.lst()$ests[[i]][1, ], fit.lst()$ses[[i]][1, ],
@@ -262,8 +262,8 @@ output$firstResults <- renderTable({
     "upper_confidence_bound"
   )
   res.df = data.frame(
-    model = c("true_values", rep(mod_names(), each = 4)), 
-    value = c("true_values", rep(res.vals, n_mods())),
+    model = c("true_values", rep(mod.names(), each = 4)), 
+    value = c("true_values", rep(res.vals, n.mods())),
     res.mat  
   )
   
@@ -275,9 +275,9 @@ output$firstResults <- renderTable({
 
 # Plot confidence intervals for lambda
 output$CIPlot = renderPlot({
-  par(mfrow = c(n_mods(), 1), mar = c(3.1, 4.1, 2.1, 2.1))
+  par(mfrow = c(n.mods(), 1), mar = c(3.1, 4.1, 2.1, 2.1))
   # Loop over models requested
-  for (m in 1:n_mods()) {
+  for (m in 1:n.mods()) {
     # Loop over parameters, just lambda for now
     for (p in 1) {
       ord = order(fit.lst()$ests[[m]][, p])
@@ -285,19 +285,19 @@ output$CIPlot = renderPlot({
       plot(
         rep(1:n.sims(), 2), 
         c(check.ests()$lcbs[[m]][, p], check.ests()$ucbs[[m]][, p]), 
-        main = mod_names()[m], ylab = est.par.names()[p], xlab = "", type = 'n'
+        main = mod.names()[m], ylab = est.par.names()[p], xlab = "", type = 'n'
       )
       # Plot estimates
       points(
         1:n.sims(), fit.lst()$ests[[m]][ord, p], pch = "-", 
-        col = 1 + !check.ests()$ci_cov[[m]][ord, p]
+        col = 1 + !check.ests()$ci.cov[[m]][ord, p]
       )
       # Plot intervals
       arrows(
         1:n.sims(), check.ests()$lcbs[[m]][ord, p], 
         1:n.sims(), check.ests()$ucbs[[m]][ord, p], 
         code = 3, length = 0.02, angle = 90, 
-        col = 1 + !check.ests()$ci_cov[[m]][ord, p]
+        col = 1 + !check.ests()$ci.cov[[m]][ord, p]
       )
       # True parameter value
       abline(h = par.vals()[p], col = 2)

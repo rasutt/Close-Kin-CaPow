@@ -76,7 +76,7 @@ ui <- fluidPage(
             inputId = "popan", label = "Popan model", value = T
           ),
           checkboxInput(
-            inputId = "close_kin", label = "Close-kin model", value = T
+            inputId = "close.kin", label = "Close-kin model", value = T
           )
         ),
         # Outputs ---- 
@@ -205,9 +205,11 @@ ui <- fluidPage(
     tabPanel(
       title = "Analyze model performance",
       value = "model_tab",
-      h4("Values simulated"),
+      h2("Analyze model performance"),
+      h3("Parameter values"),
       tableOutput(outputId = "modParVals"),
-      tableOutput(outputId = "modSimVals"),
+      h3("Simulation options"),
+      tableOutput(outputId = "modSimOpts"),
       h4("Model fitting success rates"),
       tableOutput(outputId = "modStats"),
       h4("Estimates"),

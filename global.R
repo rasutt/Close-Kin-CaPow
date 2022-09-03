@@ -7,7 +7,7 @@ max_phi = 1
 step_phi = 0.005
 
 # Model choices
-mod_choices = c("Popan", "Close-kin")
+mod.choices = c("Popan", "Close-kin")
 
 # Set simulation parameters for basic scenario
 stch.bths <- T # Set whether numbers of births stochastic

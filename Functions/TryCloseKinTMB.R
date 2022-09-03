@@ -1,15 +1,14 @@
 # Try to fit close kin model with TMB
 TryCloseKinTMB <- function(
-  k, srvy.gaps, f.year, srvy.yrs, ns.caps, ns.kps.lst, ck.start, ck.lwr, ck.upr,
+  ns.kps.lst, k, srvy.gaps, f.year, srvy.yrs, ns.caps, ck.start, ck.lwr, ck.upr,
   alpha
 ) {
   # Create TMB function
   data <- list(
-    nsPOPswtn = ns.kps.lst$ns.POPs.wtn, 
-    # nsHSPswtn = ns.kps.lst$ns.HSPs.wtn, 
-    nsPOPsbtn = ns.kps.lst$ns.POPs.btn, nsSPsbtn = ns.kps.lst$ns.SPs.btn, k = k, 
-    srvygaps = srvy.gaps, fyear = f.year, srvyyrs = srvy.yrs, nscaps = ns.caps, 
-    alpha = alpha
+    nsPOPswtn = ns.kps.lst$wtn[1, ], # nsHSPswtn = ns.kps.lst$wtn[3, ], 
+    nsSPsbtn = ns.kps.lst$btn[1, ], nsPOPsbtn = ns.kps.lst$btn[2, ], 
+    k = k, srvygaps = srvy.gaps, fyear = f.year, srvyyrs = srvy.yrs, 
+    nscaps = ns.caps, alpha = alpha
   )
   obj <- MakeADFun(data, list(pars = ck.start), DLL = "CloseKinNLL", silent = T)
   
