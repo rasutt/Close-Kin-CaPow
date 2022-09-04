@@ -31,9 +31,11 @@ output$downloadData <- downloadHandler(
       exp.Ns = exp.Ns(),
       par.names = par.names(),
       par.vals = par.vals(),
+      est.par.names = est.par.names(),
       sim.opts= sim.opts(),
       sim.lst = sim.lst(),
-      checks.lst = checks.lst()
+      checks.lst = checks.lst(),
+      fit.lst = fit.lst()
     )
     save(saved.objs, file = file)
   }

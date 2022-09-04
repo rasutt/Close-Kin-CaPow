@@ -61,8 +61,8 @@ fit.ck = reactive(if (input$close.kin) {
     }
   }, value = 0, message = "Fitting close-kin model")
   
-  # Combine model estimates, standard errors, and convergences, as lists and
-  # return those requested
+  # Combine model estimates, standard errors, and convergences, and return as
+  # lists
   list(ests = ck.tmb.ests, ses = ck.tmb.ses, cnvgs = !ck.tmb.cnvg)
 })
 
@@ -120,16 +120,16 @@ fit.ppn = reactive(if (input$popan) {
   list(ests = ppn.tmb.ests, ses = ppn.tmb.ses, cnvgs = !ppn.tmb.cnvg)
 })
 
-# Combine model estimates
-fit.lst = reactive({
+# Combine model estimates and update in fit.lst reactive value
+observeEvent(input$simulate, {
   # Boolean for models requested 
   mod.bool = c(input$popan, input$close.kin)
   
-  list(
+  fit.lst(list(
     ests = list(popan = fit.ppn()$ests, close.kin = fit.ck()$ests)[mod.bool],
     ses = list(popan = fit.ppn()$ses, close.kin = fit.ck()$ses)[mod.bool],
     cnvgs = list(popan = fit.ppn()$cnvgs, close.kin = fit.ck()$cnvgs)[mod.bool]
-  )
+  ))
 })
 
 # Check when optimizer converged and standard errors calculable
@@ -168,8 +168,7 @@ check.ests = reactive({
     # Bounds are matrices for studies x parameters, par.vals is a vector for
     # parameters, and cis.ok is a vector for studies
     ci.cov[[i]] = 
-      t(par.vals() > t(lcbs[[i]]) & par.vals() < t(ucbs[[i]])) &
-      cis.ok[[i]]
+      t(par.vals() > t(lcbs[[i]]) & par.vals() < t(ucbs[[i]])) & cis.ok[[i]]
     
     # Overwrite for population parameters
     true.pops = cbind(sim.lst()$N.fin.vec, sim.lst()$Ns.vec)
@@ -199,12 +198,19 @@ check.ests = reactive({
 # acceptance rates for all models requested
 output$modStats = renderTable({
   perc = function(stat) paste0(round(stat * 100, 1), "%")
-  data.frame(
-    model = mod.names(), 
-    optimizer_converged = perc(check.ests()$prpn.cnvgd), 
-    standard_errors_found = perc(check.ests()$prpn.ses.ok), 
-    fit_successful = perc(check.ests()$prpn.cis.ok)
+  df = data.frame(
+    mod.names(), 
+    perc(check.ests()$prpn.cnvgd), 
+    perc(check.ests()$prpn.ses.ok), 
+    perc(check.ests()$prpn.cis.ok)
   )
+  names(df) = c(
+    "Model", 
+    "Optimizer converged", 
+    "Standard errors found", 
+    "Fit successful"
+  )
+  df
 })
 
 # Plot estimates using model comparison plot function
@@ -231,13 +237,11 @@ output$modComp <- renderPlot({
 
 # Print CI coverage
 output$CICov = renderTable({
-  data.frame(
-    model = mod.names(), 
-    matrix(
-      perc(check.ests()$prpn.ci.cov), n.mods(), n.pars(), 
-      dimnames = list(NULL, est.par.names())
-    )
+  df = data.frame(
+    mod.names(), matrix(perc(check.ests()$prpn.ci.cov), n.mods(), n.pars())
   )
+  names(df) = c("Model", est.par.names())
+  df
 })
 
 # Print results for first study

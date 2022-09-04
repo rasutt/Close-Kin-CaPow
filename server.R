@@ -44,7 +44,7 @@ server <- function(input, output) {
   })
   # Parameter names
   par.names.rct = reactive({
-    c("lambda", "phi", "Exp_N_final", "Exp_Ns", paste0("p", srvy.yrs.rct()))
+    c("lambda", "phi", "Exp N final", "Exp Ns", paste0("p", srvy.yrs.rct()))
   })
   # Parameter values
   par.vals.rct = reactive({
@@ -102,6 +102,7 @@ server <- function(input, output) {
   sim.opts = reactiveVal(saved.objs$sim.opts)
   sim.lst = reactiveVal(saved.objs$sim.lst)
   checks.lst = reactiveVal(saved.objs$checks.lst)
+  fit.lst = reactiveVal(saved.objs$fit.lst)
   # ----
 
   # Variables bound to simulate button (for last simulation) ----
@@ -167,11 +168,9 @@ server <- function(input, output) {
   
   # Function to make data frame of parameter values for display
   par.vals.df = function(par.vals, par.names) {
-    par.mat = matrix(par.vals, nrow = 1)
-    colnames(par.mat) = par.names
-    par.df = data.frame(par.mat)
-    par.df[, 3] = as.integer(par.df[, 3])
-    par.df[, 4] = as.integer(par.df[, 4])
+    par.df = data.frame(matrix(par.vals, nrow = 1))
+    names(par.df) = par.names
+    par.df[, 3:4] = as.integer(par.df[, 3:4])
     par.df
   }
   
