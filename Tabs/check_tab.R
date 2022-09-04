@@ -158,7 +158,7 @@ ns.kps.prb.wtn.est.errs = reactive({
 ns.kps.prb.btn.est.errs = reactive({
   # Remove population sizes and total numbers of pairs then divide by the latter
   find.est.errs(
-    checks.lst()$ns.kps.pop.btn.arr[, , -1] / 
+    checks.lst()$ns.kps.pop.btn.arr[, , -1, drop = F] / 
       array(
         rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kp.tps.prb.btn), 
         c(n.sims(), n.srvy.prs(), n.kp.tps.prb.btn)

@@ -5,7 +5,7 @@
 # Function to format table of integers
 form.tab = function(data, rw.nms, cl.nms) {
   mode(data) = "integer"
-  df = data.frame(data, row.names = rw.nms)
+  df = data.frame(matrix(data, ncol = length(cl.nms)), row.names = rw.nms)
   names(df) = cl.nms
   df
 }

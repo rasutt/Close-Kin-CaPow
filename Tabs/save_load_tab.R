@@ -1,6 +1,6 @@
 # Save/load tab
 
-# Save checks
+# Save objects
 output$downloadData <- downloadHandler(
   filename = "ckc_saved_objs.Rdata",
   content = function(file) {
@@ -41,10 +41,44 @@ output$downloadData <- downloadHandler(
   }
 )
 
-# Load checks
+# Increase maximum file upload size to 50MB
+options(shiny.maxRequestSize=50*1024^2)
+
+# Load saved objects
 observeEvent(input$file, {
   load(input$file$datapath)
-  checks.lst(checks)
+  
+  phi(saved.objs$phi)
+  rho(saved.objs$rho)
+  lambda(saved.objs$lambda)
+  base.yr(saved.objs$base.yr)
+  exp.N.base(saved.objs$exp.N.base)
+  srvy.yrs(saved.objs$srvy.yrs)
+  p(saved.objs$p)
+  clvng.ints(saved.objs$clvng.ints)
+  clvng.p(saved.objs$clvng.p)
+  tmp.emgn(saved.objs$tmp.emgn)
+  alpha(saved.objs$alpha)
+  hist.len(saved.objs$hist.len)
+  n.sims(saved.objs$n.sims)
+  srvy.gaps(saved.objs$srvy.gaps)
+  k(saved.objs$k)
+  n.srvy.prs(saved.objs$n.srvy.prs)
+  srvy.prs(saved.objs$srvy.prs)
+  fnl.year(saved.objs$fnl.year)
+  fst.year(saved.objs$fst.year)
+  sim.yrs(saved.objs$sim.yrs)
+  s.yr.inds(saved.objs$s.yr.inds)
+  exp.N.t(saved.objs$exp.N.t)
+  exp.N.fin(saved.objs$exp.N.fin)
+  exp.Ns(saved.objs$exp.Ns)
+  par.names(saved.objs$par.names)
+  par.vals(saved.objs$par.vals)
+  est.par.names(saved.objs$est.par.names)
+  sim.opts(saved.objs$sim.opts)
+  sim.lst(saved.objs$sim.lst)
+  checks.lst(saved.objs$checks.lst)
+  fit.lst(saved.objs$fit.lst)
 })
 
 # Show number of files uploaded
