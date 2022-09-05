@@ -1,13 +1,5 @@
 # Outputs for kin-pairs sub-tab of checks tab
 
-# Show percentage of animals captured for which the parents are unknown
-output$percUnknPrnts = renderText({
-  paste0(
-    "Percentage of captured animals with unknown parents: ", 
-    round(mean(checks.lst()$prpn.prnts.unkn.vec) * 100, 1), "%"
-  )
-})
-
 ### Kin-pair estimator biases (tables of average percentage differences)
 
 # Function to find biases from proportional errors
@@ -29,6 +21,14 @@ output$biasNsKPsPopBtn = renderTable({
   find.est.bias(ns.kps.pop.btn.est.errs(), kp.tps.pop.btn)
 })
 
+# Temporal estimates
+output$tempEstBiasNote = renderText(
+  "These outputs seem to be much higher variance, but 1000 studies seems to be enough."
+)
+output$biasNsKPsTemp = renderTable({
+  find.est.bias(ns.kps.t.est.errs(), kp.tps.t)
+})
+
 ## Probabilities (numbers divided by total numbers of pairs)
 
 # Within surveys
@@ -42,6 +42,14 @@ output$biasProbsKPsBtn = renderTable({
 })
 
 ## Numbers among sampled animals
+
+# Show percentage of animals sampled for which the parents are unknown
+output$percUnknPrnts = renderText({
+  paste0(
+    "Percentage of sampled animals with unknown parents: ", 
+    round(mean(checks.lst()$prpn.prnts.unkn.vec) * 100, 1), "%"
+  )
+})
 
 # Within surveys
 output$biasNsKPsCapWtn = renderTable({

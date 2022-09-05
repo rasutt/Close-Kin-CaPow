@@ -52,7 +52,7 @@ FindExpNsKPsT = function(
     prb.mtr * ph.sq.ovr.lmd^(t.vec - 1) * phi^f.yr.m.t.vec * (t.vec - 1)
 
   # Combine and return
-  rbind(
+  cbind(
     exp.ns.SMPs.f.yr, exp.ns.SFPs.f.yr, exp.ns.SFPs.t.t, 
     exp.ns.SMPs.tm2.tm1.t.f.yr, exp.ns.SMPs.tm1.f.yrm1.t.f.yr,
     exp.ns.SMPs.tm1.btwn.t.f.yr.t.f.yr, exp.ns.SMPs.fst.yr.btwn.t.f.yr

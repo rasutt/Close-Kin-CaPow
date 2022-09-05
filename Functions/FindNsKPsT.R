@@ -34,7 +34,7 @@ FindNsKPsT <- function(pop.cap.hist, hist.len) {
     # Same-father pairs born in the current year (many possible per dad)
     SMFPs.t.mat[3, hist.len - 1 - t] = sum(choose(tabulate(dads.of.brn.yr.t), 2))
       
-    # Same-mother pairs between each year in population history, and final year.  
+    # Same-mother pairs between each year in population history, and final year.
 
     # Both born before first year - birth years are the two years before the
     # first year.

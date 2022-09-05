@@ -179,13 +179,13 @@ server <- function(input, output) {
   
   # Load functions, and outputs for simulating studies, checking
   # simulations, and analyzing model performance
-  source("Tabs/sim_tab.R", local = T)
-  source("Tabs/check_tab.R", local = T)
+  source("Tabs/1_sim_tab.R", local = T)
+  source("Tabs/2_check_tab.R", local = T)
   source("Tabs/Check_sub_tabs/1_first_study.R", local = T)
   source("Tabs/Check_sub_tabs/2_populations.R", local = T)
   source("Tabs/Check_sub_tabs/3_kin_pairs.R", local = T)
   source("Tabs/Check_sub_tabs/4_err_dists.R", local = T)
   source("Tabs/Check_sub_tabs/5_temp_ests.R", local = T)
-  source("Tabs/model_tab.R", local = T)
-  source("Tabs/save_load_tab.R", local = T)
+  source("Tabs/3_model_tab.R", local = T)
+  source("Tabs/4_save_load_tab.R", local = T)
 }

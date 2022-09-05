@@ -129,6 +129,11 @@ est.ns.kps.pop.lst = reactive({
   )
 })
 
+# Temporally estimated numbers of kin-pairs
+est.ns.kps.t = reactive({
+  FindExpNsKPsT(exp.N.fin(), phi(), lambda(), alpha(), hist.len(), exp.N.t())
+})
+
 # Function to find estimate errors as proportions of estimates
 find.est.errs = function(vals, ests, samp = F) {
   # For sampled animals the expected values are different for each study but
@@ -143,6 +148,9 @@ ns.kps.pop.wtn.est.errs = reactive({
 })
 ns.kps.pop.btn.est.errs = reactive({
   find.est.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn)
+})
+ns.kps.t.est.errs = reactive({
+  find.est.errs(checks.lst()$kps.t.arr, est.ns.kps.t())
 })
 ns.kps.prb.wtn.est.errs = reactive({
   # Remove population sizes and total numbers of pairs then divide by the latter

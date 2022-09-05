@@ -140,12 +140,14 @@ ui <- fluidPage(
           title = "Kin-pairs",
           value = "kin_pairs",
           h2("Kin-pair estimator biases"),
-          textOutput(outputId = "percUnknPrnts"),
           h3("Numbers in whole population"),
           h4("Within surveys"),
           tableOutput(outputId = "biasNsKPsPopWtn"),
           h4("Between surveys"),
           tableOutput(outputId = "biasNsKPsPopBtn"),
+          h4("Temporal estimates"),
+          textOutput("tempEstBiasNote"),
+          tableOutput(outputId = "biasNsKPsTemp"),
           
           h3("Probabilities"),
           h4("Within surveys"),
@@ -154,6 +156,7 @@ ui <- fluidPage(
           tableOutput(outputId = "biasProbsKPsBtn"),
           
           h3("Numbers among sampled animals"),
+          textOutput(outputId = "percUnknPrnts"),
           h4("Within surveys"),
           # tableOutput(outputId = "biasNsKPsCapWtn"),
           h4("Between surveys")
@@ -194,6 +197,7 @@ ui <- fluidPage(
           title = "Temporal estimates",
           value = "temp_ests",
           h2("Temporal estimates vs observed averages"),
+          textOutput("tempEstNote"),
           h4("Same-mother/father pairs in whole population including animals
           born in each year in the population history"),
           tableOutput(outputId = "nsKPsTemp")

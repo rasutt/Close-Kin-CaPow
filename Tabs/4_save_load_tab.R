@@ -42,7 +42,7 @@ output$downloadData <- downloadHandler(
 )
 
 # Increase maximum file upload size to 50MB
-options(shiny.maxRequestSize=50*1024^2)
+options(shiny.maxRequestSize=100*1024^2)
 
 # Load saved objects
 observeEvent(input$file, {
