@@ -195,8 +195,8 @@ ui <- fluidPage(
           value = "temp_ests",
           h2("Temporal estimates vs observed averages"),
           h4("Same-mother/father pairs in whole population including animals
-          born in each year in the population history")
-          # tableOutput(outputId = "nsKPsTemp")
+          born in each year in the population history"),
+          tableOutput(outputId = "nsKPsTemp")
         )
         # ----
       )

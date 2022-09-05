@@ -51,7 +51,7 @@ observeEvent(input$simulate, {
     dim = c(n.sims(), n.srvy.prs(), n.kp.tps.cap.btn),
     dimnames = list(NULL, Survey_pair = srvy.prs(), kp.type = kp.tps.cap.btn)
   )
-  # ns.kps.t.arr = array(dim = c(n.sims(), hist.len() - 2, n.kp.tps.t))
+  ns.kps.t.arr = array(dim = c(n.sims(), hist.len() - 2, n.kp.tps.t))
   
   # Loop over histories
   withProgress({
@@ -97,7 +97,7 @@ observeEvent(input$simulate, {
       
       # Find numbers of same-mother/father pairs in the population including
       # animals born in each year in the population history
-      # ns.kps.t.arr[hist.ind, , ] = t(FindNsKPsT(pop.cap.hist, hist.len()))
+      ns.kps.t.arr[hist.ind, , ] = t(FindNsKPsT(pop.cap.hist, hist.len()))
       
       # Increment progress-bar
       incProgress(1/n.sims())
@@ -113,12 +113,12 @@ observeEvent(input$simulate, {
     prpn.prnts.unkn.vec = prpn.prnts.unkn.vec,
     # ns.caps.mat = ns.caps.mat,
     ns.kps.pop.wtn.arr = ns.kps.pop.wtn.arr,
-    ns.kps.pop.btn.arr = ns.kps.pop.btn.arr
+    ns.kps.pop.btn.arr = ns.kps.pop.btn.arr,
     # ns.kps.cap.wtn.arr = ns.kps.cap.wtn.arr,
     # ns.kps.cap.btn.arr = ns.kps.cap.btn.arr,
     # exp.ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr,
     # exp.ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr,
-    # kps.t.arr = ns.kps.t.arr
+    kps.t.arr = ns.kps.t.arr
   ))
 })
 
@@ -157,6 +157,7 @@ ns.kps.prb.wtn.est.errs = reactive({
 })
 ns.kps.prb.btn.est.errs = reactive({
   # Remove population sizes and total numbers of pairs then divide by the latter
+  # (drop = F retains array dimensions when only one survey pair)
   find.est.errs(
     checks.lst()$ns.kps.pop.btn.arr[, , -1, drop = F] / 
       array(

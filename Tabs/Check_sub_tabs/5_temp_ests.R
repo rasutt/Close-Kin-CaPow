@@ -16,10 +16,10 @@ output$nsKPsTemp = renderTable({
   # Combine for output
   df = rbind(mean.kps.t, exp.kps.t)
   rownames(df) = paste0(
-    rep(c("Avg", "Exp"), each = n.kp.t.tps),
-    rep(kp.t.tps, 2)
+    rep(c("Avg", "Exp"), each = n.kp.tps.t),
+    rep(kp.tps.t, 2)
   )
   colnames(df) = sim.yrs()[-c(1, hist.len())]
-  df[rep(seq(1:n.kp.t.tps), each = 2) + c(0, n.kp.t.tps), ]
+  df[rep(seq(1:n.kp.tps.t), each = 2) + c(0, n.kp.tps.t), ]
 }, rownames = T, digits = 1)
 
