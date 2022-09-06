@@ -18,11 +18,14 @@ output$nsKPsTemp = renderTable({
   )
   
   # Combine and reorder for output with averages next to estimates
-  df = data.frame(sim.yrs()[-c(1, hist.len())], mean.kps.t, exp.kps.t)
+  # df = data.frame(sim.yrs()[-c(1, hist.len())], mean.kps.t, exp.kps.t)
+  df = data.frame(
+    sim.yrs()[(hist.len() - 19):(hist.len() - 1)], mean.kps.t, exp.kps.t
+  )
   colnames(df) = 
     c("Year", paste0(rep(c("Avg", "Exp"), each = n.kp.tps.t), rep(kp.tps.t, 2)))
-  # df[(hist.len() - 2):(hist.len() - 10), 
-  df[(hist.len() - 2):2, 
+  df[19:1,
+  # df[(hist.len() - 2):2, 
      c(1, rep(seq(1:n.kp.tps.t), each = 2) + c(0, n.kp.tps.t) + 1)]
 }, digits = 1)
 

@@ -142,6 +142,7 @@ SimPopStud <- function(
     cap.hists[1:n.alv.srvy, srvy.ind] <- alv.srvy[[srvy.ind]]
     clvng.hists[1:n.alv.srvy, srvy.ind] <- clvng.srvy[[srvy.ind]]
   }
+  alv.srvy.mat <- cap.hists
   clvng.hists[is.na(clvng.hists)] <- F
   mode(clvng.hists) <- "integer"
   
@@ -182,7 +183,9 @@ SimPopStud <- function(
   attributes(pop.hist)$ns.caps <- colSums(cap.hists)
   attributes(pop.hist)$Ns <- Ns
   attributes(pop.hist)$ns.clvng <- ns.clvng
-  attributes(pop.hist)$alv.mat <- alv.mat
+  attributes(pop.hist)$alv.mat <- alv.mat[, hist.len, drop = F]
+  # attributes(pop.hist)$alv.mat <- alv.mat
+  attributes(pop.hist)$alv.srvy.mat <- alv.srvy.mat
   attributes(pop.hist)$f.age <- f.year - b.year
   attributes(pop.hist)$mum <- mum
   attributes(pop.hist)$dad <- dad

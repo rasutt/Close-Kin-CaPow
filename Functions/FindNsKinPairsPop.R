@@ -7,7 +7,8 @@ FindNsKinPairsPop = function(pop.cap.hist, s.yr.inds, k) {
   ns.APs.btn.pop = combn(N.s.yrs, 2, function(x) x[1] * x[2])
   
   # Self-pairs between survey years
-  alv_s_yrs = attributes(pop.cap.hist)$alv.mat[, s.yr.inds]
+  # alv_s_yrs = attributes(pop.cap.hist)$alv.mat[, s.yr.inds]
+  alv_s_yrs = attributes(pop.cap.hist)$alv.srvy.mat
   ID = attributes(pop.cap.hist)$ID
   ns.SPs.btn.pop = as.vector(combn(1:k, 2, function(s.inds) {
     sum(ID[alv_s_yrs[, s.inds[1]]] %in% ID[alv_s_yrs[, s.inds[2]]])

@@ -110,8 +110,8 @@ ui <- fluidPage(
           title = "First study",
           value = "first_study",
           h2("First study simulated"),
-          h3("First life-histories"),
-          tableOutput(outputId = "firstLifeHists"),
+          # h3("First life-histories"),
+          # tableOutput(outputId = "firstLifeHists"),
           
           h3("First sample-histories"),
           tableOutput(outputId = "firstSampHists"),
