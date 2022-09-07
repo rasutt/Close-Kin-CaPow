@@ -4,7 +4,8 @@ for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]))
 
 # Load TMB library and likelihood functions.  Have to restart R for compile and
 # dyn.load to take effect sometimes.  Also sometimes need to update R so that
-# Matrix package matches, and set the path for Rtools again.
+# Matrix package matches, or actually delete and recompile files after
+# reinstalling TMB
 library(TMB)
 compile("TMB_objective_functions/POPANNLL.cpp")
 dyn.load(dynlib("TMB_objective_functions/POPANNLL"))
