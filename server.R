@@ -72,7 +72,7 @@ server <- function(input, output) {
   # ----
   
   # Load saved objects ----
-  load("ckc_saved_objs.Rdata")
+  load("Datasets/ckc_saved_objs.Rdata")
   phi = reactiveVal(saved.objs$phi)
   rho = reactiveVal(saved.objs$rho)
   lambda = reactiveVal(saved.objs$lambda)
