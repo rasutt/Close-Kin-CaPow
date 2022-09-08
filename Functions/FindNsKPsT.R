@@ -8,7 +8,7 @@ FindNsKPsT <- function(pop.cap.hist, hist.len) {
   
   # Animals alive in final year
   # alv.f.yr = attributes(pop.cap.hist)$alv.mat[, hist.len] == 1
-  alv.f.yr = attributes(pop.cap.hist)$alv.mat[, 1] == 1
+  alv.f.yr = attributes(pop.cap.hist)$alive == 1
   
   # Matrix for numbers of kin-pairs
   # SMFPs.t.mat = matrix(NA, 7, hist.len - 2)

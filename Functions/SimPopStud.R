@@ -34,11 +34,13 @@ SimPopStud <- function(
   N.t.vec <- numeric(hist.len)
   N.t.vec[1] <- N.init
 
-  # Create lists for life and calving statuses of animals in survey years, and
-  # life in all years for testing
+  # Create lists for life and calving statuses of animals in survey years
   alv.srvy <- clvng.srvy <- vector("list", k)
-  alv.all = vector("list", hist.len)
-  alv.all[[1]] = alive
+  
+  # I was keeping track of life statuses in all years for testing derivations,
+  # just commenting out in case I want to again later
+  # alv.all = vector("list", hist.len)
+  # alv.all[[1]] = alive
 
   # Set survey counter to zero
   srvy.cnt <- 0
@@ -117,7 +119,8 @@ SimPopStud <- function(
     # Record population size
     N.t.vec[t] <- sum(alive)
     
-    alv.all[[t]] = alive
+    # Record life statuses
+    # alv.all[[t]] = alive
     
     # If survey year add life and calving statuses of animals to lists
     if ((f.year - hist.len + t) %in% srvy.yrs) {
@@ -147,10 +150,10 @@ SimPopStud <- function(
   mode(clvng.hists) <- "integer"
   
   # Make matrix for life histories 
-  alv.mat = matrix(F, length(alive), hist.len)
-  for (t in 1:hist.len) {
-    alv.mat[1:length(alv.all[[t]]), t] = alv.all[[t]]
-  }
+  # alv.mat = matrix(F, length(alive), hist.len)
+  # for (t in 1:hist.len) {
+  #   alv.mat[1:length(alv.all[[t]]), t] = alv.all[[t]]
+  # }
 
   # Find super-population size of study
   Ns <- sum(rowSums(cap.hists) > 0)
@@ -175,7 +178,7 @@ SimPopStud <- function(
   pop.hist <- 
     data.frame(ID, mum, dad, cap.hists, clvng.hists)[rowSums(cap.hists) > 0, ]
   
-  rownames(alv.mat) <- ID
+  # rownames(alv.mat) <- ID
   
   # Attach parameters and implied birthrate
   attributes(pop.hist)$beta <- beta
@@ -183,8 +186,8 @@ SimPopStud <- function(
   attributes(pop.hist)$ns.caps <- colSums(cap.hists)
   attributes(pop.hist)$Ns <- Ns
   attributes(pop.hist)$ns.clvng <- ns.clvng
-  attributes(pop.hist)$alv.mat <- alv.mat[, hist.len, drop = F]
   # attributes(pop.hist)$alv.mat <- alv.mat
+  attributes(pop.hist)$alive <- alive
   attributes(pop.hist)$alv.srvy.mat <- alv.srvy.mat
   attributes(pop.hist)$f.age <- f.year - b.year
   attributes(pop.hist)$mum <- mum
