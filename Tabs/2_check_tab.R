@@ -74,7 +74,7 @@ observeEvent(input$simulate, {
       # Find numbers of same-mother/father pairs in the population including
       # animals born in each year in the population history
       ns.kps.t.arr[hist.ind, , ] = 
-        FindNsKPsT(pop.cap.hist, hist.len(), n.kp.tps.t, n.yrs.chk.t())
+        FindNsKPsT(pop.cap.hist, hist.len(), n.yrs.chk.t())
       
       # Increment progress-bar
       incProgress(1/n.sims())

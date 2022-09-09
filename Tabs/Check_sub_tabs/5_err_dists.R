@@ -41,18 +41,12 @@ output$nsSFPsFnlB = renderPlot(
 
 # Within surveys
 output$nsAPsWtnPop = renderPlot(
-  nsKPsPlot(
-    ns.kps.pop.wtn.est.errs()[, , 2],
-    kp.tps.pop.wtn[2]
-  )
+  nsKPsPlot(ns.kps.pop.wtn.est.errs()[, , 2], kp.tps.pop.wtn[2])
 )
 
 # Between surveys
 output$nsAPsBtnPop = renderPlot(
-  nsKPsPlot(
-    ns.kps.pop.btn.est.errs()[, , 1],
-    kp.tps.pop.btn[1]
-  )
+  nsKPsPlot(ns.kps.pop.btn.est.errs()[, , 1], kp.tps.pop.btn[1])
 )
 
 # # Self-pairs between survey years 
@@ -63,10 +57,7 @@ output$nsAPsBtnPop = renderPlot(
 # output$nsSFPsWtnPop = renderPlot(nsKPsPlot(5, T))
 # Same-mother pairs between survey years
 output$nsSMPsBtnPop = renderPlot(
-  nsKPsPlot(
-    ns.kps.pop.btn.est.errs()[, , 3],
-    kp.tps.pop.btn[3]
-  )
+  nsKPsPlot(ns.kps.pop.btn.est.errs()[, , 3], kp.tps.pop.btn[3])
 )
 
 ## Probabilities
@@ -75,10 +66,7 @@ output$nsSMPsBtnPop = renderPlot(
 # output$probSPsBtnPop = renderPlot(nsKPsPlot(1, prob = T))
 # Same-mother pair probabilities within survey years 
 output$probSMPsWtnPop = renderPlot(
-  nsKPsPlot(
-    ns.kps.prb.wtn.est.errs()[, , 1],
-    kp.tps.prb.wtn[1]
-  )
+  nsKPsPlot(ns.kps.prb.wtn.est.errs()[, , 1], kp.tps.prb.wtn[1])
 )
 
 ## Numbers in samples
