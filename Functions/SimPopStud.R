@@ -139,16 +139,15 @@ SimPopStud <- function(
   
   # Create matrices and enter life and calving statuses of animals in survey
   # years
-  cap.hists <- clvng.hists <- matrix(F, length(alive), k)
+  alv.s.yrs <- cap.hists <- clvng.hists <- matrix(F, length(alive), k)
   for (srvy.ind in 1:k) {
     n.alv.srvy <- length(alv.srvy[[srvy.ind]])
-    cap.hists[1:n.alv.srvy, srvy.ind] <- alv.srvy[[srvy.ind]]
+    alv.s.yrs[1:n.alv.srvy, srvy.ind] <- alv.srvy[[srvy.ind]]
     clvng.hists[1:n.alv.srvy, srvy.ind] <- clvng.srvy[[srvy.ind]]
   }
-  alv.srvy.mat <- cap.hists
   clvng.hists[is.na(clvng.hists)] <- F
   mode(clvng.hists) <- "integer"
-  
+
   # Make matrix for life histories 
   # alv.mat = matrix(F, length(alive), hist.len)
   # for (t in 1:hist.len) {
@@ -156,13 +155,13 @@ SimPopStud <- function(
   # }
 
   # Find super-population size of study
-  Ns <- sum(rowSums(cap.hists) > 0)
+  Ns <- sum(rowSums(alv.s.yrs) > 0)
   
   # Change life statuses to capture histories
   # The capture probability depends on male temporary emigration, and calving
-  cap.hists[cap.hists] <- 
-    rbinom(sum(cap.hists), 1, p * (1 - tmp.emgn * !rep(female, k)[cap.hists]) + 
-             clvng.hists[cap.hists] * clvng.p)
+  cap.hists[alv.s.yrs] <- 
+    rbinom(sum(alv.s.yrs), 1, p * (1 - tmp.emgn * !rep(female, k)[alv.s.yrs]) + 
+             clvng.hists[alv.s.yrs] * clvng.p)
   
   # Find numbers calving in survey years
   ns.clvng <- colSums(clvng.hists)
@@ -188,7 +187,7 @@ SimPopStud <- function(
   attributes(pop.hist)$ns.clvng <- ns.clvng
   # attributes(pop.hist)$alv.mat <- alv.mat
   attributes(pop.hist)$alive <- alive
-  attributes(pop.hist)$alv.srvy.mat <- alv.srvy.mat
+  attributes(pop.hist)$alv.s.yrs <- alv.s.yrs
   attributes(pop.hist)$f.age <- f.year - b.year
   attributes(pop.hist)$mum <- mum
   attributes(pop.hist)$dad <- dad

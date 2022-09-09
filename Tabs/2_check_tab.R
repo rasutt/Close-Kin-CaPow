@@ -52,7 +52,10 @@ observeEvent(input$simulate, {
     dimnames = list(NULL, Survey_pair = srvy.prs(), kp.type = kp.tps.cap.btn)
   )
   # ns.kps.t.arr = array(dim = c(n.sims(), hist.len() - 2, n.kp.tps.t))
-  ns.kps.t.arr = array(dim = c(n.sims(), 19, n.kp.tps.t))
+  ns.kps.t.arr = array(
+    dim = c(n.sims(), n.yrs.chk.t, n.kp.tps.t),
+    dimnames = list(NULL, NULL, kp.type = kp.tps.t)
+  )
   
   # Loop over histories
   withProgress({
@@ -98,7 +101,9 @@ observeEvent(input$simulate, {
       
       # Find numbers of same-mother/father pairs in the population including
       # animals born in each year in the population history
-      ns.kps.t.arr[hist.ind, , ] = t(FindNsKPsT(pop.cap.hist, hist.len()))
+      ns.kps.t.arr[hist.ind, , ] = t(
+        FindNsKPsT(pop.cap.hist, hist.len(), n.kp.tps.t)
+      )
       
       # Increment progress-bar
       incProgress(1/n.sims())
@@ -176,9 +181,9 @@ ns.kps.prb.btn.est.errs = reactive({
     est.ns.kps.pop.lst()$btn[, -1] / est.ns.kps.pop.lst()$btn[, 1]
   )
 })
-ns.kps.cap.wtn.est.errs = reactive({
-  find.est.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn, T)
-})
-ns.kps.cap.btn.est.errs = reactive({
-  find.est.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn, T)
-})
+# ns.kps.cap.wtn.est.errs = reactive({
+#   find.est.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn, T)
+# })
+# ns.kps.cap.btn.est.errs = reactive({
+#   find.est.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn, T)
+# })

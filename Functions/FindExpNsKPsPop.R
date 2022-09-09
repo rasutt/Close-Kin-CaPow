@@ -18,9 +18,6 @@ FindEstNsKPsPop = function(
   # Approximation for expected number of pairs of animals in survey years
   exp.ns.APs.wtn = choose(exp.N.srvy.yrs, 2)
   
-  # All pairs within surveys and between pairs of surveys
-  exp.ns.APs.btn = as.vector(combn(exp.N.srvy.yrs, 2, function(x) x[1] * x[2]))
-  
   # Same-mother pairs within survey years
   exp.ns.SMPs.wtn = 2 * exp.N.srvy.yrs * prb.nw.brn.sq * prb.mtr * lambda *
     phi^2 / lmb.m.ph.sq^2
@@ -36,6 +33,9 @@ FindEstNsKPsPop = function(
   
   # Half-sibling pairs within survey years
   exp.ns.HSPs.wtn = exp.ns.SMPs.wtn + exp.ns.SFPs.wtn - 2 * exp.ns.FSPs.wtn
+  
+  # All pairs within surveys and between pairs of surveys
+  exp.ns.APs.btn = as.vector(combn(exp.N.srvy.yrs, 2, function(x) x[1] * x[2]))
   
   # Self-pairs between pairs of survey years
   exp.ns.SPs.btn = as.vector(combn(1:k, 2, function(s.pr.inds) {

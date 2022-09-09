@@ -1,6 +1,6 @@
 # Function to find numbers of same-mother/father pairs in the population
 # including animals born in each year in the population history
-FindNsKPsT <- function(pop.cap.hist, hist.len) {
+FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t) {
   # Parents of animals born in final year
   brn.f.yr = attributes(pop.cap.hist)$f.age == 0
   mums.of.brn.f.yr = attributes(pop.cap.hist)$mum[brn.f.yr]
@@ -11,12 +11,12 @@ FindNsKPsT <- function(pop.cap.hist, hist.len) {
   alv.f.yr = attributes(pop.cap.hist)$alive == 1
   
   # Matrix for numbers of kin-pairs
-  # SMFPs.t.mat = matrix(NA, 7, hist.len - 2)
-  SMFPs.t.mat = matrix(NA, 7, 19)
+  # SMFPs.t.mat = matrix(NA, n.kp.tps.t, hist.len - 2)
+  SMFPs.t.mat = matrix(NA, n.kp.tps.t, n.yrs.chk.t)
   
   # Loop over years between second and last in population history
   # for (t in (hist.len - 2):1) {
-  for (t in 19:1) {
+  for (t in n.yrs.chk.t:1) {
     # Parents of animals born in current year
     brn.yr.t = attributes(pop.cap.hist)$f.age == t & alv.f.yr
     mums.of.brn.yr.t = attributes(pop.cap.hist)$mum[brn.yr.t]
@@ -25,20 +25,21 @@ FindNsKPsT <- function(pop.cap.hist, hist.len) {
     # Same-mother pairs between animals born in current and final years (max one
     # per mum)
     # SMFPs.t.mat[1, hist.len - 1 - t] = 
-    SMFPs.t.mat[1, 20 - t] = 
+    SMFPs.t.mat[1, n.yrs.chk.t + 1 - t] = 
       sum(mums.of.brn.yr.t %in% mums.of.brn.f.yr)
     
     # Same-father pairs between animals born in current and final years (many
     # possible per dad)
     max.dad.id = max(dads.of.brn.yr.t, dads.of.brn.f.yr)
     # SMFPs.t.mat[2, hist.len - 1 - t] = 
-    SMFPs.t.mat[2, 20 - t] = 
+    SMFPs.t.mat[2, n.yrs.chk.t + 1 - t] = 
       tabulate(dads.of.brn.yr.t, max.dad.id) %*% 
       tabulate(dads.of.brn.f.yr, max.dad.id)
     
     # Same-father pairs born in the current year (many possible per dad)
     # SMFPs.t.mat[3, hist.len - 1 - t] = sum(choose(tabulate(dads.of.brn.yr.t), 2))
-    SMFPs.t.mat[3, 20 - t] = sum(choose(tabulate(dads.of.brn.yr.t), 2))
+    SMFPs.t.mat[3, n.yrs.chk.t + 1 - t] = 
+      sum(choose(tabulate(dads.of.brn.yr.t), 2))
     
     # # Same-mother pairs between each year in population history, and final year.
     # 

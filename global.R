@@ -15,3 +15,6 @@ stch.bths <- T # Set whether numbers of births stochastic
 # Probability of males permanently emigrating each year. Note, code is not yet
 # consistent with non-zero value, see readme.
 pmt.emgn <- 0 
+
+# Number of years to check intermediate estimators in derivations
+n.yrs.chk.t = 19
