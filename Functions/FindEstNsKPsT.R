@@ -16,46 +16,47 @@ FindEstNsKPsT = function(
   # Final year minus each prior year except the first
   f.yr.m.t.vec = hist.len - t.vec
   
-  # Estimates
+  ### Estimates
   
-  # Same-mother pairs in the final year, with one born in the year indicated, and
-  # one born in the final year
+  # Pairs in the final year, with one born in the year indicated, and one born
+  # in the final year
+  
+  # Same-mother pairs
   est.ns.SMPs.fnl.b1.fnl = 
     2 * est.N.fin * prb.nw.brn.sq * prb.mtr * ph.sq.ovr.lmd^f.yr.m.t.vec
   
-  # Same-father pairs with different ages (one always age zero)
-  est.ns.SFPs.f.yr = est.ns.SMPs.fnl.b1.fnl * phi
+  # Same-father pairs
+  est.ns.SFPs.fnl.b1.fnl = est.ns.SMPs.fnl.b1.fnl * phi
   
-  # Same-father pairs with same ages (for all ages up to length of population
-  # history)
-  est.ns.SFPs.t.t = phi^(2 * f.yr.m.t.vec) * 
+  # Same-father pairs in the final year, both born in the current year
+  est.ns.SFPs.fnl.b = phi^(2 * f.yr.m.t.vec) * 
     (est.N.fin / lambda^(alpha + f.yr.m.t.vec) - 1) *
     (lambda^2 / phi)^alpha * lambda * prb.nw.brn.sq
   
-  # Same-mother pairs between each year and final year, born in two years
-  # preceding each year
-  est.ns.SMPs.tm2.tm1.t.f.yr = 4 * est.N.t[t.vec] * 
-    prb.nw.brn.sq * prb.mtr * ph.sq.ovr.lmd^2 * phi^f.yr.m.t.vec
-  
-  # Same-mother pairs between each year and final year, born in years
-  # preceding both
-  est.ns.SMPs.tm1.f.yrm1.t.f.yr = 2 * est.N.t[t.vec] * 
-    prb.nw.brn.sq * prb.mtr * ph.sq.ovr.lmd * phi^f.yr.m.t.vec
-  
-  # Same-mother pairs between each year and final year, born year before each
-  # year, and all years in between each year and final year
-  est.ns.SMPs.tm1.btwn.t.f.yr.t.f.yr = 2 * est.N.t[t.vec] * 
-    prb.nw.brn.sq * prb.mtr * ph.sq.ovr.lmd * phi^f.yr.m.t.vec * f.yr.m.t.vec
-  
-  # Same-mother pairs between each year and final year, born in first year of
-  # history, and all years in between first of history and each year
-  est.ns.SMPs.fst.yr.btwn.t.f.yr = 4 * est.N.t[t.vec] * prb.nw.brn.sq * 
-    prb.mtr * ph.sq.ovr.lmd^(t.vec - 1) * phi^f.yr.m.t.vec * (t.vec - 1)
+  # # Same-mother pairs between each year and final year, born in two years
+  # # preceding each year
+  # est.ns.SMPs.tm2.tm1.t.f.yr = 4 * est.N.t[t.vec] * 
+  #   prb.nw.brn.sq * prb.mtr * ph.sq.ovr.lmd^2 * phi^f.yr.m.t.vec
+  # 
+  # # Same-mother pairs between each year and final year, born in years
+  # # preceding both
+  # est.ns.SMPs.tm1.f.yrm1.t.f.yr = 2 * est.N.t[t.vec] * 
+  #   prb.nw.brn.sq * prb.mtr * ph.sq.ovr.lmd * phi^f.yr.m.t.vec
+  # 
+  # # Same-mother pairs between each year and final year, born year before each
+  # # year, and all years in between each year and final year
+  # est.ns.SMPs.tm1.btwn.t.f.yr.t.f.yr = 2 * est.N.t[t.vec] * 
+  #   prb.nw.brn.sq * prb.mtr * ph.sq.ovr.lmd * phi^f.yr.m.t.vec * f.yr.m.t.vec
+  # 
+  # # Same-mother pairs between each year and final year, born in first year of
+  # # history, and all years in between first of history and each year
+  # est.ns.SMPs.fst.yr.btwn.t.f.yr = 4 * est.N.t[t.vec] * prb.nw.brn.sq * 
+  #   prb.mtr * ph.sq.ovr.lmd^(t.vec - 1) * phi^f.yr.m.t.vec * (t.vec - 1)
 
   # Combine and return
   cbind(
-    est.ns.SMPs.fnl.b1.fnl, est.ns.SFPs.f.yr, est.ns.SFPs.t.t, 
-    est.ns.SMPs.tm2.tm1.t.f.yr, est.ns.SMPs.tm1.f.yrm1.t.f.yr,
-    est.ns.SMPs.tm1.btwn.t.f.yr.t.f.yr, est.ns.SMPs.fst.yr.btwn.t.f.yr
+    est.ns.SMPs.fnl.b1.fnl, est.ns.SFPs.fnl.b1.fnl, est.ns.SFPs.fnl.b
+    # est.ns.SMPs.tm2.tm1.t.f.yr, est.ns.SMPs.tm1.f.yrm1.t.f.yr,
+    # est.ns.SMPs.tm1.btwn.t.f.yr.t.f.yr, est.ns.SMPs.fst.yr.btwn.t.f.yr
   )
 }

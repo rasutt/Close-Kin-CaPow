@@ -2,7 +2,7 @@
 
 # Table of temporal estimates vs observed averages (mainly for debugging)
 output$tempEstNote = renderText(
-  "These outputs are for checking intermediate results that are used in the derivation of estimators of numbers of close-kin pairs, and which depend on time in some way.  SMP{t=fnl,b1,b2=fnl} represents the number of same-mother pairs in the final year, with one born in the year indicated, and one born in the final year."
+  "These outputs are for checking intermediate results that are used in the derivation of estimators of numbers of close-kin pairs, and which depend on time in some way.  SMP{t=fnl,b1,b2=fnl} and SFP{t=fnl,b1,b2=fnl} represent the numbers of same-mother and same-father pairs in the final year, with one born in the year indicated, and one born in the final year.  SFP{t=fnl,b} represents the number of same-father pairs in the final year, both born in the current year."
 )
 
 # Numbers of same-mother/father pairs in the population including animals born

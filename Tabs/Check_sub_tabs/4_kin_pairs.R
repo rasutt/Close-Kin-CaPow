@@ -11,6 +11,14 @@ find.est.bias = function(est.errs, type_names) {
 
 ## Numbers in whole population
 
+# Temporal estimates
+output$tempEstBiasNote = renderText(
+  "These outputs seem to be higher variance, but 1000 studies seems to be enough."
+)
+output$biasNsKPsTemp = renderTable({
+  find.est.bias(ns.kps.t.est.errs(), kp.tps.t)
+})
+
 # Within surveys
 output$biasNsKPsPopWtn = renderTable({
   find.est.bias(ns.kps.pop.wtn.est.errs(), kp.tps.pop.wtn)
@@ -19,14 +27,6 @@ output$biasNsKPsPopWtn = renderTable({
 # Between surveys
 output$biasNsKPsPopBtn = renderTable({
   find.est.bias(ns.kps.pop.btn.est.errs(), kp.tps.pop.btn)
-})
-
-# Temporal estimates
-output$tempEstBiasNote = renderText(
-  "These outputs seem to be much higher variance, but 1000 studies seems to be enough."
-)
-output$biasNsKPsTemp = renderTable({
-  find.est.bias(ns.kps.t.est.errs(), kp.tps.t)
 })
 
 ## Probabilities (numbers divided by total numbers of pairs)

@@ -20,19 +20,21 @@ FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t, n.yrs.chk.t) {
     mums.of.brn.yr.t = attributes(pop.cap.hist)$mum[brn.yr.t]
     dads.of.brn.yr.t = attributes(pop.cap.hist)$dad[brn.yr.t]
     
-    # Same-mother pairs in the final year, with one born in the year indicated,
-    # and one born in the final year (max one per mum)
+    # Pairs in the final year, with one born in the current year, and one born
+    # in the final year
+    
+    # Same-mother pairs (max one per mum)
     ns.kps.t.mat[n.yrs.chk.t + 1 - t, 1] = 
       sum(mums.of.brn.yr.t %in% mums.of.brn.f.yr)
     
-    # Same-father pairs between animals born in current and final years (many
-    # possible per dad)
+    # Same-father pairs (many possible per dad)
     max.dad.id = max(dads.of.brn.yr.t, dads.of.brn.f.yr)
     ns.kps.t.mat[n.yrs.chk.t + 1 - t, 2] = 
       tabulate(dads.of.brn.yr.t, max.dad.id) %*% 
       tabulate(dads.of.brn.f.yr, max.dad.id)
-    
-    # Same-father pairs born in the current year (many possible per dad)
+
+    # Same-father pairs in the final year, both born in the current year (many
+    # possible per dad)
     ns.kps.t.mat[n.yrs.chk.t + 1 - t, 3] = 
       sum(choose(tabulate(dads.of.brn.yr.t), 2))
     

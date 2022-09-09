@@ -17,33 +17,44 @@ nsKPsPlot = function(errs, kp.type) {
 
 ### Plot kin-pair estimate error distributions
 
-## Temporal estimates
+## Numbers in whole population
+
+# Temporal estimates
 
 # Same-mother pairs in the final year, with one born in the year indicated, and
 # one born in the final year
 output$nsSMPsFnlB1Fnl = renderPlot(
-  nsKPsPlot(
-    ns.kps.t.est.errs()[, , 1],
-    kp.tps.t[1]
-  )
+  nsKPsPlot(ns.kps.t.est.errs()[, , 1], kp.tps.t[1])
 )
 
-## Numbers in whole population
+# Same-father pairs in the final year, with one born in the year indicated, and
+# one born in the final year
+output$nsSFPsFnlB1Fnl = renderPlot(
+  nsKPsPlot(ns.kps.t.est.errs()[, , 2], kp.tps.t[2])
+)
 
-# All pairs within survey years 
+# Same-father pairs in the final year, with one born in the year indicated, and
+# one born in the final year
+output$nsSFPsFnlB = renderPlot(
+  nsKPsPlot(ns.kps.t.est.errs()[, , 3], kp.tps.t[3])
+)
+
+# Within surveys
 output$nsAPsWtnPop = renderPlot(
   nsKPsPlot(
     ns.kps.pop.wtn.est.errs()[, , 2],
     kp.tps.pop.wtn[2]
   )
 )
-# All pairs between survey years
+
+# Between surveys
 output$nsAPsBtnPop = renderPlot(
   nsKPsPlot(
     ns.kps.pop.btn.est.errs()[, , 1],
     kp.tps.pop.btn[1]
   )
 )
+
 # # Self-pairs between survey years 
 # output$nsSPsBtnPop = renderPlot(nsKPsPlot(3, T))
 # # Same-mother pairs within survey years 

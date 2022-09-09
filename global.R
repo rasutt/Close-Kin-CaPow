@@ -34,9 +34,9 @@ kp.tps.cap.wtn = kp.tps[c(4:5, 8)]
 kp.tps.cap.btn = kp.tps[3:4]
 
 kp.tps.t = c(
-  "SMP{t=fnl,b1,b2=fnl}", "SFP{t,f.yr,f.yr}", "SFP{t,t,f.yr}", 
-  "SMP{t,f.yr,tm2,tm1}", "SMP{t,f.yr,tm1,f.yrm1}",
-  "SMP{t,f.yr,tm1,btwn.t.f.yr}", "SMP{t,f.yr,fst.yr,btwn}"
+  "SMP{t=fnl,b1,b2=fnl}", "SFP{t=fnl,b1,b2=fnl}", "SFP{t=fnl,b}"
+  # "SMP{t,f.yr,tm2,tm1}", "SMP{t,f.yr,tm1,f.yrm1}",
+  # "SMP{t,f.yr,tm1,btwn.t.f.yr}", "SMP{t,f.yr,fst.yr,btwn}"
 )
 
 # Numbers of types of kin-pairs

@@ -135,19 +135,30 @@ ui <- fluidPage(
           h2("Populations"),
           plotOutput(outputId = "checkExpPop")
         ),
+        # Temporal estimates ----
+        tabPanel(
+          title = "Temporal estimates",
+          value = "temp_ests",
+          h2("Temporal estimates vs observed averages"),
+          textOutput("tempEstNote"),
+          h4("Same-mother/father pairs in whole population including animals
+          born in each year in the population history"),
+          tableOutput(outputId = "nsKPsTemp")
+        ),
+        # ----
         # Kin-pairs ----
         tabPanel(
           title = "Kin-pairs",
           value = "kin_pairs",
           h2("Kin-pair estimator biases"),
           h3("Numbers in whole population"),
+          h4("Temporal estimates"),
+          textOutput("tempEstBiasNote"),
+          tableOutput(outputId = "biasNsKPsTemp"),
           h4("Within surveys"),
           tableOutput(outputId = "biasNsKPsPopWtn"),
           h4("Between surveys"),
           tableOutput(outputId = "biasNsKPsPopBtn"),
-          h4("Temporal estimates"),
-          textOutput("tempEstBiasNote"),
-          tableOutput(outputId = "biasNsKPsTemp"),
           
           h3("Probabilities"),
           h4("Within surveys"),
@@ -167,10 +178,11 @@ ui <- fluidPage(
           title = "Error distributions",
           value = "err_dists",
           h2("Kin-pair estimator error distributions"),
-          h3("Temporal estimates"),
-          plotOutput(outputId = "nsSMPsFnlB1Fnl"),
-
           h3("Numbers in whole population"),
+          h4("Temporal estimates"),
+          plotOutput(outputId = "nsSMPsFnlB1Fnl"),
+          plotOutput(outputId = "nsSFPsFnlB1Fnl"),
+          plotOutput(outputId = "nsSFPsFnlB"),
           h4("Within surveys"),
           plotOutput(outputId = "nsAPsWtnPop"),
           # plotOutput(outputId = "nsSMPsWtnPop"),
@@ -194,18 +206,7 @@ ui <- fluidPage(
           # h4("Between surveys"),
           # plotOutput(outputId = "nsSPsBtn"),
           # plotOutput(outputId = "nsPOPsBtn")
-        ),
-        # Temporal estimates ----
-        tabPanel(
-          title = "Temporal estimates",
-          value = "temp_ests",
-          h2("Temporal estimates vs observed averages"),
-          textOutput("tempEstNote"),
-          h4("Same-mother/father pairs in whole population including animals
-          born in each year in the population history"),
-          tableOutput(outputId = "nsKPsTemp")
         )
-        # ----
       )
     ), 
     # Model tab ----
