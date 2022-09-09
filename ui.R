@@ -167,6 +167,9 @@ ui <- fluidPage(
           title = "Error distributions",
           value = "err_dists",
           h2("Kin-pair estimator error distributions"),
+          h3("Temporal estimates"),
+          plotOutput(outputId = "nsSMPsFnlFnlT"),
+
           h3("Numbers in whole population"),
           h4("Within surveys"),
           plotOutput(outputId = "nsAPsWtnPop"),

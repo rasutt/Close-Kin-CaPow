@@ -102,7 +102,7 @@ observeEvent(input$simulate, {
       # Find numbers of same-mother/father pairs in the population including
       # animals born in each year in the population history
       ns.kps.t.arr[hist.ind, , ] = t(
-        FindNsKPsT(pop.cap.hist, hist.len(), n.kp.tps.t)
+        FindNsKPsT(pop.cap.hist, hist.len(), n.kp.tps.t, n.yrs.chk.t)
       )
       
       # Increment progress-bar
@@ -137,7 +137,9 @@ est.ns.kps.pop.lst = reactive({
 
 # Temporally estimated numbers of kin-pairs
 est.ns.kps.t = reactive({
-  FindExpNsKPsT(exp.N.fin(), phi(), lambda(), alpha(), hist.len(), exp.N.t())
+  FindExpNsKPsT(
+    exp.N.fin(), phi(), lambda(), alpha(), hist.len(), exp.N.t(), n.yrs.chk.t
+  )
 })
 
 # Function to find estimate errors as proportions of estimates

@@ -1,7 +1,7 @@
 # Function to estimate numbers of same-mother/father pairs in the population
 # including animals born in each year in the population history
 FindExpNsKPsT = function(
-  exp.N.fin, phi, lambda, alpha, hist.len, exp.N.t
+  exp.N.fin, phi, lambda, alpha, hist.len, exp.N.t, n.yrs.chk.t
 ) {
   # Intermediate results
   
@@ -13,7 +13,7 @@ FindExpNsKPsT = function(
   ph.sq.ovr.lmd = phi^2 / lambda
   # Each year in history except first and last
   # t.vec = 2:(hist.len - 1)
-  t.vec = (hist.len - 19):(hist.len - 1)
+  t.vec = (hist.len - n.yrs.chk.t):(hist.len - 1)
   # Final year minus each prior year except the first
   f.yr.m.t.vec = hist.len - t.vec
   

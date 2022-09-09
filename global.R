@@ -17,4 +17,4 @@ stch.bths <- T # Set whether numbers of births stochastic
 pmt.emgn <- 0 
 
 # Number of years to check intermediate estimators in derivations
-n.yrs.chk.t = 19
+n.yrs.chk.t = 20

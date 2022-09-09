@@ -1,6 +1,6 @@
 # Function to find numbers of same-mother/father pairs in the population
 # including animals born in each year in the population history
-FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t) {
+FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t, n.yrs.chk.t) {
   # Parents of animals born in final year
   brn.f.yr = attributes(pop.cap.hist)$f.age == 0
   mums.of.brn.f.yr = attributes(pop.cap.hist)$mum[brn.f.yr]
@@ -11,8 +11,8 @@ FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t) {
   alv.f.yr = attributes(pop.cap.hist)$alive == 1
   
   # Matrix for numbers of kin-pairs
-  # SMFPs.t.mat = matrix(NA, n.kp.tps.t, hist.len - 2)
-  SMFPs.t.mat = matrix(NA, n.kp.tps.t, n.yrs.chk.t)
+  # ns.kps.t.mat = matrix(NA, n.kp.tps.t, hist.len - 2)
+  ns.kps.t.mat = matrix(NA, n.kp.tps.t, n.yrs.chk.t)
   
   # Loop over years between second and last in population history
   # for (t in (hist.len - 2):1) {
@@ -24,21 +24,21 @@ FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t) {
     
     # Same-mother pairs between animals born in current and final years (max one
     # per mum)
-    # SMFPs.t.mat[1, hist.len - 1 - t] = 
-    SMFPs.t.mat[1, n.yrs.chk.t + 1 - t] = 
+    # ns.kps.t.mat[1, hist.len - 1 - t] = 
+    ns.kps.t.mat[1, n.yrs.chk.t + 1 - t] = 
       sum(mums.of.brn.yr.t %in% mums.of.brn.f.yr)
     
     # Same-father pairs between animals born in current and final years (many
     # possible per dad)
     max.dad.id = max(dads.of.brn.yr.t, dads.of.brn.f.yr)
-    # SMFPs.t.mat[2, hist.len - 1 - t] = 
-    SMFPs.t.mat[2, n.yrs.chk.t + 1 - t] = 
+    # ns.kps.t.mat[2, hist.len - 1 - t] = 
+    ns.kps.t.mat[2, n.yrs.chk.t + 1 - t] = 
       tabulate(dads.of.brn.yr.t, max.dad.id) %*% 
       tabulate(dads.of.brn.f.yr, max.dad.id)
     
     # Same-father pairs born in the current year (many possible per dad)
-    # SMFPs.t.mat[3, hist.len - 1 - t] = sum(choose(tabulate(dads.of.brn.yr.t), 2))
-    SMFPs.t.mat[3, n.yrs.chk.t + 1 - t] = 
+    # ns.kps.t.mat[3, hist.len - 1 - t] = sum(choose(tabulate(dads.of.brn.yr.t), 2))
+    ns.kps.t.mat[3, n.yrs.chk.t + 1 - t] = 
       sum(choose(tabulate(dads.of.brn.yr.t), 2))
     
     # # Same-mother pairs between each year in population history, and final year.
@@ -51,7 +51,7 @@ FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t) {
     # born.tm2.alv.f.yr = attributes(pop.cap.hist)$f.age == t + 2 & alv.f.yr
     # born.tm1.alv.t = attributes(pop.cap.hist)$f.age == t + 1 & 
     #   attributes(pop.cap.hist)$alv.mat[, hist.len - t] == 1
-    # SMFPs.t.mat[4, hist.len - 1 - t] = 
+    # ns.kps.t.mat[4, hist.len - 1 - t] = 
     #   sum(
     #     attributes(pop.cap.hist)$mum[born.tm2.alv.t] %in% 
     #       attributes(pop.cap.hist)$mum[born.tm1.alv.f.yr],
@@ -62,7 +62,7 @@ FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t) {
     # # One born after first year - birth years are years before first and second
     # # years.
     # born.f.yrm1.alv.f.yr = attributes(pop.cap.hist)$f.age == 1 & alv.f.yr
-    # SMFPs.t.mat[5, hist.len - 1 - t] = 
+    # ns.kps.t.mat[5, hist.len - 1 - t] = 
     #   sum(
     #     attributes(pop.cap.hist)$mum[born.tm1.alv.t] %in% 
     #       attributes(pop.cap.hist)$mum[born.f.yrm1.alv.f.yr]
@@ -72,7 +72,7 @@ FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t) {
     # # all years between first and second years.  Doesn't match expression...
     # born.btwn.t.f.yr.alv.f.yr = 
     #   attributes(pop.cap.hist)$f.age < t & alv.f.yr
-    # SMFPs.t.mat[6, hist.len - 1 - t] = 
+    # ns.kps.t.mat[6, hist.len - 1 - t] = 
     #   sum(
     #     attributes(pop.cap.hist)$mum[born.tm1.alv.t] %in% 
     #       attributes(pop.cap.hist)$mum[born.btwn.t.f.yr.alv.f.yr]
@@ -91,7 +91,7 @@ FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t) {
     #   attributes(pop.cap.hist)$f.age < hist.len - 1 &
     #   attributes(pop.cap.hist)$f.age > t & 
     #   attributes(pop.cap.hist)$alv.mat[, hist.len - t] == 1
-    # SMFPs.t.mat[7, hist.len - 1 - t] = 
+    # ns.kps.t.mat[7, hist.len - 1 - t] = 
     #   sum(
     #     attributes(pop.cap.hist)$mum[born.fst.yr.alv.t] %in% 
     #       attributes(pop.cap.hist)$mum[born.aftr.fst.yr.bfr.t.alv.f.yr],
@@ -100,5 +100,5 @@ FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t) {
     #   )
   }
   
-  SMFPs.t.mat
+  ns.kps.t.mat
 }

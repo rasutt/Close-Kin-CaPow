@@ -20,6 +20,19 @@ nsKPsPlot = function(errs, kp.type) {
 
 # Plot kin-pair estimate error distributions
 
+### Plot kin-pair estimate error distributions
+
+## Temporal estimates
+
+# Same-mother pairs in the final year, with one born in the final year, and one
+# born in the year indicated
+output$nsSMPsFnlFnlT = renderPlot(
+  nsKPsPlot(
+    ns.kps.t.est.errs()[, , 1],
+    kp.tps.t[1]
+  )
+)
+
 ## Numbers in whole population
 
 # All pairs within survey years 
