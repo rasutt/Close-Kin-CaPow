@@ -11,11 +11,9 @@ FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t, n.yrs.chk.t) {
   alv.f.yr = attributes(pop.cap.hist)$alive == 1
   
   # Matrix for numbers of kin-pairs
-  # ns.kps.t.mat = matrix(NA, n.kp.tps.t, hist.len - 2)
-  ns.kps.t.mat = matrix(NA, n.kp.tps.t, n.yrs.chk.t)
+  ns.kps.t.mat = matrix(NA, n.yrs.chk.t, n.kp.tps.t)
   
-  # Loop over years between second and last in population history
-  # for (t in (hist.len - 2):1) {
+  # Loop over check-years 
   for (t in n.yrs.chk.t:1) {
     # Parents of animals born in current year
     brn.yr.t = attributes(pop.cap.hist)$f.age == t & alv.f.yr
@@ -24,21 +22,18 @@ FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t, n.yrs.chk.t) {
     
     # Same-mother pairs between animals born in current and final years (max one
     # per mum)
-    # ns.kps.t.mat[1, hist.len - 1 - t] = 
-    ns.kps.t.mat[1, n.yrs.chk.t + 1 - t] = 
+    ns.kps.t.mat[n.yrs.chk.t + 1 - t, 1] = 
       sum(mums.of.brn.yr.t %in% mums.of.brn.f.yr)
     
     # Same-father pairs between animals born in current and final years (many
     # possible per dad)
     max.dad.id = max(dads.of.brn.yr.t, dads.of.brn.f.yr)
-    # ns.kps.t.mat[2, hist.len - 1 - t] = 
-    ns.kps.t.mat[2, n.yrs.chk.t + 1 - t] = 
+    ns.kps.t.mat[n.yrs.chk.t + 1 - t, 2] = 
       tabulate(dads.of.brn.yr.t, max.dad.id) %*% 
       tabulate(dads.of.brn.f.yr, max.dad.id)
     
     # Same-father pairs born in the current year (many possible per dad)
-    # ns.kps.t.mat[3, hist.len - 1 - t] = sum(choose(tabulate(dads.of.brn.yr.t), 2))
-    ns.kps.t.mat[3, n.yrs.chk.t + 1 - t] = 
+    ns.kps.t.mat[n.yrs.chk.t + 1 - t, 3] = 
       sum(choose(tabulate(dads.of.brn.yr.t), 2))
     
     # # Same-mother pairs between each year in population history, and final year.

@@ -18,8 +18,6 @@ nsKPsPlot = function(errs, kp.type) {
   )
 }
 
-# Plot kin-pair estimate error distributions
-
 ### Plot kin-pair estimate error distributions
 
 ## Temporal estimates

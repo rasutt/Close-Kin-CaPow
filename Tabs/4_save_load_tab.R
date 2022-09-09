@@ -25,6 +25,8 @@ output$downloadData <- downloadHandler(
       fnl.year = fnl.year(),
       fst.year = fst.year(),
       sim.yrs = sim.yrs(),
+      n.yrs.chk.t = n.yrs.chk.t(),
+      yrs.chk.t = yrs.chk.t(),
       s.yr.inds = s.yr.inds(),
       exp.N.t = exp.N.t(),
       exp.N.fin = exp.N.fin(),
@@ -68,6 +70,8 @@ observeEvent(input$file, {
   fnl.year(saved.objs$fnl.year)
   fst.year(saved.objs$fst.year)
   sim.yrs(saved.objs$sim.yrs)
+  n.yrs.chk.t(saved.objs$n.yrs.chk.t)
+  yrs.chk.t(saved.objs$yrs.chk.t)
   s.yr.inds(saved.objs$s.yr.inds)
   exp.N.t(saved.objs$exp.N.t)
   exp.N.fin(saved.objs$exp.N.fin)

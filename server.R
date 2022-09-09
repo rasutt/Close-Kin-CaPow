@@ -93,6 +93,8 @@ server <- function(input, output) {
   fnl.year = reactiveVal(saved.objs$fnl.year)
   fst.year = reactiveVal(saved.objs$fst.year)
   sim.yrs = reactiveVal(saved.objs$sim.yrs)
+  n.yrs.chk.t = reactiveVal(saved.objs$n.yrs.chk.t)
+  yrs.chk.t = reactiveVal(saved.objs$yrs.chk.t)
   s.yr.inds = reactiveVal(saved.objs$s.yr.inds)
   exp.N.t = reactiveVal(saved.objs$exp.N.t)
   exp.N.fin = reactiveVal(saved.objs$exp.N.fin)
@@ -148,6 +150,10 @@ server <- function(input, output) {
     fst.year(fst.year.rct())
     # Simulation years
     sim.yrs(sim.yrs.rct())
+    # Number of years to check temporal estimates
+    n.yrs.chk.t(min(hist.len() - 1, n.yrs.try.chk.t))
+    # Years to check temporal estimates
+    yrs.chk.t(sim.yrs()[(hist.len() - n.yrs.chk.t()):(hist.len() - 1)])
     # Indices of survey years within population histories
     s.yr.inds(hist.len() + srvy.yrs() - fnl.year())
     # Expected population size over time
