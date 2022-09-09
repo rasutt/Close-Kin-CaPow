@@ -13,15 +13,15 @@ FindNsKPsT <- function(pop.cap.hist, hist.len, n.kp.tps.t, n.yrs.chk.t) {
   # Matrix for numbers of kin-pairs
   ns.kps.t.mat = matrix(NA, n.yrs.chk.t, n.kp.tps.t)
   
-  # Loop over check-years 
+  # Loop over check-years from earliest to latest
   for (t in n.yrs.chk.t:1) {
     # Parents of animals born in current year
     brn.yr.t = attributes(pop.cap.hist)$f.age == t & alv.f.yr
     mums.of.brn.yr.t = attributes(pop.cap.hist)$mum[brn.yr.t]
     dads.of.brn.yr.t = attributes(pop.cap.hist)$dad[brn.yr.t]
     
-    # Same-mother pairs between animals born in current and final years (max one
-    # per mum)
+    # Same-mother pairs in the final year, with one born in the year indicated,
+    # and one born in the final year (max one per mum)
     ns.kps.t.mat[n.yrs.chk.t + 1 - t, 1] = 
       sum(mums.of.brn.yr.t %in% mums.of.brn.f.yr)
     

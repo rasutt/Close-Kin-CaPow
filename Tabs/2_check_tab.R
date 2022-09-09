@@ -1,32 +1,4 @@
-# Global variables and list of checks objects for checks sub-tabs
-
-# Types of kin-pairs to be displayed
-kp.tps = c(
-  "Population sizes", "All-pairs", "Self-pairs", "Parent-offspring pairs", 
-  "Same-mother pairs", "Same-father pairs", "Full-sibling pairs", 
-  "Half-sibling pairs"
-)
-kp.tps.pop.wtn = kp.tps[c(1:2, 5:8)]
-kp.tps.pop.btn = kp.tps[c(2:3, 5)]
-kp.tps.prb.wtn = kp.tps[5:8]
-kp.tps.prb.btn = kp.tps[c(3, 5)]
-kp.tps.cap.wtn = kp.tps[c(4:5, 8)]
-kp.tps.cap.btn = kp.tps[3:4]
-
-kp.tps.t = c(
-  "SMP{t,f.yr,f.yr}", "SFP{t,f.yr,f.yr}", "SFP{t,t,f.yr}", 
-  "SMP{t,f.yr,tm2,tm1}", "SMP{t,f.yr,tm1,f.yrm1}",
-  "SMP{t,f.yr,tm1,btwn.t.f.yr}", "SMP{t,f.yr,fst.yr,btwn}"
-)
-
-# Numbers of types of kin-pairs
-n.kp.tps.pop.wtn = length(kp.tps.pop.wtn)
-n.kp.tps.pop.btn = length(kp.tps.pop.btn)
-n.kp.tps.cap.wtn = length(kp.tps.cap.wtn)
-n.kp.tps.cap.btn = length(kp.tps.cap.btn)
-n.kp.tps.prb.wtn = length(kp.tps.prb.wtn)
-n.kp.tps.prb.btn = length(kp.tps.prb.btn)
-n.kp.tps.t = length(kp.tps.t)
+# Objects for checks sub-tabs
 
 # Calculate checks for simulated studies
 observeEvent(input$simulate, {
@@ -93,8 +65,8 @@ observeEvent(input$simulate, {
       # 
       # # Find expected numbers of kin pairs among samples
       # exp.ns.kps.cap.lst = FindExpNsKPs(
-      #   k(), n.srvy.prs(), exp.N.fin(), lambda(), fnl.year(), srvy.yrs(), phi(), 
-      #   rho(), ns.caps, alpha()
+      #   k(), n.srvy.prs(), exp.N.fin(), lambda(), fnl.year(), srvy.yrs(), 
+      #   phi(), rho(), ns.caps, alpha()
       # )
       # exp.ns.kps.cap.wtn.arr[hist.ind, , ] = t(exp.ns.kps.cap.lst$wtn)
       # exp.ns.kps.cap.btn.arr[hist.ind, , ] = t(exp.ns.kps.cap.lst$btn)
@@ -136,7 +108,7 @@ est.ns.kps.pop.lst = reactive({
 
 # Temporally estimated numbers of kin-pairs
 est.ns.kps.t = reactive({
-  FindExpNsKPsT(
+  FindEstNsKPsT(
     exp.N.fin(), phi(), lambda(), alpha(), hist.len(), exp.N.t(), n.yrs.chk.t()
   )
 })

@@ -11,10 +11,7 @@ nsKPsPlot = function(errs, kp.type) {
   abline(h = mean(errs), col = 'blue')
   legend(
     "topleft", col = c(2, 4), lty = 1,
-    legend = c(
-      "Expected difference over all surveys (zero)", 
-      "Average difference over all surveys"
-    ),
+    legend = c("Estimated error (zero)", "Average error"),
   )
 }
 
@@ -22,9 +19,9 @@ nsKPsPlot = function(errs, kp.type) {
 
 ## Temporal estimates
 
-# Same-mother pairs in the final year, with one born in the final year, and one
-# born in the year indicated
-output$nsSMPsFnlFnlT = renderPlot(
+# Same-mother pairs in the final year, with one born in the year indicated, and
+# one born in the final year
+output$nsSMPsFnlB1Fnl = renderPlot(
   nsKPsPlot(
     ns.kps.t.est.errs()[, , 1],
     kp.tps.t[1]

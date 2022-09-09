@@ -19,3 +19,31 @@ pmt.emgn <- 0
 # Number of years to try to check intermediate estimators in derivations.
 # Actual number limited by length of simulations
 n.yrs.try.chk.t = 20
+
+# Types of kin-pairs to be analysed (not same as those in models)
+kp.tps = c(
+  "Population sizes", "All-pairs", "Self-pairs", "Parent-offspring pairs", 
+  "Same-mother pairs", "Same-father pairs", "Full-sibling pairs", 
+  "Half-sibling pairs"
+)
+kp.tps.pop.wtn = kp.tps[c(1:2, 5:8)]
+kp.tps.pop.btn = kp.tps[c(2:3, 5)]
+kp.tps.prb.wtn = kp.tps[5:8]
+kp.tps.prb.btn = kp.tps[c(3, 5)]
+kp.tps.cap.wtn = kp.tps[c(4:5, 8)]
+kp.tps.cap.btn = kp.tps[3:4]
+
+kp.tps.t = c(
+  "SMP{t=fnl,b1,b2=fnl}", "SFP{t,f.yr,f.yr}", "SFP{t,t,f.yr}", 
+  "SMP{t,f.yr,tm2,tm1}", "SMP{t,f.yr,tm1,f.yrm1}",
+  "SMP{t,f.yr,tm1,btwn.t.f.yr}", "SMP{t,f.yr,fst.yr,btwn}"
+)
+
+# Numbers of types of kin-pairs
+n.kp.tps.pop.wtn = length(kp.tps.pop.wtn)
+n.kp.tps.pop.btn = length(kp.tps.pop.btn)
+n.kp.tps.cap.wtn = length(kp.tps.cap.wtn)
+n.kp.tps.cap.btn = length(kp.tps.cap.btn)
+n.kp.tps.prb.wtn = length(kp.tps.prb.wtn)
+n.kp.tps.prb.btn = length(kp.tps.prb.btn)
+n.kp.tps.t = length(kp.tps.t)
