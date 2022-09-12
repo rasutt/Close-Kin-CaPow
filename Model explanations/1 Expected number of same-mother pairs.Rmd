@@ -2,52 +2,84 @@
 title: "Expected number of same-mother pairs"
 author: "Robin Aldridge-Sutton"
 output:
-  html_document:
+  bookdown::html_document2:
     toc: true
+    toc_depth: 2
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Expected number of animals born at time $t$
+# Expected number of animals born at time $t$
 
 Let 
 
-- $N_t$ be the population size at time $t$, 
-- $\phi$ be the probability of an animal surviving from time $t - 1$ to time $t$, and 
-- $\lambda = \frac {E(N_{t})}{E(N_{t - 1})}$ be the population growth rate, where $E(.)$ is the expected value of $.$, and $\lambda \ge \phi$.
+- $N_t$ be a random variable representing the size of a given population at time $t$, and
+- $\lambda := \frac {E(N_{t + 1})}{E(N_{t})}$ be the (constant) population growth rate, where $E(.)$ is the expected value of $.$.
 
 Then
-$$E(N_{t - 1}) = \frac{E(N_t)}{\lambda},$$
-$$E(N_{t - 2}) = \frac{E(N_{t - 1})}{\lambda} = \frac{E(N_t)}{\lambda^2},$$
+$$E(N_{t + 1}) = E(N_t) \lambda,$$
+$$E(N_{t + 2}) = E(N_{t + 1}) \lambda = E(N_t) \lambda^2,$$
 and
-$$E(N_{t_1}) = \frac{E(N_{t_2})}{\lambda^{t_2 - t_1}}.$$
+\begin{equation}
+  E(N_{t_2}) = E(N_{t_1}) \lambda^{t_2 - t_1}.
+  (\#eq:expNt)
+\end{equation}
 
-The probability that an animal survives from time $t_1$ to time $t_2$ is $\phi^{t_2 - t_1}$, where $t_2 > t_1$.
+Let
 
-Let $S$ be the number of animals that survive from time $t - 1$ to time $t$. 
+- $A_t$ be the event that a given animal in the population is alive at time $t$, and
+- $\phi := P(A_{t + 1}|A_t)$ be the (constant) individual survival rate of animals in the population.
+
+Assuming that survival satisfies the Markov property $P(A_{t + 1}|A_t) = P(A_{t + 1}|A_t, A_{t - 1}, ...)$, i.e. that survival at later times is independent of survival at previous times, then
+$$P(A_{t + 2}|A_t) = P(A_{t + 2}|A_{t + 1}, A_t) P(A_{t + 1}|A_t)$$
+$$ = P(A_{t + 2}|A_{t + 1}) P(A_{t + 1}|A_t)$$
+$$ = \phi^2,$$
+and
+$$P(A_{t_2}|A_{t_1}) = \phi^{t_2 - t_1},$$
+where $t_2 > t_1$.
+
+Let 
+
+- $S_t$ be the number of animals that survive from time $t$ to time $t + 1$. 
 
 Then 
-$$S \sim Bin(N_{t - 1}, \phi),$$
+$$S_t \sim Bin(N_{t}, \phi),$$
+$$E(S_t) = E\{E(S_t|N_t)\}$$
+$$= E(N_t \phi)$$
+\begin{equation}
+  = E(N_t) \phi,
+  (\#eq:expSt)
+\end{equation}
+$$S_t \le N_{t + 1},$$
+$$E(S_t) \le E(N_{t + 1}),$$
+$$E(N_t) \phi \le E(N_t) \lambda,$$
+from \@ref(eq:expNt) and \@ref(eq:expSt), and
+\begin{equation}
+  \phi \le \lambda.
+  (\#eq:philambda)
+\end{equation}
+
+This actually also relies on the fact that $N_t \ge 0$ and thus $E(N_t) \ge 0$.
+
+Let 
+
+- $B_t$ be the number of animals that are born at time $t$.  Then
+$$B_t = N_t - S_{t - 1},$$
 and
-$$E(S) = E\{E(S|N_{t - 1})\}$$
-$$= E(N_{t - 1} \phi)$$
-$$= E(N_{t - 1}) \phi$$
-$$= \frac{E(N_t)}{\lambda}\phi$$
-$$= E(N_t)\frac{\phi}{\lambda}.$$
+$$E(B_t) = E(N_t - S_{t - 1})$$
+$$= E(N_t) - E(S_{t - 1})$$
+$$= E(N_{t - 1}) \lambda - E(N_{t - 1}) \phi,$$
+from \@ref(eq:expNt) and \@ref(eq:expSt),
+\begin{equation}
+  = E(N_{t - 1}) (\lambda - \phi),
+  (\#eq:expBt)
+\end{equation}
+where $\lambda - \phi \ge 0$ from \@ref(eq:philambda).
 
-Let $B_t$ be the number of animals that are born at time $t$.  
-
-Then
-$$B_t = N_t - S,$$
-and
-$$E(B_t) = E(N_t - S)$$
-$$= E(N_t) - E(S)$$
-$$= E(N_t) - E(N_t) \frac{\phi}{\lambda}$$
-$$= E(N_t) \left(1 - \frac{\phi}{\lambda} \right).$$
-
-### Birth rate among mature females
+# Birth rate among mature females
 
 Let 
 
@@ -77,7 +109,7 @@ $$= \frac{E(N_t) \left(1 - \frac{\phi}{\lambda} \right)}{\frac{E(N_t)}{2}\left(\
 $$= \frac{\left(1 - \frac{\phi}{\lambda} \right)}{\frac{1}{2}\left(\frac{\phi}{\lambda}\right)^\alpha}$$
 $$= 2\left(1 - \frac{\phi}{\lambda} \right)\left(\frac{\lambda}{\phi}\right)^\alpha.$$
 
-### Expected number of same-mother pairs within survey years
+# Expected number of same-mother pairs within survey years
 
 Let $b_1$, and $b_2$ be the years of birth of a pair of animals that are alive at time $t$.  New Zealand southern right whales have one calf at a time, so if the animals have the same mother then $b_1 \ne b_2$.  Let $b_1$ be the birth year of the older sibling, so that $b_1 < b_2$.
 
@@ -129,7 +161,7 @@ $$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\rig
 because $0 < \frac{\phi^2}{\lambda} < 1$,
 $$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\frac{\lambda\phi^2}{\left(\lambda - \phi^2\right)^2}.$$
 
-### Expected number of same-mother pairs between survey years
+# Expected number of same-mother pairs between survey years
 
 Let $i$ and $j$ be a pair of animals, where 
 
