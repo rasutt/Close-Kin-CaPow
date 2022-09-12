@@ -30,43 +30,33 @@ and
 
 Let
 
-- $A_t$ be the event that a given animal in the population is alive at time $t$, and
-- $\phi := P(A_{t + 1}|A_t)$ be the (constant) individual survival rate of animals in the population.
-
-Assuming that survival satisfies the Markov property $P(A_{t + 1}|A_t) = P(A_{t + 1}|A_t, A_{t - 1}, ...)$, i.e. that survival at later times is independent of survival at previous times, then
-$$P(A_{t + 2}|A_t) = P(A_{t + 2}|A_{t + 1}, A_t) P(A_{t + 1}|A_t)$$
-$$ = P(A_{t + 2}|A_{t + 1}) P(A_{t + 1}|A_t)$$
-$$ = \phi^2,$$
-and
-$$P(A_{t_2}|A_{t_1}) = \phi^{t_2 - t_1},$$
-where $t_2 > t_1$.
-
-Let 
-
+- $A_t$ be the event that a given animal is alive in the population at time $t$,
+- $\phi := P(A_{t + 1}|A_t)$ be the (constant) individual survival rate of all such animals, and
 - $S_t$ be the number of animals that survive from time $t$ to time $t + 1$. 
 
-Then 
+Assume that
+
+- the survival of each animal occurs independently of that of any other.
+
+Then
 $$S_t \sim Bin(N_{t}, \phi),$$
+and
 $$E(S_t) = E\{E(S_t|N_t)\}$$
 $$= E(N_t \phi)$$
 \begin{equation}
-  = E(N_t) \phi,
+  E(S_t) = E(N_t) \phi.
   (\#eq:expSt)
 \end{equation}
-$$S_t \le N_{t + 1},$$
-$$E(S_t) \le E(N_{t + 1}),$$
-$$E(N_t) \phi \le E(N_t) \lambda,$$
-from \@ref(eq:expNt) and \@ref(eq:expSt), and
-\begin{equation}
-  \phi \le \lambda.
-  (\#eq:philambda)
-\end{equation}
-
-This actually also relies on the fact that $N_t \ge 0$ and thus $E(N_t) \ge 0$.
 
 Let 
 
-- $B_t$ be the number of animals that are born at time $t$.  Then
+- $B_t$ be the number of animals that are born at time $t$.  
+
+Assume that
+
+- there is no migration to or from the population.
+
+Then
 $$B_t = N_t - S_{t - 1},$$
 and
 $$E(B_t) = E(N_t - S_{t - 1})$$
@@ -74,40 +64,83 @@ $$= E(N_t) - E(S_{t - 1})$$
 $$= E(N_{t - 1}) \lambda - E(N_{t - 1}) \phi,$$
 from \@ref(eq:expNt) and \@ref(eq:expSt),
 \begin{equation}
-  = E(N_{t - 1}) (\lambda - \phi),
+  E(B_t) = E(N_{t - 1}) (\lambda - \phi).
   (\#eq:expBt)
 \end{equation}
-where $\lambda - \phi \ge 0$ from \@ref(eq:philambda).
 
 # Birth rate among mature females
 
+Assume that 
+
+- survival satisfies the Markov property $P(A_{t + 1}|A_t) = P(A_{t + 1}|A_t, A_{t - 1}, ...)$, i.e. survival at later times is independent of survival at earlier times.
+
+Then
+$$P(A_{t + 2}|A_t) = P(A_{t + 2}|A_{t + 1}, A_t) P(A_{t + 1}|A_t)$$
+$$ = P(A_{t + 2}|A_{t + 1}) P(A_{t + 1}|A_t)$$
+$$ = \phi^2,$$
+and
+\begin{equation}
+  P(A_{t_2}|A_{t_1}) = \phi^{t_2 - t_1},
+  (\#eq:phi)
+\end{equation}
+where $t_2 > t_1$.
+
 Let 
 
-- $\alpha$ be the age of sexual maturity for NZSRWs, and
-- $F_t$ be the number of mature females at time $t$,
+- $\alpha$ be the age of sexual maturity of animals in the population, i.e. the minimum age at which an animal may have offspring alive in the population, and
+- $F_t$ be the number of mature females that are alive in the population at time $t$.
 
-and assume that
+Assume that
 
-- births occur independently with probability (birth rate) $\beta$ among mature females, and
 - animals are equally likely to be born male or female.
 
-Then the probability that an animal is mature at time $t$ (has survived since at least time $t - \alpha$) is $\phi^\alpha$, the probability that an animal is female is $\frac{1}{2}$, and
+Then 
+
+- an animal is alive and mature at time $t$ if and only if it was alive in the population at time $t - \alpha$ and survived to time $t$,
+- the probability that an animal that was alive in the population at time $t - \alpha$ survives until time $t$ is 
+
+$$P(A_{t}|A_{t - \alpha}) = \phi^{t - (t - \alpha)} = \phi^{\alpha},$$
+from \@ref(eq:phi),
+
+- the probability that an animal is female is $\frac{1}{2}$,
 
 $$F_t \sim Bin\left(N_{t - \alpha}, \frac{\phi^\alpha}{2}\right),$$
+and
 $$E(F_t) = E(E(F_t|N_{t - \alpha}))$$
 $$= E\left(N_{t - \alpha}\frac{\phi^\alpha}{2}\right)$$
 $$= E(N_{t - \alpha})\frac{\phi^\alpha}{2}$$
-$$= \frac{E(N_t)}{\lambda^\alpha}\frac{\phi^\alpha}{2}$$
-$$= \frac{E(N_t)}{2}\left(\frac{\phi}{\lambda}\right)^\alpha,$$
+$$= \frac{E(N_t)}{\lambda^\alpha}\frac{\phi^\alpha}{2},$$
+from \@ref(eq:expNt),
+\begin{equation}
+  E(F_t) = \frac{E(N_t)}{2}\left(\frac{\phi}{\lambda}\right)^\alpha.
+  (\#eq:expFt)
+\end{equation}
+
+Let
+
+- $\beta$ be the probability that a given mature female gives birth to a calf at a given time.
+
+Assume that
+
+- a given female cannot give birth to more than one calf at a given time, and
+- births occur independently of each other.
+
+Then
+
 $$B_t \sim Bin(F_t, \beta),$$
 $$E(B_t) = E(E(B_t|F_t))$$
 $$= E(F_t \beta)$$
 $$= E(F_t) \beta,$$
 and
 $$\beta = \frac{E(B_t)}{E(F_t)},$$
-$$= \frac{E(N_t) \left(1 - \frac{\phi}{\lambda} \right)}{\frac{E(N_t)}{2}\left(\frac{\phi}{\lambda}\right)^\alpha}$$
-$$= \frac{\left(1 - \frac{\phi}{\lambda} \right)}{\frac{1}{2}\left(\frac{\phi}{\lambda}\right)^\alpha}$$
-$$= 2\left(1 - \frac{\phi}{\lambda} \right)\left(\frac{\lambda}{\phi}\right)^\alpha.$$
+$$= \frac{E(N_{t - 1}) (\lambda - \phi)} {\frac{E(N_t)}{2}\left(\frac{\phi}{\lambda}\right)^\alpha},$$
+from \@ref(eq:expBt) and \@ref(eq:expFt),
+$$= 2 \frac{E(N_{t - 1}) (\lambda - \phi)} {E(N_t) }\left(\frac{\lambda}{\phi}\right)^\alpha$$
+$$= 2 \frac{E(N_{t - 1}) (\lambda - \phi)} {E(N_{t - 1}) \lambda }\left(\frac{\lambda}{\phi}\right)^\alpha$$
+\begin{equation}
+  \beta = 2\left(1 - \frac{\phi}{\lambda} \right) \left(\frac{\lambda}{\phi}\right)^\alpha.
+  (\#eq:beta)
+\end{equation}
 
 # Expected number of same-mother pairs within survey years
 
@@ -158,7 +191,19 @@ $$= \frac{r}{(1 - r)^2},$$
 and
 $$E(SMP_t) = 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\left\{\frac{\phi^2}{\lambda} + 2\left(\frac{\phi^2}{\lambda}\right)^2 + 3\left(\frac{\phi^2}{\lambda}\right)^3 + ...\right\}$$
 $$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\frac{\frac{\phi^2}{\lambda}}{\left( 1 - \frac{\phi^2}{\lambda} \right)^2}$$
-because $0 < \frac{\phi^2}{\lambda} < 1$,
+because 
+$$0 \le S_t \le N_{t + 1},$$
+$$0 \le E(S_t) \le E(N_{t + 1}),$$
+$$0 \le E(N_t) \phi \le E(N_t) \lambda,$$
+from \@ref(eq:expNt) and \@ref(eq:expSt), and
+\begin{equation}
+  0 \le \phi \le \lambda,
+  (\#eq:philambda)
+\end{equation}
+$$0 < \frac{\phi}{\lambda} < 1,$$
+and
+$$0 < \frac{\phi^2}{\lambda} < 1,$$
+as $0 < \phi < 1$,
 $$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\frac{\lambda\phi^2}{\left(\lambda - \phi^2\right)^2}.$$
 
 # Expected number of same-mother pairs between survey years

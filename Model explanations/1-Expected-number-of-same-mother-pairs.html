@@ -266,40 +266,32 @@ and
 \end{equation}\]</span></p>
 <p>Let</p>
 <ul>
-<li><span class="math inline">\(A_t\)</span> be the event that a given animal in the population is alive at time <span class="math inline">\(t\)</span>, and</li>
-<li><span class="math inline">\(\phi := P(A_{t + 1}|A_t)\)</span> be the (constant) individual survival rate of animals in the population.</li>
-</ul>
-<p>Assuming that survival satisfies the Markov property <span class="math inline">\(P(A_{t + 1}|A_t) = P(A_{t + 1}|A_t, A_{t - 1}, ...)\)</span>, i.e. that survival at later times is independent of survival at previous times, then
-<span class="math display">\[P(A_{t + 2}|A_t) = P(A_{t + 2}|A_{t + 1}, A_t) P(A_{t + 1}|A_t)\]</span>
-<span class="math display">\[ = P(A_{t + 2}|A_{t + 1}) P(A_{t + 1}|A_t)\]</span>
-<span class="math display">\[ = \phi^2,\]</span>
-and
-<span class="math display">\[P(A_{t_2}|A_{t_1}) = \phi^{t_2 - t_1},\]</span>
-where <span class="math inline">\(t_2 &gt; t_1\)</span>.</p>
-<p>Let</p>
-<ul>
+<li><span class="math inline">\(A_t\)</span> be the event that a given animal is alive in the population at time <span class="math inline">\(t\)</span>,</li>
+<li><span class="math inline">\(\phi := P(A_{t + 1}|A_t)\)</span> be the (constant) individual survival rate of all such animals, and</li>
 <li><span class="math inline">\(S_t\)</span> be the number of animals that survive from time <span class="math inline">\(t\)</span> to time <span class="math inline">\(t + 1\)</span>.</li>
+</ul>
+<p>Assume that</p>
+<ul>
+<li>the survival of each animal occurs independently of that of any other.</li>
 </ul>
 <p>Then
 <span class="math display">\[S_t \sim Bin(N_{t}, \phi),\]</span>
+and
 <span class="math display">\[E(S_t) = E\{E(S_t|N_t)\}\]</span>
 <span class="math display">\[= E(N_t \phi)\]</span>
 <span class="math display" id="eq:expSt">\[\begin{equation}
-  = E(N_t) \phi,
+  E(S_t) = E(N_t) \phi.
   \tag{1.2}
-\end{equation}\]</span>
-<span class="math display">\[S_t \le N_{t + 1},\]</span>
-<span class="math display">\[E(S_t) \le E(N_{t + 1}),\]</span>
-<span class="math display">\[E(N_t) \phi \le E(N_t) \lambda,\]</span>
-from <a href="#eq:expNt">(1.1)</a> and <a href="#eq:expSt">(1.2)</a>, and
-<span class="math display" id="eq:philambda">\[\begin{equation}
-  \phi \le \lambda.
-  \tag{1.3}
 \end{equation}\]</span></p>
-<p>This actually also relies on the fact that <span class="math inline">\(N_t \ge 0\)</span> and thus <span class="math inline">\(E(N_t) \ge 0\)</span>.</p>
 <p>Let</p>
 <ul>
-<li><span class="math inline">\(B_t\)</span> be the number of animals that are born at time <span class="math inline">\(t\)</span>. Then
+<li><span class="math inline">\(B_t\)</span> be the number of animals that are born at time <span class="math inline">\(t\)</span>.</li>
+</ul>
+<p>Assume that</p>
+<ul>
+<li>there is no migration to or from the population.</li>
+</ul>
+<p>Then
 <span class="math display">\[B_t = N_t - S_{t - 1},\]</span>
 and
 <span class="math display">\[E(B_t) = E(N_t - S_{t - 1})\]</span>
@@ -307,40 +299,80 @@ and
 <span class="math display">\[= E(N_{t - 1}) \lambda - E(N_{t - 1}) \phi,\]</span>
 from <a href="#eq:expNt">(1.1)</a> and <a href="#eq:expSt">(1.2)</a>,
 <span class="math display" id="eq:expBt">\[\begin{equation}
-= E(N_{t - 1}) (\lambda - \phi),
-\tag{1.4}
-\end{equation}\]</span>
-where <span class="math inline">\(\lambda - \phi \ge 0\)</span> from <a href="#eq:philambda">(1.3)</a>.</li>
-</ul>
+  E(B_t) = E(N_{t - 1}) (\lambda - \phi).
+  \tag{1.3}
+\end{equation}\]</span></p>
 </div>
 <div id="birth-rate-among-mature-females" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Birth rate among mature females</h1>
+<p>Assume that</p>
+<ul>
+<li>survival satisfies the Markov property <span class="math inline">\(P(A_{t + 1}|A_t) = P(A_{t + 1}|A_t, A_{t - 1}, ...)\)</span>, i.e. survival at later times is independent of survival at earlier times.</li>
+</ul>
+<p>Then
+<span class="math display">\[P(A_{t + 2}|A_t) = P(A_{t + 2}|A_{t + 1}, A_t) P(A_{t + 1}|A_t)\]</span>
+<span class="math display">\[ = P(A_{t + 2}|A_{t + 1}) P(A_{t + 1}|A_t)\]</span>
+<span class="math display">\[ = \phi^2,\]</span>
+and
+<span class="math display" id="eq:phi">\[\begin{equation}
+  P(A_{t_2}|A_{t_1}) = \phi^{t_2 - t_1},
+  \tag{2.1}
+\end{equation}\]</span>
+where <span class="math inline">\(t_2 &gt; t_1\)</span>.</p>
 <p>Let</p>
 <ul>
-<li><span class="math inline">\(\alpha\)</span> be the age of sexual maturity for NZSRWs, and</li>
-<li><span class="math inline">\(F_t\)</span> be the number of mature females at time <span class="math inline">\(t\)</span>,</li>
+<li><span class="math inline">\(\alpha\)</span> be the age of sexual maturity of animals in the population, i.e. the minimum age at which an animal may have offspring alive in the population, and</li>
+<li><span class="math inline">\(F_t\)</span> be the number of mature females that are alive in the population at time <span class="math inline">\(t\)</span>.</li>
 </ul>
-<p>and assume that</p>
+<p>Assume that</p>
 <ul>
-<li>births occur independently with probability (birth rate) <span class="math inline">\(\beta\)</span> among mature females, and</li>
 <li>animals are equally likely to be born male or female.</li>
 </ul>
-<p>Then the probability that an animal is mature at time <span class="math inline">\(t\)</span> (has survived since at least time <span class="math inline">\(t - \alpha\)</span>) is <span class="math inline">\(\phi^\alpha\)</span>, the probability that an animal is female is <span class="math inline">\(\frac{1}{2}\)</span>, and</p>
+<p>Then</p>
+<ul>
+<li>an animal is alive and mature at time <span class="math inline">\(t\)</span> if and only if it was alive in the population at time <span class="math inline">\(t - \alpha\)</span> and survived to time <span class="math inline">\(t\)</span>,</li>
+<li>the probability that an animal that was alive in the population at time <span class="math inline">\(t - \alpha\)</span> survives until time <span class="math inline">\(t\)</span> is</li>
+</ul>
+<p><span class="math display">\[P(A_{t}|A_{t - \alpha}) = \phi^{t - (t - \alpha)} = \phi^{\alpha},\]</span>
+from <a href="#eq:phi">(2.1)</a>,</p>
+<ul>
+<li>the probability that an animal is female is <span class="math inline">\(\frac{1}{2}\)</span>,</li>
+</ul>
 <p><span class="math display">\[F_t \sim Bin\left(N_{t - \alpha}, \frac{\phi^\alpha}{2}\right),\]</span>
+and
 <span class="math display">\[E(F_t) = E(E(F_t|N_{t - \alpha}))\]</span>
 <span class="math display">\[= E\left(N_{t - \alpha}\frac{\phi^\alpha}{2}\right)\]</span>
 <span class="math display">\[= E(N_{t - \alpha})\frac{\phi^\alpha}{2}\]</span>
-<span class="math display">\[= \frac{E(N_t)}{\lambda^\alpha}\frac{\phi^\alpha}{2}\]</span>
-<span class="math display">\[= \frac{E(N_t)}{2}\left(\frac{\phi}{\lambda}\right)^\alpha,\]</span>
-<span class="math display">\[B_t \sim Bin(F_t, \beta),\]</span>
+<span class="math display">\[= \frac{E(N_t)}{\lambda^\alpha}\frac{\phi^\alpha}{2},\]</span>
+from <a href="#eq:expNt">(1.1)</a>,
+<span class="math display" id="eq:expFt">\[\begin{equation}
+  E(F_t) = \frac{E(N_t)}{2}\left(\frac{\phi}{\lambda}\right)^\alpha.
+  \tag{2.2}
+\end{equation}\]</span></p>
+<p>Let</p>
+<ul>
+<li><span class="math inline">\(\beta\)</span> be the probability that a given mature female gives birth to a calf at a given time.</li>
+</ul>
+<p>Assume that</p>
+<ul>
+<li>a given female cannot give birth to more than one calf at a given time, and</li>
+<li>births occur independently of each other.</li>
+</ul>
+<p>Then</p>
+<p><span class="math display">\[B_t \sim Bin(F_t, \beta),\]</span>
 <span class="math display">\[E(B_t) = E(E(B_t|F_t))\]</span>
 <span class="math display">\[= E(F_t \beta)\]</span>
 <span class="math display">\[= E(F_t) \beta,\]</span>
 and
 <span class="math display">\[\beta = \frac{E(B_t)}{E(F_t)},\]</span>
-<span class="math display">\[= \frac{E(N_t) \left(1 - \frac{\phi}{\lambda} \right)}{\frac{E(N_t)}{2}\left(\frac{\phi}{\lambda}\right)^\alpha}\]</span>
-<span class="math display">\[= \frac{\left(1 - \frac{\phi}{\lambda} \right)}{\frac{1}{2}\left(\frac{\phi}{\lambda}\right)^\alpha}\]</span>
-<span class="math display">\[= 2\left(1 - \frac{\phi}{\lambda} \right)\left(\frac{\lambda}{\phi}\right)^\alpha.\]</span></p>
+<span class="math display">\[= \frac{E(N_{t - 1}) (\lambda - \phi)} {\frac{E(N_t)}{2}\left(\frac{\phi}{\lambda}\right)^\alpha},\]</span>
+from <a href="#eq:expBt">(1.3)</a> and <a href="#eq:expFt">(2.2)</a>,
+<span class="math display">\[= 2 \frac{E(N_{t - 1}) (\lambda - \phi)} {E(N_t) }\left(\frac{\lambda}{\phi}\right)^\alpha\]</span>
+<span class="math display">\[= 2 \frac{E(N_{t - 1}) (\lambda - \phi)} {E(N_{t - 1}) \lambda }\left(\frac{\lambda}{\phi}\right)^\alpha\]</span>
+<span class="math display" id="eq:beta">\[\begin{equation}
+  \beta = 2\left(1 - \frac{\phi}{\lambda} \right) \left(\frac{\lambda}{\phi}\right)^\alpha.
+  \tag{2.3}
+\end{equation}\]</span></p>
 </div>
 <div id="expected-number-of-same-mother-pairs-within-survey-years" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Expected number of same-mother pairs within survey years</h1>
@@ -382,7 +414,19 @@ for <span class="math inline">\(|r| &lt; 1\)</span>,
 and
 <span class="math display">\[E(SMP_t) = 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\left\{\frac{\phi^2}{\lambda} + 2\left(\frac{\phi^2}{\lambda}\right)^2 + 3\left(\frac{\phi^2}{\lambda}\right)^3 + ...\right\}\]</span>
 <span class="math display">\[= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\frac{\frac{\phi^2}{\lambda}}{\left( 1 - \frac{\phi^2}{\lambda} \right)^2}\]</span>
-because <span class="math inline">\(0 &lt; \frac{\phi^2}{\lambda} &lt; 1\)</span>,
+because
+<span class="math display">\[0 \le S_t \le N_{t + 1},\]</span>
+<span class="math display">\[0 \le E(S_t) \le E(N_{t + 1}),\]</span>
+<span class="math display">\[0 \le E(N_t) \phi \le E(N_t) \lambda,\]</span>
+from <a href="#eq:expNt">(1.1)</a> and <a href="#eq:expSt">(1.2)</a>, and
+<span class="math display" id="eq:philambda">\[\begin{equation}
+  0 \le \phi \le \lambda,
+  \tag{3.1}
+\end{equation}\]</span>
+<span class="math display">\[0 &lt; \frac{\phi}{\lambda} &lt; 1,\]</span>
+and
+<span class="math display">\[0 &lt; \frac{\phi^2}{\lambda} &lt; 1,\]</span>
+as <span class="math inline">\(0 &lt; \phi &lt; 1\)</span>,
 <span class="math display">\[= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\frac{\lambda\phi^2}{\left(\lambda - \phi^2\right)^2}.\]</span></p>
 </div>
 <div id="expected-number-of-same-mother-pairs-between-survey-years" class="section level1" number="4">
