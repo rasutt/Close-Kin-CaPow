@@ -3,8 +3,7 @@ title: "Expected numbers of full and half-sibling pairs"
 author: "Robin Aldridge-Sutton"
 output:
   html_document:
-    df_print: paged
-  pdf_document: default
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
