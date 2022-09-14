@@ -1,0 +1,184 @@
+---
+title: "Kin-pair probabilities chapter from Dissertation"
+author: "Robin Aldridge-Sutton"
+output:
+  bookdown::html_document2:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+---
+
+# Self and parent-offspring pair probabilities within and between samples {#kinpairs}
+
+Our new method is based on a pseudo-likelihood which incorporates multiple levels of kinship together with kinship uncertainty. Our approach to finding the probability density function of the PLOD is to partition over kinship level. We approximate the probability density function of PLODs within each kinship using the saddlepoint method, and combine the densities for different kinships by weighting them according to the probabilities of the corresponding kinships given our parameters of interest. This requires us to find the probability that a randomly-chosen pair of genotypes has a particular kinship level, from within the sample space of all pairs of genotyped samples. We call this probability the *kinpair* probability. We develop our method by deriving expressions for three kinpair probabilities: parent-offspring pairs among genotypes from one sampling occasion, self-pairs among genotypes from different sampling occasions, and parent-offspring pairs among genotypes from sampling occasions that are separated by a period which is less than the age of maturity. We show that the numbers of each of these kinpairs occurring in datasets generated using our simulation framework are distributed around those predicted by these expressions.
+
+While developing our method we make several simplifying assumptions.  We assume that the survival probability $\phi$ and the population growth rate $\lambda$ are constant over time, that there is no excess mortality due to whaling, and no migration.  We also assume that the birthrate, $\lambda - \phi$, is greater than zero, which implies that $\phi < \lambda$.  
+
+Our parameters are then $\theta = \{N_t, \lambda, \phi\}$, where $N_t$ is the population size at time $t$, and:
+
+$$ \lambda = \frac{E(N_{t + 1})}{E(N_t)}, $$
+
+as defined in Section \@ref(popan).
+
+## Parent-offspring pairs within one sampling year
+
+The relationship between the expected population sizes at years $t_1$ and $t_2$ is given by:
+
+\begin{equation}
+E(N_{t_1}) = \frac{E(N_{t_2})}{\lambda^{t_2 - t_1}}.
+(\#eq:expnum)
+\end{equation}
+
+The probability that an animal survives from year $t_1$ until year $t_2$ is:
+
+\begin{equation}
+P(S_{t_1, t_2}) = \phi^{t_2 - t_1}.
+(\#eq:probsurv)
+\end{equation}
+
+The expected number of animals born in year $t$ is the expected number that were alive the year before, multiplied by the birth rate:
+
+$$ E(B_t) = E(N_{t - 1}) (\lambda - \phi) $$
+
+\begin{equation}
+= E(N_{t}) \frac{(\lambda - \phi)}{\lambda}.
+(\#eq:expborn)
+\end{equation}
+
+The expected number of parent-offspring pairs among animals alive in the population at a survey year $t_s$ is the expected number of animals born each year up to and including $t_s$, multiplied by the probability that each one survives until year $t_s$, and by the probability for each of its parents that it survives from the year before the animal was born (when it was conceived) until year $t_s$.  Writing $\sum_{t = t_s}^{-\infty}$ to denote summation over a decrementing index $t$, this gives:
+
+$$ E(PO_{t_s}) = \sum_{t = t_s}^{-\infty} E(B_t) P(S_{t, t_s}) 2 P(S_{t - 1, t_s}) $$
+
+$$ = \sum_{t = t_s}^{-\infty} E(N_{t}) \frac{(\lambda - \phi)}{\lambda} \phi^{t_s - t} 2\phi^{t_s - t + 1}, $$
+
+from \@ref(eq:probsurv) and \@ref(eq:expborn),
+
+$$ = 2 \frac{\phi (\lambda - \phi)}{\lambda} \sum_{t = t_s}^{-\infty} \frac{E(N_{t_s})}{\lambda^{t_s - t}} \phi^{2(t_s - t)}, $$
+
+from \@ref(eq:expnum),
+
+$$ = 2 E(N_{t_s}) \frac{\phi(\lambda - \phi)}{\lambda} \sum_{t = t_s}^{-\infty} \Big( \frac{\phi^2}{\lambda} \Big)^{t_s - t} $$
+
+$$ = 2 E(N_{t_s}) \frac{\phi(\lambda - \phi)}{\lambda} \Big\{ \Big(\frac{\phi^2}{\lambda} \Big)^0 + \Big(\frac{\phi^2}{\lambda} \Big)^1 + ... \Big\} $$
+
+$$ = 2 E(N_{t_s}) \frac{\phi (\lambda - \phi)}{\lambda} \frac{1}{1 - \frac{\phi^2}{\lambda}}, $$
+
+as $0 < \phi < 1$ and $\phi < \lambda$ implies that $0 < \frac{\phi^2}{\lambda} < 1$,
+
+\begin{equation}
+= 2 E(N_{t_s}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2}.
+(\#eq:exppobtn)
+\end{equation}
+
+The number of pairs of animals in a population of size $E(N_{t_s})$ is the number of combinations of size 2. We write this as $E(AP_{t_s})$:
+
+$$ E(AP_{t_s}) = \frac{E(N_{t_s})!}{\{E(N_{t_s})-2 \}!2!}, $$
+
+for $E(N_{t_s}) \ge 2$,
+
+$$ = \frac{E(N_{t_s}) \{E(N_{t_s}) - 1 \}}{2}. $$
+
+The probability that a pair of animals $i$ and $j$ that are alive in a population of size $E(N_{t_s})$ is a parent-offspring pair is given by:
+
+$$ P\{PO_{t_s}(i, j) | \theta\} = \frac{E(PO_{t_s})}{E(AP_{t_s})} $$
+
+$$ = \frac{4}{\big(E(N_{t_s}) - 1 \big)} \frac{\phi (\lambda - \phi)}{\lambda - \phi^2}. $$
+
+This PO probability decreases with the expected size of the population, which is the key intuition behind close-kin genetics.  The nature of the relationship between the PO probability and $\lambda$ and $\phi$ is more complicated.  
+
+## Self pairs between sampling years
+
+If we consider pairs of animals in which one is alive in the population at $t_1$, and one at $t_2$, where $t_1 < t_2$, then the expected number of self-pairs available for sampling is just the expected number of animals that survive from $t_1$ until $t_2$:
+
+$$ E(SP_{t_1, t_2}) = E(N_{t_1}) P(S_{t_1, t_2})$$
+
+$$ = E(N_{t_1}) \phi^{t_2 - t_1}, $$
+
+from \@ref(eq:probsurv).
+
+The total number of pairs available for comparison from populations of size $E(N_{t_1})$ and $E(N_{t_2})$ respectively is:
+
+\begin{equation}
+E(AP_{t_1, t_2}) = E(N_{t_1}) E(N_{t_2}).
+(\#eq:expap)
+\end{equation}
+
+We can then express the probability that a pair of animals $i$ and $j$ drawn from populations of size $E(N_{t_1})$ and $E(N_{t_2})$ respectively,\ is a self-pair, given our parameters, as:
+
+$$ P\{SP_{t_1, t_2}(i, j) | \theta\} = \frac{E(SP_{t_1, t_2})}{E(AP_{t_1, t_2})} $$
+
+$$ = \frac{\phi^{t_2 - t_1}}{E(N_{t_2})}, $$
+
+$$  = \frac{1}{E(N_{t_1})} \Big(\frac{\phi}{\lambda} \Big)^{t_2 - t_1}, $$
+
+for $t_1 < t_2$, from \@ref(eq:expnum).  This self-pair probability increases with survival probability, and decreases with the population growth rate, the expected population size, and the length of the interval, as we would expect.
+
+## Parent-offspring pairs between samples separated by less than the age of maturity
+
+Again considering pairs of animals in which one is alive at $t_1$ and one is alive at $t_2$, where $t_1 < t_2$, then the expected number of parent-offspring pairs can be partitioned into those that include animals that are born between $t_1$ and $t_2$, and those that do not.  For those that do not, the parent and offspring must both be alive at time $t_1$, and each of these two animals that survives to time $t_2$ creates an additional parent-offspring pair between the samples; so the expected number of pairs between the samples is the expected number of parent-offspring pairs at $t_1$ multiplied by twice the survival probability to time $t_2$.  For those that do, if the interval between $t_1$ and $t_2$ is not longer than the age of maturity $\alpha$, then any animal born between $t_1$ and $t_2$ must have two parents that were both alive at $t_1$, and any parent-offspring pair from samples taken at times $t_1$ and $t_2$ must consist of offspring at time $t_2$ and parent at time $t_1$, because the offspring was not alive at time $t_1$.  The expected number of parent-offspring pairs between the samples is then twice the expected number that are born between $t_1$ and $t_2$ and which survive until $t_2$, constituting two parents for each of the offspring alive at time $t_2$. Putting the two expressions together gives:
+
+$$ E(PO_{t_1, t_2}) = E(PO_{t_1}) 2 P(S_{t_1, t_2}) + 2 \sum_{t = t_1 + 1}^{t_2} E(B_t) P(S_{t, t_2}), $$
+
+for $t_2 - t_1 \le \alpha$,
+
+$$ = 2 E(N_{t_1}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} 2 \phi^{t_2 - t_1} + 2 \sum_{t = t_1 + 1}^{t_2} E(N_{t}) \frac{(\lambda - \phi)}{\lambda} \phi^{t_2 - t}, $$
+
+from \@ref(eq:probsurv), \@ref(eq:expborn), and \@ref(eq:exppobtn),
+
+$$ = 2 \frac{E(N_{t_2})}{\lambda^{t_2 - t_1}} \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} 2 \phi^{t_2 - t_1} + 2 \frac{(\lambda - \phi)}{\lambda} \sum_{t = t_1 + 1}^{t_2} \frac{E(N_{t_2})}{\lambda^{t_2 - t}} \phi^{t_2 - t}, $$
+
+from \@ref(eq:expnum),
+
+$$ = 2 E(N_{t_2}) \Big\{ 2 \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} \Big( \frac{\phi}{\lambda} \Big)^{t_2 - t_1} + \frac{(\lambda - \phi)}{\lambda} \sum_{t = t_1 + 1}^{t_2}  \Big( \frac{\phi}{\lambda} \Big)^{t_2 - t} \Big\} $$
+
+$$ = 2 E(N_{t_2}) \Big[ 2 \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} \Big( \frac{\phi}{\lambda} \Big)^{t_2 - t_1} + \frac{(\lambda - \phi)}{\lambda} \Big\{ \Big(\frac{\phi}{\lambda} \Big)^0 + ... + \Big(\frac{\phi}{\lambda} \Big)^{t_2 - t_1 - 1} \Big\} \Big], $$
+
+$$ = 2 E(N_{t_2}) \Big[ 2 \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} \Big( \frac{\phi}{\lambda} \Big)^{t_2 - t_1} + \frac{(\lambda - \phi)}{\lambda} \left\{ \frac{1 - \Big(\frac{\phi}{\lambda} \Big)^{t_2 - t_1}}{1 - \Big(\frac{\phi}{\lambda} \Big)} \right\} \Big] $$
+
+as $\phi < \lambda$,
+
+$$ = 2 E(N_{t_2}) \Big\{ 2 \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} \Big( \frac{\phi}{\lambda} \Big)^{t_2 - t_1} + 1 - \Big(\frac{\phi}{\lambda} \Big)^{t_2 - t_1} \Big\} $$
+
+$$ = 2 E(N_{t_2}) \Big[ \Big\{ 2 \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} - 1 \Big\} \Big( \frac{\phi}{\lambda} \Big)^{t_2 - t_1} + 1 \Big]. $$
+
+We can then express the probability that such a pair of animals $i$ and $j$ is a parent-offspring pair given our parameters, as the expected number of such parent-offspring pairs divided by the number of all such pairs in populations of sizes $E(N_{t_1})$ and $E(N_{t_2})$:
+
+$$ P\{PO_{t_1, t_2}(i, j) | \theta\} = \frac{E(PO_{t_1, t_2})}{E(AP_{t_1, t_2})} $$
+
+$$ = \frac{2}{E(N_{t_1})} \Big[ \Big\{ 2 \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} - 1 \Big\} \Big( \frac{\phi}{\lambda} \Big)^{t_2 - t_1} + 1 \Big], $$
+
+for $0 < t_2 - t_1 \le \alpha$, from \@ref(eq:expap).  Again, this decreases with the expected population size, and has more complicated relationships with $\lambda$ and $\phi$.  
+
+## Comparison with simulation {#simcomp}
+
+We used the simulation framework described in Section \@ref(simsec) to check the accuracy of the expressions derived above.  We used a simplified population trajectory satisfying our assumptions above, with $\phi = 0.97$, $\lambda = 1.02$, and no catch trajectory or migration, for 165 years from 1827 to 1991, with a final population size of $N_{1991} = 2000$.  We ran this full simulation ten times, and for each one we simulated ten sample histories, making 100 in total.  In each sample history we randomly sampled one third of the population at each of six years, at five year intervals, from 1966 to 1991.  We used the R code described in Section \@ref(kinships) to find the numbers of each of the three kinpairs described above.  To simplify our code we only searched for self-pairs for samples separated by less than the age of maturity, namely for consecutive samples in the sample histories above, for which we could also check our expression for parent-offspring pairs.  We compared the numbers found with those predicted by our expressions above.  Figures 7.1 - 7.3 are histograms of the differences observed as proportions of the predicted numbers.
+
+```{r, include = F}
+# # Set code not to be shown by default
+# knitr::opts_chunk$set(echo = F)
+# 
+# # Load data
+# load('Code/Kinpairs/kin_pairs.RData')
+# 
+# # Source plotting function
+# source('Code/Kinpairs/PlotPairsPOPwtn.R')
+# source('Code/Kinpairs/PlotPairsSPbtn.R')
+# source('Code/Kinpairs/PlotPairsPOPbtn.R')
+```
+
+```{r, fig.cap="The average observed number of kinpairs is within 1% of the expected number."}
+# # Differences between expected and observed numbers of pairs
+# PlotPairsPOPwtn(exp.pairs.mat, r.names, "Expected")
+```
+
+```{r, fig.cap="The average observed number of kinpairs is very close to the expected number."}
+# # Differences between expected and observed numbers of pairs
+# PlotPairsSPbtn(exp.pairs.mat, r.names, "Expected")
+```
+
+```{r, fig.cap="The average observed number of kinpairs is very close to the expected number."}
+# # Differences between expected and observed numbers of pairs
+# PlotPairsPOPbtn(exp.pairs.mat, r.names, "Expected")
+```
+
+The observed numbers of kinship pairs from our simulations are approximately normally distributed around the expected numbers derived above, verifying our calculations.  In the next section we combine the kinpair probabilities from this section with the saddlepoint approximations from the previous section, to form a pseudo-likelihood for observed PLODs.
