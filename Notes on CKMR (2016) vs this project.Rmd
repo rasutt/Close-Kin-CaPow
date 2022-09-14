@@ -1,0 +1,8 @@
+---
+title: "Notes on CKMR (2016) vs this project"
+output: html_document
+date: '2022-09-14'
+---
+
+So I guess one way to approach this is to try to combine all my kin-pair probability derivations and standardize the notation to match/refer to CKMR (2016).
+
