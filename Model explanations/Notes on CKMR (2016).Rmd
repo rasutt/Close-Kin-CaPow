@@ -1,0 +1,54 @@
+---
+title: "Notes on CKMR (Bravington et al., 2016)"
+output:
+  bookdown::html_document2:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+---
+
+# General notation
+
+Let
+
+- $z_i$ be all the information about an individual $i$, except its genotype and kinship to other individuals, that is recorded when the individual is captured
+- $t_i$, in $z_i$, be the time of capture of an individual $i$
+
+# Kinship probability for Mother-Offspring as expected relative reproductive output
+
+Let
+
+- $i$ be a female
+- $j$ be an offspring
+- $K_{i j}$ be the event that $i$ is the mother of $j$
+- $x_j$ and $y_j$ be the place and time of $j$'s birth
+- $R_{ij} = R_i(x_j, y_j)$ be the reproductive output of $i$ at the place and time of $j$'s birth
+- $R_+(x_j, y_j)$ be the reproductive output of all adult females at the place and time of $j$'s birth
+
+Assume that
+
+- all offspring from the same $(x, y)$ have equal survival and sampling probabilities
+
+Then
+
+$$\mathbb{P}[K_{i j} = MO|R, z_i, z_j] = \mathbb{P}[K_{i j} = MO|R] = \frac{R_{ij}}{R_+(x_j, y_j)}$$
+$$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right]$$
+
+This seems to assume that $R_+$ is independent of $R_i$ and $z_i$, so that it need not be conditioned on the latter, and the ratio of expectations with the former is equal to the expectation of the ratio with it.  These independencies do not seem to be true, but for populations of any reasonable size the impact of $R_i$ and $z_i$ on $R_+$ will be insignificant.  Maybe it's mentioned earlier in the paper somewhere.
+
+# Base case: Ages known, constant fecundity, lethal sampling, no (spatial) stock structure
+
+Let 
+
+- $a$ be age
+- $\alpha$ be age-at-maturity
+- $\mathbb{I}[.]$ be the indicator function
+- $N_{F y_j}$ be the number of mature females at time $y_j$
+
+Then 
+
+- $y = t - a$
+- given that $i$ was mature and not yet lethally sampled at $y_j$ she is just as likely to be $j$'s mother as the other mature females at that time
+
+$$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{E}[R_i(y_j)|y_i, t_i]} {\mathbb{E}[R_+(y_j)]}$$
+$$= \frac{\mathbb{I}[y_i + \alpha \le y_j < t_i]} {N_{F y_j}}$$
