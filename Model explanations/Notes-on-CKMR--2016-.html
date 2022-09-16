@@ -274,9 +274,18 @@ div.tocify {
 </ul>
 <p>Then</p>
 <p><span class="math display">\[\mathbb{P}[K_{i j} = MO|R, z_i, z_j] = \mathbb{P}[K_{i j} = MO|R] = \frac{R_i(x_j, y_j)}{R_+(x_j, y_j)}\]</span>
-<span class="math display">\[\mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right]\]</span></p>
-<p>Here the <span class="math inline">\(R\)</span>s are functions of the random variables <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>, but can also themselves be random. The inner expectations are over any randomness in those functions, while the outer expectation is over their random inputs. I’m not really sure why they have to be separated though, maybe just to emphasize the different sources of uncertainty, conditioning on covariates, and the assumptions of independence mentioned below.</p>
-<p>The expression seems to assume that <span class="math inline">\(R_+\)</span> is independent of <span class="math inline">\(R_i\)</span> and <span class="math inline">\(z_i\)</span>, so that it need not be conditioned on the latter, and the ratio of expectations with the former is equal to the expectation of the ratio with it. These independencies do not seem to be true, but for populations of any reasonable size the impact of <span class="math inline">\(R_i\)</span> and <span class="math inline">\(z_i\)</span> on <span class="math inline">\(R_+\)</span> will be insignificant.</p>
+<span class="math display">\[\mathbb{P}[K_{i j} = MO] = \mathbb{E} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]}\right]\]</span>
+<span class="math display">\[\mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]} |z_i, z_j \right]\]</span>
+<span class="math display">\[= \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i\right]\right]\]</span>
+where the inner expectation integrates over the distribution of <span class="math inline">\(R_i / R_+\)</span> at each value of <span class="math inline">\(X_j, Y_j\)</span>
+<span class="math display">\[= \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)|z_i]} \right]\]</span>
+assuming that <span class="math inline">\(R_+\)</span> is independent of <span class="math inline">\(R_i\)</span>
+<span class="math display">\[= \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right]\]</span>
+assuming that <span class="math inline">\(R_+\)</span> is independent of <span class="math inline">\(z_i\)</span>.</p>
+<p>The final expression above is given in the paper with the reasoning seeming to be implicit. The assumptions do not seem to be warranted in general, as there may be strong dependencies between R_i and R_+, and R_+ and z_i.</p>
+<p>The assumption of constant fecundity among mature females at a given place and time, given their covariates, seems to be required. That is, that i has the same R as all the other i’s at x and y, so that R_+ = N_+ R_i, and the expected proportion E(R_i/R_+) is just E(R_i/(N_+ R_i)) = E(1/N_+) = 1/N_+ for deterministic N_+. Otherwise R_+ could be replaced with R_z_i, representing the R of other i’s in terms of i’s covariates, with the assumption of constant fecundity applying within this group, and obviously retaining the dependence on z_i. Is this what they’re actually doing?</p>
+<p>What I’m doing is assuming a constant Bernoulli distribution for females, and a different constant distribution of R for males. This gives exactly the same result as above, with the same reasoning, as constant fecundity is just a particular case of it.</p>
+<p>For non-deterministic N_+ it’s still wrong though, and I take this into account. I should keep reading their later cases and check that this is actually what they’re doing.</p>
 </div>
 <div id="base-case-ages-known-constant-fecundity-lethal-sampling-no-spatial-stock-structure" class="section level2" number="1.3">
 <h2><span class="header-section-number">1.3</span> Base case: Ages known, constant fecundity, lethal sampling, no (spatial) stock structure</h2>
@@ -311,6 +320,9 @@ div.tocify {
   \phi(t_i, y_j); &amp; t_i &lt; y_j,
 \end{cases}\]</span>
 where <span class="math inline">\(\phi(t_i, y_j)\)</span> is the probability that <span class="math inline">\(i\)</span> survives from <span class="math inline">\(t_i\)</span> to <span class="math inline">\(y_j\)</span>.</p>
+</div>
+<div id="age-dependent-sampling-and-fecundity" class="section level2" number="1.5">
+<h2><span class="header-section-number">1.5</span> Age-dependent sampling and fecundity</h2>
 </div>
 </div>
 

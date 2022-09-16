@@ -34,11 +34,22 @@ Assume that
 Then
 
 $$\mathbb{P}[K_{i j} = MO|R, z_i, z_j] = \mathbb{P}[K_{i j} = MO|R] = \frac{R_i(x_j, y_j)}{R_+(x_j, y_j)}$$
-$$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right]$$
+$$\mathbb{P}[K_{i j} = MO] = \mathbb{E} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]}\right]$$
+$$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]} |z_i, z_j \right]$$
+$$= \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i\right]\right]$$
+where the inner expectation integrates over the distribution of $R_i / R_+$ at each value of $X_j, Y_j$
+$$= \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)|z_i]} \right]$$
+assuming that $R_+$ is independent of $R_i$
+$$= \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right]$$
+assuming that $R_+$ is independent of $z_i$.
 
-Here the $R$s are functions of the random variables $X$ and $Y$, but can also themselves be random.  The inner expectations are over any randomness in those functions, while the outer expectation is over their random inputs.  I'm not really sure why they have to be separated though, maybe just to emphasize the different sources of uncertainty, conditioning on covariates, and the assumptions of independence mentioned below.
+The final expression above is given in the paper with the reasoning seeming to be implicit.  The assumptions do not seem to be warranted in general, as there may be strong dependencies between R_i and R_+, and R_+ and z_i.  
 
-The expression seems to assume that $R_+$ is independent of $R_i$ and $z_i$, so that it need not be conditioned on the latter, and the ratio of expectations with the former is equal to the expectation of the ratio with it.  These independencies do not seem to be true, but for populations of any reasonable size the impact of $R_i$ and $z_i$ on $R_+$ will be insignificant.
+The assumption of constant fecundity among mature females at a given place and time, given their covariates, seems to be required.  That is, that i has the same R as all the other i's at x and y, so that R_+ = N_+ R_i, and the expected proportion E(R_i/R_+) is just E(R_i/(N_+ R_i)) = E(1/N_+) = 1/N_+ for deterministic N_+.  Otherwise R_+ could be replaced with R_z_i, representing the R of other i's in terms of i's covariates, with the assumption of constant fecundity applying within this group, and obviously retaining the dependence on z_i.  Is this what they're actually doing?
+
+What I'm doing is assuming a constant Bernoulli distribution for females, and a different constant distribution of R for males.  This gives exactly the same result as above, with the same reasoning, as constant fecundity is just a particular case of it.  
+
+For non-deterministic N_+ it's still wrong though, and I take this into account.  I should keep reading their later cases and check that this is actually what they're doing.   
 
 ## Base case: Ages known, constant fecundity, lethal sampling, no (spatial) stock structure
 
@@ -72,3 +83,4 @@ $$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{I}[y_i + \alpha \le y_j]} {N
 \end{cases}$$
 where $\phi(t_i, y_j)$ is the probability that $i$ survives from $t_i$ to $y_j$.
 
+## Age-dependent sampling and fecundity
