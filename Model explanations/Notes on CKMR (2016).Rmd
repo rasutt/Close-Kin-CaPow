@@ -7,14 +7,16 @@ output:
     toc_float: true
 ---
 
-# General notation
+# Kinship probabilities
+
+## General notation
 
 Let
 
 - $z_i$ be all the information about an individual $i$, except its genotype and kinship to other individuals, that is recorded when the individual is captured
 - $t_i$, in $z_i$, be the time of capture of an individual $i$
 
-# Kinship probability for Mother-Offspring as expected relative reproductive output
+## Kinship probability for Mother-Offspring as expected relative reproductive output
 
 Let
 
@@ -22,7 +24,7 @@ Let
 - $j$ be an offspring
 - $K_{i j}$ be the event that $i$ is the mother of $j$
 - $x_j$ and $y_j$ be the place and time of $j$'s birth
-- $R_{ij} = R_i(x_j, y_j)$ be the reproductive output of $i$ at the place and time of $j$'s birth
+- $R_i(x_j, y_j)$ be the reproductive output of $i$ at the place and time of $j$'s birth
 - $R_+(x_j, y_j)$ be the reproductive output of all adult females at the place and time of $j$'s birth
 
 Assume that
@@ -31,12 +33,14 @@ Assume that
 
 Then
 
-$$\mathbb{P}[K_{i j} = MO|R, z_i, z_j] = \mathbb{P}[K_{i j} = MO|R] = \frac{R_{ij}}{R_+(x_j, y_j)}$$
+$$\mathbb{P}[K_{i j} = MO|R, z_i, z_j] = \mathbb{P}[K_{i j} = MO|R] = \frac{R_i(x_j, y_j)}{R_+(x_j, y_j)}$$
 $$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right]$$
 
-This seems to assume that $R_+$ is independent of $R_i$ and $z_i$, so that it need not be conditioned on the latter, and the ratio of expectations with the former is equal to the expectation of the ratio with it.  These independencies do not seem to be true, but for populations of any reasonable size the impact of $R_i$ and $z_i$ on $R_+$ will be insignificant.  Maybe it's mentioned earlier in the paper somewhere.
+Here the $R$s are functions of the random variables $X$ and $Y$, but can also themselves be random.  The inner expectations are over any randomness in those functions, while the outer expectation is over their random inputs.  I'm not really sure why they have to be separated though, maybe just to emphasize the different sources of uncertainty, conditioning on covariates, and the assumptions of independence mentioned below.
 
-# Base case: Ages known, constant fecundity, lethal sampling, no (spatial) stock structure
+The expression seems to assume that $R_+$ is independent of $R_i$ and $z_i$, so that it need not be conditioned on the latter, and the ratio of expectations with the former is equal to the expectation of the ratio with it.  These independencies do not seem to be true, but for populations of any reasonable size the impact of $R_i$ and $z_i$ on $R_+$ will be insignificant.
+
+## Base case: Ages known, constant fecundity, lethal sampling, no (spatial) stock structure
 
 Let 
 
@@ -45,6 +49,12 @@ Let
 - $\mathbb{I}[.]$ be the indicator function
 - $N_{F y_j}$ be the number of mature females at time $y_j$
 
+Assume that
+
+- an adult's sampling and the number of its offspring sampled are independent given covariates, or more formally
+  - there are no additional covariates that affect both the probability of an adult being sampled ($p$) and its expected reproductive output at $y_j$ ($R_{ij}$)
+  - there are no additional covariates that affect the sampling and/or survival probabilities of both the adult and its offspring (e.g. If mother-calf pairs are caught together)
+
 Then 
 
 - $y = t - a$
@@ -52,3 +62,13 @@ Then
 
 $$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{E}[R_i(y_j)|y_i, t_i]} {\mathbb{E}[R_+(y_j)]}$$
 $$= \frac{\mathbb{I}[y_i + \alpha \le y_j < t_i]} {N_{F y_j}}$$
+
+## Non-lethal sampling
+
+$$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{I}[y_i + \alpha \le y_j]} {N_{F y_j}} \times
+\begin{cases} 
+  1; & t_i > y_j, \\
+  \phi(t_i, y_j); & t_i < y_j,
+\end{cases}$$
+where $\phi(t_i, y_j)$ is the probability that $i$ survives from $t_i$ to $y_j$.
+
