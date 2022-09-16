@@ -43,13 +43,13 @@ assuming that $R_+$ is independent of $R_i$
 $$= \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right]$$
 assuming that $R_+$ is independent of $z_i$.
 
-The final expression above is given in the paper with the reasoning seeming to be implicit.  The assumptions do not seem to be warranted in general, as there may be strong dependencies between R_i and R_+, and R_+ and z_i.  
+Actually the second to last step, although true given the assumption indicated, does not require it.  In fact if we assume that R_+ = sum_{k=1}^N_+ R_k, where R_k are perfectly correlated, then R_+ and R_i are clearly not independent, but E(R_i/R_+) = E(R_i/(N_+ R_i)) = E(1/N_+) = 1/N_+ (for deterministic N_+) = E(R_i) / (N_+ E(R_i)) = E(R_i) / E(N_+ R_i).  Assuming constant R would also give the result.
 
-The assumption of constant fecundity among mature females at a given place and time, given their covariates, seems to be required.  That is, that i has the same R as all the other i's at x and y, so that R_+ = N_+ R_i, and the expected proportion E(R_i/R_+) is just E(R_i/(N_+ R_i)) = E(1/N_+) = 1/N_+ for deterministic N_+.  Otherwise R_+ could be replaced with R_z_i, representing the R of other i's in terms of i's covariates, with the assumption of constant fecundity applying within this group, and obviously retaining the dependence on z_i.  Is this what they're actually doing?
+In the first case below they give the expression 1/N_+, on the basis of assumed constant fecundity, but by this they seem to mean constant Beta := E(R), which relies on the equality, rather than establishing it.  I'm actually doing the same thing in my derivations, except that I don't assume deterministic N_+, but use my app to evaluate both of the approximations.  Actually I think that this may be an important point for close-kin, if no one else has mentioned it yet.
 
-What I'm doing is assuming a constant Bernoulli distribution for females, and a different constant distribution of R for males.  This gives exactly the same result as above, with the same reasoning, as constant fecundity is just a particular case of it.  
+The final expression above is given in the paper with the reasoning seeming to be implicit.  The assumptions do not seem to be warranted in general, as there may be strong dependencies between R_i and R_+, and thus between R_+ and z_i.  
 
-For non-deterministic N_+ it's still wrong though, and I take this into account.  I should keep reading their later cases and check that this is actually what they're doing.   
+The assumption of constant fecundity among mature females at a given place and time, given their covariates, seems to be required.  That is, that i has the same R as all the other i's at x and y, so that R_+ = N_+ R_i, and the expected proportion E(R_i/R_+) is just E(R_i/(N_+ R_i)) = E(1/N_+) = 1/N_+ for deterministic N_+.  Otherwise R_+ could be replaced with R_z_i, representing the R of other i's in terms of i's covariates, with the assumption of constant fecundity applying within this group, and obviously retaining the dependence on z_i.  Is this what they're actually doing?  I should keep reading their later cases and check.   
 
 ## Base case: Ages known, constant fecundity, lethal sampling, no (spatial) stock structure
 
