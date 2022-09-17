@@ -1,11 +1,13 @@
 ---
-title: "Notes on CKMR (Bravington et al., 2016)"
+title: "Notes on close-kin mark-recapture"
 output:
   bookdown::html_document2:
     toc: true
     toc_depth: 2
     toc_float: true
 ---
+
+Bravington, Mark V., Hans J. Skaug, and Eric C. Anderson. "Close-kin mark-recapture." Statistical Science 31.2 (2016): 259-274.
 
 # Kinship probabilities
 
@@ -14,7 +16,7 @@ output:
 Let
 
 - $z_i$ be all the information about an individual $i$, except its genotype and kinship to other individuals, that is recorded when the individual is captured
-- $t_i$, in $z_i$, be the time of capture of an individual $i$
+- $t_i \in z_i$, be the time of capture of an individual $i$
 
 ## Kinship probability for Mother-Offspring as expected relative reproductive output
 
@@ -24,55 +26,67 @@ Let
 - $j$ be an offspring
 - $K_{i j}$ be the event that $i$ is the mother of $j$
 - $x_j$ and $y_j$ be the place and time of $j$'s birth
-- $R_i(x_j, y_j)$ be the reproductive output of $i$ at the place and time of $j$'s birth
-- $R_+(x_j, y_j)$ be the reproductive output of all adult females at the place and time of $j$'s birth
+- $R_i(x_j, y_j)$ be the reproductive output of $i$ at $(x_j, y_j)$, and
+- $R_+(x_j, y_j)$ be the reproductive output of all adult females at $(x_j, y_j)$.
 
 Assume that
 
-- all offspring from the same $(x, y)$ have equal survival and sampling probabilities
+- all offspring from the same $(x, y)$ have equal survival and sampling probabilities.
 
 Then
 
 $$\mathbb{P}[K_{i j} = MO|R, z_i, z_j] = \mathbb{P}[K_{i j} = MO|R] = \frac{R_i(x_j, y_j)}{R_+(x_j, y_j)}$$
+and
+\begin{equation}
+  \mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right].
+  (\#eq:PMO)
+\end{equation}
+Robin's note: \@ref(eq:PMO) is not necessarily true, but requires further assumptions.
 $$\mathbb{P}[K_{i j} = MO] = \mathbb{E} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]}\right]$$
-$$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]} |z_i, z_j \right]$$
-$$= \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i\right]\right]$$
-where the inner expectation integrates over the distribution of $R_i / R_+$ at each value of $X_j, Y_j$
-$$= \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)|z_i]} \right]$$
-assuming that $R_+$ is independent of $R_i$
-$$= \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right]$$
-assuming that $R_+$ is independent of $z_i$.
-
-Actually the second to last step, although true given the assumption indicated, does not require it.  In fact if we assume that R_+ = sum_{k=1}^N_+ R_k, where R_k are perfectly correlated, then R_+ and R_i are clearly not independent, but E(R_i/R_+) = E(R_i/(N_+ R_i)) = E(1/N_+) = 1/N_+ (for deterministic N_+) = E(R_i) / (N_+ E(R_i)) = E(R_i) / E(N_+ R_i).  Assuming constant R would also give the result.
-
-In the first case below they give the expression 1/N_+, on the basis of assumed constant fecundity, but by this they seem to mean constant Beta := E(R), which relies on the equality, rather than establishing it.  I'm actually doing the same thing in my derivations, except that I don't assume deterministic N_+, but use my app to evaluate both of the approximations.  Actually I think that this may be an important point for close-kin, if no one else has mentioned it yet.
-
-The final expression above is given in the paper with the reasoning seeming to be implicit.  The assumptions do not seem to be warranted in general, as there may be strong dependencies between R_i and R_+, and thus between R_+ and z_i.  
-
-The assumption of constant fecundity among mature females at a given place and time, given their covariates, seems to be required.  That is, that i has the same R as all the other i's at x and y, so that R_+ = N_+ R_i, and the expected proportion E(R_i/R_+) is just E(R_i/(N_+ R_i)) = E(1/N_+) = 1/N_+ for deterministic N_+.  Otherwise R_+ could be replaced with R_z_i, representing the R of other i's in terms of i's covariates, with the assumption of constant fecundity applying within this group, and obviously retaining the dependence on z_i.  Is this what they're actually doing?  I should keep reading their later cases and check.   
+and
+$$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i, z_j \right]$$
+$$= \mathbb{E}_{X_j, Y_j|z_j, z_i} \left[\mathbb{E}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i\right]\right],$$
+where the inner expectation integrates over the distribution of $R_i / R_+ | X_j, Y_j, z_i$,
+$$= \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i\right]\right],$$
+assuming $X_j$ and $Y_j$ are independent of $z_i$.  But equation \@ref(eq:PMO) requires two further steps,
+\begin{equation}
+  \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i\right]\right] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)|z_i]} \right],
+  (\#eq:expratio)
+\end{equation}
+and
+\begin{equation}
+  \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)|z_i]} \right] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right],
+  (\#eq:indepzi)
+\end{equation}
+and these are not necessarily true, but require further assumptions.
 
 ## Base case: Ages known, constant fecundity, lethal sampling, no (spatial) stock structure
 
 Let 
 
 - $a$ be age
+- $z = (t, a)$
 - $\alpha$ be age-at-maturity
-- $\mathbb{I}[.]$ be the indicator function
-- $N_{F y_j}$ be the number of mature females at time $y_j$
+- $\mathbb{I}[.]$ be the indicator function, and
+- $N_{F y_j}$ be the number of mature females at time $y_j$.
 
 Assume that
 
 - an adult's sampling and the number of its offspring sampled are independent given covariates, or more formally
-  - there are no additional covariates that affect both the probability of an adult being sampled ($p$) and its expected reproductive output at $y_j$ ($R_{ij}$)
-  - there are no additional covariates that affect the sampling and/or survival probabilities of both the adult and its offspring (e.g. If mother-calf pairs are caught together)
+  - there are no additional covariates that affect both the probability of an adult being sampled ($p$) and its expected reproductive output $(\mathbb{E}[R_{ij}])$, and
+  - there are no additional covariates that affect the sampling and/or survival probabilities of both the adult and its offspring (e.g. mother-calf pairs being caught together).
 
 Then 
 
 - $y = t - a$
-- given that $i$ was mature and not yet lethally sampled at $y_j$ she is just as likely to be $j$'s mother as the other mature females at that time
+- given that $i$ was mature, and not yet lethally sampled, at $y_j$ she is just as likely to be $j$'s mother as the other mature females at that time due to constant fecundity $\beta := \mathbb{E}[R]$, and
 
 $$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{E}[R_i(y_j)|y_i, t_i]} {\mathbb{E}[R_+(y_j)]}$$
 $$= \frac{\mathbb{I}[y_i + \alpha \le y_j < t_i]} {N_{F y_j}}$$
+Robin's notes: 
+
+- Constant fecundity $\beta := \mathbb{E}[R]$ does not imply \@ref(eq:expratio), but together they do imply these results.  That means that I can evaluate \@ref(eq:expratio) with my simulation by comparing the values of the expressions under this condition, in the non-lethal case below.
+- Later they state that it is not required that all adults have the same expected reproductive output, but I do not understand what they mean.
 
 ## Non-lethal sampling
 
