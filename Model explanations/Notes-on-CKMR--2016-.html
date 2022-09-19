@@ -254,7 +254,7 @@ div.tocify {
 <h2><span class="header-section-number">1.1</span> General notation</h2>
 <p>Let</p>
 <ul>
-<li><span class="math inline">\(z_i\)</span> be all the information about an individual <span class="math inline">\(i\)</span>, except its genotype and kinship to other individuals, that is recorded when the individual is captured</li>
+<li><span class="math inline">\(z_i\)</span>, viewed stochastically, be all the information about an individual <span class="math inline">\(i\)</span>, except its genotype and kinship to other individuals, that is recorded when the individual is captured</li>
 <li><span class="math inline">\(t_i \in z_i\)</span>, be the time of capture of an individual <span class="math inline">\(i\)</span></li>
 </ul>
 </div>
@@ -281,23 +281,27 @@ and
   \tag{1.1}
 \end{equation}\]</span>
 Robin’s note: <a href="#eq:PMO">(1.1)</a> is not necessarily true, but requires further assumptions.
-<span class="math display">\[\mathbb{P}[K_{i j} = MO] = \mathbb{E} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]}\right]\]</span>
+<span class="math display">\[\mathbb{P}[K_{i j} = MO] = \mathbb{E}_{R_i, R_+} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]}\right]\]</span>
+<span class="math display">\[= \mathbb{E}_{R_i, R_+, X_j, Y_j} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]}\right],\]</span>
 and
-<span class="math display">\[\mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i, z_j \right]\]</span>
-<span class="math display">\[= \mathbb{E}_{X_j, Y_j|z_j, z_i} \left[\mathbb{E}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i\right]\right],\]</span>
-where the inner expectation integrates over the distribution of <span class="math inline">\(R_i / R_+ | X_j, Y_j, z_i\)</span>,
-<span class="math display">\[= \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i\right]\right],\]</span>
-assuming <span class="math inline">\(X_j\)</span> and <span class="math inline">\(Y_j\)</span> are independent of <span class="math inline">\(z_i\)</span>. But equation <a href="#eq:PMO">(1.1)</a> requires two further steps,
+<span class="math display">\[\mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E}_{R_i, R_+, X_j, Y_j | z_i, z_j} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)}\right]\]</span>
+<span class="math display">\[= \mathbb{E}_{X_j, Y_j|z_i, z_j} \left[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, z_j}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)}\right]\right]\]</span>
+<span class="math display">\[= \mathbb{E}_{X_j, Y_j|z_i, z_j} \left[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)}\right]\right],\]</span>
+assuming that <span class="math inline">\(R_i\)</span> and <span class="math inline">\(R_+\)</span> are conditionally independent of <span class="math inline">\(z_j\)</span> given <span class="math inline">\(X_j\)</span> and <span class="math inline">\(Y_j\)</span>, i.e. that the covariates of offspring <span class="math inline">\(j\)</span> do not inform the distribution of reproductive output at the place and time of their birth except through the distributions of that place and that time,
+<span class="math display">\[= \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)}\right]\right],\]</span>
+assuming that <span class="math inline">\(X_j\)</span> and <span class="math inline">\(Y_j\)</span> are independent of <span class="math inline">\(z_i\)</span>, i.e. that the covariates of the female <span class="math inline">\(i\)</span> do not inform the distribution of the place and time of offspring <span class="math inline">\(j\)</span>’s birth,
 <span class="math display" id="eq:expratio">\[\begin{equation}
-  \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i\right]\right] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)|z_i]} \right],
+  = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}_{R_i | X_j, Y_j, z_i}[R_i(X_j, Y_j)]} {\mathbb{E}_{R_+ | X_j, Y_j, z_i}[R_+(X_j, Y_j)]}\right],
   \tag{1.2}
 \end{equation}\]</span>
-and
+assuming that the expected value of the ratio of the reproductive output of female <span class="math inline">\(i\)</span> to that of all adult females at the place and time of offspring <span class="math inline">\(j\)</span>’s birth is equal to the ratio of the expected values of those reproductive outputs,
 <span class="math display" id="eq:indepzi">\[\begin{equation}
-  \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)|z_i]} \right] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right],
+  = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}_{R_i | X_j, Y_j, z_i}[R_i(X_j, Y_j)]} {\mathbb{E}_{R_+ | X_j, Y_j}[R_+(X_j, Y_j)]}\right],
   \tag{1.3}
 \end{equation}\]</span>
-and these are not necessarily true, but require further assumptions.</p>
+assuming that <span class="math inline">\(R_+\)</span> is conditionally independent of <span class="math inline">\(z_i\)</span> given <span class="math inline">\(X_j\)</span> and <span class="math inline">\(Y_j\)</span>, i.e. that the covariates of female <span class="math inline">\(i\)</span> do not inform the distribution of reproductive output at the place and time of offspring <span class="math inline">\(j\)</span>’s birth except through the distributions of that place and that time,
+<span class="math display">\[= \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]}\right],\]</span>
+changing the notation to make the other details of the inner expectations implicit.</p>
 </div>
 <div id="base-case-ages-known-constant-fecundity-lethal-sampling-no-spatial-stock-structure" class="section level2" number="1.3">
 <h2><span class="header-section-number">1.3</span> Base case: Ages known, constant fecundity, lethal sampling, no (spatial) stock structure</h2>
@@ -326,8 +330,18 @@ and these are not necessarily true, but require further assumptions.</p>
 <span class="math display">\[= \frac{\mathbb{I}[y_i + \alpha \le y_j &lt; t_i]} {N_{F y_j}}\]</span>
 Robin’s notes:</p>
 <ul>
-<li>Constant fecundity <span class="math inline">\(\beta := \mathbb{E}[R]\)</span> does not imply <a href="#eq:expratio">(1.2)</a>, but together they do imply these results. That means that I can evaluate <a href="#eq:expratio">(1.2)</a> with my simulation by comparing the values of the expressions under this condition, in the non-lethal case below.</li>
+<li>Constant fecundity <span class="math inline">\(\beta := \mathbb{E}[R]\)</span> alone does not imply <a href="#eq:expratio">(1.2)</a>, but together they do imply these results.</li>
 <li>Later they state that it is not required that all adults have the same expected reproductive output, but I do not understand what they mean.</li>
+<li>Assuming that <span class="math inline">\(R_k\)</span> for <span class="math inline">\(k = 1\)</span> to <span class="math inline">\(N_F\)</span> are i.i.d. given all relevant unknown latent variables <span class="math inline">\(\theta\)</span> does give you <a href="#eq:expratio">(1.2)</a> and the results above as
+<span class="math display">\[\mathbb{E}\left[\frac{R_i}{R_+}\right] = \mathbb{E}_{\theta}\left[\mathbb{E}\left[\frac{R_i}{R_+}|\theta\right]\right]\]</span>
+<span class="math display">\[= \mathbb{E}_{\theta}\left[\frac{\mathbb{E}[R_i|\theta]}{\mathbb{E}[R_+|\theta]}\right]\]</span>
+<span class="math display">\[= \mathbb{E}_{\theta}\left[\frac{\mathbb{E}[R_i|\theta]}{N_F\mathbb{E}[R_i|\theta]}\right]\]</span>
+<span class="math display">\[= \mathbb{E}_{\theta}\left[\frac{1}{N_F}\right]\]</span>
+<span class="math display">\[= \frac{1}{N_F}\]</span>
+<span class="math display">\[= \frac{\mathbb{E}[R_i]}{N_F \mathbb{E}[R_i]}\]</span>
+<span class="math display">\[= \frac{\mathbb{E}[R_i]} {N_F\mathbb{E}_{\theta}\{\mathbb{E}[R_i|\theta]\}}\]</span>
+<span class="math display">\[= \frac{\mathbb{E}[R_i]} {\mathbb{E}_{\theta}\{N_F\mathbb{E}[R_i|\theta]\}}\]</span>
+<span class="math display">\[= \frac{\mathbb{E}[R_i]}{\mathbb{E}[R_+]}\]</span></li>
 </ul>
 </div>
 <div id="non-lethal-sampling" class="section level2" number="1.4">

@@ -15,7 +15,7 @@ Bravington, Mark V., Hans J. Skaug, and Eric C. Anderson. "Close-kin mark-recapt
 
 Let
 
-- $z_i$ be all the information about an individual $i$, except its genotype and kinship to other individuals, that is recorded when the individual is captured
+- $z_i$, viewed stochastically, be all the information about an individual $i$, except its genotype and kinship to other individuals, that is recorded when the individual is captured
 - $t_i \in z_i$, be the time of capture of an individual $i$
 
 ## Kinship probability for Mother-Offspring as expected relative reproductive output
@@ -42,23 +42,27 @@ and
   (\#eq:PMO)
 \end{equation}
 Robin's note: \@ref(eq:PMO) is not necessarily true, but requires further assumptions.
-$$\mathbb{P}[K_{i j} = MO] = \mathbb{E} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]}\right]$$
+$$\mathbb{P}[K_{i j} = MO] = \mathbb{E}_{R_i, R_+} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]}\right]$$
+$$= \mathbb{E}_{R_i, R_+, X_j, Y_j} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]}\right],$$
 and
-$$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i, z_j \right]$$
-$$= \mathbb{E}_{X_j, Y_j|z_j, z_i} \left[\mathbb{E}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i\right]\right],$$
-where the inner expectation integrates over the distribution of $R_i / R_+ | X_j, Y_j, z_i$,
-$$= \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i\right]\right],$$
-assuming $X_j$ and $Y_j$ are independent of $z_i$.  But equation \@ref(eq:PMO) requires two further steps,
+$$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E}_{R_i, R_+, X_j, Y_j | z_i, z_j} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)}\right]$$
+$$= \mathbb{E}_{X_j, Y_j|z_i, z_j} \left[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, z_j}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)}\right]\right]$$
+$$= \mathbb{E}_{X_j, Y_j|z_i, z_j} \left[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)}\right]\right],$$
+assuming that $R_i$ and $R_+$ are conditionally independent of $z_j$ given $X_j$ and $Y_j$, i.e. that the covariates of offspring $j$ do not inform the distribution of reproductive output at the place and time of their birth except through the distributions of that place and that time,
+$$= \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)}\right]\right],$$
+assuming that $X_j$ and $Y_j$ are independent of $z_i$, i.e. that the covariates of the female $i$ do not inform the distribution of the place and time of offspring $j$'s birth,
 \begin{equation}
-  \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} |z_i\right]\right] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)|z_i]} \right],
+  = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}_{R_i | X_j, Y_j, z_i}[R_i(X_j, Y_j)]} {\mathbb{E}_{R_+ | X_j, Y_j, z_i}[R_+(X_j, Y_j)]}\right],
   (\#eq:expratio)
 \end{equation}
-and
+assuming that the expected value of the ratio of the reproductive output of female $i$ to that of all adult females at the place and time of offspring $j$'s birth is equal to the ratio of the expected values of those reproductive outputs,
 \begin{equation}
-  \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)|z_i]} \right] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right],
+  = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}_{R_i | X_j, Y_j, z_i}[R_i(X_j, Y_j)]} {\mathbb{E}_{R_+ | X_j, Y_j}[R_+(X_j, Y_j)]}\right],
   (\#eq:indepzi)
 \end{equation}
-and these are not necessarily true, but require further assumptions.
+assuming that $R_+$ is conditionally independent of $z_i$ given $X_j$ and $Y_j$, i.e. that the covariates of female $i$ do not inform the distribution of reproductive output at the place and time of offspring $j$'s birth except through the distributions of that place and that time,
+$$= \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]}\right],$$
+changing the notation to make the other details of the inner expectations implicit.
 
 ## Base case: Ages known, constant fecundity, lethal sampling, no (spatial) stock structure
 
@@ -85,8 +89,18 @@ $$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{E}[R_i(y_j)|y_i, t_i]} {\mat
 $$= \frac{\mathbb{I}[y_i + \alpha \le y_j < t_i]} {N_{F y_j}}$$
 Robin's notes: 
 
-- Constant fecundity $\beta := \mathbb{E}[R]$ does not imply \@ref(eq:expratio), but together they do imply these results.  That means that I can evaluate \@ref(eq:expratio) with my simulation by comparing the values of the expressions under this condition, in the non-lethal case below.
+- Constant fecundity $\beta := \mathbb{E}[R]$ alone does not imply \@ref(eq:expratio), but together they do imply these results. 
 - Later they state that it is not required that all adults have the same expected reproductive output, but I do not understand what they mean.
+- Assuming that $R_k$ for $k = 1$ to $N_F$ are i.i.d. given all relevant unknown latent variables $\theta$ does give you \@ref(eq:expratio) and the results above as
+$$\mathbb{E}\left[\frac{R_i}{R_+}\right] = \mathbb{E}_{\theta}\left[\mathbb{E}\left[\frac{R_i}{R_+}|\theta\right]\right]$$
+$$= \mathbb{E}_{\theta}\left[\frac{\mathbb{E}[R_i|\theta]}{\mathbb{E}[R_+|\theta]}\right]$$
+$$= \mathbb{E}_{\theta}\left[\frac{\mathbb{E}[R_i|\theta]}{N_F\mathbb{E}[R_i|\theta]}\right]$$
+$$= \mathbb{E}_{\theta}\left[\frac{1}{N_F}\right]$$
+$$= \frac{1}{N_F}$$
+$$= \frac{\mathbb{E}[R_i]}{N_F \mathbb{E}[R_i]}$$
+$$= \frac{\mathbb{E}[R_i]} {N_F\mathbb{E}_{\theta}\{\mathbb{E}[R_i|\theta]\}}$$
+$$= \frac{\mathbb{E}[R_i]} {\mathbb{E}_{\theta}\{N_F\mathbb{E}[R_i|\theta]\}}$$
+$$= \frac{\mathbb{E}[R_i]}{\mathbb{E}[R_+]}$$
 
 ## Non-lethal sampling
 
