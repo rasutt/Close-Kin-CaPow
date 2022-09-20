@@ -3,7 +3,7 @@ title: "Notes on close-kin mark-recapture"
 output:
   bookdown::html_document2:
     toc: true
-    toc_depth: 2
+    toc_depth: 3
     toc_float: true
 ---
 
@@ -41,7 +41,9 @@ and
   \mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right].
   (\#eq:PMO)
 \end{equation}
-Robin's note: \@ref(eq:PMO) is not necessarily true, but requires further assumptions.
+
+### Robin's note
+
 $$\mathbb{P}[K_{i j} = MO] = \mathbb{E}_{R_i, R_+} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]}\right]$$
 $$= \mathbb{E}_{R_i, R_+, X_j, Y_j} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]}\right],$$
 and
@@ -50,12 +52,24 @@ $$= \mathbb{E}_{X_j, Y_j|z_i, z_j} \left[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, z
 $$= \mathbb{E}_{X_j, Y_j|z_i, z_j} \left[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)}\right]\right],$$
 assuming that $R_i$ and $R_+$ are conditionally independent of $z_j$ given $X_j$ and $Y_j$, i.e. that the covariates of offspring $j$ do not inform the distribution of reproductive output at the place and time of their birth except through the distributions of that place and that time,
 $$= \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)}\right]\right],$$
-assuming that $X_j$ and $Y_j$ are independent of $z_i$, i.e. that the covariates of the female $i$ do not inform the distribution of the place and time of offspring $j$'s birth,
+assuming that $X_j$ and $Y_j$ are independent of $z_i$, i.e. that the covariates of the female $i$ do not inform the distribution of the place and time of offspring $j$'s birth.
+
+\@ref(eq:PMO) also seems to require that
 \begin{equation}
-  = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}_{R_i | X_j, Y_j, z_i}[R_i(X_j, Y_j)]} {\mathbb{E}_{R_+ | X_j, Y_j, z_i}[R_+(X_j, Y_j)]}\right],
+  \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)}\right]\right] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}_{R_i | X_j, Y_j, z_i}[R_i(X_j, Y_j)]} {\mathbb{E}_{R_+ | X_j, Y_j, z_i}[R_+(X_j, Y_j)]}\right].
   (\#eq:expratio)
 \end{equation}
-assuming that the expected value of the ratio of the reproductive output of female $i$ to that of all adult females at the place and time of offspring $j$'s birth is equal to the ratio of the expected values of those reproductive outputs,
+This would be true if $R_i$ and $R_+$ were independent given the place and time $(X_j, Y_j)$ of offspring $j$'s birth, and female $i$'s covariates $z_i$.  But firstly $R_+$ is a sum that includes $R_i$, and secondly they are likely to be influenced by common latent variables such as food abundance.  It seems that we can take such latent variables into account if we ignore the effect of $R_i$ on $R_+$, which might at least give a good approximation, given that the effect of any particular individual should be quite small.  Assuming that the reproductive output $R_k$ of each mature female $k = 1, ..., N_F$, at the place and time $(X_j, Y_j)$ of offspring $j$'s birth is i.i.d. given any necessary latent variables $\theta$ and female $i$'s covariates $z_i$,
+$$\mathbb{E}\left[\frac{R_i}{R_+}\right] = \mathbb{E}_{\theta}\left[\mathbb{E}\left[\frac{R_i}{R_+}|\theta\right]\right]$$
+$$= \mathbb{E}_{\theta}\left[\frac{\mathbb{E}[R_i|\theta]}{\mathbb{E}[R_+|\theta]}\right]$$
+$$= \mathbb{E}_{\theta}\left[\frac{\mathbb{E}[R_i|\theta]}{N_F\mathbb{E}[R_i|\theta]}\right]$$
+$$= \mathbb{E}_{\theta}\left[\frac{1}{N_F}\right]$$
+$$= \frac{1}{N_F}$$
+$$= \frac{\mathbb{E}[R_i]}{N_F \mathbb{E}[R_i]}$$
+$$= \frac{\mathbb{E}[R_i]} {N_F\mathbb{E}_{\theta}\{\mathbb{E}[R_i|\theta]\}}$$
+$$= \frac{\mathbb{E}[R_i]} {\mathbb{E}_{\theta}\{N_F\mathbb{E}[R_i|\theta]\}}$$
+$$= \frac{\mathbb{E}[R_i]}{\mathbb{E}[R_+]}$$
+
 \begin{equation}
   = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}_{R_i | X_j, Y_j, z_i}[R_i(X_j, Y_j)]} {\mathbb{E}_{R_+ | X_j, Y_j}[R_+(X_j, Y_j)]}\right],
   (\#eq:indepzi)
@@ -87,20 +101,12 @@ Then
 
 $$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{E}[R_i(y_j)|y_i, t_i]} {\mathbb{E}[R_+(y_j)]}$$
 $$= \frac{\mathbb{I}[y_i + \alpha \le y_j < t_i]} {N_{F y_j}}$$
-Robin's notes: 
+### Robin's note
 
 - Constant fecundity $\beta := \mathbb{E}[R]$ alone does not imply \@ref(eq:expratio), but together they do imply these results. 
 - Later they state that it is not required that all adults have the same expected reproductive output, but I do not understand what they mean.
 - Assuming that $R_k$ for $k = 1$ to $N_F$ are i.i.d. given all relevant unknown latent variables $\theta$ does give you \@ref(eq:expratio) and the results above as
-$$\mathbb{E}\left[\frac{R_i}{R_+}\right] = \mathbb{E}_{\theta}\left[\mathbb{E}\left[\frac{R_i}{R_+}|\theta\right]\right]$$
-$$= \mathbb{E}_{\theta}\left[\frac{\mathbb{E}[R_i|\theta]}{\mathbb{E}[R_+|\theta]}\right]$$
-$$= \mathbb{E}_{\theta}\left[\frac{\mathbb{E}[R_i|\theta]}{N_F\mathbb{E}[R_i|\theta]}\right]$$
-$$= \mathbb{E}_{\theta}\left[\frac{1}{N_F}\right]$$
-$$= \frac{1}{N_F}$$
-$$= \frac{\mathbb{E}[R_i]}{N_F \mathbb{E}[R_i]}$$
-$$= \frac{\mathbb{E}[R_i]} {N_F\mathbb{E}_{\theta}\{\mathbb{E}[R_i|\theta]\}}$$
-$$= \frac{\mathbb{E}[R_i]} {\mathbb{E}_{\theta}\{N_F\mathbb{E}[R_i|\theta]\}}$$
-$$= \frac{\mathbb{E}[R_i]}{\mathbb{E}[R_+]}$$
+
 
 ## Non-lethal sampling
 
