@@ -274,7 +274,7 @@ div.tocify {
 <li>all offspring from the same <span class="math inline">\((x, y)\)</span> have equal survival and sampling probabilities.</li>
 </ul>
 <p>Then</p>
-<p><span class="math display">\[\mathbb{P}[K_{i j} = MO|R, z_i, z_j] = \mathbb{P}[K_{i j} = MO|R] = \frac{R_i(x_j, y_j)}{R_+(x_j, y_j)}\]</span>
+<p><span class="math display">\[\mathbb{P}[K_{i j} = MO|R_i, R_+, z_i, z_j] = \mathbb{P}[K_{i j} = MO|R_i, R_+] = \frac{R_i(x_j, y_j)}{R_+(x_j, y_j)}\]</span>
 and
 <span class="math display" id="eq:PMO">\[\begin{equation}
   \mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right].
@@ -301,7 +301,7 @@ assuming that the expected value of the ratio of the reproductive output of fema
 \end{equation}\]</span>
 assuming that <span class="math inline">\(R_+\)</span> is conditionally independent of <span class="math inline">\(z_i\)</span> given <span class="math inline">\(X_j\)</span> and <span class="math inline">\(Y_j\)</span>, i.e. that the covariates of female <span class="math inline">\(i\)</span> do not inform the distribution of reproductive output at the place and time of offspring <span class="math inline">\(j\)</span>’s birth except through the distributions of that place and that time,
 <span class="math display">\[= \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]}\right],\]</span>
-changing the notation to make the other details of the inner expectations implicit.</p>
+making the other details of the inner expectations implicit.</p>
 </div>
 <div id="base-case-ages-known-constant-fecundity-lethal-sampling-no-spatial-stock-structure" class="section level2" number="1.3">
 <h2><span class="header-section-number">1.3</span> Base case: Ages known, constant fecundity, lethal sampling, no (spatial) stock structure</h2>
