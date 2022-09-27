@@ -56,26 +56,57 @@ assuming that $X_j$ and $Y_j$ are independent of $z_i$, i.e. that the covariates
 
 \@ref(eq:PMO) also seems to require that
 \begin{equation}
-  \mathbb{E}_{X_j, Y_j|z_j} \left[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)}\right]\right] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}_{R_i | X_j, Y_j, z_i}[R_i(X_j, Y_j)]} {\mathbb{E}_{R_+ | X_j, Y_j, z_i}[R_+(X_j, Y_j)]}\right].
+  \mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)}\right] = \frac{\mathbb{E}_{R_i | X_j, Y_j, z_i}[R_i(X_j, Y_j)]} {\mathbb{E}_{R_+ | X_j, Y_j, z_i}[R_+(X_j, Y_j)]},
   (\#eq:expratio)
 \end{equation}
-This would be true if $R_i$ and $R_+$ were independent given the place and time $(X_j, Y_j)$ of offspring $j$'s birth, and female $i$'s covariates $z_i$.  But firstly $R_+$ is a sum that includes $R_i$, and secondly they are likely to be influenced by common latent variables such as food abundance.  It seems that we can take such latent variables into account if we ignore the effect of $R_i$ on $R_+$, which might at least give a good approximation, given that the effect of any particular individual should be quite small.  Assuming that the reproductive output $R_k$ of each mature female $k = 1, ..., N_F$, at the place and time $(X_j, Y_j)$ of offspring $j$'s birth is i.i.d. given any necessary latent variables $\theta$ and female $i$'s covariates $z_i$,
-$$\mathbb{E}\left[\frac{R_i}{R_+}\right] = \mathbb{E}_{\theta}\left[\mathbb{E}\left[\frac{R_i}{R_+}|\theta\right]\right]$$
-$$= \mathbb{E}_{\theta}\left[\frac{\mathbb{E}[R_i|\theta]}{\mathbb{E}[R_+|\theta]}\right]$$
-$$= \mathbb{E}_{\theta}\left[\frac{\mathbb{E}[R_i|\theta]}{N_F\mathbb{E}[R_i|\theta]}\right]$$
-$$= \mathbb{E}_{\theta}\left[\frac{1}{N_F}\right]$$
-$$= \frac{1}{N_F}$$
-$$= \frac{\mathbb{E}[R_i]}{N_F \mathbb{E}[R_i]}$$
-$$= \frac{\mathbb{E}[R_i]} {N_F\mathbb{E}_{\theta}\{\mathbb{E}[R_i|\theta]\}}$$
-$$= \frac{\mathbb{E}[R_i]} {\mathbb{E}_{\theta}\{N_F\mathbb{E}[R_i|\theta]\}}$$
-$$= \frac{\mathbb{E}[R_i]}{\mathbb{E}[R_+]}$$
+which would be true if $R_i$ and $R_+$ were independent given the place and time $(X_j, Y_j)$ of offspring $j$'s birth, and female $i$'s covariates $z_i$.  $R_+$ is a sum which includes $R_i$, and they are also likely to be influenced by common latent variables, for example food abundance, but \@ref(eq:expratio) is true given certain assumptions.
+
+Let
+
+- $\theta$ be the set of latent variables that influence both $R_i$ and $R_+$.
+
+Then
+$$\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i}\left[ \frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] = \mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, \theta}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] \right].$$
+
+Let
+
+- $N_{F}$ be the number of mature females at the place and time $(X_j, Y_j)$ of offspring $j$'s birth, and
+- $R_k(X_j, Y_j)$ for $k = 1, ..., N_F$ be the reproductive output of each mature female at the place and time $(X_j, Y_j)$ of offspring $j$'s birth.
+
+Assume that 
+
+- $R_k(X_j, Y_j)$ for $k = 1, ..., N_F$ are i.i.d. given $\theta$ and female $i$'s covariates $z_i$.
+
+Then 
+
+$$\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, \theta}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] = \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F}\left[\frac{R_1(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right],$$
+$$= \mathbb{E}_{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \left[ \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F, \sum_{k = 1}^{N_F} R_k(X_j, Y_j)}\left[\frac{R_1(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right] \right]$$
+$$= \mathbb{E}_{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \left[ \frac{1}{N_F} \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F, \sum_{k = 1}^{N_F} R_k(X_j, Y_j)}\left[\frac{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right] \right],$$
+by symmetry,
+$$= \mathbb{E}_{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \left[ \frac{1}{N_F} \right]$$
+$$= \frac{1} {N_F},$$
+$$\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, \theta}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] \right] = \mathbb{E}_{\theta | X_j, Y_j, z_i} \left[ \frac{1} {N_F} \right]$$
+$$ = \frac{1} {N_F}$$
+
+$$= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]} {N_F \mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]}$$
+$$= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]} {\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ N_F \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]}$$
+$$= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]} {\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F}\left[ \sum_{k = 1}^{N_F} R_k(X_j, Y_j) \right] \right]}$$
+$$= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]} {\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_+ | X_j, Y_j, z_i, \theta}[R_+(X_j, Y_j)] \right]}$$
+\begin{equation}
+  = \frac{\mathbb{E}_{R_i | X_j, Y_j, z_i}[R_i(X_j, Y_j)]} {\mathbb{E}_{R_+ | X_j, Y_j, z_i}[R_+(X_j, Y_j)]},
+  (\#eq:expratio)
+\end{equation}
 
 \begin{equation}
-  = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}_{R_i | X_j, Y_j, z_i}[R_i(X_j, Y_j)]} {\mathbb{E}_{R_+ | X_j, Y_j}[R_+(X_j, Y_j)]}\right],
+  \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}_{R_i | X_j, Y_j, z_i}[R_i(X_j, Y_j)]} {\mathbb{E}_{R_+ | X_j, Y_j, z_i}[R_+(X_j, Y_j)]}\right] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}_{R_i | X_j, Y_j, z_i}[R_i(X_j, Y_j)]} {\mathbb{E}_{R_+ | X_j, Y_j}[R_+(X_j, Y_j)]}\right],
   (\#eq:indepzi)
 \end{equation}
-assuming that $R_+$ is conditionally independent of $z_i$ given $X_j$ and $Y_j$, i.e. that the covariates of female $i$ do not inform the distribution of reproductive output at the place and time of offspring $j$'s birth except through the distributions of that place and that time,
-$$= \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]}\right],$$
+assuming that $R_+$ is conditionally independent of $z_i$ given $X_j$ and $Y_j$, i.e. that the covariates of female $i$ do not inform the distribution of reproductive output at the place and time of offspring $j$'s birth except through the distributions of that place and that time, and
+
+\begin{equation}
+  = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]}\right],
+  (\#eq:PMO)
+\end{equation}
 making the other details of the inner expectations implicit.
 
 ## Base case: Ages known, constant fecundity, lethal sampling, no (spatial) stock structure
@@ -101,6 +132,7 @@ Then
 
 $$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{E}[R_i(y_j)|y_i, t_i]} {\mathbb{E}[R_+(y_j)]}$$
 $$= \frac{\mathbb{I}[y_i + \alpha \le y_j < t_i]} {N_{F y_j}}$$
+
 ### Robin's note
 
 - Constant fecundity $\beta := \mathbb{E}[R]$ alone does not imply \@ref(eq:expratio), but together they do imply these results. 
