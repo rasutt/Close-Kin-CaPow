@@ -1,7 +1,10 @@
 ---
 title: "Parent-offspring pair between samples probability"
-author: "Robin Aldridge-Sutton"
-output: pdf_document
+output:
+  bookdown::html_document2:
+    toc: true
+    toc_depth: 3
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}

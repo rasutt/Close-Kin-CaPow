@@ -1,0 +1,72 @@
+---
+title: "Parent-offspring probability within one sample"
+output:
+  bookdown::html_document2:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+The relationship between the expected population sizes at years $t_1$ and $t_2$ is given by:
+
+\begin{equation}
+E(N_{t_1}) = \frac{E(N_{t_2})}{\lambda^{t_2 - t_1}}.
+(\#eq:expnum)
+\end{equation}
+
+The probability that an animal survives from year $t_1$ until year $t_2$ is:
+
+\begin{equation}
+P(S_{t_1, t_2}) = \phi^{t_2 - t_1}.
+(\#eq:probsurv)
+\end{equation}
+
+The expected number of animals born in year $t$ is the expected number that were alive the year before, multiplied by the birth rate:
+
+$$ E(B_t) = E(N_{t - 1}) (\lambda - \phi) $$
+
+\begin{equation}
+= E(N_{t}) \frac{(\lambda - \phi)}{\lambda}.
+(\#eq:expborn)
+\end{equation}
+
+The expected number of parent-offspring pairs among animals alive in the population at a survey year $t_s$ is the expected number of animals born each year up to and including $t_s$, multiplied by the probability that each one survives until year $t_s$, and by the probability for each of its parents that it survives from the year before the animal was born (when it was conceived) until year $t_s$.  Writing $\sum_{t = t_s}^{-\infty}$ to denote summation over a decrementing index $t$, this gives:
+
+$$ E(PO_{t_s}) = \sum_{t = t_s}^{-\infty} E(B_t) P(S_{t, t_s}) 2 P(S_{t - 1, t_s}) $$
+
+$$ = \sum_{t = t_s}^{-\infty} E(N_{t}) \frac{(\lambda - \phi)}{\lambda} \phi^{t_s - t} 2\phi^{t_s - t + 1}, $$
+
+from \@ref(eq:probsurv) and \@ref(eq:expborn),
+
+$$ = 2 \frac{\phi (\lambda - \phi)}{\lambda} \sum_{t = t_s}^{-\infty} \frac{E(N_{t_s})}{\lambda^{t_s - t}} \phi^{2(t_s - t)}, $$
+
+from \@ref(eq:expnum),
+
+$$ = 2 E(N_{t_s}) \frac{\phi(\lambda - \phi)}{\lambda} \sum_{t = t_s}^{-\infty} \Big( \frac{\phi^2}{\lambda} \Big)^{t_s - t} $$
+
+$$ = 2 E(N_{t_s}) \frac{\phi(\lambda - \phi)}{\lambda} \Big\{ \Big(\frac{\phi^2}{\lambda} \Big)^0 + \Big(\frac{\phi^2}{\lambda} \Big)^1 + ... \Big\} $$
+
+$$ = 2 E(N_{t_s}) \frac{\phi (\lambda - \phi)}{\lambda} \frac{1}{1 - \frac{\phi^2}{\lambda}}, $$
+
+as $0 < \phi < 1$ and $\phi < \lambda$ implies that $0 < \frac{\phi^2}{\lambda} < 1$,
+
+\begin{equation}
+= 2 E(N_{t_s}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2}.
+(\#eq:exppobtn)
+\end{equation}
+
+The number of pairs of animals in a population of size $E(N_{t_s})$ is the number of combinations of size 2. We write this as $E(AP_{t_s})$:
+
+$$ E(AP_{t_s}) = \frac{E(N_{t_s})!}{\{E(N_{t_s})-2 \}!2!}, $$
+
+for $E(N_{t_s}) \ge 2$,
+
+$$ = \frac{E(N_{t_s}) \{E(N_{t_s}) - 1 \}}{2}. $$
+
+The probability that a pair of animals $i$ and $j$ that are alive in a population of size $E(N_{t_s})$ is a parent-offspring pair is given by:
+
+$$ P\{PO_{t_s}(i, j) | \theta\} = \frac{E(PO_{t_s})}{E(AP_{t_s})} $$
+
+$$ = \frac{4}{\big(E(N_{t_s}) - 1 \big)} \frac{\phi (\lambda - \phi)}{\lambda - \phi^2}. $$
+
+This PO probability decreases with the expected size of the population, which is the key intuition behind close-kin genetics.  The nature of the relationship between the PO probability and $\lambda$ and $\phi$ is more complicated.  

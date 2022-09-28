@@ -1,5 +1,5 @@
 ---
-title: "Notes on close-kin mark-recapture"
+title: "Kinship probability for mother-offspring from close-kin mark-recapture (2016)"
 output:
   bookdown::html_document2:
     toc: true
@@ -11,7 +11,7 @@ Bravington, Mark V., Hans J. Skaug, and Eric C. Anderson. "Close-kin mark-recapt
 
 # Kinship probabilities
 
-## Kinship probability for Mother-Offspring as expected relative reproductive output
+## Kinship probability for mother-offspring as expected relative reproductive output
 
 Let
 
@@ -155,4 +155,43 @@ $$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{I}[y_i + \alpha \le y_j]} {N
 \end{cases}$$
 where $\phi(t_i, y_j)$ is the probability that $i$ survives from $t_i$ to $y_j$.
 
-## Age-dependent sampling and fecundity
+## Age-dependent sampling and fecundity, ages unknown
+
+Let
+
+- $p(a)$ be age-dependent sampling probability, and
+- $\beta(a)$ be age-dependent fecundity.
+
+Then \@ref(eq:PMOconst) becomes
+
+$$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{I}[y_j < t_i] \times \beta(a_i - (t_i - y_j))} {\sum_{a \ge \alpha} \beta(a) N_{F a y_j}}.$$
+
+Assume that 
+
+- $a_i$ is unknown.
+
+Then
+
+$$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{I}[y_j < t_i] } {\sum_{a \ge \alpha} \beta(a) N_{F a y_j}}  \times \frac{\sum_{a > 0} \{ p(a) N_{F a t_i} \beta(a_i - (t_i - y_j)) \}} {\sum_{a > 0} p(a) N_{F a t_i}}.$$
+
+Note
+
+- They use $N_{F a t_j}$ in this formula but I think it must be a typo.
+
+If $a_j$ is also unknown another summation is required with $p(a)$.  *They did a blue whale design study with non-lethal variants of this case, and $p(a)$ and $\beta(a)$ constant for $a > \alpha$ and zero otherwise, and simple deterministic demography giving closed form expressions for the sums.*  There is no reference here but there is Antarctic Blue Whale surveys: augmenting via genetics for close-kin and ordinal age Mark V. Bravington, Simon N. Jarman, Hans J. Skaug online.  It sounds like ours is similar but with more complicated non-deterministic demography.
+
+### Robin's note
+
+In our case we have non-lethal sampling, and assume i.i.d. $R_k$'s(?) and constant sampling probability, but we have ages unknown. Then
+
+$$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \sum_{a_i \ge \alpha} \mathbb{P}(A_i = a_i) \sum_{a_j > 0} \mathbb{P}(A_j = a_j) \times$$
+$$\frac{\mathbb{I}[t_i - a_i + \alpha \le t_j - a_j]} {N_{F a_i (t_j - a_j)}} \times
+\begin{cases} 
+  1; & t_i > t_j - a_j, \\
+  \phi(t_i, t_j - a_j); & t_i < t_j - a_j,
+\end{cases}$$
+where we sum over the possible ages of female $i$ and offspring $j$, weighted by their probabilities, checking that $i$ is mature when $j$ is born, and taking into account the probability that $i$ survives between then and being sampled.
+
+But we derive it quite differently, by finding the expected number of mother-offspring pairs and dividing by an approximation for the expected total number of pairs, to approximate the undirected probability.  It would be good to try to derive it their way and compare the results.
+
+It seems that they also ignore the demographics of the population in their models, or maybe just in these examples...  Maybe that's why they ignore the expectation problem I go into above.
