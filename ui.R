@@ -7,10 +7,11 @@ ui <- fluidPage(
   
   navbarPage(
     "Close-kin CaPow!",
+    id = "nav.tab",
     # Sim tab ----
     tabPanel(
       title = "Simulate studies",
-      value = "sim_tab",
+      value = "sim.tab",
       sidebarLayout(
         # Inputs ----
         sidebarPanel(
@@ -101,9 +102,9 @@ ui <- fluidPage(
     # Check tab ----
     tabPanel(
       title = "Check simulation",
-      value = "sim_tab",
+      value = "check.tab",
       tabsetPanel(
-        id = "check_sub_tabs",
+        id = "check.sub.tabs",
         selected = "first_study",
         # First study ----
         tabPanel(
@@ -212,7 +213,7 @@ ui <- fluidPage(
     # Model tab ----
     tabPanel(
       title = "Analyze model performance",
-      value = "model_tab",
+      value = "model.tab",
       h2("Analyze model performance"),
       h3("Parameter values"),
       tableOutput(outputId = "modParVals"),

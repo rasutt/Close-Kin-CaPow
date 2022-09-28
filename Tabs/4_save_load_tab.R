@@ -37,7 +37,8 @@ output$downloadData <- downloadHandler(
       sim.opts= sim.opts(),
       sim.lst = sim.lst(),
       checks.lst = checks.lst(),
-      fit.lst = fit.lst()
+      fit.lst = fit.lst(),
+      N.t.mat = N.t.mat()
     )
     save(saved.objs, file = file)
   }
@@ -83,6 +84,7 @@ observeEvent(input$file, {
   sim.lst(saved.objs$sim.lst)
   checks.lst(saved.objs$checks.lst)
   fit.lst(saved.objs$fit.lst)
+  N.t.mat(saved.objs$N.t.mat)
 })
 
 # Show number of files uploaded

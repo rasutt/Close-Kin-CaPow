@@ -106,6 +106,7 @@ server <- function(input, output) {
   sim.lst = reactiveVal(saved.objs$sim.lst)
   checks.lst = reactiveVal(saved.objs$checks.lst)
   fit.lst = reactiveVal(saved.objs$fit.lst)
+  N.t.mat = reactiveVal(saved.objs$N.t.mat)
   # ----
 
   # Variables bound to simulate button (for last simulation) ----

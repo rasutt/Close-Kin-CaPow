@@ -1,9 +1,41 @@
 # Objects for checks sub-tabs
 
+observeEvent({
+  input$check.sub.tabs
+  input$nav.tab
+  }, {
+  if (input$check_sub_tabs == "populations" && is.null(N.t.mat())) {
+    # Objects to store results
+    N.t.mat.new = matrix(nrow = n.sims(), ncol = hist.len())
+    
+    # Loop over histories
+    withProgress({
+      for (hist.ind in 1:n.sims()) {
+        # Get simulated family and capture histories of population of animals
+        # over time
+        pop.cap.hist = sim.lst()$hists.lst[[hist.ind]]
+        
+        # Record population curve
+        N.t.mat.new[hist.ind, ] = attributes(pop.cap.hist)$N.t.vec
+        
+        # Increment progress-bar
+        incProgress(1/n.sims())
+      }
+    }, value = 0, message = "Checking simulations")
+    
+    N.t.mat(N.t.mat.new)
+  }
+})
+
+# Calculate checks for simulated studies
+observeEvent(input$simulate, {
+  N.t.mat(NULL)
+})
+
 # Calculate checks for simulated studies
 observeEvent(input$simulate, {
   # Objects to store results
-  N.t.mat = matrix(nrow = n.sims(), ncol = hist.len())
+  N.t.mat.new = matrix(nrow = n.sims(), ncol = hist.len())
   # ns.caps.mat = ns.clvng.caps.mat = ns.clvng.mat = 
   #   matrix(nrow = n.sims(), ncol = k())
   prpn.prnts.unkn.vec = Ns.vec = numeric(n.sims())
@@ -37,7 +69,7 @@ observeEvent(input$simulate, {
       pop.cap.hist = sim.lst()$hists.lst[[hist.ind]]
       
       # Record population curve
-      N.t.mat[hist.ind, ] = attributes(pop.cap.hist)$N.t.vec
+      N.t.mat.new[hist.ind, ] = attributes(pop.cap.hist)$N.t.vec
       
       # Record super-population size
       Ns.vec[hist.ind] = attributes(pop.cap.hist)$Ns
@@ -83,10 +115,9 @@ observeEvent(input$simulate, {
   
   # Insert population sizes in survey years for comparison with numbers of kin
   # pairs
-  ns.kps.pop.wtn.arr[, , 1] = N.t.mat[, s.yr.inds()]
+  ns.kps.pop.wtn.arr[, , 1] = N.t.mat.new[, s.yr.inds()]
   
   checks.lst(list(
-    N.t.mat = N.t.mat, 
     prpn.prnts.unkn.vec = prpn.prnts.unkn.vec,
     # ns.caps.mat = ns.caps.mat,
     ns.kps.pop.wtn.arr = ns.kps.pop.wtn.arr,
