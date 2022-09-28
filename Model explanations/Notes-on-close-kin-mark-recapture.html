@@ -250,16 +250,8 @@ div.tocify {
 <p>Bravington, Mark V., Hans J. Skaug, and Eric C. Anderson. “Close-kin mark-recapture.” Statistical Science 31.2 (2016): 259-274.</p>
 <div id="kinship-probabilities" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Kinship probabilities</h1>
-<div id="general-notation" class="section level2" number="1.1">
-<h2><span class="header-section-number">1.1</span> General notation</h2>
-<p>Let</p>
-<ul>
-<li><span class="math inline">\(z_i\)</span>, viewed stochastically, be all the information about an individual <span class="math inline">\(i\)</span>, except its genotype and kinship to other individuals, that is recorded when the individual is captured</li>
-<li><span class="math inline">\(t_i \in z_i\)</span>, be the time of capture of an individual <span class="math inline">\(i\)</span></li>
-</ul>
-</div>
-<div id="kinship-probability-for-mother-offspring-as-expected-relative-reproductive-output" class="section level2" number="1.2">
-<h2><span class="header-section-number">1.2</span> Kinship probability for Mother-Offspring as expected relative reproductive output</h2>
+<div id="kinship-probability-for-mother-offspring-as-expected-relative-reproductive-output" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Kinship probability for Mother-Offspring as expected relative reproductive output</h2>
 <p>Let</p>
 <ul>
 <li><span class="math inline">\(i\)</span> be a female</li>
@@ -268,10 +260,15 @@ div.tocify {
 <li><span class="math inline">\(x_j\)</span> and <span class="math inline">\(y_j\)</span> be the place and time of <span class="math inline">\(j\)</span>’s birth</li>
 <li><span class="math inline">\(R_i(x_j, y_j)\)</span> be the reproductive output of <span class="math inline">\(i\)</span> at <span class="math inline">\((x_j, y_j)\)</span>, and</li>
 <li><span class="math inline">\(R_+(x_j, y_j)\)</span> be the reproductive output of all adult females at <span class="math inline">\((x_j, y_j)\)</span>.</li>
+<li><span class="math inline">\(z_.\)</span> be the covariate vector of an individual <span class="math inline">\(.\)</span>,
+<ul>
+<li>all the information about <span class="math inline">\(.\)</span>, except its genotype and kinship to other individuals, that is recorded when it is captured,</li>
+<li>viewed stochastically,</li>
+</ul></li>
 </ul>
 <p>Assume that</p>
 <ul>
-<li>all offspring from the same <span class="math inline">\((x, y)\)</span> have equal survival and sampling probabilities.</li>
+<li>all offspring with the same <span class="math inline">\((x, y)\)</span> have equal survival and sampling probabilities.</li>
 </ul>
 <p>Then</p>
 <p><span class="math display">\[\mathbb{P}[K_{i j} = MO|R_i, R_+, z_i, z_j] = \mathbb{P}[K_{i j} = MO|R_i, R_+] = \frac{R_i(x_j, y_j)}{R_+(x_j, y_j)}\]</span>
@@ -280,8 +277,8 @@ and
   \mathbb{P}[K_{i j} = MO|z_i, z_j] = \mathbb{E}_{X_j, Y_j|z_j} \left[\frac{\mathbb{E}[R_i(X_j, Y_j)|z_i]} {\mathbb{E}[R_+(X_j, Y_j)]} \right].
   \tag{1.1}
 \end{equation}\]</span></p>
-<div id="robins-note" class="section level3" number="1.2.1">
-<h3><span class="header-section-number">1.2.1</span> Robin’s note</h3>
+<div id="robins-note" class="section level3" number="1.1.1">
+<h3><span class="header-section-number">1.1.1</span> Robin’s note</h3>
 <p><span class="math display">\[\mathbb{P}[K_{i j} = MO] = \mathbb{E}_{R_i, R_+} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]}\right]\]</span>
 <span class="math display">\[= \mathbb{E}_{R_i, R_+, X_j, Y_j} \left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)]}\right],\]</span>
 and
@@ -305,24 +302,25 @@ which would be true if <span class="math inline">\(R_i\)</span> and <span class=
 <span class="math display">\[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i}\left[ \frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] = \mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, \theta}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] \right].\]</span></p>
 <p>Let</p>
 <ul>
-<li><span class="math inline">\(N_{F}\)</span> be the number of mature females at the place and time <span class="math inline">\((X_j, Y_j)\)</span> of offspring <span class="math inline">\(j\)</span>’s birth, and</li>
-<li><span class="math inline">\(R_k(X_j, Y_j)\)</span> for <span class="math inline">\(k = 1, ..., N_F\)</span> be the reproductive output of each mature female at the place and time <span class="math inline">\((X_j, Y_j)\)</span> of offspring <span class="math inline">\(j\)</span>’s birth.</li>
+<li><span class="math inline">\(N_{F}\)</span> be the number of mature females at the place and time <span class="math inline">\((X_j, Y_j)\)</span> of offspring <span class="math inline">\(j\)</span>’s birth,</li>
+<li><span class="math inline">\(R_k(X_j, Y_j)\)</span> for <span class="math inline">\(k = 1, ..., N_F\)</span> be the reproductive output of each mature female at the place and time <span class="math inline">\((X_j, Y_j)\)</span> of offspring <span class="math inline">\(j\)</span>’s birth, and</li>
+<li><span class="math inline">\(M_i\)</span> be the event that female <span class="math inline">\(i\)</span> was mature at time <span class="math inline">\(Y_j\)</span>.</li>
 </ul>
 <p>Assume that</p>
 <ul>
-<li><span class="math inline">\(R_k(X_j, Y_j)\)</span> for <span class="math inline">\(k = 1, ..., N_F\)</span> are i.i.d. given <span class="math inline">\(\theta\)</span> and female <span class="math inline">\(i\)</span>’s covariates <span class="math inline">\(z_i\)</span>.</li>
+<li><span class="math inline">\(R_k(X_j, Y_j)\)</span> for <span class="math inline">\(k = 1, ..., N_F\)</span> are i.i.d. given <span class="math inline">\(\theta\)</span> and female <span class="math inline">\(i\)</span>’s covariates <span class="math inline">\(z_i\)</span> (this is unlikely, due to competition between individuals, but may still be a reasonable approximation).</li>
 </ul>
 <p>Then</p>
-<p><span class="math display">\[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, \theta}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] = \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F}\left[\frac{R_1(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right],\]</span>
-<span class="math display">\[= \mathbb{E}_{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \left[ \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F, \sum_{k = 1}^{N_F} R_k(X_j, Y_j)}\left[\frac{R_1(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right] \right]\]</span>
+<p><span class="math display">\[\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, \theta}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] = \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F}\left[\frac{R_1(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right] \mathbb{P}(M_i | X_j, Y_j, z_i)\]</span>
+<span class="math display">\[\mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F}\left[\frac{R_1(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right] = \mathbb{E}_{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \left[ \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F, \sum_{k = 1}^{N_F} R_k(X_j, Y_j)}\left[\frac{R_1(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right] \right]\]</span>
 <span class="math display">\[= \mathbb{E}_{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \left[ \frac{1}{N_F} \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F, \sum_{k = 1}^{N_F} R_k(X_j, Y_j)}\left[\frac{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right] \right],\]</span>
 by symmetry,
 <span class="math display">\[= \mathbb{E}_{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \left[ \frac{1}{N_F} \right]\]</span>
 <span class="math display">\[= \frac{1} {N_F},\]</span>
-<span class="math display">\[\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, \theta}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] \right] = \mathbb{E}_{\theta | X_j, Y_j, z_i} \left[ \frac{1} {N_F} \right]\]</span>
-<span class="math display">\[ = \frac{1} {N_F}\]</span></p>
-<p><span class="math display">\[= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]} {N_F \mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]}\]</span>
-<span class="math display">\[= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]} {\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ N_F \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]}\]</span>
+<span class="math display">\[\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, \theta}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] \right] = \mathbb{E}_{\theta | X_j, Y_j, z_i} \left[ \frac{1} {N_F} \mathbb{P}(M_i | X_j, Y_j, z_i) \right]\]</span>
+<span class="math display">\[ = \frac{1} {N_F} \mathbb{P}(M_i | X_j, Y_j, z_i)\]</span></p>
+<p><span class="math display">\[= \frac{\mathbb{P}(M_i | X_j, Y_j, z_i) \mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_1 | X_j, Y_j, z_i, \theta}[R_1(X_j, Y_j)] \right]} {N_F \mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]}\]</span>
+<span class="math display">\[= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{P}(M_i | X_j, Y_j, z_i) \mathbb{E}_{R_1 | X_j, Y_j, z_i, \theta}[R_1(X_j, Y_j)] \right]} {\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ N_F \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]}\]</span>
 <span class="math display">\[= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]} {\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F}\left[ \sum_{k = 1}^{N_F} R_k(X_j, Y_j) \right] \right]}\]</span>
 <span class="math display">\[= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]} {\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_+ | X_j, Y_j, z_i, \theta}[R_+(X_j, Y_j)] \right]}\]</span>
 <span class="math display" id="eq:expratio">\[\begin{equation}
@@ -341,11 +339,12 @@ assuming that <span class="math inline">\(R_+\)</span> is conditionally independ
 making the other details of the inner expectations implicit.</p>
 </div>
 </div>
-<div id="base-case-ages-known-constant-fecundity-lethal-sampling-no-spatial-stock-structure" class="section level2" number="1.3">
-<h2><span class="header-section-number">1.3</span> Base case: Ages known, constant fecundity, lethal sampling, no (spatial) stock structure</h2>
+<div id="base-case-ages-known-constant-fecundity-lethal-sampling-no-spatial-stock-structure" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Base case: Ages known, constant fecundity, lethal sampling, no (spatial) stock structure</h2>
 <p>Let</p>
 <ul>
 <li><span class="math inline">\(a\)</span> be age</li>
+<li><span class="math inline">\(t\)</span> be the time of capture</li>
 <li><span class="math inline">\(z = (t, a)\)</span></li>
 <li><span class="math inline">\(\alpha\)</span> be age-at-maturity</li>
 <li><span class="math inline">\(\mathbb{I}[.]\)</span> be the indicator function, and</li>
@@ -356,27 +355,35 @@ making the other details of the inner expectations implicit.</p>
 <li>an adult’s sampling and the number of its offspring sampled are independent given covariates, or more formally
 <ul>
 <li>there are no additional covariates that affect both the probability of an adult being sampled (<span class="math inline">\(p\)</span>) and its expected reproductive output <span class="math inline">\((\mathbb{E}[R_{ij}])\)</span>, and</li>
-<li>there are no additional covariates that affect the sampling and/or survival probabilities of both the adult and its offspring (e.g. mother-calf pairs being caught together).</li>
+<li>there are no additional covariates that affect the sampling and/or survival probabilities of both the adult and its offspring (e.g. <em>mother-calf pairs being caught together</em>).</li>
 </ul></li>
 </ul>
 <p>Then</p>
 <ul>
 <li><span class="math inline">\(y = t - a\)</span></li>
-<li>given that <span class="math inline">\(i\)</span> was mature, and not yet lethally sampled, at <span class="math inline">\(y_j\)</span> she is just as likely to be <span class="math inline">\(j\)</span>’s mother as the other mature females at that time due to constant fecundity <span class="math inline">\(\beta := \mathbb{E}[R]\)</span>, and</li>
+<li>given that <span class="math inline">\(i\)</span> was mature, and not yet lethally sampled, at <span class="math inline">\(y_j\)</span> she is just as likely to be <span class="math inline">\(j\)</span>’s mother as the other mature females at that time due to constant fecundity, and</li>
 </ul>
-<p><span class="math display">\[\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{E}[R_i(y_j)|y_i, t_i]} {\mathbb{E}[R_+(y_j)]}\]</span>
-<span class="math display">\[= \frac{\mathbb{I}[y_i + \alpha \le y_j &lt; t_i]} {N_{F y_j}}\]</span></p>
-<div id="robins-note-1" class="section level3" number="1.3.1">
-<h3><span class="header-section-number">1.3.1</span> Robin’s note</h3>
+<p><span class="math display" id="eq:expratioconst">\[\begin{equation}
+  \mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{E}[R_i(y_j)|y_i, t_i]} {\mathbb{E}[R_+(y_j)]}
+  \tag{1.4}
+\end{equation}\]</span></p>
+<p><span class="math display" id="eq:PMOconst">\[\begin{equation}
+  = \frac{\mathbb{I}[y_i + \alpha \le y_j &lt; t_i]} {N_{F y_j}}
+  \tag{1.5}
+\end{equation}\]</span></p>
+<div id="robins-note-1" class="section level3" number="1.2.1">
+<h3><span class="header-section-number">1.2.1</span> Robin’s note</h3>
 <ul>
-<li>Constant fecundity <span class="math inline">\(\beta := \mathbb{E}[R]\)</span> alone does not imply <a href="#eq:expratio">(1.2)</a>, but together they do imply these results.</li>
-<li>Later they state that it is not required that all adults have the same expected reproductive output, but I do not understand what they mean.</li>
-<li>Assuming that <span class="math inline">\(R_k\)</span> for <span class="math inline">\(k = 1\)</span> to <span class="math inline">\(N_F\)</span> are i.i.d. given all relevant unknown latent variables <span class="math inline">\(\theta\)</span> does give you <a href="#eq:expratio">(1.2)</a> and the results above as</li>
+<li>Fecundity is referred to elsewhere as <span class="math inline">\(\beta := \mathbb{E}[R]\)</span>, but in this section they state that it is not required that all adults have the same expected reproductive output</li>
+<li>I am not sure whether constant <span class="math inline">\(\beta := \mathbb{E}[R]\)</span> implies <a href="#eq:expratio">(1.2)</a>, but it does imply the inference from <a href="#eq:expratioconst">(1.4)</a> to <a href="#eq:PMOconst">(1.5)</a></li>
+<li>Assuming that <span class="math inline">\(R_k\)</span> for <span class="math inline">\(k = 1\)</span> to <span class="math inline">\(N_F\)</span> are i.i.d. given all common latent variables <span class="math inline">\(\theta\)</span> does imply <a href="#eq:expratio">(1.2)</a>, but also implies constant <span class="math inline">\(\beta := \mathbb{E}[R]\)</span></li>
+<li>So I am not sure what they mean by constant fecundity here</li>
+<li>There might be some connections between their assumptions in this section and those in my note above, but I am not sure</li>
 </ul>
 </div>
 </div>
-<div id="non-lethal-sampling" class="section level2" number="1.4">
-<h2><span class="header-section-number">1.4</span> Non-lethal sampling</h2>
+<div id="non-lethal-sampling" class="section level2" number="1.3">
+<h2><span class="header-section-number">1.3</span> Non-lethal sampling</h2>
 <p><span class="math display">\[\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{I}[y_i + \alpha \le y_j]} {N_{F y_j}} \times
 \begin{cases} 
   1; &amp; t_i &gt; y_j, \\
@@ -384,8 +391,8 @@ making the other details of the inner expectations implicit.</p>
 \end{cases}\]</span>
 where <span class="math inline">\(\phi(t_i, y_j)\)</span> is the probability that <span class="math inline">\(i\)</span> survives from <span class="math inline">\(t_i\)</span> to <span class="math inline">\(y_j\)</span>.</p>
 </div>
-<div id="age-dependent-sampling-and-fecundity" class="section level2" number="1.5">
-<h2><span class="header-section-number">1.5</span> Age-dependent sampling and fecundity</h2>
+<div id="age-dependent-sampling-and-fecundity" class="section level2" number="1.4">
+<h2><span class="header-section-number">1.4</span> Age-dependent sampling and fecundity</h2>
 </div>
 </div>
 

@@ -11,13 +11,6 @@ Bravington, Mark V., Hans J. Skaug, and Eric C. Anderson. "Close-kin mark-recapt
 
 # Kinship probabilities
 
-## General notation
-
-Let
-
-- $z_i$, viewed stochastically, be all the information about an individual $i$, except its genotype and kinship to other individuals, that is recorded when the individual is captured
-- $t_i \in z_i$, be the time of capture of an individual $i$
-
 ## Kinship probability for Mother-Offspring as expected relative reproductive output
 
 Let
@@ -28,10 +21,13 @@ Let
 - $x_j$ and $y_j$ be the place and time of $j$'s birth
 - $R_i(x_j, y_j)$ be the reproductive output of $i$ at $(x_j, y_j)$, and
 - $R_+(x_j, y_j)$ be the reproductive output of all adult females at $(x_j, y_j)$.
+- $z_.$ be the covariate vector of an individual $.$, 
+  - all the information about $.$, except its genotype and kinship to other individuals, that is recorded when it is captured, 
+  - viewed stochastically,
 
 Assume that
 
-- all offspring from the same $(x, y)$ have equal survival and sampling probabilities.
+- all offspring with the same $(x, y)$ have equal survival and sampling probabilities.
 
 Then
 
@@ -70,26 +66,27 @@ $$\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i}\left[ \frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j
 
 Let
 
-- $N_{F}$ be the number of mature females at the place and time $(X_j, Y_j)$ of offspring $j$'s birth, and
-- $R_k(X_j, Y_j)$ for $k = 1, ..., N_F$ be the reproductive output of each mature female at the place and time $(X_j, Y_j)$ of offspring $j$'s birth.
+- $N_{F}$ be the number of mature females at the place and time $(X_j, Y_j)$ of offspring $j$'s birth, 
+- $R_k(X_j, Y_j)$ for $k = 1, ..., N_F$ be the reproductive output of each mature female at the place and time $(X_j, Y_j)$ of offspring $j$'s birth, and
+- $M_i$ be the event that female $i$ was mature at time $Y_j$.
 
 Assume that 
 
-- $R_k(X_j, Y_j)$ for $k = 1, ..., N_F$ are i.i.d. given $\theta$ and female $i$'s covariates $z_i$.
+- $R_k(X_j, Y_j)$ for $k = 1, ..., N_F$ are i.i.d. given $\theta$ and female $i$'s covariates $z_i$ (this is unlikely, due to competition between individuals, but may still be a reasonable approximation).
 
 Then 
 
-$$\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, \theta}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] = \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F}\left[\frac{R_1(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right],$$
-$$= \mathbb{E}_{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \left[ \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F, \sum_{k = 1}^{N_F} R_k(X_j, Y_j)}\left[\frac{R_1(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right] \right]$$
+$$\mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, \theta}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] = \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F}\left[\frac{R_1(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right] \mathbb{P}(M_i | X_j, Y_j, z_i)$$
+$$\mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F}\left[\frac{R_1(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right] = \mathbb{E}_{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \left[ \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F, \sum_{k = 1}^{N_F} R_k(X_j, Y_j)}\left[\frac{R_1(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right] \right]$$
 $$= \mathbb{E}_{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \left[ \frac{1}{N_F} \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F, \sum_{k = 1}^{N_F} R_k(X_j, Y_j)}\left[\frac{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} {\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \right] \right],$$
 by symmetry,
 $$= \mathbb{E}_{\sum_{k = 1}^{N_F} R_k(X_j, Y_j)} \left[ \frac{1}{N_F} \right]$$
 $$= \frac{1} {N_F},$$
-$$\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, \theta}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] \right] = \mathbb{E}_{\theta | X_j, Y_j, z_i} \left[ \frac{1} {N_F} \right]$$
-$$ = \frac{1} {N_F}$$
+$$\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i, R_+ | X_j, Y_j, z_i, \theta}\left[\frac{R_i(X_j, Y_j)} {R_+(X_j, Y_j)} \right] \right] = \mathbb{E}_{\theta | X_j, Y_j, z_i} \left[ \frac{1} {N_F} \mathbb{P}(M_i | X_j, Y_j, z_i) \right]$$
+$$ = \frac{1} {N_F} \mathbb{P}(M_i | X_j, Y_j, z_i)$$
 
-$$= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]} {N_F \mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]}$$
-$$= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]} {\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ N_F \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]}$$
+$$= \frac{\mathbb{P}(M_i | X_j, Y_j, z_i) \mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_1 | X_j, Y_j, z_i, \theta}[R_1(X_j, Y_j)] \right]} {N_F \mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]}$$
+$$= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{P}(M_i | X_j, Y_j, z_i) \mathbb{E}_{R_1 | X_j, Y_j, z_i, \theta}[R_1(X_j, Y_j)] \right]} {\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ N_F \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]}$$
 $$= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]} {\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_1, ..., R_{N_F} | X_j, Y_j, z_i, \theta, N_F}\left[ \sum_{k = 1}^{N_F} R_k(X_j, Y_j) \right] \right]}$$
 $$= \frac{\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_i | X_j, Y_j, z_i, \theta}[R_i(X_j, Y_j)] \right]} {\mathbb{E}_{\theta | X_j, Y_j, z_i}\left[ \mathbb{E}_{R_+ | X_j, Y_j, z_i, \theta}[R_+(X_j, Y_j)] \right]}$$
 \begin{equation}
@@ -114,6 +111,7 @@ making the other details of the inner expectations implicit.
 Let 
 
 - $a$ be age
+- $t$ be the time of capture
 - $z = (t, a)$
 - $\alpha$ be age-at-maturity
 - $\mathbb{I}[.]$ be the indicator function, and
@@ -123,22 +121,30 @@ Assume that
 
 - an adult's sampling and the number of its offspring sampled are independent given covariates, or more formally
   - there are no additional covariates that affect both the probability of an adult being sampled ($p$) and its expected reproductive output $(\mathbb{E}[R_{ij}])$, and
-  - there are no additional covariates that affect the sampling and/or survival probabilities of both the adult and its offspring (e.g. mother-calf pairs being caught together).
+  - there are no additional covariates that affect the sampling and/or survival probabilities of both the adult and its offspring (e.g. *mother-calf pairs being caught together*).
 
 Then 
 
 - $y = t - a$
-- given that $i$ was mature, and not yet lethally sampled, at $y_j$ she is just as likely to be $j$'s mother as the other mature females at that time due to constant fecundity $\beta := \mathbb{E}[R]$, and
+- given that $i$ was mature, and not yet lethally sampled, at $y_j$ she is just as likely to be $j$'s mother as the other mature females at that time due to constant fecundity, and
 
-$$\mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{E}[R_i(y_j)|y_i, t_i]} {\mathbb{E}[R_+(y_j)]}$$
-$$= \frac{\mathbb{I}[y_i + \alpha \le y_j < t_i]} {N_{F y_j}}$$
+\begin{equation}
+  \mathbb{P}[K_{i j} = MO|z_i, z_j] = \frac{\mathbb{E}[R_i(y_j)|y_i, t_i]} {\mathbb{E}[R_+(y_j)]}
+  (\#eq:expratioconst)
+\end{equation}
+
+\begin{equation}
+  = \frac{\mathbb{I}[y_i + \alpha \le y_j < t_i]} {N_{F y_j}}
+  (\#eq:PMOconst)
+\end{equation}
 
 ### Robin's note
 
-- Constant fecundity $\beta := \mathbb{E}[R]$ alone does not imply \@ref(eq:expratio), but together they do imply these results. 
-- Later they state that it is not required that all adults have the same expected reproductive output, but I do not understand what they mean.
-- Assuming that $R_k$ for $k = 1$ to $N_F$ are i.i.d. given all relevant unknown latent variables $\theta$ does give you \@ref(eq:expratio) and the results above as
-
+- Fecundity is referred to elsewhere as $\beta := \mathbb{E}[R]$, but in this section they state that it is not required that all adults have the same expected reproductive output
+- I am not sure whether constant $\beta := \mathbb{E}[R]$ implies \@ref(eq:expratio), but it does imply the inference from \@ref(eq:expratioconst) to \@ref(eq:PMOconst)
+- Assuming that $R_k$ for $k = 1$ to $N_F$ are i.i.d. given all common latent variables $\theta$ does imply \@ref(eq:expratio), but also implies constant $\beta := \mathbb{E}[R]$ 
+- So I am not sure what they mean by constant fecundity here
+- There might be some connections between their assumptions in this section and those in my note above, but I am not sure
 
 ## Non-lethal sampling
 
