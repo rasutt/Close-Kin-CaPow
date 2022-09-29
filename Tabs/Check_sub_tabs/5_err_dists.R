@@ -39,16 +39,6 @@ output$nsSFPsFnlB = renderPlot(
   nsKPsPlot(ns.kps.t.est.errs()[, , 3], kp.tps.t[3])
 )
 
-# Within surveys
-output$nsAPsWtnPop = renderPlot(
-  nsKPsPlot(ns.kps.pop.wtn.est.errs()[, , 2], kp.tps.pop.wtn[2])
-)
-
-# Between surveys
-output$nsAPsBtnPop = renderPlot(
-  nsKPsPlot(ns.kps.pop.btn.est.errs()[, , 1], kp.tps.pop.btn[1])
-)
-
 # # Self-pairs between survey years 
 # output$nsSPsBtnPop = renderPlot(nsKPsPlot(3, T))
 # # Same-mother pairs within survey years 

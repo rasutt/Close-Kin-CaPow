@@ -1,10 +1,9 @@
-# Output for populations sub-tab in checks tab
+# Outputs for populations sub-tab in checks tab
 
 # Plot population sizes over time
 output$checkExpPop = renderPlot({
   # Plot population trajectories
   matplot(
-    # sim.yrs(), t(checks.lst()$N.t.mat), type = 'l',
     sim.yrs(), t(N.t.mat()), type = 'l',
     col = rgb(0, 0, 0, alpha = 0.1), lty = 1, 
     xlab = 'Year', ylab = 'Nt', main = "Population sizes over time"
@@ -22,3 +21,15 @@ output$checkExpPop = renderPlot({
     lty = c(1, 1, 1, 2)
   )
 })
+
+## In survey-years
+
+# Bias table
+output$biasNsPopWtn = renderTable({
+  find.est.bias.srvy(ns.wtn.errs())
+})
+
+# Boxplots
+output$nsWtnPop = renderPlot(
+  nsKPsPlot(ns.wtn.errs(), kp.tps.pop.wtn[1])
+)

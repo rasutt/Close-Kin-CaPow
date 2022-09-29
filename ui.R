@@ -8,6 +8,7 @@ ui <- fluidPage(
   navbarPage(
     "Close-kin CaPow!",
     id = "nav.tab",
+    selected = "check.tab",
     # Sim tab ----
     tabPanel(
       title = "Simulate studies",
@@ -105,11 +106,11 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "first_study",
+        selected = "populations",
         # First study ----
         tabPanel(
           title = "First study",
-          value = "first_study",
+          value = "first.study",
           h2("First study simulated"),
           # h3("First life-histories"),
           # tableOutput(outputId = "firstLifeHists"),
@@ -131,27 +132,51 @@ ui <- fluidPage(
         ),
         # Populations ----
         tabPanel(
-          title = "Populations",
+          title = "Population sizes",
           value = "populations",
-          h2("Populations"),
-          plotOutput(outputId = "checkExpPop")
+          h2("Population sizes over time"),
+          plotOutput(outputId = "checkExpPop"),
+          h2("Population sizes in survey-years"),
+          h3("Biases"),
+          tableOutput(outputId = "biasNsPopWtn"),
+          h3("Error distributions"),
+          plotOutput(outputId = "nsWtnPop"),
+        ),
+        # All pairs ----
+        tabPanel(
+          title = "All pairs",
+          value = "all.pairs",
+          h2("Total numbers of pairs of individuals"),
+          h3("Biases"),
+          tableOutput(outputId = "biasAPsPopWtn"),
+          tableOutput(outputId = "biasAPsPopBtn"),
+          h3("Error distributions"),
+          plotOutput(outputId = "nsAPsWtnPop"),
+          plotOutput(outputId = "nsAPsBtnPop")
+        ),
+        # Parent-offspring pairs ----
+        tabPanel(
+          title = "Parent-offspring pairs",
+          value = "POPs",
+          h2("Kin-pair estimator biases"),
+          h3("Numbers in whole population"),
+          tableOutput(outputId = "biasNsPOPsPopWtn")
         ),
         # Temporal estimates ----
         tabPanel(
           title = "Temporal estimates",
-          value = "temp_ests",
+          value = "temp.ests",
           h2("Temporal estimates vs observed averages"),
           textOutput("tempEstNote"),
           h4("Same-mother/father pairs in whole population including animals
           born in each year in the population history"),
           tableOutput(outputId = "nsKPsTemp")
         ),
-        # ----
         # Kin-pairs ----
         tabPanel(
-          title = "Kin-pairs",
-          value = "kin_pairs",
-          h2("Kin-pair estimator biases"),
+          title = "Bias",
+          value = "bias",
+          h2("Estimator biases"),
           h3("Numbers in whole population"),
           h4("Temporal estimates"),
           textOutput("tempEstBiasNote"),
@@ -177,7 +202,7 @@ ui <- fluidPage(
         # Error distributions ----
         tabPanel(
           title = "Error distributions",
-          value = "err_dists",
+          value = "err.dists",
           h2("Kin-pair estimator error distributions"),
           h3("Numbers in whole population"),
           h4("Temporal estimates"),
@@ -185,11 +210,9 @@ ui <- fluidPage(
           plotOutput(outputId = "nsSFPsFnlB1Fnl"),
           plotOutput(outputId = "nsSFPsFnlB"),
           h4("Within surveys"),
-          plotOutput(outputId = "nsAPsWtnPop"),
           # plotOutput(outputId = "nsSMPsWtnPop"),
           # plotOutput(outputId = "nsSFPsWtnPop"),
           h4("Between surveys"),
-          plotOutput(outputId = "nsAPsBtnPop"),
           # plotOutput(outputId = "nsSPsBtnPop"),
           plotOutput(outputId = "nsSMPsBtnPop"),
           

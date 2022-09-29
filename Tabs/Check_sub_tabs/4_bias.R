@@ -2,13 +2,6 @@
 
 ### Kin-pair estimator biases (tables of average percentage differences)
 
-# Function to find biases from proportional errors
-find.est.bias = function(est.errs, type_names) {
-  df = data.frame(matrix(perc(colMeans(est.errs, dims = 2)), nrow = 1))
-  names(df) = type_names
-  df
-}
-
 ## Numbers in whole population
 
 # Temporal estimates
