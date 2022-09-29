@@ -12,7 +12,10 @@ observeEvent(
     input$check.sub.tabs
     input$nav.tab
   }, 
-  if (input$check.sub.tabs == "populations" && is.null(N.t.mat())) {
+  if (
+    input$check.sub.tabs %in% c("populations", "all.pairs") && 
+    is.null(N.t.mat())
+  ) {
     # Object to store results
     N.t.mat.new = matrix(
       nrow = n.sims(), ncol = hist.len(), 
@@ -42,7 +45,10 @@ observeEvent(
     input$check.sub.tabs
     input$nav.tab
   }, 
-  if (input$check.sub.tabs != "populations" && is.null(checks.lst())) {
+  if (
+    !(input$check.sub.tabs %in% c("populations", "all.pairs")) && 
+    is.null(checks.lst())
+  ) {
     # Objects to store results
     # ns.caps.mat = ns.clvng.caps.mat = ns.clvng.mat = 
     #   matrix(nrow = n.sims(), ncol = k())
@@ -157,20 +163,37 @@ find.errs = function(vals, ests, samp = F) {
   vals / ests - 1
 }
 
-# Estimate errors as proportions of estimates
-ns.wtn.errs = reactive({
-  find.errs(N.t.mat()[, s.yr.inds()], est.ns.kps.pop.lst()$wtn[, 1])
+# Checks based on population sizes
+N.s.yrs = reactive(N.t.mat()[, s.yr.inds()])
+ns.APs.wtn.pop = reactive({
+  ns = choose(N.s.yrs(), 2)
+  colnames(ns) = srvy.yrs()
+  ns
 })
-ns.kps.pop.wtn.est.errs = reactive({
+ns.APs.btn.pop = reactive({
+  ns = t(apply(N.s.yrs(), 1, combn, 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]))
+  colnames(ns) = srvy.prs()
+  ns
+})
+
+# Estimate errors as proportions of estimates
+ns.wtn.errs = reactive(find.errs(N.s.yrs(), est.ns.kps.pop.lst()$wtn[, 1]))
+ns.APs.wtn.errs = reactive({
+  find.errs(ns.APs.wtn.pop(), est.ns.kps.pop.lst()$wtn[, 2])
+})
+ns.APs.btn.errs = reactive({
+  find.errs(ns.APs.btn.pop(), est.ns.kps.pop.lst()$btn[, 1])
+})
+ns.kps.pop.wtn.errs = reactive({
   find.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn)
 })
-ns.kps.pop.btn.est.errs = reactive({
+ns.kps.pop.btn.errs = reactive({
   find.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn)
 })
-ns.kps.t.est.errs = reactive({
+ns.kps.t.errs = reactive({
   find.errs(checks.lst()$kps.t.arr, est.ns.kps.t())
 })
-ns.kps.prb.wtn.est.errs = reactive({
+ns.kps.prb.wtn.errs = reactive({
   # Remove population sizes and total numbers of pairs then divide by the latter
   find.errs(
     checks.lst()$ns.kps.pop.wtn.arr[, , -1:-2] / 
@@ -181,7 +204,7 @@ ns.kps.prb.wtn.est.errs = reactive({
     est.ns.kps.pop.lst()$wtn[, -1:-2] / est.ns.kps.pop.lst()$wtn[, 2]
   )
 })
-ns.kps.prb.btn.est.errs = reactive({
+ns.kps.prb.btn.errs = reactive({
   # Remove population sizes and total numbers of pairs then divide by the latter
   # (drop = F retains array dimensions when only one survey pair)
   find.errs(
@@ -193,25 +216,25 @@ ns.kps.prb.btn.est.errs = reactive({
     est.ns.kps.pop.lst()$btn[, -1] / est.ns.kps.pop.lst()$btn[, 1]
   )
 })
-# ns.kps.cap.wtn.est.errs = reactive({
+# ns.kps.cap.wtn.errs = reactive({
 #   find.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn, T)
 # })
-# ns.kps.cap.btn.est.errs = reactive({
+# ns.kps.cap.btn.errs = reactive({
 #   find.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn, T)
 # })
 
 # Function to find biases over all surveys from array of proportional errors for
 # multiple estimators
-find.est.bias = function(est.errs, type_names) {
-  df = data.frame(matrix(perc(colMeans(est.errs, dims = 2)), nrow = 1))
-  names(df) = type_names
+find.bias = function(errs) {
+  df = data.frame(matrix(perc(colMeans(errs, dims = 2)), nrow = 1))
+  names(df) = dimnames(errs)[["kp.type"]]
   df
 }
 
 # Function to find biases in each survey from matrix of proportional errors for
 # a single estimator
-find.est.bias.srvy = function(est.errs) {
-  df = data.frame(matrix(perc(colMeans(est.errs)), nrow = 1))
-  names(df) = colnames(est.errs)
+find.bias.srvy = function(errs) {
+  df = data.frame(matrix(perc(colMeans(errs)), nrow = 1))
+  names(df) = colnames(errs)
   df
 }

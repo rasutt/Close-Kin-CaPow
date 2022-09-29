@@ -8,31 +8,21 @@
 output$tempEstBiasNote = renderText(
   "These outputs seem to be higher variance, but 1000 studies seems to be enough."
 )
-output$biasNsKPsTemp = renderTable({
-  find.est.bias(ns.kps.t.est.errs(), kp.tps.t)
-})
+output$biasNsKPsTemp = renderTable(find.bias(ns.kps.t.errs()))
 
 # Within surveys
-output$biasNsKPsPopWtn = renderTable({
-  find.est.bias(ns.kps.pop.wtn.est.errs(), kp.tps.pop.wtn)
-})
+output$biasNsKPsPopWtn = renderTable(find.bias(ns.kps.pop.wtn.errs()))
 
 # Between surveys
-output$biasNsKPsPopBtn = renderTable({
-  find.est.bias(ns.kps.pop.btn.est.errs(), kp.tps.pop.btn)
-})
+output$biasNsKPsPopBtn = renderTable(find.bias(ns.kps.pop.btn.errs()))
 
 ## Probabilities (numbers divided by total numbers of pairs)
 
 # Within surveys
-output$biasProbsKPsWtn = renderTable({
-  find.est.bias(ns.kps.prb.wtn.est.errs(), kp.tps.prb.wtn)
-})
+output$biasProbsKPsWtn = renderTable(find.bias(ns.kps.prb.wtn.errs()))
 
 # Between surveys
-output$biasProbsKPsBtn = renderTable({
-  find.est.bias(ns.kps.prb.btn.est.errs(), kp.tps.prb.btn)
-})
+output$biasProbsKPsBtn = renderTable(find.bias(ns.kps.prb.btn.errs()))
 
 ## Numbers among sampled animals
 
@@ -45,11 +35,7 @@ output$percUnknPrnts = renderText({
 })
 
 # Within surveys
-output$biasNsKPsCapWtn = renderTable({
-  find.est.bias(ns.kps.cap.wtn.est.errs(), kp.tps.cap.wtn)
-})
+output$biasNsKPsCapWtn = renderTable(find.bias(ns.kps.cap.wtn.errs()))
 
 # Between surveys
-output$biasNsKPsCapBtn = renderTable({
-  find.est.bias(ns.kps.cap.btn.est.errs(), kp.tps.cap.btn)
-})
+output$biasNsKPsCapBtn = renderTable(find.bias(ns.kps.cap.btn.errs()))

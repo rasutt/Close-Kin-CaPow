@@ -4,7 +4,7 @@ FindNsKinPairsPop = function(pop.cap.hist, s.yr.inds, k) {
   # Total numbers of pairs
   N.s.yrs = attributes(pop.cap.hist)$N.t.vec[s.yr.inds]
   ns.APs.wtn.pop = choose(N.s.yrs, 2)
-  ns.APs.btn.pop = combn(N.s.yrs, 2, function(x) x[1] * x[2])
+  ns.APs.btn.pop = combn(N.s.yrs, 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2])
   
   # Which animals alive in survey years 
   alv.s.yrs = attributes(pop.cap.hist)$alv.s.yrs

@@ -25,11 +25,7 @@ output$checkExpPop = renderPlot({
 ## In survey-years
 
 # Bias table
-output$biasNsPopWtn = renderTable({
-  find.est.bias.srvy(ns.wtn.errs())
-})
+output$biasNsPopWtn = renderTable(find.bias.srvy(ns.wtn.errs()))
 
 # Boxplots
-output$nsWtnPop = renderPlot(
-  nsKPsPlot(ns.wtn.errs(), kp.tps.pop.wtn[1])
-)
+output$nsWtnPop = renderPlot(nsKPsPlot(ns.wtn.errs(), kp.tps.pop.wtn[1]))

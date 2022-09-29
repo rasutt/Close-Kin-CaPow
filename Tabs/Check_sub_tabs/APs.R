@@ -1,17 +1,9 @@
 # Outputs for all-pairs sub-tab in checks tab
 
 # Bias tables
-output$biasAPsPopWtn = renderTable({
-  find.est.bias.srvy(ns.kps.pop.wtn.est.errs()[, , 2])
-})
-output$biasAPsPopBtn = renderTable({
-  find.est.bias.srvy(ns.kps.pop.btn.est.errs()[, , 1])
-})
+output$biasAPsPopWtn = renderTable(find.bias.srvy(ns.APs.wtn.errs()))
+output$biasAPsPopBtn = renderTable(find.bias.srvy(ns.APs.btn.errs()))
 
 # Boxplots
-output$nsAPsWtnPop = renderPlot(
-  nsKPsPlot(ns.kps.pop.wtn.est.errs()[, , 2], kp.tps.pop.wtn[2])
-)
-output$nsAPsBtnPop = renderPlot(
-  nsKPsPlot(ns.kps.pop.btn.est.errs()[, , 1], kp.tps.pop.btn[1])
-)
+output$nsAPsWtnPop = renderPlot(nsKPsPlot(ns.APs.wtn.errs(), kp.tps.pop.wtn[2]))
+output$nsAPsBtnPop = renderPlot(nsKPsPlot(ns.APs.btn.errs(), kp.tps.pop.btn[1]))
