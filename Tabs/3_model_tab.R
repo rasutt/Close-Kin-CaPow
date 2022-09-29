@@ -120,8 +120,15 @@ fit.ppn = reactive(if (input$popan) {
   list(ests = ppn.tmb.ests, ses = ppn.tmb.ses, cnvgs = !ppn.tmb.cnvg)
 })
 
-# Combine model estimates and update in fit.lst reactive value
+# Nullify model-fits when new datasets simulated
 observeEvent(input$simulate, {
+  fit.lst(NULL)
+})
+
+# Combine model estimates and update in fit.lst reactive value
+observeEvent(
+  input$nav.tab, 
+  if (input$nav.tab == "model.tab" && is.null(fit.lst())) {
   # Boolean for models requested 
   mod.bool = c(input$popan, input$close.kin)
   

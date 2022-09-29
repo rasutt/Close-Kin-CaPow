@@ -4,6 +4,7 @@
 observeEvent(input$simulate, {
   checks.lst(NULL)
   N.t.mat(NULL)
+  ns.SPs(NULL)
 })
 
 # Find population sizes over time
@@ -39,6 +40,44 @@ observeEvent(
   }
 )
 
+# Find numbers of self-pairs between survey-years in simulated populations
+observeEvent(
+  {
+    input$check.sub.tabs
+    input$nav.tab
+  }, 
+  if (
+    input$check.sub.tabs == "self.pairs" && 
+    is.null(ns.SPs())
+  ) {
+    # Object to store results
+    ns.SPs.new = matrix(
+      nrow = n.sims(), ncol = k(), 
+      dimnames = list(NULL, srvy.prs())
+    )
+    
+    # Loop over histories
+    withProgress({
+      for (hist.ind in 1:n.sims()) {
+        # Which animals alive in survey years 
+        alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
+        
+        # Self-pairs between survey years
+        ID = attributes(sim.lst()$hists.lst[[hist.ind]])$ID
+        ns.SPs.new[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
+          sum(ID[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]])
+        }))
+        
+        # Increment progress-bar
+        incProgress(1/n.sims())
+      }
+    }, value = 0, message = "Finding self-pairs")
+    
+    # Update reactive value
+    ns.SPs(ns.SPs.new)
+  }
+)
+
 # Calculate checks for simulated studies
 observeEvent(
   {
@@ -46,7 +85,7 @@ observeEvent(
     input$nav.tab
   }, 
   if (
-    !(input$check.sub.tabs %in% c("populations", "all.pairs")) && 
+    !(input$check.sub.tabs %in% c("populations", "all.pairs", "self.pairs")) && 
     is.null(checks.lst())
   ) {
     # Objects to store results
@@ -184,6 +223,7 @@ ns.APs.wtn.errs = reactive({
 ns.APs.btn.errs = reactive({
   find.errs(ns.APs.btn.pop(), est.ns.kps.pop.lst()$btn[, 1])
 })
+ns.SPs.errs = reactive(find.errs(ns.SPs(), est.ns.kps.pop.lst()$btn[, 2]))
 ns.kps.pop.wtn.errs = reactive({
   find.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn)
 })

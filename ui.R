@@ -154,6 +154,16 @@ ui <- fluidPage(
           plotOutput(outputId = "nsAPsWtnPop"),
           plotOutput(outputId = "nsAPsBtnPop")
         ),
+        # Self-pairs ----
+        tabPanel(
+          title = "Self-pairs",
+          value = "self.pairs",
+          h2("Self-pairs between survey-years"),
+          h3("Biases"),
+          tableOutput(outputId = "biasSPsPop"),
+          h3("Error distributions"),
+          plotOutput(outputId = "nsSPsPop"),
+        ),
         # Parent-offspring pairs ----
         tabPanel(
           title = "Parent-offspring pairs",
