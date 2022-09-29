@@ -108,6 +108,7 @@ server <- function(input, output) {
   fit.lst = reactiveVal(saved.objs$fit.lst)
   N.t.mat = reactiveVal(saved.objs$N.t.mat)
   ns.SPs = reactiveVal(saved.objs$ns.SPs)
+  ns.SMPs = reactiveVal(saved.objs$ns.SMPs)
   # ----
 
   # Variables bound to simulate button (for last simulation) ----
@@ -195,9 +196,7 @@ server <- function(input, output) {
   source("Tabs/Check_sub_tabs/3_temp_ests.R", local = T)
   source("Tabs/Check_sub_tabs/4_bias.R", local = T)
   source("Tabs/Check_sub_tabs/5_err_dists.R", local = T)
-  source("Tabs/Check_sub_tabs/POPs.R", local = T)
-  source("Tabs/Check_sub_tabs/APs.R", local = T)
-  source("Tabs/Check_sub_tabs/SPs.R", local = T)
+  source("Tabs/Check_sub_tabs/KPs.R", local = T)
   source("Tabs/3_model_tab.R", local = T)
   source("Tabs/4_save_load_tab.R", local = T)
 }

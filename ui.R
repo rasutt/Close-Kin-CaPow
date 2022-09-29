@@ -172,6 +172,18 @@ ui <- fluidPage(
           h3("Numbers in whole population"),
           tableOutput(outputId = "biasNsPOPsPopWtn")
         ),
+        # Same-mother pairs ----
+        tabPanel(
+          title = "Same-mother pairs",
+          value = "SMPs.tab",
+          h2("Numbers of pairs of individuals with the same mothers"),
+          h3("Biases"),
+          tableOutput(outputId = "biasSMPsPopWtn"),
+          tableOutput(outputId = "biasSMPsPopBtn"),
+          h3("Error distributions"),
+          plotOutput(outputId = "nsSMPsWtnPop"),
+          plotOutput(outputId = "nsSMPsBtnPop")
+        ),
         # Temporal estimates ----
         tabPanel(
           title = "Temporal estimates",
@@ -220,17 +232,12 @@ ui <- fluidPage(
           plotOutput(outputId = "nsSFPsFnlB1Fnl"),
           plotOutput(outputId = "nsSFPsFnlB"),
           h4("Within surveys"),
-          # plotOutput(outputId = "nsSMPsWtnPop"),
           # plotOutput(outputId = "nsSFPsWtnPop"),
           h4("Between surveys"),
-          # plotOutput(outputId = "nsSPsBtnPop"),
-          plotOutput(outputId = "nsSMPsBtnPop"),
-          
+
           h3("Probabilities"),
           h4("Within surveys"),
-          plotOutput(outputId = "probSMPsWtnPop"),
           # h4("Between surveys"),
-          # plotOutput(outputId = "probSPsBtnPop"),
 
           h3("Numbers among sampled animals"),
           h4("Within surveys"),
