@@ -9,12 +9,12 @@ observeEvent(input$simulate, {
   ns.SFPs(NULL)
 })
 
-# Find population sizes over time
-observeEvent(
-  {
-    input$check.sub.tabs
-    input$nav.tab
-  }, 
+# Compute separate checks ----
+observeEvent({
+  input$check.sub.tabs
+  input$nav.tab
+}, {
+  # Find population sizes over time
   if (
     input$check.sub.tabs %in% c("populations", "all.pairs") && 
     is.null(N.t.mat())
@@ -40,14 +40,8 @@ observeEvent(
     # Update reactive value
     N.t.mat(N.t.mat.new)
   }
-)
-
-# Find numbers of self-pairs between survey-years in simulated populations
-observeEvent(
-  {
-    input$check.sub.tabs
-    input$nav.tab
-  }, 
+  
+  # Find numbers of self-pairs between survey-years in simulated populations
   if (
     input$check.sub.tabs == "self.pairs" && 
     is.null(ns.SPs())
@@ -78,14 +72,9 @@ observeEvent(
     # Update reactive value
     ns.SPs(ns.SPs.new)
   }
-)
-
-# Find numbers of self-pairs between survey-years in simulated populations
-observeEvent(
-  {
-    input$check.sub.tabs
-    input$nav.tab
-  }, 
+  
+  # Find numbers of same-mother pairs between survey-years in simulated
+  # populations
   if (
     input$check.sub.tabs == "SMPs.tab" && 
     is.null(ns.SMPs())
@@ -131,14 +120,9 @@ observeEvent(
     # Update reactive value
     ns.SMPs(list(ns.SMPs.wtn = ns.SMPs.wtn, ns.SMPs.btn = ns.SMPs.btn))
   }
-)
-
-# Find numbers of self-pairs between survey-years in simulated populations
-observeEvent(
-  {
-    input$check.sub.tabs
-    input$nav.tab
-  }, 
+  
+  # Find numbers of same-father pairs between survey-years in simulated
+  # populations
   if (
     input$check.sub.tabs == "SFPs.tab" && 
     is.null(ns.SFPs())
@@ -184,14 +168,13 @@ observeEvent(
     # Update reactive value
     ns.SFPs(list(ns.SFPs.wtn = ns.SFPs.wtn, ns.SFPs.btn = ns.SFPs.btn))
   }
-)
+})
 
-# Calculate checks for simulated studies
-observeEvent(
-  {
-    input$check.sub.tabs
-    input$nav.tab
-  }, 
+# Compute combined checks ----
+observeEvent({
+  input$check.sub.tabs
+  input$nav.tab
+}, {
   if (
     !(input$check.sub.tabs %in% 
       c("populations", "all.pairs", "self.pairs", "SMPs.tab", "SFPs.tab")) && 
@@ -287,7 +270,8 @@ observeEvent(
       # exp.ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr,
       kps.t.arr = ns.kps.t.arr
     ))
-  })
+  }
+})
 
 # Estimated numbers of kin-pairs for whole population
 est.ns.kps.pop.lst = reactive({
@@ -303,109 +287,3 @@ est.ns.kps.t = reactive({
   )
 })
 
-# Function to find estimate errors as proportions of estimates
-find.errs = function(vals, ests, samp = F) {
-  # For sampled animals the expected values are different for each study but
-  # otherwise they are repeated
-  if (!samp) ests = rep(ests, each = n.sims())
-  vals / ests - 1
-}
-
-# Checks based on population sizes
-N.s.yrs = reactive(N.t.mat()[, s.yr.inds()])
-ns.APs.wtn.pop = reactive({
-  ns = choose(N.s.yrs(), 2)
-  colnames(ns) = srvy.yrs()
-  ns
-})
-ns.APs.btn.pop = reactive({
-  # If there is only one survey-pair apply returns a vector so we have to make
-  # it a matrix explicitly 
-  ns = t(matrix(
-    apply(N.s.yrs(), 1, combn, 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]),
-    nrow = n.srvy.prs()
-  ))
-  colnames(ns) = srvy.prs()
-  ns
-})
-
-# Estimate errors as proportions of estimates
-ns.wtn.errs = reactive(find.errs(N.s.yrs(), est.ns.kps.pop.lst()$wtn[, 1]))
-
-ns.APs.wtn.errs = reactive({
-  find.errs(ns.APs.wtn.pop(), est.ns.kps.pop.lst()$wtn[, 2])
-})
-ns.APs.btn.errs = reactive({
-  find.errs(ns.APs.btn.pop(), est.ns.kps.pop.lst()$btn[, 1])
-})
-
-ns.SPs.errs = reactive(find.errs(ns.SPs(), est.ns.kps.pop.lst()$btn[, 2]))
-
-ns.SMPs.wtn.errs = reactive({
-  find.errs(ns.SMPs()[["ns.SMPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 3])
-})
-ns.SMPs.btn.errs = reactive({
-  find.errs(ns.SMPs()[["ns.SMPs.btn"]], est.ns.kps.pop.lst()$btn[, 3])
-})
-
-ns.SFPs.wtn.errs = reactive({
-  find.errs(ns.SFPs()[["ns.SFPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 4])
-})
-# ns.SFPs.btn.errs = reactive({
-#   find.errs(ns.SFPs()[["ns.SFPs.btn"]], est.ns.kps.pop.lst()$btn[, 3])
-# })
-
-ns.kps.pop.wtn.errs = reactive({
-  find.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn)
-})
-ns.kps.pop.btn.errs = reactive({
-  find.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn)
-})
-ns.kps.t.errs = reactive({
-  find.errs(checks.lst()$kps.t.arr, est.ns.kps.t())
-})
-ns.kps.prb.wtn.errs = reactive({
-  # Remove population sizes and total numbers of pairs then divide by the latter
-  find.errs(
-    checks.lst()$ns.kps.pop.wtn.arr[, , -1:-2] / 
-      array(
-        rep(checks.lst()$ns.kps.pop.wtn.arr[, , 2], n.kp.tps.prb.wtn), 
-        c(n.sims(), k(), n.kp.tps.prb.wtn)
-      ), 
-    est.ns.kps.pop.lst()$wtn[, -1:-2] / est.ns.kps.pop.lst()$wtn[, 2]
-  )
-})
-ns.kps.prb.btn.errs = reactive({
-  # Remove population sizes and total numbers of pairs then divide by the latter
-  # (drop = F retains array dimensions when only one survey pair)
-  find.errs(
-    checks.lst()$ns.kps.pop.btn.arr[, , -1, drop = F] / 
-      array(
-        rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kp.tps.prb.btn), 
-        c(n.sims(), n.srvy.prs(), n.kp.tps.prb.btn)
-      ), 
-    est.ns.kps.pop.lst()$btn[, -1] / est.ns.kps.pop.lst()$btn[, 1]
-  )
-})
-# ns.kps.cap.wtn.errs = reactive({
-#   find.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn, T)
-# })
-# ns.kps.cap.btn.errs = reactive({
-#   find.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn, T)
-# })
-
-# Function to find biases over all surveys from array of proportional errors for
-# multiple estimators
-find.bias = function(errs) {
-  df = data.frame(matrix(perc(colMeans(errs, dims = 2)), nrow = 1))
-  names(df) = dimnames(errs)[["kp.type"]]
-  df
-}
-
-# Function to find biases in each survey from matrix of proportional errors for
-# a single estimator
-find.bias.srvy = function(errs) {
-  df = data.frame(matrix(perc(colMeans(errs)), nrow = 1))
-  names(df) = colnames(errs)
-  df
-}

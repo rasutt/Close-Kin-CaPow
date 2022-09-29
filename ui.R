@@ -158,7 +158,8 @@ ui <- fluidPage(
         tabPanel(
           title = "Self-pairs",
           value = "self.pairs",
-          h2("Self-pairs between survey-years"),
+          h2("Numbers of pairs of samples that are the same individual between
+             survey-years"),
           h3("Biases"),
           tableOutput(outputId = "biasSPsPop"),
           h3("Error distributions"),
@@ -168,9 +169,10 @@ ui <- fluidPage(
         tabPanel(
           title = "Parent-offspring pairs",
           value = "POPs",
-          h2("Kin-pair estimator biases"),
-          h3("Numbers in whole population"),
-          tableOutput(outputId = "biasNsPOPsPopWtn")
+          h2("Numbers of pairs of individuals that are parent and offspring"),
+          h3("Biases"),
+          tableOutput(outputId = "biasNsPOPsPopWtn"),
+          h3("Error distributions")
         ),
         # Same-mother pairs ----
         tabPanel(
@@ -191,10 +193,10 @@ ui <- fluidPage(
           h2("Numbers of pairs of individuals with the same fathers"),
           h3("Biases"),
           tableOutput(outputId = "biasSFPsPopWtn"),
-          tableOutput(outputId = "biasSFPsPopBtn"),
+          # tableOutput(outputId = "biasSFPsPopBtn"),
           h3("Error distributions"),
           plotOutput(outputId = "nsSFPsWtnPop"),
-          plotOutput(outputId = "nsSFPsBtnPop")
+          # plotOutput(outputId = "nsSFPsBtnPop")
         ),
         # Temporal estimates ----
         tabPanel(
@@ -243,22 +245,10 @@ ui <- fluidPage(
           plotOutput(outputId = "nsSMPsFnlB1Fnl"),
           plotOutput(outputId = "nsSFPsFnlB1Fnl"),
           plotOutput(outputId = "nsSFPsFnlB"),
-          h4("Within surveys"),
-          # plotOutput(outputId = "nsSFPsWtnPop"),
-          h4("Between surveys"),
-
-          h3("Probabilities"),
-          h4("Within surveys"),
-          # h4("Between surveys"),
 
           h3("Numbers among sampled animals"),
           h4("Within surveys"),
           plotOutput(outputId = "nsPOPsWtn")
-          # plotOutput(outputId = "nsSMPsWtn"),
-          # plotOutput(outputId = "nsHSPsWtn"),
-          # h4("Between surveys"),
-          # plotOutput(outputId = "nsSPsBtn"),
-          # plotOutput(outputId = "nsPOPsBtn")
         )
       )
     ), 

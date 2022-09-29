@@ -39,17 +39,6 @@ output$nsSFPsFnlB = renderPlot(
   nsKPsPlot(ns.kps.t.errs()[, , 3], kp.tps.t[3])
 )
 
-# # Self-pairs between survey years 
-# output$nsSPsBtnPop = renderPlot(nsKPsPlot(3, T))
-# # Same-mother pairs within survey years 
-# output$nsSMPsWtnPop = renderPlot(nsKPsPlot(4, T))
-# # Same-father pairs within survey years 
-# output$nsSFPsWtnPop = renderPlot(nsKPsPlot(5, T))
-# Same-mother pairs between survey years
-output$nsSMPsBtnPop = renderPlot(
-  nsKPsPlot(ns.kps.pop.btn.errs()[, , 3], kp.tps.pop.btn[3])
-)
-
 ## Probabilities
 
 # # Self-pair probabilities between survey years 
@@ -58,16 +47,3 @@ output$nsSMPsBtnPop = renderPlot(
 output$probSMPsWtnPop = renderPlot(
   nsKPsPlot(ns.kps.prb.wtn.errs()[, , 1], kp.tps.prb.wtn[1])
 )
-
-## Numbers in samples
-
-# # Self-pairs between surveys
-# output$nsSPsBtn = renderPlot(nsKPsPlot(1))
-# Parent-offspring pairs within surveys
-# output$nsPOPsWtn = renderPlot(nsKPsPlot(2))
-# # Parent-offspring pairs between surveys
-# output$nsPOPsBtn = renderPlot(nsKPsPlot(3))
-# # Same-mother pairs within surveys
-# output$nsSMPsWtn = renderPlot(nsKPsPlot(4))
-# # Half-sibling pairs within surveys
-# output$nsHSPsWtn = renderPlot(nsKPsPlot(5))
