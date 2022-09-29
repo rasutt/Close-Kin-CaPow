@@ -27,6 +27,14 @@ FindNsKinPairsPop = function(pop.cap.hist, s.yr.inds, k) {
     tabulate(dad[alv.s.yrs[, s.ind]], max.dad)
   })
   
+  # Parent-offspring pairs within survey years
+  ns.POPs.wtn = sapply(1:k, function(s.ind) {
+    sum(
+      mum[alv.s.yrs[, s.ind]] %in% ID[alv.s.yrs[, s.ind]], 
+      dad[alv.s.yrs[, s.ind]] %in% ID[alv.s.yrs[, s.ind]]
+    )
+  })
+  
   # Same-mother pairs within survey years
   ns.SMPs.wtn.pop = sapply(1:k, function(s.ind) {
     sum(choose(mum.tab.lst[[s.ind]], 2))
@@ -58,8 +66,8 @@ FindNsKinPairsPop = function(pop.cap.hist, s.yr.inds, k) {
   # Return as list
   list(
     wtn = rbind(
-      ns.APs.wtn.pop, ns.SMPs.wtn.pop, ns.SFPs.wtn.pop, ns.FSPs.wtn.pop,
-      ns.HSPs.wtn.pop
+      ns.APs.wtn.pop, ns.POPs.wtn, ns.SMPs.wtn.pop, ns.SFPs.wtn.pop, 
+      ns.FSPs.wtn.pop, ns.HSPs.wtn.pop
     ),
     btn = rbind(
       ns.APs.btn.pop, ns.SPs.btn.pop, ns.SMPs.btn.pop

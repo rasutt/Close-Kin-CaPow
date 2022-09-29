@@ -41,6 +41,7 @@ output$downloadData <- downloadHandler(
       N.t.mat = N.t.mat(),
       ns.SPs = ns.SPs(),
       ns.SMPs = ns.SMPs(),
+      ns.POPs = ns.POPs(),
       ns.SFPs = ns.SFPs()
     )
     save(saved.objs, file = file)
@@ -89,6 +90,7 @@ observeEvent(input$file, {
   fit.lst(saved.objs$fit.lst)
   N.t.mat(saved.objs$N.t.mat)
   ns.SPs(saved.objs$ns.SPs)
+  ns.POPs(saved.objs$ns.POPs)
   ns.SMPs(saved.objs$ns.SMPs)
   ns.SFPs(saved.objs$ns.SFPs)
 })

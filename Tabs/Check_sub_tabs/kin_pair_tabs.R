@@ -8,25 +8,7 @@ find.errs = function(vals, ests, samp = F) {
   vals / ests - 1
 }
 
-# Checks based on population sizes
-N.s.yrs = reactive(N.t.mat()[, s.yr.inds()])
-ns.APs.wtn.pop = reactive({
-  ns = choose(N.s.yrs(), 2)
-  colnames(ns) = srvy.yrs()
-  ns
-})
-ns.APs.btn.pop = reactive({
-  # If there is only one survey-pair apply returns a vector so we have to make
-  # it a matrix explicitly 
-  ns = t(matrix(
-    apply(N.s.yrs(), 1, combn, 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]),
-    nrow = n.srvy.prs()
-  ))
-  colnames(ns) = srvy.prs()
-  ns
-})
-
-# Estimate errors as proportions of estimates
+# Find errors as proportions of estimates
 ns.wtn.errs = reactive(find.errs(N.s.yrs(), est.ns.kps.pop.lst()$wtn[, 1]))
 
 ns.APs.wtn.errs = reactive({
@@ -38,15 +20,22 @@ ns.APs.btn.errs = reactive({
 
 ns.SPs.errs = reactive(find.errs(ns.SPs(), est.ns.kps.pop.lst()$btn[, 2]))
 
+ns.POPs.wtn.errs = reactive({
+  find.errs(ns.POPs()[["ns.POPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 3])
+})
+# ns.POPs.btn.errs = reactive({
+#   find.errs(ns.POPs()[["ns.POPs.btn"]], est.ns.kps.pop.lst()$btn[, 3])
+# })
+
 ns.SMPs.wtn.errs = reactive({
-  find.errs(ns.SMPs()[["ns.SMPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 3])
+  find.errs(ns.SMPs()[["ns.SMPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 4])
 })
 ns.SMPs.btn.errs = reactive({
   find.errs(ns.SMPs()[["ns.SMPs.btn"]], est.ns.kps.pop.lst()$btn[, 3])
 })
 
 ns.SFPs.wtn.errs = reactive({
-  find.errs(ns.SFPs()[["ns.SFPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 4])
+  find.errs(ns.SFPs()[["ns.SFPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 5])
 })
 # ns.SFPs.btn.errs = reactive({
 #   find.errs(ns.SFPs()[["ns.SFPs.btn"]], est.ns.kps.pop.lst()$btn[, 3])
@@ -107,49 +96,37 @@ find.bias.srvy = function(errs) {
   df
 }
 
-### Outputs
+## Bias tables and box plots
 
-## All-pairs
-
-# Bias tables
+# All-pairs
 output$biasAPsPopWtn = renderTable(find.bias.srvy(ns.APs.wtn.errs()))
 output$biasAPsPopBtn = renderTable(find.bias.srvy(ns.APs.btn.errs()))
-
-# Box plots
 output$nsAPsWtnPop = renderPlot(nsKPsPlot(ns.APs.wtn.errs(), kp.tps.pop.wtn[2]))
 output$nsAPsBtnPop = renderPlot(nsKPsPlot(ns.APs.btn.errs(), kp.tps.pop.btn[1]))
 
-## Self-pairs
-
-# Bias tables
+# Self-pairs
 output$biasSPsPop = renderTable(find.bias.srvy(ns.SPs.errs()))
-
-# Box plots
 output$nsSPsPop = renderPlot(nsKPsPlot(ns.SPs.errs(), kp.tps.pop.btn[2]))
 
-## Parent-offspring pairs
+# Parent-offspring pairs
+output$biasPOPsPopWtn = renderTable(find.bias.srvy(ns.POPs.wtn.errs()))
+# output$biasPOPsPopBtn = renderTable(find.bias.srvy(ns.POPs.btn.errs()))
+output$nsPOPsWtnPop =
+  renderPlot(nsKPsPlot(ns.POPs.wtn.errs(), kp.tps.pop.wtn[3]))
+# output$nsPOPsBtnPop = 
+#   renderPlot(nsKPsPlot(ns.POPs.btn.errs(), kp.tps.pop.btn[3]))
 
-
-
-## Same-mother pairs
-
-# Bias tables
+# Same-mother pairs
 output$biasSMPsPopWtn = renderTable(find.bias.srvy(ns.SMPs.wtn.errs()))
 output$biasSMPsPopBtn = renderTable(find.bias.srvy(ns.SMPs.btn.errs()))
-
-# Box plots
 output$nsSMPsWtnPop = 
   renderPlot(nsKPsPlot(ns.SMPs.wtn.errs(), kp.tps.pop.wtn[3]))
 output$nsSMPsBtnPop = 
   renderPlot(nsKPsPlot(ns.SMPs.btn.errs(), kp.tps.pop.btn[3]))
 
-## Same-father pairs
-
-# Bias tables
+# Same-father pairs
 output$biasSFPsPopWtn = renderTable(find.bias.srvy(ns.SFPs.wtn.errs()))
 # output$biasSFPsPopBtn = renderTable(find.bias.srvy(ns.SFPs.btn.errs()))
-
-# Box plots
 output$nsSFPsWtnPop = 
   renderPlot(nsKPsPlot(ns.SFPs.wtn.errs(), kp.tps.pop.wtn[4]))
 # output$nsSFPsBtnPop = 

@@ -5,6 +5,7 @@ observeEvent(input$simulate, {
   checks.lst(NULL)
   N.t.mat(NULL)
   ns.SPs(NULL)
+  ns.POPs(NULL)
   ns.SMPs(NULL)
   ns.SFPs(NULL)
 })
@@ -71,6 +72,55 @@ observeEvent({
     
     # Update reactive value
     ns.SPs(ns.SPs.new)
+  }
+  
+  # Find numbers of parent-offspring pairs between survey-years in simulated
+  # populations
+  if (
+    input$check.sub.tabs == "POPs.tab" && 
+    is.null(ns.POPs())
+  ) {
+    # Objects to store results
+    ns.POPs.wtn = matrix(
+      nrow = n.sims(), ncol = k(), 
+      dimnames = list(NULL, srvy.yrs())
+    )
+    ns.POPs.btn = matrix(
+      nrow = n.sims(), ncol = n.srvy.prs(), 
+      dimnames = list(NULL, srvy.prs())
+    )
+    
+    # Loop over histories
+    withProgress({
+      for (hist.ind in 1:n.sims()) {
+        # Which animals alive in survey years 
+        alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
+        
+        ID = attributes(sim.lst()$hists.lst[[hist.ind]])$ID
+        mum = attributes(sim.lst()$hists.lst[[hist.ind]])$mum
+        dad = attributes(sim.lst()$hists.lst[[hist.ind]])$dad
+        
+        # Parent-offspring pairs within survey years
+        ns.POPs.wtn[hist.ind, ] = sapply(1:k(), function(s.ind) {
+          sum(
+            mum[alv.s.yrs[, s.ind]] %in% ID[alv.s.yrs[, s.ind]], 
+            dad[alv.s.yrs[, s.ind]] %in% ID[alv.s.yrs[, s.ind]]
+          )
+        })
+        
+        # # Same-mother pairs between survey years
+        # ns.SMPs.btn[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
+        #   mum.tab.lst[[s.inds[1]]] %*% mum.tab.lst[[s.inds[2]]]
+        # }))
+        
+        
+        # Increment progress-bar
+        incProgress(1/n.sims())
+      }
+    }, value = 0, message = "Finding self-pairs")
+    
+    # Update reactive value
+    ns.POPs(list(ns.POPs.wtn = ns.POPs.wtn, ns.POPs.btn = ns.POPs.btn))
   }
   
   # Find numbers of same-mother pairs between survey-years in simulated
@@ -170,6 +220,24 @@ observeEvent({
   }
 })
 
+# Checks based on population sizes
+N.s.yrs = reactive(N.t.mat()[, s.yr.inds()])
+ns.APs.wtn.pop = reactive({
+  ns = choose(N.s.yrs(), 2)
+  colnames(ns) = srvy.yrs()
+  ns
+})
+ns.APs.btn.pop = reactive({
+  # If there is only one survey-pair apply returns a vector so we have to make
+  # it a matrix explicitly 
+  ns = t(matrix(
+    apply(N.s.yrs(), 1, combn, 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]),
+    nrow = n.srvy.prs()
+  ))
+  colnames(ns) = srvy.prs()
+  ns
+})
+
 # Compute combined checks ----
 observeEvent({
   input$check.sub.tabs
@@ -177,7 +245,8 @@ observeEvent({
 }, {
   if (
     !(input$check.sub.tabs %in% 
-      c("populations", "all.pairs", "self.pairs", "SMPs.tab", "SFPs.tab")) && 
+      c("populations", "all.pairs", "self.pairs", "POPs.tab", "SMPs.tab", 
+        "SFPs.tab")) && 
     is.null(checks.lst())
   ) {
     # Objects to store results

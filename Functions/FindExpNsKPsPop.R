@@ -18,6 +18,9 @@ FindEstNsKPsPop = function(
   # Approximation for expected number of pairs of animals in survey years
   exp.ns.APs.wtn = choose(exp.N.srvy.yrs, 2)
   
+  # Parent-offspring pairs within survey years
+  exp.ns.POPs.wtn = 2 * exp.N.srvy.yrs * phi * (lambda - phi) / lmb.m.ph.sq
+  
   # Same-mother pairs within survey years
   exp.ns.SMPs.wtn = 2 * exp.N.srvy.yrs * prb.nw.brn.sq * prb.mtr * lambda *
     phi^2 / lmb.m.ph.sq^2
@@ -54,8 +57,8 @@ FindEstNsKPsPop = function(
   # Return as list
   list(
     wtn = cbind(
-      exp.N.srvy.yrs, exp.ns.APs.wtn, exp.ns.SMPs.wtn, exp.ns.SFPs.wtn, 
-      exp.ns.FSPs.wtn, exp.ns.HSPs.wtn
+      exp.N.srvy.yrs, exp.ns.APs.wtn, exp.ns.POPs.wtn, exp.ns.SMPs.wtn, 
+      exp.ns.SFPs.wtn, exp.ns.FSPs.wtn, exp.ns.HSPs.wtn
     ),
     btn = cbind(exp.ns.APs.btn, exp.ns.SPs.btn, exp.ns.SMPs.btn)
   )

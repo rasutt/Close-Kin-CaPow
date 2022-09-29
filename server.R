@@ -108,6 +108,7 @@ server <- function(input, output) {
   fit.lst = reactiveVal(saved.objs$fit.lst)
   N.t.mat = reactiveVal(saved.objs$N.t.mat)
   ns.SPs = reactiveVal(saved.objs$ns.SPs)
+  ns.POPs = reactiveVal(saved.objs$ns.POPs)
   ns.SMPs = reactiveVal(saved.objs$ns.SMPs)
   ns.SFPs = reactiveVal(saved.objs$ns.SFPs)
   # ----

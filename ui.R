@@ -106,7 +106,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "populations",
+        selected = "POPs.tab",
         # First study ----
         tabPanel(
           title = "First study",
@@ -168,11 +168,14 @@ ui <- fluidPage(
         # Parent-offspring pairs ----
         tabPanel(
           title = "Parent-offspring pairs",
-          value = "POPs",
+          value = "POPs.tab",
           h2("Numbers of pairs of individuals that are parent and offspring"),
           h3("Biases"),
-          tableOutput(outputId = "biasNsPOPsPopWtn"),
-          h3("Error distributions")
+          tableOutput(outputId = "biasPOPsPopWtn"),
+          tableOutput(outputId = "biasPOPsPopBtn"),
+          h3("Error distributions"),
+          plotOutput(outputId = "nsPOPsWtnPop"),
+          plotOutput(outputId = "nsPOPsBtnPop")
         ),
         # Same-mother pairs ----
         tabPanel(
