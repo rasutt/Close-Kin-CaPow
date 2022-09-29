@@ -29,3 +29,13 @@ output$biasSMPsPopBtn = renderTable(find.bias.srvy(ns.SMPs.btn.errs()))
 # Box plots
 output$nsSMPsWtnPop = renderPlot(nsKPsPlot(ns.SMPs.wtn.errs(), kp.tps.pop.wtn[3]))
 output$nsSMPsBtnPop = renderPlot(nsKPsPlot(ns.SMPs.btn.errs(), kp.tps.pop.btn[3]))
+
+## Same-father pairs
+
+# Bias tables
+output$biasSFPsPopWtn = renderTable(find.bias.srvy(ns.SFPs.wtn.errs()))
+# output$biasSFPsPopBtn = renderTable(find.bias.srvy(ns.SFPs.btn.errs()))
+
+# Box plots
+output$nsSFPsWtnPop = renderPlot(nsKPsPlot(ns.SFPs.wtn.errs(), kp.tps.pop.wtn[4]))
+# output$nsSFPsBtnPop = renderPlot(nsKPsPlot(ns.SFPs.btn.errs(), kp.tps.pop.btn[3]))

@@ -109,6 +109,7 @@ server <- function(input, output) {
   N.t.mat = reactiveVal(saved.objs$N.t.mat)
   ns.SPs = reactiveVal(saved.objs$ns.SPs)
   ns.SMPs = reactiveVal(saved.objs$ns.SMPs)
+  ns.SFPs = reactiveVal(saved.objs$ns.SFPs)
   # ----
 
   # Variables bound to simulate button (for last simulation) ----

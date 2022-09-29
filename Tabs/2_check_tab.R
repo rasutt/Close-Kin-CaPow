@@ -6,6 +6,7 @@ observeEvent(input$simulate, {
   N.t.mat(NULL)
   ns.SPs(NULL)
   ns.SMPs(NULL)
+  ns.SFPs(NULL)
 })
 
 # Find population sizes over time
@@ -105,13 +106,13 @@ observeEvent(
         # Which animals alive in survey years 
         alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
         
-        # List of frequency tables of mums and dads in each survey year
+        # List of frequency tables of mums in each survey year
         mum = attributes(sim.lst()$hists.lst[[hist.ind]])$mum
         max.mum = max(mum, na.rm = T)
         mum.tab.lst = lapply(1:k(), function(s.ind) {
           tabulate(mum[alv.s.yrs[, s.ind]], max.mum)
         })
-
+        
         # Same-mother pairs within survey years
         ns.SMPs.wtn[hist.ind, ] = sapply(1:k(), function(s.ind) {
           sum(choose(mum.tab.lst[[s.ind]], 2))
@@ -132,6 +133,59 @@ observeEvent(
   }
 )
 
+# Find numbers of self-pairs between survey-years in simulated populations
+observeEvent(
+  {
+    input$check.sub.tabs
+    input$nav.tab
+  }, 
+  if (
+    input$check.sub.tabs == "SFPs.tab" && 
+    is.null(ns.SFPs())
+  ) {
+    # Objects to store results
+    ns.SFPs.wtn = matrix(
+      nrow = n.sims(), ncol = k(), 
+      dimnames = list(NULL, srvy.yrs())
+    )
+    ns.SFPs.btn = matrix(
+      nrow = n.sims(), ncol = n.srvy.prs(), 
+      dimnames = list(NULL, srvy.prs())
+    )
+    
+    # Loop over histories
+    withProgress({
+      for (hist.ind in 1:n.sims()) {
+        # Which animals alive in survey years 
+        alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
+        
+        # List of frequency tables of dads in each survey year
+        dad = attributes(sim.lst()$hists.lst[[hist.ind]])$dad
+        max.dad = max(dad, na.rm = T)
+        dad.tab.lst = lapply(1:k(), function(s.ind) {
+          tabulate(dad[alv.s.yrs[, s.ind]], max.dad)
+        })
+        
+        # Same-father pairs within survey years
+        ns.SFPs.wtn[hist.ind, ] = sapply(1:k(), function(s.ind) {
+          sum(choose(dad.tab.lst[[s.ind]], 2))
+        })
+        
+        # Same-father pairs between survey years
+        # ns.SFPs.btn[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
+        #   dad.tab.lst[[s.inds[1]]] %*% dad.tab.lst[[s.inds[2]]]
+        # }))
+        
+        # Increment progress-bar
+        incProgress(1/n.sims())
+      }
+    }, value = 0, message = "Finding self-pairs")
+    
+    # Update reactive value
+    ns.SFPs(list(ns.SFPs.wtn = ns.SFPs.wtn, ns.SFPs.btn = ns.SFPs.btn))
+  }
+)
+
 # Calculate checks for simulated studies
 observeEvent(
   {
@@ -140,7 +194,7 @@ observeEvent(
   }, 
   if (
     !(input$check.sub.tabs %in% 
-      c("populations", "all.pairs", "self.pairs", "SMPs.tab")) && 
+      c("populations", "all.pairs", "self.pairs", "SMPs.tab", "SFPs.tab")) && 
     is.null(checks.lst())
   ) {
     # Objects to store results
@@ -293,6 +347,13 @@ ns.SMPs.wtn.errs = reactive({
 ns.SMPs.btn.errs = reactive({
   find.errs(ns.SMPs()[["ns.SMPs.btn"]], est.ns.kps.pop.lst()$btn[, 3])
 })
+
+ns.SFPs.wtn.errs = reactive({
+  find.errs(ns.SFPs()[["ns.SFPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 4])
+})
+# ns.SFPs.btn.errs = reactive({
+#   find.errs(ns.SFPs()[["ns.SFPs.btn"]], est.ns.kps.pop.lst()$btn[, 3])
+# })
 
 ns.kps.pop.wtn.errs = reactive({
   find.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn)

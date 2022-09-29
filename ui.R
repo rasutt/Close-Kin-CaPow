@@ -184,6 +184,18 @@ ui <- fluidPage(
           plotOutput(outputId = "nsSMPsWtnPop"),
           plotOutput(outputId = "nsSMPsBtnPop")
         ),
+        # Same-father pairs ----
+        tabPanel(
+          title = "Same-father pairs",
+          value = "SFPs.tab",
+          h2("Numbers of pairs of individuals with the same fathers"),
+          h3("Biases"),
+          tableOutput(outputId = "biasSFPsPopWtn"),
+          tableOutput(outputId = "biasSFPsPopBtn"),
+          h3("Error distributions"),
+          plotOutput(outputId = "nsSFPsWtnPop"),
+          plotOutput(outputId = "nsSFPsBtnPop")
+        ),
         # Temporal estimates ----
         tabPanel(
           title = "Temporal estimates",
