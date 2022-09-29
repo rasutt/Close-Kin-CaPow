@@ -108,17 +108,21 @@ observeEvent({
           )
         })
         
-        # # Same-mother pairs between survey years
-        # ns.SMPs.btn[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
-        #   mum.tab.lst[[s.inds[1]]] %*% mum.tab.lst[[s.inds[2]]]
-        # }))
-        
+        # Parent-offspring pairs between survey years
+        ns.POPs.btn[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
+          sum(
+            mum[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]], 
+            dad[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]],
+            mum[alv.s.yrs[, s.inds[2]]] %in% ID[alv.s.yrs[, s.inds[1]]], 
+            dad[alv.s.yrs[, s.inds[2]]] %in% ID[alv.s.yrs[, s.inds[1]]]
+          )
+        }))
         
         # Increment progress-bar
         incProgress(1/n.sims())
       }
     }, value = 0, message = "Finding self-pairs")
-    
+
     # Update reactive value
     ns.POPs(list(ns.POPs.wtn = ns.POPs.wtn, ns.POPs.btn = ns.POPs.btn))
   }

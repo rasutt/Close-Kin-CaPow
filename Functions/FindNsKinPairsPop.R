@@ -28,7 +28,7 @@ FindNsKinPairsPop = function(pop.cap.hist, s.yr.inds, k) {
   })
   
   # Parent-offspring pairs within survey years
-  ns.POPs.wtn = sapply(1:k, function(s.ind) {
+  ns.POPs.wtn.pop = sapply(1:k, function(s.ind) {
     sum(
       mum[alv.s.yrs[, s.ind]] %in% ID[alv.s.yrs[, s.ind]], 
       dad[alv.s.yrs[, s.ind]] %in% ID[alv.s.yrs[, s.ind]]
@@ -53,6 +53,16 @@ FindNsKinPairsPop = function(pop.cap.hist, s.yr.inds, k) {
   # Half-sibling pairs within survey years
   ns.HSPs.wtn.pop = ns.SMPs.wtn.pop + ns.SFPs.wtn.pop - 2 * ns.FSPs.wtn.pop
   
+  # Parent-offspring pairs between survey years
+  ns.POPs.btn.pop = as.vector(combn(1:k, 2, function(s.inds) {
+    sum(
+      mum[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]], 
+      dad[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]],
+      mum[alv.s.yrs[, s.inds[2]]] %in% ID[alv.s.yrs[, s.inds[1]]], 
+      dad[alv.s.yrs[, s.inds[2]]] %in% ID[alv.s.yrs[, s.inds[1]]]
+    )
+  }))
+  
   # Same-mother pairs between survey years
   ns.SMPs.btn.pop = as.vector(combn(1:k, 2, function(s.inds) {
     mum.tab.lst[[s.inds[1]]] %*% mum.tab.lst[[s.inds[2]]]
@@ -66,11 +76,11 @@ FindNsKinPairsPop = function(pop.cap.hist, s.yr.inds, k) {
   # Return as list
   list(
     wtn = rbind(
-      ns.APs.wtn.pop, ns.POPs.wtn, ns.SMPs.wtn.pop, ns.SFPs.wtn.pop, 
+      ns.APs.wtn.pop, ns.POPs.wtn.pop, ns.SMPs.wtn.pop, ns.SFPs.wtn.pop, 
       ns.FSPs.wtn.pop, ns.HSPs.wtn.pop
     ),
     btn = rbind(
-      ns.APs.btn.pop, ns.SPs.btn.pop, ns.SMPs.btn.pop
+      ns.APs.btn.pop, ns.SPs.btn.pop, ns.POPs.btn.pop, ns.SMPs.btn.pop
       # , ns.SFPs.btn.pop
     )
   )

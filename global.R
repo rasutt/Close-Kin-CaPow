@@ -27,9 +27,9 @@ kp.tps = c(
   "Half-sibling pairs"
 )
 kp.tps.pop.wtn = kp.tps[c(1:2, 4:8)]
-kp.tps.pop.btn = kp.tps[c(2:3, 5)]
+kp.tps.pop.btn = kp.tps[c(2:5)]
 kp.tps.prb.wtn = kp.tps[4:8]
-kp.tps.prb.btn = kp.tps[c(3, 5)]
+kp.tps.prb.btn = kp.tps[3:5]
 kp.tps.cap.wtn = kp.tps[c(4:5, 8)]
 kp.tps.cap.btn = kp.tps[3:4]
 
