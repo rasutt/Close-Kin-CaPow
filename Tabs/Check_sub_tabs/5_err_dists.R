@@ -5,7 +5,7 @@
 nsKPsPlot = function(errs, kp.type) {
   boxplot(
     errs, main = kp.type, xlab = names(dimnames(errs))[2],
-    ylab = "Proportional errors"
+    ylab = "Proportional errors", show.names = T
   )
   abline(h = 0, col = 'red')
   abline(h = mean(errs), col = 'blue')

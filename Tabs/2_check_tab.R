@@ -265,7 +265,12 @@ ns.APs.wtn.pop = reactive({
   ns
 })
 ns.APs.btn.pop = reactive({
-  ns = t(apply(N.s.yrs(), 1, combn, 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]))
+  # If there is only one survey-pair apply returns a vector so we have to make
+  # it a matrix explicitly 
+  ns = t(matrix(
+    apply(N.s.yrs(), 1, combn, 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]),
+    nrow = n.srvy.prs()
+  ))
   colnames(ns) = srvy.prs()
   ns
 })

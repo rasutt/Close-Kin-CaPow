@@ -37,7 +37,7 @@ ui <- fluidPage(
           textInput(
             inputId = "srvy.yrs", label = "Survey years:",
             # value = "1995:1998, 2006:2009, 2020"
-            value = "2000, 2010, 2020"
+            value = "2000, 2020"
           ),
           sliderInput(
             inputId = "p", label = "Base level capture probability:",
