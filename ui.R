@@ -208,11 +208,14 @@ ui <- fluidPage(
           p("Numbers in the final year, with one born in
             the year indicated, and one born in the final year."),
           tableOutput(outputId = "biasSFPsAgeKnwn"),
+          p("Numbers in the final year, both born in the year indicated."),
+          tableOutput(outputId = "biasSFPsSameAge"),
           p("Numbers in and between survey-years, ages unknown."),
           tableOutput(outputId = "biasSFPsPopWtn"),
           # tableOutput(outputId = "biasSFPsPopBtn"),
           h3("Error distributions"),
           plotOutput(outputId = "nsSFPsAgeKnwn"),
+          plotOutput(outputId = "nsSFPsSameAge"),
           plotOutput(outputId = "nsSFPsWtnPop"),
           # plotOutput(outputId = "nsSFPsBtnPop")
         ),
@@ -244,19 +247,6 @@ ui <- fluidPage(
           h4("Between surveys")
           # tableOutput(outputId = "biasNsKPsCapBtn")
         ),
-        # Error distributions ----
-        tabPanel(
-          title = "Error distributions",
-          value = "err.dists",
-          h2("Kin-pair estimator error distributions"),
-          h3("Numbers in whole population"),
-          h4("Temporal estimates"),
-          plotOutput(outputId = "nsSFPsFnlB"),
-
-          h3("Numbers among sampled animals"),
-          h4("Within surveys"),
-          plotOutput(outputId = "nsPOPsWtn")
-        )
       )
     ), 
     # Model tab ----

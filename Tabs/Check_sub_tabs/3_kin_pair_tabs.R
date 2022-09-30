@@ -64,6 +64,21 @@ find.bias.srvy = function(errs) {
   df
 }
 
+# Function to plot simulated versus expected numbers of kin-pairs for one type
+# of kin-pair
+nsKPsPlot = function(errs, kp.type) {
+  boxplot(
+    errs, main = kp.type, xlab = names(dimnames(errs))[2],
+    ylab = "Proportional errors", show.names = T
+  )
+  abline(h = 0, col = 'red')
+  abline(h = mean(errs), col = 'blue')
+  legend(
+    "topleft", col = c(2, 4), lty = 1,
+    legend = c("Estimated error (zero)", "Average error"),
+  )
+}
+
 # Find errors for population sizes
 ns.wtn.errs = reactive(find.errs(N.s.yrs(), est.ns.kps.pop.lst()$wtn[, 1]))
 
@@ -124,18 +139,24 @@ output$nsSMPsBtnPop =
 ns.SFPs.age.knwn.errs = reactive({
   find.errs(ns.SFPs()[["ns.SFPs.age.knwn"]], est.ns.kps.t()[, 2])
 })
+ns.SFPs.same.age.errs = reactive({
+  find.errs(ns.SFPs()[["ns.SFPs.same.age"]], est.ns.kps.t()[, 3])
+})
 ns.SFPs.wtn.errs = reactive({
   find.errs(ns.SFPs()[["ns.SFPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 5])
 })
 # ns.SFPs.btn.errs = reactive({
-#   find.errs(ns.SFPs()[["ns.SFPs.btn"]], est.ns.kps.pop.lst()$btn[, 3])
+#   find.errs(ns.SFPs()[["ns.SFPs.btn"]], est.ns.kps.pop.lst()$btn[, 6])
 # })
 output$biasSFPsAgeKnwn = renderTable(find.bias.srvy(ns.SFPs.age.knwn.errs()))
+output$biasSFPsSameAge = renderTable(find.bias.srvy(ns.SFPs.same.age.errs()))
 output$biasSFPsPopWtn = renderTable(find.bias.srvy(ns.SFPs.wtn.errs()))
 # output$biasSFPsPopBtn = renderTable(find.bias.srvy(ns.SFPs.btn.errs()))
 output$nsSFPsAgeKnwn = 
   renderPlot(nsKPsPlot(ns.SFPs.age.knwn.errs(), kp.tps.t[2]))
+output$nsSFPsSameAge = 
+  renderPlot(nsKPsPlot(ns.SFPs.same.age.errs(), kp.tps.t[3]))
 output$nsSFPsWtnPop = 
   renderPlot(nsKPsPlot(ns.SFPs.wtn.errs(), kp.tps.pop.wtn[5]))
-# output$nsSFPsBtnPop = 
-#   renderPlot(nsKPsPlot(ns.SFPs.btn.errs(), kp.tps.pop.btn[3]))
+# output$nsSFPsBtnPop =
+#   renderPlot(nsKPsPlot(ns.SFPs.btn.errs(), kp.tps.pop.btn[6]))

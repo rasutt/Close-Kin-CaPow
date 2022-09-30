@@ -212,7 +212,7 @@ observeEvent({
         nrow = n.sims(), ncol = n.srvy.prs(), 
         dimnames = list(NULL, Survey_pair = srvy.prs())
       )
-      ns.SFPs.age.knwn = matrix(
+      ns.SFPs.age.knwn = ns.SFPs.same.age = matrix(
         nrow = n.sims(), ncol = n.yrs.chk.t(), 
         dimnames = list(NULL, Year = yrs.chk.t())
       )
@@ -239,6 +239,11 @@ observeEvent({
             ns.SFPs.age.knwn[hist.ind, n.yrs.chk.t() + 1 - t] = 
               tabulate(dads.of.brn.yr.t, max.dad.id) %*% 
               tabulate(dads.of.brn.f.yr, max.dad.id)
+            
+            # Same-father pairs in the final year, both born in the current year
+            # (many possible per dad)
+            ns.SFPs.same.age[hist.ind, n.yrs.chk.t() + 1 - t] = 
+              sum(choose(tabulate(dads.of.brn.yr.t), 2))
           }
           
           ## Same-father pairs with ages unknown, in and between survey-years
@@ -254,7 +259,7 @@ observeEvent({
             sum(choose(dad.tab.lst[[s.ind]], 2))
           })
           
-          # Same-father pairs between survey years
+          # # Same-father pairs between survey years
           # ns.SFPs.btn[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
           #   dad.tab.lst[[s.inds[1]]] %*% dad.tab.lst[[s.inds[2]]]
           # }))
@@ -267,7 +272,7 @@ observeEvent({
       # Update reactive value
       ns.SFPs(list(
         ns.SFPs.wtn = ns.SFPs.wtn, ns.SFPs.btn = ns.SFPs.btn,
-        ns.SFPs.age.knwn = ns.SFPs.age.knwn
+        ns.SFPs.age.knwn = ns.SFPs.age.knwn, ns.SFPs.same.age = ns.SFPs.same.age
       ))
     }
   }

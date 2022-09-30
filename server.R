@@ -195,9 +195,8 @@ server <- function(input, output) {
   source("Tabs/2_check_tab.R", local = T)
   source("Tabs/Check_sub_tabs/1_first_study.R", local = T)
   source("Tabs/Check_sub_tabs/2_populations.R", local = T)
+  source("Tabs/Check_sub_tabs/3_kin_pair_tabs.R", local = T)
   source("Tabs/Check_sub_tabs/4_bias.R", local = T)
-  source("Tabs/Check_sub_tabs/5_err_dists.R", local = T)
-  source("Tabs/Check_sub_tabs/kin_pair_tabs.R", local = T)
   source("Tabs/3_model_tab.R", local = T)
   source("Tabs/4_save_load_tab.R", local = T)
 }
