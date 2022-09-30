@@ -213,9 +213,10 @@ ui <- fluidPage(
         ),
         # Biases ----
         tabPanel(
-          title = "Bias",
+          title = "Overall biases",
           value = "bias",
-          h2("Estimator biases"),
+          h2("Overall biases"),
+          p("Average estimator biases over all years."),
           h3("Numbers in whole population"),
           h4("Temporal estimates"),
           textOutput("tempEstBiasNote"),

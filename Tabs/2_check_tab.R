@@ -15,238 +15,240 @@ observeEvent({
   input$check.sub.tabs
   input$nav.tab
 }, {
-  # Find population sizes over time
-  if (
-    input$check.sub.tabs %in% c("populations", "all.pairs") && 
-    is.null(N.t.mat())
-  ) {
-    # Object to store results
-    N.t.mat.new = matrix(
-      nrow = n.sims(), ncol = hist.len(), 
-      dimnames = list(NULL, fst.year():fnl.year())
-    )
-    
-    # Loop over histories
-    withProgress({
-      for (hist.ind in 1:n.sims()) {
-        # Record population curve
-        N.t.mat.new[hist.ind, ] = 
-          attributes(sim.lst()$hists.lst[[hist.ind]])$N.t.vec
-        
-        # Increment progress-bar
-        incProgress(1/n.sims())
-      }
-    }, value = 0, message = "Finding population sizes")
-    
-    # Update reactive value
-    N.t.mat(N.t.mat.new)
-  }
-  
-  # Find numbers of self-pairs between survey-years in simulated populations
-  if (
-    input$check.sub.tabs == "SPs.tab" && 
-    is.null(ns.SPs())
-  ) {
-    # Object to store results
-    ns.SPs.new = matrix(
-      nrow = n.sims(), ncol = n.srvy.prs(), 
-      dimnames = list(NULL, Survey_pair = srvy.prs())
-    )
-    
-    # Loop over histories
-    withProgress({
-      for (hist.ind in 1:n.sims()) {
-        # Which animals alive in survey years 
-        alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
-        
-        # Self-pairs between survey years
-        ID = attributes(sim.lst()$hists.lst[[hist.ind]])$ID
-        ns.SPs.new[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
-          sum(ID[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]])
-        }))
-        
-        # Increment progress-bar
-        incProgress(1/n.sims())
-      }
-    }, value = 0, message = "Finding self-pairs")
-    
-    # Update reactive value
-    ns.SPs(ns.SPs.new)
-  }
-  
-  # Find numbers of parent-offspring pairs between survey-years in simulated
-  # populations
-  if (
-    input$check.sub.tabs == "POPs.tab" && 
-    is.null(ns.POPs())
-  ) {
-    # Objects to store results
-    ns.POPs.wtn = matrix(
-      nrow = n.sims(), ncol = k(), 
-      dimnames = list(NULL, Survey = srvy.yrs())
-    )
-    ns.POPs.btn = matrix(
-      nrow = n.sims(), ncol = n.srvy.prs(), 
-      dimnames = list(NULL, Survey_pair = srvy.prs())
-    )
-    
-    # Loop over histories
-    withProgress({
-      for (hist.ind in 1:n.sims()) {
-        # Which animals alive in survey years 
-        alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
-        
-        ID = attributes(sim.lst()$hists.lst[[hist.ind]])$ID
-        mum = attributes(sim.lst()$hists.lst[[hist.ind]])$mum
-        dad = attributes(sim.lst()$hists.lst[[hist.ind]])$dad
-        
-        # Parent-offspring pairs within survey years
-        ns.POPs.wtn[hist.ind, ] = sapply(1:k(), function(s.ind) {
-          sum(
-            mum[alv.s.yrs[, s.ind]] %in% ID[alv.s.yrs[, s.ind]], 
-            dad[alv.s.yrs[, s.ind]] %in% ID[alv.s.yrs[, s.ind]]
-          )
-        })
-        
-        # Parent-offspring pairs between survey years
-        ns.POPs.btn[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
-          sum(
-            mum[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]], 
-            dad[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]],
-            mum[alv.s.yrs[, s.inds[2]]] %in% ID[alv.s.yrs[, s.inds[1]]], 
-            dad[alv.s.yrs[, s.inds[2]]] %in% ID[alv.s.yrs[, s.inds[1]]]
-          )
-        }))
-        
-        # Increment progress-bar
-        incProgress(1/n.sims())
-      }
-    }, value = 0, message = "Finding self-pairs")
-
-    # Update reactive value
-    ns.POPs(list(ns.POPs.wtn = ns.POPs.wtn, ns.POPs.btn = ns.POPs.btn))
-  }
-  
-  # Find numbers of same-mother pairs between survey-years in simulated
-  # populations
-  if (
-    input$check.sub.tabs == "SMPs.tab" && 
-    is.null(ns.SMPs())
-  ) {
-    # Objects to store results
-    ns.SMPs.wtn = matrix(
-      nrow = n.sims(), ncol = k(), 
-      dimnames = list(NULL, Survey = srvy.yrs())
-    )
-    ns.SMPs.btn = matrix(
-      nrow = n.sims(), ncol = n.srvy.prs(), 
-      dimnames = list(NULL, Survey_pair = srvy.prs())
-    )
-    ns.SMPs.age.knwn = matrix(
-      nrow = n.sims(), ncol = n.yrs.chk.t(), 
-      dimnames = list(NULL, Year = yrs.chk.t())
-    )
-    
-    # Loop over histories
-    withProgress({
-      for (hist.ind in 1:n.sims()) {
-        # Get population data
-        pop.atts = attributes(sim.lst()$hists.lst[[hist.ind]])
-        mum = pop.atts$mum
-        
-        ## Same-mother pairs with ages known, in final year
-        
-        # Mothers of animals born in final year
-        mums.of.brn.f.yr = mum[pop.atts$f.age == 0]
-
-        # Animals alive in final year
-        alv.f.yr = pop.atts$alive == 1
-
-        # Loop over check-years from earliest to latest
-        for (t in 1:n.yrs.chk.t()) {
-          # Same-mother pairs in the final year, with one born t years before
-          # the final year, and one born in the final year (max one per mum)
-          ns.SMPs.age.knwn[hist.ind, n.yrs.chk.t() + 1 - t] = sum(
-            mum[pop.atts$f.age == t & alv.f.yr] %in% mums.of.brn.f.yr
-          )
+  if (input$nav.tab == "check.tab") {
+    # Find population sizes over time
+    if (
+      input$check.sub.tabs %in% c("populations", "all.pairs") && 
+      is.null(N.t.mat())
+    ) {
+      # Object to store results
+      N.t.mat.new = matrix(
+        nrow = n.sims(), ncol = hist.len(), 
+        dimnames = list(NULL, fst.year():fnl.year())
+      )
+      
+      # Loop over histories
+      withProgress({
+        for (hist.ind in 1:n.sims()) {
+          # Record population curve
+          N.t.mat.new[hist.ind, ] = 
+            attributes(sim.lst()$hists.lst[[hist.ind]])$N.t.vec
+          
+          # Increment progress-bar
+          incProgress(1/n.sims())
         }
-        
-        ## Same-mother pairs with ages unknown, in and between survey-years
-        
-        # List of frequency tables of mums in each survey year
-        max.mum = max(mum, na.rm = T)
-        mum.tab.lst = lapply(1:k(), function(s.ind) {
-          tabulate(mum[pop.atts$alv.s.yrs[, s.ind]], max.mum)
-        })
-        
-        # Same-mother pairs within survey years
-        ns.SMPs.wtn[hist.ind, ] = sapply(1:k(), function(s.ind) {
-          sum(choose(mum.tab.lst[[s.ind]], 2))
-        })
-        
-        # Same-mother pairs between survey years
-        ns.SMPs.btn[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
-          mum.tab.lst[[s.inds[1]]] %*% mum.tab.lst[[s.inds[2]]]
-        }))
-        
-        # Increment progress-bar
-        incProgress(1/n.sims())
-      }
-    }, value = 0, message = "Finding self-pairs")
+      }, value = 0, message = "Finding population sizes")
+      
+      # Update reactive value
+      N.t.mat(N.t.mat.new)
+    }
     
-    # Update reactive value
-    ns.SMPs(list(
-      ns.SMPs.wtn = ns.SMPs.wtn, ns.SMPs.btn = ns.SMPs.btn,
-      ns.SMPs.age.knwn = ns.SMPs.age.knwn
-    ))
-  }
-  
-  # Find numbers of same-father pairs between survey-years in simulated
-  # populations
-  if (
-    input$check.sub.tabs == "SFPs.tab" && 
-    is.null(ns.SFPs())
-  ) {
-    # Objects to store results
-    ns.SFPs.wtn = matrix(
-      nrow = n.sims(), ncol = k(), 
-      dimnames = list(NULL, Survey = srvy.yrs())
-    )
-    ns.SFPs.btn = matrix(
-      nrow = n.sims(), ncol = n.srvy.prs(), 
-      dimnames = list(NULL, Survey_pair = srvy.prs())
-    )
+    # Find numbers of self-pairs between survey-years in simulated populations
+    if (
+      input$check.sub.tabs == "SPs.tab" && 
+      is.null(ns.SPs())
+    ) {
+      # Object to store results
+      ns.SPs.new = matrix(
+        nrow = n.sims(), ncol = n.srvy.prs(), 
+        dimnames = list(NULL, Survey_pair = srvy.prs())
+      )
+      
+      # Loop over histories
+      withProgress({
+        for (hist.ind in 1:n.sims()) {
+          # Which animals alive in survey years 
+          alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
+          
+          # Self-pairs between survey years
+          ID = attributes(sim.lst()$hists.lst[[hist.ind]])$ID
+          ns.SPs.new[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
+            sum(ID[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]])
+          }))
+          
+          # Increment progress-bar
+          incProgress(1/n.sims())
+        }
+      }, value = 0, message = "Finding self-pairs")
+      
+      # Update reactive value
+      ns.SPs(ns.SPs.new)
+    }
     
-    # Loop over histories
-    withProgress({
-      for (hist.ind in 1:n.sims()) {
-        # Which animals alive in survey years 
-        alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
-        
-        # List of frequency tables of dads in each survey year
-        dad = attributes(sim.lst()$hists.lst[[hist.ind]])$dad
-        max.dad = max(dad, na.rm = T)
-        dad.tab.lst = lapply(1:k(), function(s.ind) {
-          tabulate(dad[alv.s.yrs[, s.ind]], max.dad)
-        })
-        
-        # Same-father pairs within survey years
-        ns.SFPs.wtn[hist.ind, ] = sapply(1:k(), function(s.ind) {
-          sum(choose(dad.tab.lst[[s.ind]], 2))
-        })
-        
-        # Same-father pairs between survey years
-        # ns.SFPs.btn[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
-        #   dad.tab.lst[[s.inds[1]]] %*% dad.tab.lst[[s.inds[2]]]
-        # }))
-        
-        # Increment progress-bar
-        incProgress(1/n.sims())
-      }
-    }, value = 0, message = "Finding self-pairs")
+    # Find numbers of parent-offspring pairs between survey-years in simulated
+    # populations
+    if (
+      input$check.sub.tabs == "POPs.tab" && 
+      is.null(ns.POPs())
+    ) {
+      # Objects to store results
+      ns.POPs.wtn = matrix(
+        nrow = n.sims(), ncol = k(), 
+        dimnames = list(NULL, Survey = srvy.yrs())
+      )
+      ns.POPs.btn = matrix(
+        nrow = n.sims(), ncol = n.srvy.prs(), 
+        dimnames = list(NULL, Survey_pair = srvy.prs())
+      )
+      
+      # Loop over histories
+      withProgress({
+        for (hist.ind in 1:n.sims()) {
+          # Which animals alive in survey years 
+          alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
+          
+          ID = attributes(sim.lst()$hists.lst[[hist.ind]])$ID
+          mum = attributes(sim.lst()$hists.lst[[hist.ind]])$mum
+          dad = attributes(sim.lst()$hists.lst[[hist.ind]])$dad
+          
+          # Parent-offspring pairs within survey years
+          ns.POPs.wtn[hist.ind, ] = sapply(1:k(), function(s.ind) {
+            sum(
+              mum[alv.s.yrs[, s.ind]] %in% ID[alv.s.yrs[, s.ind]], 
+              dad[alv.s.yrs[, s.ind]] %in% ID[alv.s.yrs[, s.ind]]
+            )
+          })
+          
+          # Parent-offspring pairs between survey years
+          ns.POPs.btn[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
+            sum(
+              mum[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]], 
+              dad[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]],
+              mum[alv.s.yrs[, s.inds[2]]] %in% ID[alv.s.yrs[, s.inds[1]]], 
+              dad[alv.s.yrs[, s.inds[2]]] %in% ID[alv.s.yrs[, s.inds[1]]]
+            )
+          }))
+          
+          # Increment progress-bar
+          incProgress(1/n.sims())
+        }
+      }, value = 0, message = "Finding parent-offspring pairs")
+      
+      # Update reactive value
+      ns.POPs(list(ns.POPs.wtn = ns.POPs.wtn, ns.POPs.btn = ns.POPs.btn))
+    }
     
-    # Update reactive value
-    ns.SFPs(list(ns.SFPs.wtn = ns.SFPs.wtn, ns.SFPs.btn = ns.SFPs.btn))
+    # Find numbers of same-mother pairs between survey-years in simulated
+    # populations
+    if (
+      input$check.sub.tabs == "SMPs.tab" && 
+      is.null(ns.SMPs())
+    ) {
+      # Objects to store results
+      ns.SMPs.wtn = matrix(
+        nrow = n.sims(), ncol = k(), 
+        dimnames = list(NULL, Survey = srvy.yrs())
+      )
+      ns.SMPs.btn = matrix(
+        nrow = n.sims(), ncol = n.srvy.prs(), 
+        dimnames = list(NULL, Survey_pair = srvy.prs())
+      )
+      ns.SMPs.age.knwn = matrix(
+        nrow = n.sims(), ncol = n.yrs.chk.t(), 
+        dimnames = list(NULL, Year = yrs.chk.t())
+      )
+      
+      # Loop over histories
+      withProgress({
+        for (hist.ind in 1:n.sims()) {
+          # Get population data
+          pop.atts = attributes(sim.lst()$hists.lst[[hist.ind]])
+          mum = pop.atts$mum
+          
+          ## Same-mother pairs with ages known, in final year
+          
+          # Mothers of animals born in final year
+          mums.of.brn.f.yr = mum[pop.atts$f.age == 0]
+          
+          # Animals alive in final year
+          alv.f.yr = pop.atts$alive == 1
+          
+          # Loop over check-years from earliest to latest
+          for (t in 1:n.yrs.chk.t()) {
+            # Same-mother pairs in the final year, with one born t years before
+            # the final year, and one born in the final year (max one per mum)
+            ns.SMPs.age.knwn[hist.ind, n.yrs.chk.t() + 1 - t] = sum(
+              mum[pop.atts$f.age == t & alv.f.yr] %in% mums.of.brn.f.yr
+            )
+          }
+          
+          ## Same-mother pairs with ages unknown, in and between survey-years
+          
+          # List of frequency tables of mums in each survey year
+          max.mum = max(mum, na.rm = T)
+          mum.tab.lst = lapply(1:k(), function(s.ind) {
+            tabulate(mum[pop.atts$alv.s.yrs[, s.ind]], max.mum)
+          })
+          
+          # Same-mother pairs within survey years
+          ns.SMPs.wtn[hist.ind, ] = sapply(1:k(), function(s.ind) {
+            sum(choose(mum.tab.lst[[s.ind]], 2))
+          })
+          
+          # Same-mother pairs between survey years
+          ns.SMPs.btn[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
+            mum.tab.lst[[s.inds[1]]] %*% mum.tab.lst[[s.inds[2]]]
+          }))
+          
+          # Increment progress-bar
+          incProgress(1/n.sims())
+        }
+      }, value = 0, message = "Finding same-mother pairs")
+      
+      # Update reactive value
+      ns.SMPs(list(
+        ns.SMPs.wtn = ns.SMPs.wtn, ns.SMPs.btn = ns.SMPs.btn,
+        ns.SMPs.age.knwn = ns.SMPs.age.knwn
+      ))
+    }
+    
+    # Find numbers of same-father pairs between survey-years in simulated
+    # populations
+    if (
+      input$check.sub.tabs == "SFPs.tab" && 
+      is.null(ns.SFPs())
+    ) {
+      # Objects to store results
+      ns.SFPs.wtn = matrix(
+        nrow = n.sims(), ncol = k(), 
+        dimnames = list(NULL, Survey = srvy.yrs())
+      )
+      ns.SFPs.btn = matrix(
+        nrow = n.sims(), ncol = n.srvy.prs(), 
+        dimnames = list(NULL, Survey_pair = srvy.prs())
+      )
+      
+      # Loop over histories
+      withProgress({
+        for (hist.ind in 1:n.sims()) {
+          # Which animals alive in survey years 
+          alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
+          
+          # List of frequency tables of dads in each survey year
+          dad = attributes(sim.lst()$hists.lst[[hist.ind]])$dad
+          max.dad = max(dad, na.rm = T)
+          dad.tab.lst = lapply(1:k(), function(s.ind) {
+            tabulate(dad[alv.s.yrs[, s.ind]], max.dad)
+          })
+          
+          # Same-father pairs within survey years
+          ns.SFPs.wtn[hist.ind, ] = sapply(1:k(), function(s.ind) {
+            sum(choose(dad.tab.lst[[s.ind]], 2))
+          })
+          
+          # Same-father pairs between survey years
+          # ns.SFPs.btn[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
+          #   dad.tab.lst[[s.inds[1]]] %*% dad.tab.lst[[s.inds[2]]]
+          # }))
+          
+          # Increment progress-bar
+          incProgress(1/n.sims())
+        }
+      }, value = 0, message = "Finding same-father pairs")
+      
+      # Update reactive value
+      ns.SFPs(list(ns.SFPs.wtn = ns.SFPs.wtn, ns.SFPs.btn = ns.SFPs.btn))
+    }
   }
 })
 
@@ -274,6 +276,7 @@ observeEvent({
   input$nav.tab
 }, {
   if (
+    input$nav.tab == "check.tab" &&
     !(input$check.sub.tabs %in% 
       c("populations", "all.pairs", "SPs.tab", "POPs.tab", "SMPs.tab", 
         "SFPs.tab")) && 
