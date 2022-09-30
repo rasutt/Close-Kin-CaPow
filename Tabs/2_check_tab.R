@@ -157,18 +157,13 @@ observeEvent({
           
           ## Same-mother pairs with ages known, in final year
           
-          # Mothers of animals born in final year
-          mums.of.brn.f.yr = mum[pop.atts$f.age == 0]
-          
-          # Animals alive in final year
-          alv.f.yr = pop.atts$alive == 1
-          
           # Loop over check-years from earliest to latest
           for (t in 1:n.yrs.chk.t()) {
             # Same-mother pairs in the final year, with one born t years before
             # the final year, and one born in the final year (max one per mum)
             ns.SMPs.age.knwn[hist.ind, n.yrs.chk.t() + 1 - t] = sum(
-              mum[pop.atts$f.age == t & alv.f.yr] %in% mums.of.brn.f.yr
+              mum[pop.atts$f.age == t & pop.atts$alive == 1] %in% 
+                mum[pop.atts$f.age == 0]
             )
           }
           
@@ -217,18 +212,41 @@ observeEvent({
         nrow = n.sims(), ncol = n.srvy.prs(), 
         dimnames = list(NULL, Survey_pair = srvy.prs())
       )
+      ns.SFPs.age.knwn = matrix(
+        nrow = n.sims(), ncol = n.yrs.chk.t(), 
+        dimnames = list(NULL, Year = yrs.chk.t())
+      )
       
       # Loop over histories
       withProgress({
         for (hist.ind in 1:n.sims()) {
-          # Which animals alive in survey years 
-          alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
+          # Get population data
+          pop.atts = attributes(sim.lst()$hists.lst[[hist.ind]])
+          dad = pop.atts$dad
           
+          ## Same-father pairs with ages known, in final year
+          
+          # Fathers of animals born in final year
+          dads.of.brn.f.yr = dad[pop.atts$f.age == 0]
+          
+          # Loop over check-years from earliest to latest
+          for (t in 1:n.yrs.chk.t()) {
+            # Same-father pairs in the final year, with one born t years before
+            # the final year, and one born in the final year (many possible per
+            # dad)
+            dads.of.brn.yr.t = dad[pop.atts$f.age == t & pop.atts$alive == 1]
+            max.dad.id = max(dads.of.brn.yr.t, dads.of.brn.f.yr)
+            ns.SFPs.age.knwn[hist.ind, n.yrs.chk.t() + 1 - t] = 
+              tabulate(dads.of.brn.yr.t, max.dad.id) %*% 
+              tabulate(dads.of.brn.f.yr, max.dad.id)
+          }
+          
+          ## Same-father pairs with ages unknown, in and between survey-years
+
           # List of frequency tables of dads in each survey year
-          dad = attributes(sim.lst()$hists.lst[[hist.ind]])$dad
           max.dad = max(dad, na.rm = T)
           dad.tab.lst = lapply(1:k(), function(s.ind) {
-            tabulate(dad[alv.s.yrs[, s.ind]], max.dad)
+            tabulate(dad[pop.atts$alv.s.yrs[, s.ind]], max.dad)
           })
           
           # Same-father pairs within survey years
@@ -247,7 +265,10 @@ observeEvent({
       }, value = 0, message = "Finding same-father pairs")
       
       # Update reactive value
-      ns.SFPs(list(ns.SFPs.wtn = ns.SFPs.wtn, ns.SFPs.btn = ns.SFPs.btn))
+      ns.SFPs(list(
+        ns.SFPs.wtn = ns.SFPs.wtn, ns.SFPs.btn = ns.SFPs.btn,
+        ns.SFPs.age.knwn = ns.SFPs.age.knwn
+      ))
     }
   }
 })

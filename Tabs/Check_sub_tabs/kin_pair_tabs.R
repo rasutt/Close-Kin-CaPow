@@ -114,22 +114,27 @@ output$biasSMPsAgeKnwn = renderTable(find.bias.srvy(ns.SMPs.age.knwn.errs()))
 output$biasSMPsPopWtn = renderTable(find.bias.srvy(ns.SMPs.wtn.errs()))
 output$biasSMPsPopBtn = renderTable(find.bias.srvy(ns.SMPs.btn.errs()))
 output$nsSMPsAgeKnwn = 
-  renderPlot(nsKPsPlot(ns.SMPs.age.knwn.errs(), kp.tps.t[1])
-)
+  renderPlot(nsKPsPlot(ns.SMPs.age.knwn.errs(), kp.tps.t[1]))
 output$nsSMPsWtnPop = 
   renderPlot(nsKPsPlot(ns.SMPs.wtn.errs(), kp.tps.pop.wtn[4]))
 output$nsSMPsBtnPop = 
   renderPlot(nsKPsPlot(ns.SMPs.btn.errs(), kp.tps.pop.btn[4]))
 
 # Same-father pairs
+ns.SFPs.age.knwn.errs = reactive({
+  find.errs(ns.SFPs()[["ns.SFPs.age.knwn"]], est.ns.kps.t()[, 2])
+})
 ns.SFPs.wtn.errs = reactive({
   find.errs(ns.SFPs()[["ns.SFPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 5])
 })
 # ns.SFPs.btn.errs = reactive({
 #   find.errs(ns.SFPs()[["ns.SFPs.btn"]], est.ns.kps.pop.lst()$btn[, 3])
 # })
+output$biasSFPsAgeKnwn = renderTable(find.bias.srvy(ns.SFPs.age.knwn.errs()))
 output$biasSFPsPopWtn = renderTable(find.bias.srvy(ns.SFPs.wtn.errs()))
 # output$biasSFPsPopBtn = renderTable(find.bias.srvy(ns.SFPs.btn.errs()))
+output$nsSFPsAgeKnwn = 
+  renderPlot(nsKPsPlot(ns.SFPs.age.knwn.errs(), kp.tps.t[2]))
 output$nsSFPsWtnPop = 
   renderPlot(nsKPsPlot(ns.SFPs.wtn.errs(), kp.tps.pop.wtn[5]))
 # output$nsSFPsBtnPop = 

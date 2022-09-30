@@ -205,9 +205,14 @@ ui <- fluidPage(
           h2("Same-father pairs"),
           p("Numbers of pairs of individuals with the same fathers."),
           h3("Biases"),
+          p("Numbers in the final year, with one born in
+            the year indicated, and one born in the final year."),
+          tableOutput(outputId = "biasSFPsAgeKnwn"),
+          p("Numbers in and between survey-years, ages unknown."),
           tableOutput(outputId = "biasSFPsPopWtn"),
           # tableOutput(outputId = "biasSFPsPopBtn"),
           h3("Error distributions"),
+          plotOutput(outputId = "nsSFPsAgeKnwn"),
           plotOutput(outputId = "nsSFPsWtnPop"),
           # plotOutput(outputId = "nsSFPsBtnPop")
         ),
@@ -246,7 +251,6 @@ ui <- fluidPage(
           h2("Kin-pair estimator error distributions"),
           h3("Numbers in whole population"),
           h4("Temporal estimates"),
-          plotOutput(outputId = "nsSFPsFnlB1Fnl"),
           plotOutput(outputId = "nsSFPsFnlB"),
 
           h3("Numbers among sampled animals"),
