@@ -134,9 +134,9 @@ ui <- fluidPage(
         tabPanel(
           title = "Population sizes",
           value = "populations",
-          h2("Population sizes over time"),
+          h2("Population sizes"),
+          p("Numbers of individuals that are alive in the population."),
           plotOutput(outputId = "checkExpPop"),
-          h2("Population sizes in survey-years"),
           h3("Biases"),
           tableOutput(outputId = "biasNsPopWtn"),
           h3("Error distributions"),
@@ -146,7 +146,8 @@ ui <- fluidPage(
         tabPanel(
           title = "All pairs",
           value = "all.pairs",
-          h2("Total numbers of pairs of individuals"),
+          h2("All pairs"),
+          p("Total numbers of pairs of individuals."),
           h3("Biases"),
           tableOutput(outputId = "biasAPsPopWtn"),
           tableOutput(outputId = "biasAPsPopBtn"),
@@ -157,9 +158,10 @@ ui <- fluidPage(
         # Self-pairs ----
         tabPanel(
           title = "Self-pairs",
-          value = "self.pairs",
-          h2("Numbers of pairs of samples that are the same individual between
-             survey-years"),
+          value = "SPs.tab",
+          h2("Self-pairs"),
+          p("Numbers of pairs of individuals that are the same individual in
+          different survey-years."),
           h3("Biases"),
           tableOutput(outputId = "biasSPsPop"),
           h3("Error distributions"),
@@ -169,7 +171,8 @@ ui <- fluidPage(
         tabPanel(
           title = "Parent-offspring pairs",
           value = "POPs.tab",
-          h2("Numbers of pairs of individuals that are parent and offspring"),
+          h2("Parent-offspring pairs"),
+          p("Numbers of pairs of individuals that are parent and offspring."),
           h3("Biases"),
           tableOutput(outputId = "biasPOPsPopWtn"),
           tableOutput(outputId = "biasPOPsPopBtn"),
@@ -181,11 +184,17 @@ ui <- fluidPage(
         tabPanel(
           title = "Same-mother pairs",
           value = "SMPs.tab",
-          h2("Numbers of pairs of individuals with the same mothers"),
+          h2("Same-mother pairs"),
+          p("Numbers of pairs of individuals with the same mothers."),
           h3("Biases"),
+          p("Numbers in the final year, with one born in
+            the year indicated, and one born in the final year."),
+          tableOutput(outputId = "biasSMPsAgeKnwn"),
+          p("Numbers in and between survey-years, ages unknown."),
           tableOutput(outputId = "biasSMPsPopWtn"),
           tableOutput(outputId = "biasSMPsPopBtn"),
           h3("Error distributions"),
+          plotOutput(outputId = "nsSMPsAgeKnwn"),
           plotOutput(outputId = "nsSMPsWtnPop"),
           plotOutput(outputId = "nsSMPsBtnPop")
         ),
@@ -193,7 +202,8 @@ ui <- fluidPage(
         tabPanel(
           title = "Same-father pairs",
           value = "SFPs.tab",
-          h2("Numbers of pairs of individuals with the same fathers"),
+          h2("Same-father pairs"),
+          p("Numbers of pairs of individuals with the same fathers."),
           h3("Biases"),
           tableOutput(outputId = "biasSFPsPopWtn"),
           # tableOutput(outputId = "biasSFPsPopBtn"),
@@ -201,17 +211,7 @@ ui <- fluidPage(
           plotOutput(outputId = "nsSFPsWtnPop"),
           # plotOutput(outputId = "nsSFPsBtnPop")
         ),
-        # Temporal estimates ----
-        tabPanel(
-          title = "Temporal estimates",
-          value = "temp.ests",
-          h2("Temporal estimates vs observed averages"),
-          textOutput("tempEstNote"),
-          h4("Same-mother/father pairs in whole population including animals
-          born in each year in the population history"),
-          tableOutput(outputId = "nsKPsTemp")
-        ),
-        # Kin-pairs ----
+        # Biases ----
         tabPanel(
           title = "Bias",
           value = "bias",
@@ -245,7 +245,6 @@ ui <- fluidPage(
           h2("Kin-pair estimator error distributions"),
           h3("Numbers in whole population"),
           h4("Temporal estimates"),
-          plotOutput(outputId = "nsSMPsFnlB1Fnl"),
           plotOutput(outputId = "nsSFPsFnlB1Fnl"),
           plotOutput(outputId = "nsSFPsFnlB"),
 

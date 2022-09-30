@@ -7,10 +7,9 @@ FindNsKPsT <- function(pop.cap.hist, hist.len, n.yrs.chk.t) {
   dads.of.brn.f.yr = attributes(pop.cap.hist)$dad[brn.f.yr]
   
   # Animals alive in final year
-  # alv.f.yr = attributes(pop.cap.hist)$alv.mat[, hist.len] == 1
   alv.f.yr = attributes(pop.cap.hist)$alive == 1
   
-  # Matrix for numbers of kin-pairs
+  # Vectors for numbers of kin-pairs
   ns.SMPs.fnl.b1.fnl = ns.SFPs.fnl.b1.fnl = ns.SFPs.fnl.b = integer(n.yrs.chk.t)
   
   # Loop over check-years from earliest to latest

@@ -44,13 +44,13 @@ observeEvent({
   
   # Find numbers of self-pairs between survey-years in simulated populations
   if (
-    input$check.sub.tabs == "self.pairs" && 
+    input$check.sub.tabs == "SPs.tab" && 
     is.null(ns.SPs())
   ) {
     # Object to store results
     ns.SPs.new = matrix(
       nrow = n.sims(), ncol = n.srvy.prs(), 
-      dimnames = list(NULL, srvy.prs())
+      dimnames = list(NULL, Survey_pair = srvy.prs())
     )
     
     # Loop over histories
@@ -83,11 +83,11 @@ observeEvent({
     # Objects to store results
     ns.POPs.wtn = matrix(
       nrow = n.sims(), ncol = k(), 
-      dimnames = list(NULL, srvy.yrs())
+      dimnames = list(NULL, Survey = srvy.yrs())
     )
     ns.POPs.btn = matrix(
       nrow = n.sims(), ncol = n.srvy.prs(), 
-      dimnames = list(NULL, srvy.prs())
+      dimnames = list(NULL, Survey_pair = srvy.prs())
     )
     
     # Loop over histories
@@ -136,24 +136,47 @@ observeEvent({
     # Objects to store results
     ns.SMPs.wtn = matrix(
       nrow = n.sims(), ncol = k(), 
-      dimnames = list(NULL, srvy.yrs())
+      dimnames = list(NULL, Survey = srvy.yrs())
     )
     ns.SMPs.btn = matrix(
       nrow = n.sims(), ncol = n.srvy.prs(), 
-      dimnames = list(NULL, srvy.prs())
+      dimnames = list(NULL, Survey_pair = srvy.prs())
+    )
+    ns.SMPs.age.knwn = matrix(
+      nrow = n.sims(), ncol = n.yrs.chk.t(), 
+      dimnames = list(NULL, Year = yrs.chk.t())
     )
     
     # Loop over histories
     withProgress({
       for (hist.ind in 1:n.sims()) {
-        # Which animals alive in survey years 
-        alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
+        # Get population data
+        pop.atts = attributes(sim.lst()$hists.lst[[hist.ind]])
+        mum = pop.atts$mum
+        
+        ## Same-mother pairs with ages known, in final year
+        
+        # Mothers of animals born in final year
+        mums.of.brn.f.yr = mum[pop.atts$f.age == 0]
+
+        # Animals alive in final year
+        alv.f.yr = pop.atts$alive == 1
+
+        # Loop over check-years from earliest to latest
+        for (t in 1:n.yrs.chk.t()) {
+          # Same-mother pairs in the final year, with one born t years before
+          # the final year, and one born in the final year (max one per mum)
+          ns.SMPs.age.knwn[hist.ind, n.yrs.chk.t() + 1 - t] = sum(
+            mum[pop.atts$f.age == t & alv.f.yr] %in% mums.of.brn.f.yr
+          )
+        }
+        
+        ## Same-mother pairs with ages unknown, in and between survey-years
         
         # List of frequency tables of mums in each survey year
-        mum = attributes(sim.lst()$hists.lst[[hist.ind]])$mum
         max.mum = max(mum, na.rm = T)
         mum.tab.lst = lapply(1:k(), function(s.ind) {
-          tabulate(mum[alv.s.yrs[, s.ind]], max.mum)
+          tabulate(mum[pop.atts$alv.s.yrs[, s.ind]], max.mum)
         })
         
         # Same-mother pairs within survey years
@@ -172,7 +195,10 @@ observeEvent({
     }, value = 0, message = "Finding self-pairs")
     
     # Update reactive value
-    ns.SMPs(list(ns.SMPs.wtn = ns.SMPs.wtn, ns.SMPs.btn = ns.SMPs.btn))
+    ns.SMPs(list(
+      ns.SMPs.wtn = ns.SMPs.wtn, ns.SMPs.btn = ns.SMPs.btn,
+      ns.SMPs.age.knwn = ns.SMPs.age.knwn
+    ))
   }
   
   # Find numbers of same-father pairs between survey-years in simulated
@@ -184,11 +210,11 @@ observeEvent({
     # Objects to store results
     ns.SFPs.wtn = matrix(
       nrow = n.sims(), ncol = k(), 
-      dimnames = list(NULL, srvy.yrs())
+      dimnames = list(NULL, Survey = srvy.yrs())
     )
     ns.SFPs.btn = matrix(
       nrow = n.sims(), ncol = n.srvy.prs(), 
-      dimnames = list(NULL, srvy.prs())
+      dimnames = list(NULL, Survey_pair = srvy.prs())
     )
     
     # Loop over histories
@@ -249,7 +275,7 @@ observeEvent({
 }, {
   if (
     !(input$check.sub.tabs %in% 
-      c("populations", "all.pairs", "self.pairs", "POPs.tab", "SMPs.tab", 
+      c("populations", "all.pairs", "SPs.tab", "POPs.tab", "SMPs.tab", 
         "SFPs.tab")) && 
     is.null(checks.lst())
   ) {

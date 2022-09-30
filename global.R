@@ -18,7 +18,7 @@ pmt.emgn <- 0
 
 # Number of years to try to check intermediate estimators in derivations.
 # Actual number limited by length of simulations
-n.yrs.try.chk.t = 20
+n.yrs.try.chk.t = 10
 
 # Types of kin-pairs to be analysed (not same as those in models)
 kp.tps = c(

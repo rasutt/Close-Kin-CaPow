@@ -101,18 +101,25 @@ output$nsPOPsBtnPop =
   renderPlot(nsKPsPlot(ns.POPs.btn.errs(), kp.tps.pop.btn[3]))
 
 # Same-mother pairs
+ns.SMPs.age.knwn.errs = reactive({
+  find.errs(ns.SMPs()[["ns.SMPs.age.knwn"]], est.ns.kps.t()[, 1])
+})
 ns.SMPs.wtn.errs = reactive({
   find.errs(ns.SMPs()[["ns.SMPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 4])
 })
 ns.SMPs.btn.errs = reactive({
   find.errs(ns.SMPs()[["ns.SMPs.btn"]], est.ns.kps.pop.lst()$btn[, 4])
 })
+output$biasSMPsAgeKnwn = renderTable(find.bias.srvy(ns.SMPs.age.knwn.errs()))
 output$biasSMPsPopWtn = renderTable(find.bias.srvy(ns.SMPs.wtn.errs()))
 output$biasSMPsPopBtn = renderTable(find.bias.srvy(ns.SMPs.btn.errs()))
+output$nsSMPsAgeKnwn = 
+  renderPlot(nsKPsPlot(ns.SMPs.age.knwn.errs(), kp.tps.t[1])
+)
 output$nsSMPsWtnPop = 
-  renderPlot(nsKPsPlot(ns.SMPs.wtn.errs(), kp.tps.pop.wtn[3]))
+  renderPlot(nsKPsPlot(ns.SMPs.wtn.errs(), kp.tps.pop.wtn[4]))
 output$nsSMPsBtnPop = 
-  renderPlot(nsKPsPlot(ns.SMPs.btn.errs(), kp.tps.pop.btn[3]))
+  renderPlot(nsKPsPlot(ns.SMPs.btn.errs(), kp.tps.pop.btn[4]))
 
 # Same-father pairs
 ns.SFPs.wtn.errs = reactive({
@@ -124,6 +131,6 @@ ns.SFPs.wtn.errs = reactive({
 output$biasSFPsPopWtn = renderTable(find.bias.srvy(ns.SFPs.wtn.errs()))
 # output$biasSFPsPopBtn = renderTable(find.bias.srvy(ns.SFPs.btn.errs()))
 output$nsSFPsWtnPop = 
-  renderPlot(nsKPsPlot(ns.SFPs.wtn.errs(), kp.tps.pop.wtn[4]))
+  renderPlot(nsKPsPlot(ns.SFPs.wtn.errs(), kp.tps.pop.wtn[5]))
 # output$nsSFPsBtnPop = 
 #   renderPlot(nsKPsPlot(ns.SFPs.btn.errs(), kp.tps.pop.btn[3]))

@@ -21,12 +21,6 @@ nsKPsPlot = function(errs, kp.type) {
 
 # Temporal estimates
 
-# Same-mother pairs in the final year, with one born in the year indicated, and
-# one born in the final year
-output$nsSMPsFnlB1Fnl = renderPlot(
-  nsKPsPlot(ns.kps.t.errs()[, , 1], kp.tps.t[1])
-)
-
 # Same-father pairs in the final year, with one born in the year indicated, and
 # one born in the final year
 output$nsSFPsFnlB1Fnl = renderPlot(
