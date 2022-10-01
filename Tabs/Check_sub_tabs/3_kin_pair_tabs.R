@@ -160,3 +160,29 @@ output$nsSFPsWtnPop =
   renderPlot(nsKPsPlot(ns.SFPs.wtn.errs(), kp.tps.pop.wtn[5]))
 # output$nsSFPsBtnPop =
 #   renderPlot(nsKPsPlot(ns.SFPs.btn.errs(), kp.tps.pop.btn[6]))
+
+# Sibling-pairs
+ns.FSPs.wtn.errs = reactive({
+  find.errs(ns.SibPs()[["ns.FSPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 6])
+})
+ns.HSPs.wtn.errs = reactive({
+  find.errs(ns.SibPs()[["ns.HSPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 7])
+})
+# ns.HSPs.wtn.errs = reactive({
+#   find.errs(ns.HSPs()[["ns.HSPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 5])
+# })
+# ns.FSPs.btn.errs = reactive({
+#   find.errs(ns.FSPs()[["ns.FSPs.btn"]], est.ns.kps.pop.lst()$btn[, 6])
+# })
+output$biasFSPsPopWtn = renderTable(find.bias.srvy(ns.FSPs.wtn.errs()))
+output$biasHSPsPopWtn = renderTable(find.bias.srvy(ns.HSPs.wtn.errs()))
+# output$biasHSPsPopBtn = renderTable(find.bias.srvy(ns.HSPs.btn.errs()))
+# output$biasFSPsPopBtn = renderTable(find.bias.srvy(ns.FSPs.btn.errs()))
+output$nsFSPsWtnPop = 
+  renderPlot(nsKPsPlot(ns.FSPs.wtn.errs(), kp.tps.pop.wtn[6]))
+output$nsHSPsWtnPop = 
+  renderPlot(nsKPsPlot(ns.HSPs.wtn.errs(), kp.tps.pop.wtn[7]))
+# output$nsHSPsBtnPop =
+#   renderPlot(nsKPsPlot(ns.HSPs.btn.errs(), kp.tps.pop.btn[6]))
+# output$nsFSPsBtnPop =
+#   renderPlot(nsKPsPlot(ns.FSPs.btn.errs(), kp.tps.pop.btn[6]))

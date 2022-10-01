@@ -8,6 +8,7 @@ observeEvent(input$simulate, {
   ns.POPs(NULL)
   ns.SMPs(NULL)
   ns.SFPs(NULL)
+  ns.SibPs(NULL)
 })
 
 # Compute separate checks ----
@@ -275,6 +276,91 @@ observeEvent({
         ns.SFPs.age.knwn = ns.SFPs.age.knwn, ns.SFPs.same.age = ns.SFPs.same.age
       ))
     }
+    
+    # Find numbers of parent-offspring pairs between survey-years in simulated
+    # populations
+    if (
+      input$check.sub.tabs == "SibPs.tab" && 
+      is.null(ns.SibPs())
+    ) {
+      # Objects to store results
+      ns.SMPs.wtn = matrix(
+        nrow = n.sims(), ncol = k(), 
+        dimnames = list(NULL, Survey = srvy.yrs())
+      )
+      ns.SFPs.wtn = matrix(
+        nrow = n.sims(), ncol = k(), 
+        dimnames = list(NULL, Survey = srvy.yrs())
+      )
+      ns.FSPs.wtn = matrix(
+        nrow = n.sims(), ncol = k(), 
+        dimnames = list(NULL, Survey = srvy.yrs())
+      )
+      ns.HSPs.wtn = matrix(
+        nrow = n.sims(), ncol = k(), 
+        dimnames = list(NULL, Survey = srvy.yrs())
+      )
+      # ns.FSPs.btn = matrix(
+      #   nrow = n.sims(), ncol = n.srvy.prs(), 
+      #   dimnames = list(NULL, Survey_pair = srvy.prs())
+      # )
+      # ns.HSPs.btn = matrix(
+      #   nrow = n.sims(), ncol = n.srvy.prs(), 
+      #   dimnames = list(NULL, Survey_pair = srvy.prs())
+      # )
+      
+      # Loop over histories
+      withProgress({
+        for (hist.ind in 1:n.sims()) {
+          # Get population data
+          pop.atts = attributes(sim.lst()$hists.lst[[hist.ind]])
+          mum = pop.atts$mum
+          dad = pop.atts$dad
+          alv.s.yrs = pop.atts$alv.s.yrs
+        
+          # List of frequency tables of mums in each survey year
+          max.mum = max(mum, na.rm = T)
+          mum.tab.lst = lapply(1:k(), function(s.ind) {
+            tabulate(mum[alv.s.yrs[, s.ind]], max.mum)
+          })
+          
+          # Same-mother pairs within survey years
+          ns.SMPs.wtn[hist.ind, ] = sapply(1:k(), function(s.ind) {
+            sum(choose(mum.tab.lst[[s.ind]], 2))
+          })
+          
+          # List of frequency tables of dads in each survey year
+          max.dad = max(dad, na.rm = T)
+          dad.tab.lst = lapply(1:k(), function(s.ind) {
+            tabulate(dad[alv.s.yrs[, s.ind]], max.dad)
+          })
+          
+          # Same-father pairs within survey years
+          ns.SFPs.wtn[hist.ind, ] = sapply(1:k(), function(s.ind) {
+            sum(choose(dad.tab.lst[[s.ind]], 2))
+          })
+          
+          # Full-sibling pairs within survey years
+          ns.FSPs.wtn[hist.ind, ] = sapply(1:k(), function(s.ind) {
+            sum(
+              choose(table(mum[alv.s.yrs[, s.ind]], dad[alv.s.yrs[, s.ind]]), 2)
+            )
+          })
+          
+          # Increment progress-bar
+          incProgress(1/n.sims())
+        }
+      }, value = 0, message = "Finding sibling-pairs")
+      
+      # Half-sibling pairs within survey years
+      ns.HSPs.wtn = ns.SMPs.wtn + ns.SFPs.wtn - 2 * ns.FSPs.wtn
+      
+      # Update reactive value
+      ns.SibPs(list(
+        ns.FSPs.wtn = ns.FSPs.wtn, ns.HSPs.wtn = ns.HSPs.wtn
+        # ns.FSPs.btn = ns.FSPs.btn, ns.HSPs.btn = ns.HSPs.btn
+      ))
+    }
   }
 })
 
@@ -305,7 +391,7 @@ observeEvent({
     input$nav.tab == "check.tab" &&
     !(input$check.sub.tabs %in% 
       c("populations", "all.pairs", "SPs.tab", "POPs.tab", "SMPs.tab", 
-        "SFPs.tab")) && 
+        "SFPs.tab", "SibPs.tab")) && 
     is.null(checks.lst())
   ) {
     # Objects to store results

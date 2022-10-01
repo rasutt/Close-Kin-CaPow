@@ -106,7 +106,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "POPs.tab",
+        selected = "SibPs.tab",
         # First study ----
         tabPanel(
           title = "First study",
@@ -217,6 +217,25 @@ ui <- fluidPage(
           plotOutput(outputId = "nsSFPsAgeKnwn"),
           plotOutput(outputId = "nsSFPsSameAge"),
           plotOutput(outputId = "nsSFPsWtnPop"),
+          # plotOutput(outputId = "nsSFPsBtnPop")
+        ),
+        # Sibling-pairs ----
+        tabPanel(
+          title = "Sibling-pairs",
+          value = "SibPs.tab",
+          h2("Sibling-pairs"),
+          p("Numbers of pairs of individuals that share one or two parents."),
+          h3("Biases"),
+          p("Numbers of pairs of individuals that share two parents."),
+          tableOutput(outputId = "biasFSPsPopWtn"),
+          # tableOutput(outputId = "biasFSPsPopBtn"),
+          p("Numbers of pairs of individuals that share one parent."),
+          tableOutput(outputId = "biasHSPsPopWtn"),
+          # tableOutput(outputId = "biasSFPsPopBtn"),
+          h3("Error distributions"),
+          plotOutput(outputId = "nsFSPsWtnPop"),
+          plotOutput(outputId = "nsHSPsWtnPop")
+          # plotOutput(outputId = "nsSFPsWtnPop"),
           # plotOutput(outputId = "nsSFPsBtnPop")
         ),
         # Biases ----
