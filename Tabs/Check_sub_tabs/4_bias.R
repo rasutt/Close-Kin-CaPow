@@ -1,6 +1,16 @@
-# Outputs for kin-pairs sub-tab of checks tab
+# Outputs for biases sub-tab of checks tab
 
-### Kin-pair estimator biases (tables of average percentage differences)
+# Show percentage of animals sampled for which the parents are unknown
+output$percUnknPrnts = renderTable({
+  df = data.frame(matrix(c(
+    perc(mean(prpn.unkn.prnts()$prpn.unkn.prnts.wtn)),
+    perc(mean(prpn.unkn.prnts()$prpn.unkn.prnts.btn))
+  ), nrow = 1))
+  names(df) = c("Surveys", "Survey-pairs")
+  df
+})
+
+### Estimator biases (tables of average percentage differences)
 
 ## Numbers in whole population
 
@@ -25,14 +35,6 @@ output$biasProbsKPsWtn = renderTable(find.bias(ns.kps.prb.wtn.errs()))
 output$biasProbsKPsBtn = renderTable(find.bias(ns.kps.prb.btn.errs()))
 
 ## Numbers among sampled animals
-
-# Show percentage of animals sampled for which the parents are unknown
-output$percUnknPrnts = renderText({
-  paste0(
-    "Percentage of sampled animals with unknown parents: ", 
-    round(mean(checks.lst()$prpn.prnts.unkn.vec) * 100, 1), "%"
-  )
-})
 
 # Within surveys
 output$biasNsKPsCapWtn = renderTable(find.bias(ns.kps.cap.wtn.errs()))

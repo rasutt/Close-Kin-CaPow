@@ -9,6 +9,7 @@ observeEvent(input$simulate, {
   ns.SMPs(NULL)
   ns.SFPs(NULL)
   ns.SibPs(NULL)
+  prpn.unkn.prnts(NULL)
 })
 
 # Compute separate checks ----
@@ -42,6 +43,55 @@ observeEvent({
       
       # Update reactive value
       N.t.mat(N.t.mat.new)
+    }
+    
+    # Find proportions of individuals with unknown parents
+    if (
+      input$check.sub.tabs %in% 
+      c("POPs.tab", "SMPs.tab", "SFPs.tab", "SibPs.tab", "bias.tab") && 
+      is.null(prpn.unkn.prnts())
+    ) {
+      # Object to store results
+      prpn.unkn.prnts.wtn = matrix(
+        nrow = n.sims(), ncol = k(), 
+        dimnames = list(NULL, Survey = srvy.yrs())
+      )
+      prpn.unkn.prnts.btn = matrix(
+        nrow = n.sims(), ncol = n.srvy.prs(), 
+        dimnames = list(NULL, Survey_pair = srvy.prs())
+      )
+      
+      # Loop over histories
+      withProgress({
+        for (hist.ind in 1:n.sims()) {
+          # Get population data
+          pop.atts = attributes(sim.lst()$hists.lst[[hist.ind]])
+          mum = pop.atts$mum
+          alv.s.yrs = pop.atts$alv.s.yrs
+          
+          # Record proportions with unknown parents
+          prpn.unkn.prnts.wtn[hist.ind, ] = sapply(1:k(), function(s.ind){
+            mean(is.na(mum[alv.s.yrs[, s.ind]]))
+          })
+          prpn.unkn.prnts.btn[hist.ind, ] = as.vector(combn(
+            1:k(), 2, function(s.inds) {
+              mean(c(
+                is.na(mum[alv.s.yrs[, s.inds[1]]]),
+                is.na(mum[alv.s.yrs[, s.inds[2]]])
+              ))
+            }
+          ))
+          
+          # Increment progress-bar
+          incProgress(1/n.sims())
+        }
+      }, value = 0, message = "Finding population sizes")
+      
+      # Update reactive value
+      prpn.unkn.prnts(list(
+        prpn.unkn.prnts.wtn = prpn.unkn.prnts.wtn,
+        prpn.unkn.prnts.btn = prpn.unkn.prnts.btn
+      ))
     }
     
     # Find numbers of self-pairs between survey-years in simulated populations
@@ -406,14 +456,14 @@ observeEvent({
       dim = c(n.sims(), n.srvy.prs(), n.kp.tps.pop.btn),
       dimnames = list(NULL, Survey_pair = srvy.prs(), kp.type = kp.tps.pop.btn)
     )
-    ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr = array(
-      dim = c(n.sims(), k(), n.kp.tps.cap.wtn),
-      dimnames = list(NULL, Survey = srvy.yrs(), kp.type = kp.tps.cap.wtn)
-    )
-    ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr = array(
-      dim = c(n.sims(), n.srvy.prs(), n.kp.tps.cap.btn),
-      dimnames = list(NULL, Survey_pair = srvy.prs(), kp.type = kp.tps.cap.btn)
-    )
+    # ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr = array(
+    #   dim = c(n.sims(), k(), n.kp.tps.cap.wtn),
+    #   dimnames = list(NULL, Survey = srvy.yrs(), kp.type = kp.tps.cap.wtn)
+    # )
+    # ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr = array(
+    #   dim = c(n.sims(), n.srvy.prs(), n.kp.tps.cap.btn),
+    #   dimnames = list(NULL, Survey_pair = srvy.prs(), kp.type = kp.tps.cap.btn)
+    # )
     ns.kps.t.arr = array(
       dim = c(n.sims(), n.yrs.chk.t(), n.kp.tps.t),
       dimnames = list(NULL, Year = yrs.chk.t(), kp.type = kp.tps.t)

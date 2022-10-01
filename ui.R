@@ -224,12 +224,14 @@ ui <- fluidPage(
           title = "Sibling-pairs",
           value = "SibPs.tab",
           h2("Sibling-pairs"),
-          p("Numbers of pairs of individuals that share one or two parents."),
+          p("Pairs of individuals that share one or two parents."),
           h3("Biases"),
-          p("Numbers of pairs of individuals that share two parents."),
+          h4("Full-sibling pairs"),
+          p("Pairs of individuals that share two parents."),
           tableOutput(outputId = "biasFSPsPopWtn"),
           # tableOutput(outputId = "biasFSPsPopBtn"),
-          p("Numbers of pairs of individuals that share one parent."),
+          h4("Half-sibling pairs"),
+          p("Pairs of individuals that share one parent."),
           tableOutput(outputId = "biasHSPsPopWtn"),
           # tableOutput(outputId = "biasSFPsPopBtn"),
           h3("Error distributions"),
@@ -241,9 +243,13 @@ ui <- fluidPage(
         # Biases ----
         tabPanel(
           title = "Overall biases",
-          value = "bias",
+          value = "bias.tab",
           h2("Overall biases"),
           p("Average estimator biases over all years."),
+          h3("Unknown parents"),
+          p("Average percentage of individuals with unknown parents, from start
+            of simulation."),
+          tableOutput(outputId = "percUnknPrnts"),
           h3("Numbers in whole population"),
           h4("Temporal estimates"),
           textOutput("tempEstBiasNote"),
@@ -259,11 +265,10 @@ ui <- fluidPage(
           h4("Between surveys"),
           tableOutput(outputId = "biasProbsKPsBtn"),
           
-          h3("Numbers among sampled animals"),
-          textOutput(outputId = "percUnknPrnts"),
-          h4("Within surveys"),
+          # h3("Numbers among sampled animals"),
+          # h4("Within surveys"),
           # tableOutput(outputId = "biasNsKPsCapWtn"),
-          h4("Between surveys")
+          # h4("Between surveys")
           # tableOutput(outputId = "biasNsKPsCapBtn")
         ),
       )
