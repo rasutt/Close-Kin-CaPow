@@ -23,28 +23,41 @@ observeEvent({
       input$check.sub.tabs %in% c("populations", "all.pairs") && 
       is.null(N.t.mat())
     ) {
-      # Object to store results
-      N.t.mat.new = matrix(
-        nrow = n.sims(), ncol = hist.len(), 
-        dimnames = list(NULL, fst.year():fnl.year())
-      )
-      
-      # Loop over histories
       withProgress({
-        for (hist.ind in 1:n.sims()) {
-          # Record population curve
-          N.t.mat.new[hist.ind, ] = 
-            attributes(sim.lst()$hists.lst[[hist.ind]])$N.t.vec
-          
+        N.t.mat(t(sapply(sim.lst()$hists.lst, function(hist) {
           # Increment progress-bar
           incProgress(1/n.sims())
-        }
+          
+          # Record population curve
+          attributes(hist)$N.t.vec
+        })))
       }, value = 0, message = "Finding population sizes")
-      
-      # Update reactive value
-      N.t.mat(N.t.mat.new)
     }
     
+    # Find numbers of self-pairs between survey-years in simulated populations
+    if (
+      input$check.sub.tabs == "SPs.tab" && 
+      is.null(ns.SPs())
+    ) {
+      withProgress({
+        ns.SPs(matrix(
+          sapply(sim.lst()$hists.lst, function(hist) {
+            # Increment progress-bar
+            incProgress(1/n.sims())
+            
+            # Which animals alive in survey years 
+            alv.s.yrs = attributes(hist)$alv.s.yrs
+            
+            # Self-pairs between survey years
+            ID = attributes(hist)$ID
+            as.vector(combn(1:k(), 2, function(s.inds) {
+              sum(ID[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]])
+            }))
+          }), ncol = 1, dimnames = list(NULL, Survey_pair = srvy.prs())
+        ))
+      }, value = 0, message = "Finding self-pairs")
+    }
+
     # Find proportions of individuals with unknown parents
     if (
       input$check.sub.tabs %in% 
@@ -92,38 +105,6 @@ observeEvent({
         prpn.unkn.prnts.wtn = prpn.unkn.prnts.wtn,
         prpn.unkn.prnts.btn = prpn.unkn.prnts.btn
       ))
-    }
-    
-    # Find numbers of self-pairs between survey-years in simulated populations
-    if (
-      input$check.sub.tabs == "SPs.tab" && 
-      is.null(ns.SPs())
-    ) {
-      # Object to store results
-      ns.SPs.new = matrix(
-        nrow = n.sims(), ncol = n.srvy.prs(), 
-        dimnames = list(NULL, Survey_pair = srvy.prs())
-      )
-      
-      # Loop over histories
-      withProgress({
-        for (hist.ind in 1:n.sims()) {
-          # Which animals alive in survey years 
-          alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
-          
-          # Self-pairs between survey years
-          ID = attributes(sim.lst()$hists.lst[[hist.ind]])$ID
-          ns.SPs.new[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
-            sum(ID[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]])
-          }))
-          
-          # Increment progress-bar
-          incProgress(1/n.sims())
-        }
-      }, value = 0, message = "Finding self-pairs")
-      
-      # Update reactive value
-      ns.SPs(ns.SPs.new)
     }
     
     # Find numbers of parent-offspring pairs between survey-years in simulated
