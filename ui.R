@@ -119,7 +119,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "SibPs.tab",
+        selected = "POPs.tab",
         # First study ----
         tabPanel(
           title = "First study",
@@ -238,7 +238,7 @@ ui <- fluidPage(
         # Sibling-pairs ----
         tabPanel(
           title = "Sibling-pairs",
-          value = "SibPs.tab",
+          value = "SiPs.tab",
           h2("Sibling-pairs"),
           p("Pairs of individuals that share one or two parents."),
           unknPrntsTbl("SibPs.tab"),

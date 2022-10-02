@@ -45,15 +45,10 @@ observeEvent({
             # Increment progress-bar
             incProgress(1/n.sims())
             
-            # Which animals alive in survey years 
-            alv.s.yrs = attributes(hist)$alv.s.yrs
-            
-            # Self-pairs between survey years
-            ID = attributes(hist)$ID
-            as.vector(combn(1:k(), 2, function(s.inds) {
-              sum(ID[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]])
-            }))
-          }), ncol = 1, dimnames = list(NULL, Survey_pair = srvy.prs())
+            # Find self-pairs
+            find.SPs(attributes(hist), k())
+          }), 
+          ncol = n.srvy.prs(), dimnames = list(NULL, Survey_pair = srvy.prs())
         ))
       }, value = 0, message = "Finding self-pairs")
     }
@@ -64,46 +59,38 @@ observeEvent({
       c("POPs.tab", "SMPs.tab", "SFPs.tab", "SibPs.tab", "bias.tab") && 
       is.null(prpn.unkn.prnts())
     ) {
-      # Object to store results
-      prpn.unkn.prnts.wtn = matrix(
-        nrow = n.sims(), ncol = k(), 
-        dimnames = list(NULL, Survey = srvy.yrs())
-      )
-      prpn.unkn.prnts.btn = matrix(
-        nrow = n.sims(), ncol = n.srvy.prs(), 
-        dimnames = list(NULL, Survey_pair = srvy.prs())
-      )
-      
-      # Loop over histories
+      # In survey-years
       withProgress({
-        for (hist.ind in 1:n.sims()) {
-          # Get population data
-          pop.atts = attributes(sim.lst()$hists.lst[[hist.ind]])
-          mum = pop.atts$mum
-          alv.s.yrs = pop.atts$alv.s.yrs
-          
-          # Record proportions with unknown parents
-          prpn.unkn.prnts.wtn[hist.ind, ] = sapply(1:k(), function(s.ind){
-            mean(is.na(mum[alv.s.yrs[, s.ind]]))
-          })
-          prpn.unkn.prnts.btn[hist.ind, ] = as.vector(combn(
-            1:k(), 2, function(s.inds) {
-              mean(c(
-                is.na(mum[alv.s.yrs[, s.inds[1]]]),
-                is.na(mum[alv.s.yrs[, s.inds[2]]])
-              ))
-            }
-          ))
-          
-          # Increment progress-bar
-          incProgress(1/n.sims())
-        }
-      }, value = 0, message = "Finding unknown parents")
+        pns.UPs.wtn = matrix(
+          sapply(sim.lst()$hists.lst, function(hist) {
+            # Increment progress-bar
+            incProgress(1/n.sims())
+
+            # Find unknown parents
+            find.pns.UPs.wtn(attributes(hist), k())
+          }),
+          ncol = k(), dimnames = list(NULL, Survey = srvy.yrs())
+        )
+      }, value = 0, message = "Finding unknown parents in survey-years")
+
+      # In pairs of survey-years
+      withProgress({
+        pns.UPs.btn = matrix(
+          sapply(sim.lst()$hists.lst, function(hist) {
+            # Increment progress-bar
+            incProgress(1/n.sims())
+
+            # Find unknown parents
+            find.pns.UPs.btn(attributes(hist), k())
+          }),
+          ncol = n.srvy.prs(), dimnames = list(NULL, Survey_pair = srvy.prs())
+        )
+      }, value = 0, message = "Finding unknown parents in survey-year pairs")
+      
       
       # Update reactive value
       prpn.unkn.prnts(list(
-        prpn.unkn.prnts.wtn = prpn.unkn.prnts.wtn,
-        prpn.unkn.prnts.btn = prpn.unkn.prnts.btn
+        pns.UPs.wtn = pns.UPs.wtn, pns.UPs.btn = pns.UPs.btn
       ))
     }
     

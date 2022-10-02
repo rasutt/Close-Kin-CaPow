@@ -35,10 +35,10 @@ unknPrntsServer <- function(id, prpn.unkn.prnts) {
     id,
     function(input, output, session) {
       output$unknPrntsWtn = renderTable(
-        find.bias.srvy(prpn.unkn.prnts()$prpn.unkn.prnts.wtn)
+        find.bias.srvy(prpn.unkn.prnts()$pns.UPs.wtn)
       )
       output$unknPrntsBtn = renderTable(
-        find.bias.srvy(prpn.unkn.prnts()$prpn.unkn.prnts.btn)
+        find.bias.srvy(prpn.unkn.prnts()$pns.UPs.btn)
       )
     }
   )
