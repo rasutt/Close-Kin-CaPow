@@ -1,4 +1,17 @@
+# Load shiny package
 library(shiny)
+
+# Function to make table outputs for unknown parents modules
+unknPrntsTbl <- function(id) {
+  ns <- NS(id)
+  tagList(
+    h3("Unknown parents"),
+    p("Average percentage of individuals with unknown parents, from start
+    of simulation."),
+    tableOutput(outputId = ns("unknPrntsWtn")),
+    tableOutput(outputId = ns("unknPrntsBtn"))
+  )
+}
 
 # Define UI for app
 ui <- fluidPage(
@@ -173,6 +186,7 @@ ui <- fluidPage(
           value = "POPs.tab",
           h2("Parent-offspring pairs"),
           p("Numbers of pairs of individuals that are parent and offspring."),
+          unknPrntsTbl("POPs.tab"),
           h3("Biases"),
           tableOutput(outputId = "biasPOPsPopWtn"),
           tableOutput(outputId = "biasPOPsPopBtn"),
@@ -186,6 +200,7 @@ ui <- fluidPage(
           value = "SMPs.tab",
           h2("Same-mother pairs"),
           p("Numbers of pairs of individuals with the same mothers."),
+          unknPrntsTbl("SMPs.tab"),
           h3("Biases"),
           p("Numbers in the final year, with one born in
             the year indicated, and one born in the final year."),
@@ -204,6 +219,7 @@ ui <- fluidPage(
           value = "SFPs.tab",
           h2("Same-father pairs"),
           p("Numbers of pairs of individuals with the same fathers."),
+          unknPrntsTbl("SFPs.tab"),
           h3("Biases"),
           p("Numbers in the final year, with one born in
             the year indicated, and one born in the final year."),
@@ -225,6 +241,7 @@ ui <- fluidPage(
           value = "SibPs.tab",
           h2("Sibling-pairs"),
           p("Pairs of individuals that share one or two parents."),
+          unknPrntsTbl("SibPs.tab"),
           h3("Biases"),
           h4("Full-sibling pairs"),
           p("Pairs of individuals that share two parents."),
@@ -248,7 +265,7 @@ ui <- fluidPage(
           p("Average estimator biases over all years."),
           h3("Unknown parents"),
           p("Average percentage of individuals with unknown parents, from start
-            of simulation."),
+            of simulation, in survey-years, and pairs of survey-years."),
           tableOutput(outputId = "percUnknPrnts"),
           h3("Numbers in whole population"),
           h4("Temporal estimates"),

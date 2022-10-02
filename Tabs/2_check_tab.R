@@ -85,7 +85,7 @@ observeEvent({
           # Increment progress-bar
           incProgress(1/n.sims())
         }
-      }, value = 0, message = "Finding population sizes")
+      }, value = 0, message = "Finding unknown parents")
       
       # Update reactive value
       prpn.unkn.prnts(list(

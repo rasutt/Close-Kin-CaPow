@@ -48,22 +48,6 @@ ns.kps.prb.btn.errs = reactive({
 #   find.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn, T)
 # })
 
-# Function to find biases over all surveys from array of proportional errors for
-# multiple estimators
-find.bias = function(errs) {
-  df = data.frame(matrix(perc(colMeans(errs, dims = 2)), nrow = 1))
-  names(df) = dimnames(errs)[["kp.type"]]
-  df
-}
-
-# Function to find biases in each survey from matrix of proportional errors for
-# a single estimator
-find.bias.srvy = function(errs) {
-  df = data.frame(matrix(perc(colMeans(errs)), nrow = 1))
-  names(df) = colnames(errs)
-  df
-}
-
 # Function to plot simulated versus expected numbers of kin-pairs for one type
 # of kin-pair
 nsKPsPlot = function(errs, kp.type) {
@@ -102,6 +86,7 @@ output$biasSPsPop = renderTable(find.bias.srvy(ns.SPs.errs()))
 output$nsSPsPop = renderPlot(nsKPsPlot(ns.SPs.errs(), kp.tps.pop.btn[2]))
 
 # Parent-offspring pairs
+unknPrntsServer("POPs.tab", prpn.unkn.prnts)
 ns.POPs.wtn.errs = reactive({
   find.errs(ns.POPs()[["ns.POPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 3])
 })
@@ -116,6 +101,7 @@ output$nsPOPsBtnPop =
   renderPlot(nsKPsPlot(ns.POPs.btn.errs(), kp.tps.pop.btn[3]))
 
 # Same-mother pairs
+unknPrntsServer("SMPs.tab", prpn.unkn.prnts)
 ns.SMPs.age.knwn.errs = reactive({
   find.errs(ns.SMPs()[["ns.SMPs.age.knwn"]], est.ns.kps.t()[, 1])
 })
@@ -136,6 +122,7 @@ output$nsSMPsBtnPop =
   renderPlot(nsKPsPlot(ns.SMPs.btn.errs(), kp.tps.pop.btn[4]))
 
 # Same-father pairs
+unknPrntsServer("SFPs.tab", prpn.unkn.prnts)
 ns.SFPs.age.knwn.errs = reactive({
   find.errs(ns.SFPs()[["ns.SFPs.age.knwn"]], est.ns.kps.t()[, 2])
 })
@@ -162,6 +149,7 @@ output$nsSFPsWtnPop =
 #   renderPlot(nsKPsPlot(ns.SFPs.btn.errs(), kp.tps.pop.btn[6]))
 
 # Sibling-pairs
+unknPrntsServer("SibPs.tab", prpn.unkn.prnts)
 ns.FSPs.wtn.errs = reactive({
   find.errs(ns.SibPs()[["ns.FSPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 6])
 })

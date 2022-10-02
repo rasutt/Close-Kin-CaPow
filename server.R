@@ -2,6 +2,48 @@
 funcs <- list.files("Functions")
 for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]))
 
+# Function to make data frame of parameter values for display
+par.vals.df = function(par.vals, par.names) {
+  par.df = data.frame(matrix(par.vals, nrow = 1))
+  names(par.df) = par.names
+  par.df[, 3:4] = as.integer(par.df[, 3:4])
+  par.df
+}
+
+# Function to prepare proportion to print as percentage
+perc = function(prpn) paste0(round(prpn * 100, 1), "%")
+
+# Function to find biases over all surveys from array of proportional errors for
+# multiple estimators
+find.bias = function(errs) {
+  df = data.frame(matrix(perc(colMeans(errs, dims = 2)), nrow = 1))
+  names(df) = dimnames(errs)[["kp.type"]]
+  df
+}
+
+# Function to find biases in each survey from matrix of proportional errors for
+# a single estimator
+find.bias.srvy = function(errs) {
+  df = data.frame(matrix(perc(colMeans(errs)), nrow = 1))
+  names(df) = colnames(errs)
+  df
+}
+
+# Function to create module server for unknown parents modules
+unknPrntsServer <- function(id, prpn.unkn.prnts) {
+  moduleServer(
+    id,
+    function(input, output, session) {
+      output$unknPrntsWtn = renderTable(
+        find.bias.srvy(prpn.unkn.prnts()$prpn.unkn.prnts.wtn)
+      )
+      output$unknPrntsBtn = renderTable(
+        find.bias.srvy(prpn.unkn.prnts()$prpn.unkn.prnts.btn)
+      )
+    }
+  )
+}
+
 # Load TMB library and likelihood functions.  Have to restart R for compile and
 # dyn.load to take effect sometimes.  Also sometimes need to update R so that
 # Matrix package matches, or actually delete and recompile files after
@@ -179,17 +221,6 @@ server <- function(input, output) {
     sim.opts(sim.opts.rct())
   })
   # ----
-  
-  # Function to make data frame of parameter values for display
-  par.vals.df = function(par.vals, par.names) {
-    par.df = data.frame(matrix(par.vals, nrow = 1))
-    names(par.df) = par.names
-    par.df[, 3:4] = as.integer(par.df[, 3:4])
-    par.df
-  }
-  
-  # Function to prepare proportion to print as percentage
-  perc = function(prpn) paste0(round(prpn * 100, 1), "%")
   
   # Load functions, and outputs for simulating studies, checking
   # simulations, and analyzing model performance
