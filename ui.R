@@ -238,7 +238,7 @@ ui <- fluidPage(
         # Sibling-pairs ----
         tabPanel(
           title = "Sibling-pairs",
-          value = "SiPs.tab",
+          value = "SibPs.tab",
           h2("Sibling-pairs"),
           p("Pairs of individuals that share one or two parents."),
           unknPrntsTbl("SibPs.tab"),

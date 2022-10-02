@@ -151,6 +151,8 @@ server <- function(input, output) {
   N.t.mat = reactiveVal(saved.objs$N.t.mat)
   ns.SPs = reactiveVal(saved.objs$ns.SPs)
   ns.POPs = reactiveVal(saved.objs$ns.POPs)
+  ns.SMPs.wtn = reactiveVal(saved.objs$ns.SMPs.wtn)
+  ns.SFPs.wtn = reactiveVal(saved.objs$ns.SFPs.wtn)
   ns.SMPs = reactiveVal(saved.objs$ns.SMPs)
   ns.SFPs = reactiveVal(saved.objs$ns.SFPs)
   ns.SibPs = reactiveVal(saved.objs$ns.SFPs)

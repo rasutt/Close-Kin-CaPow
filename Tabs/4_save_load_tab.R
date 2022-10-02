@@ -40,8 +40,10 @@ output$downloadData <- downloadHandler(
       fit.lst = fit.lst(),
       N.t.mat = N.t.mat(),
       ns.SPs = ns.SPs(),
-      ns.SMPs = ns.SMPs(),
       ns.POPs = ns.POPs(),
+      ns.SMPs.wtn = ns.SMPs.wtn(),
+      ns.SFPs.wtn = ns.SFPs.wtn(),
+      ns.SMPs = ns.SMPs(),
       ns.SFPs = ns.SFPs(),
       ns.SibPs = ns.SibPs(),
       prpn.unkn.prnts = prpn.unkn.prnts()
@@ -93,6 +95,8 @@ observeEvent(input$file, {
   N.t.mat(saved.objs$N.t.mat)
   ns.SPs(saved.objs$ns.SPs)
   ns.POPs(saved.objs$ns.POPs)
+  ns.SMPs.wtn(saved.objs$ns.SMPs)
+  ns.SFPs.wtn(saved.objs$ns.SFPs)
   ns.SMPs(saved.objs$ns.SMPs)
   ns.SFPs(saved.objs$ns.SFPs)
   ns.SibPs(saved.objs$ns.SibPs)
