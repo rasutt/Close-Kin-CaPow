@@ -24,3 +24,28 @@ find.pns.UPs.btn = function(pop.atts, k) {
     ))
   }))
 }
+
+# Find parent-offspring pairs in survey-years
+find.POPs.wtn = function(pop.atts, k) {
+  alv.s.yrs = pop.atts$alv.s.yrs
+  sapply(1:k, function(s.ind) {
+    sum(
+      pop.atts$mum[alv.s.yrs[, s.ind]] %in% pop.atts$ID[alv.s.yrs[, s.ind]], 
+      pop.atts$dad[alv.s.yrs[, s.ind]] %in% pop.atts$ID[alv.s.yrs[, s.ind]]
+    )
+  })
+}
+
+# Find parent-offspring pairs between pairs of survey-years
+find.POPs.btn = function(pop.atts, k) {
+  alv.s.yrs = pop.atts$alv.s.yrs
+  ID = pop.atts$ID
+  as.vector(combn(1:k, 2, function(s.inds) {
+    sum(
+      pop.atts$mum[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]], 
+      pop.atts$dad[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]],
+      pop.atts$mum[alv.s.yrs[, s.inds[2]]] %in% ID[alv.s.yrs[, s.inds[1]]], 
+      pop.atts$dad[alv.s.yrs[, s.inds[2]]] %in% ID[alv.s.yrs[, s.inds[1]]]
+    )
+  }))
+}

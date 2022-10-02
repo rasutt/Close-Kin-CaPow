@@ -87,61 +87,47 @@ observeEvent({
         )
       }, value = 0, message = "Finding unknown parents in survey-year pairs")
       
-      
       # Update reactive value
       prpn.unkn.prnts(list(
         pns.UPs.wtn = pns.UPs.wtn, pns.UPs.btn = pns.UPs.btn
       ))
     }
     
-    # Find numbers of parent-offspring pairs between survey-years in simulated
-    # populations
+    # Find numbers of parent-offspring pairs
     if (
       input$check.sub.tabs == "POPs.tab" && 
       is.null(ns.POPs())
     ) {
-      # Objects to store results
-      ns.POPs.wtn = matrix(
-        nrow = n.sims(), ncol = k(), 
-        dimnames = list(NULL, Survey = srvy.yrs())
-      )
-      ns.POPs.btn = matrix(
-        nrow = n.sims(), ncol = n.srvy.prs(), 
-        dimnames = list(NULL, Survey_pair = srvy.prs())
-      )
-      
-      # Loop over histories
+      # In survey-years
       withProgress({
-        for (hist.ind in 1:n.sims()) {
-          # Which animals alive in survey years 
-          alv.s.yrs = attributes(sim.lst()$hists.lst[[hist.ind]])$alv.s.yrs
-          
-          ID = attributes(sim.lst()$hists.lst[[hist.ind]])$ID
-          mum = attributes(sim.lst()$hists.lst[[hist.ind]])$mum
-          dad = attributes(sim.lst()$hists.lst[[hist.ind]])$dad
-          
-          # Parent-offspring pairs within survey years
-          ns.POPs.wtn[hist.ind, ] = sapply(1:k(), function(s.ind) {
-            sum(
-              mum[alv.s.yrs[, s.ind]] %in% ID[alv.s.yrs[, s.ind]], 
-              dad[alv.s.yrs[, s.ind]] %in% ID[alv.s.yrs[, s.ind]]
-            )
-          })
-          
-          # Parent-offspring pairs between survey years
-          ns.POPs.btn[hist.ind, ] = as.vector(combn(1:k(), 2, function(s.inds) {
-            sum(
-              mum[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]], 
-              dad[alv.s.yrs[, s.inds[1]]] %in% ID[alv.s.yrs[, s.inds[2]]],
-              mum[alv.s.yrs[, s.inds[2]]] %in% ID[alv.s.yrs[, s.inds[1]]], 
-              dad[alv.s.yrs[, s.inds[2]]] %in% ID[alv.s.yrs[, s.inds[1]]]
-            )
-          }))
-          
-          # Increment progress-bar
-          incProgress(1/n.sims())
-        }
-      }, value = 0, message = "Finding parent-offspring pairs")
+        ns.POPs.wtn = matrix(
+          sapply(sim.lst()$hists.lst, function(hist) {
+            # Increment progress-bar
+            incProgress(1/n.sims())
+            
+            # Find unknown parents
+            find.POPs.wtn(attributes(hist), k())
+          }),
+          ncol = k(), dimnames = list(NULL, Survey = srvy.yrs()), byrow = T
+        )
+      }, value = 0, message = "Finding parent-offspring pairs in survey-years")
+      
+      # Between pairs of survey-years
+      withProgress({
+        ns.POPs.btn = matrix(
+          sapply(sim.lst()$hists.lst, function(hist) {
+            # Increment progress-bar
+            incProgress(1/n.sims())
+            
+            # Find unknown parents
+            find.POPs.btn(attributes(hist), k())
+          }),
+          ncol = n.srvy.prs(), dimnames = list(NULL, Survey_pair = srvy.prs()),
+          byrow = T
+        )
+      }, value = 0, 
+      message = "Finding parent-offspring pairs between survey-years"
+      )
       
       # Update reactive value
       ns.POPs(list(ns.POPs.wtn = ns.POPs.wtn, ns.POPs.btn = ns.POPs.btn))
