@@ -146,6 +146,9 @@ observeEvent({
     ) {
       # Update reactive value
       ns.SMPs(list(
+        # In survey-years
+        ns.SMPs.wtn = ns.SMPs.wtn(),
+        
         # Between pairs of survey-years
         ns.SMPs.btn = find.KPs.btn()(find.SMPs.btn, "same-mother"),
         
@@ -169,6 +172,7 @@ observeEvent({
       # Update reactive value
       ns.SFPs(list(
         ns.SFPs.wtn = ns.SFPs.wtn(), 
+        
         # # Between pairs of survey-years
         # ns.SFPs.btn = find.KPs.btn()(find.SFPs.btn, "same-father"),
         
@@ -185,10 +189,12 @@ observeEvent({
       input$check.sub.tabs == "SibPs.tab" && 
       is.null(ns.SibPs())
     ) {
+      # Full-sibling pairs within survey-years
+      ns.FSPs.wtn = find.KPs.wtn()(find.FSPs.wtn, "full-sibling")
+      
       # Update reactive value
       ns.SibPs(list(
-        # Full-sibling pairs within survey-years
-        ns.FSPs.wtn = find.KPs.wtn()(find.FSPs.wtn, "full-sibling"),
+        ns.FSPs.wtn = ns.FSPs.wtn,
         
         # Half-sibling pairs within survey years
         ns.HSPs.wtn = ns.SMPs.wtn() + ns.SFPs.wtn() - 2 * ns.FSPs.wtn
