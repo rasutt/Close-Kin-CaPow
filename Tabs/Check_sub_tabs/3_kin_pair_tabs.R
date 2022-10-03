@@ -8,46 +8,6 @@ find.errs = function(vals, ests, samp = F) {
   vals / ests - 1
 }
 
-# Find errors for estimates in sets
-ns.kps.pop.wtn.errs = reactive({
-  find.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn)
-})
-ns.kps.pop.btn.errs = reactive({
-  find.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn)
-})
-ns.kps.t.errs = reactive({
-  find.errs(checks.lst()$kps.t.arr, est.ns.kps.t())
-})
-ns.kps.prb.wtn.errs = reactive({
-  # Remove population sizes and total numbers of pairs then divide by the latter
-  find.errs(
-    checks.lst()$ns.kps.pop.wtn.arr[, , -1:-2] / 
-      array(
-        rep(checks.lst()$ns.kps.pop.wtn.arr[, , 2], n.kp.tps.prb.wtn), 
-        c(n.sims(), k(), n.kp.tps.prb.wtn)
-      ), 
-    est.ns.kps.pop.lst()$wtn[, -1:-2] / est.ns.kps.pop.lst()$wtn[, 2]
-  )
-})
-ns.kps.prb.btn.errs = reactive({
-  # Remove population sizes and total numbers of pairs then divide by the latter
-  # (drop = F retains array dimensions when only one survey pair)
-  find.errs(
-    checks.lst()$ns.kps.pop.btn.arr[, , -1, drop = F] / 
-      array(
-        rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kp.tps.prb.btn), 
-        c(n.sims(), n.srvy.prs(), n.kp.tps.prb.btn)
-      ), 
-    est.ns.kps.pop.lst()$btn[, -1] / est.ns.kps.pop.lst()$btn[, 1]
-  )
-})
-# ns.kps.cap.wtn.errs = reactive({
-#   find.errs(checks.lst()$ns.kps.pop.wtn.arr, est.ns.kps.pop.lst()$wtn, T)
-# })
-# ns.kps.cap.btn.errs = reactive({
-#   find.errs(checks.lst()$ns.kps.pop.btn.arr, est.ns.kps.pop.lst()$btn, T)
-# })
-
 # Function to plot simulated versus expected numbers of kin-pairs for one type
 # of kin-pair
 nsKPsPlot = function(errs, kp.type) {
@@ -101,7 +61,7 @@ output$nsPOPsBtnPop =
   renderPlot(nsKPsPlot(ns.POPs.btn.errs(), kp.tps.pop.btn[3]))
 
 # Same-mother pairs
-unknPrntsServer("SMPs.tab", prpn.unkn.prnts)
+unknPrntsServer("SMPs.tab", pns.UPs)
 ns.SMPs.age.knwn.errs = reactive({
   find.errs(ns.SMPs()[["ns.SMPs.age.knwn"]], est.ns.kps.t()[, 1])
 })
@@ -122,7 +82,7 @@ output$nsSMPsBtnPop =
   renderPlot(nsKPsPlot(ns.SMPs.btn.errs(), kp.tps.pop.btn[4]))
 
 # Same-father pairs
-unknPrntsServer("SFPs.tab", prpn.unkn.prnts)
+unknPrntsServer("SFPs.tab", pns.UPs)
 ns.SFPs.age.knwn.errs = reactive({
   find.errs(ns.SFPs()[["ns.SFPs.age.knwn"]], est.ns.kps.t()[, 2])
 })
@@ -149,7 +109,7 @@ output$nsSFPsWtnPop =
 #   renderPlot(nsKPsPlot(ns.SFPs.btn.errs(), kp.tps.pop.btn[6]))
 
 # Sibling-pairs
-unknPrntsServer("SibPs.tab", prpn.unkn.prnts)
+unknPrntsServer("SibPs.tab", pns.UPs)
 ns.FSPs.wtn.errs = reactive({
   find.errs(ns.SibPs()[["ns.FSPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 6])
 })

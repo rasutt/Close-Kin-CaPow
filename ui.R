@@ -276,11 +276,11 @@ ui <- fluidPage(
           h4("Between surveys"),
           tableOutput(outputId = "biasNsKPsPopBtn"),
           
-          h3("Probabilities"),
-          h4("Within surveys"),
-          tableOutput(outputId = "biasProbsKPsWtn"),
-          h4("Between surveys"),
-          tableOutput(outputId = "biasProbsKPsBtn"),
+          # h3("Probabilities"),
+          # h4("Within surveys"),
+          # tableOutput(outputId = "biasProbsKPsWtn"),
+          # h4("Between surveys"),
+          # tableOutput(outputId = "biasProbsKPsBtn"),
           
           # h3("Numbers among sampled animals"),
           # h4("Within surveys"),
