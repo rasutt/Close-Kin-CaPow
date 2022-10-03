@@ -51,6 +51,26 @@ find.KPs.btn = reactive(function(find.func, KP.type) {
   message = paste("Finding", KP.type, "pairs between survey-years"))
 })
 
+# In years up to final year
+find.KPs.t = reactive(function(find.func, KP.type) {
+  # Need to specify matrix in case just one column or sapply returns a vector
+  withProgress({
+    matrix(
+      sapply(sim.lst()$hists.lst, function(hist) {
+        # Increment progress-bar
+        incProgress(1/n.sims())
+        
+        # Find kin-pairs
+        find.func(attributes(hist), n.yrs.chk.t())
+      }),
+      ncol = n.yrs.chk.t(), dimnames = list(NULL, Year = yrs.chk.t()), 
+      byrow = T
+    )
+  }, 
+  value = 0, 
+  message = paste("Finding", KP.type, "pairs in years up to final year"))
+})
+
 # Compute separate checks ----
 observeEvent({
   input$check.sub.tabs
@@ -87,15 +107,13 @@ observeEvent({
       c("POPs.tab", "SMPs.tab", "SFPs.tab", "SibPs.tab", "bias.tab") && 
       is.null(prpn.unkn.prnts())
     ) {
-      # In survey-years
-      pns.UPs.wtn = find.KPs.wtn()(find.pns.UPs.wtn, "unknown parents")
-
-      # In pairs of survey-years
-      pns.UPs.btn = find.KPs.btn()(find.pns.UPs.btn, "unknown parents")
-      
       # Update reactive value
       prpn.unkn.prnts(list(
-        pns.UPs.wtn = pns.UPs.wtn, pns.UPs.btn = pns.UPs.btn
+        # In survey-years
+        pns.UPs.wtn = find.KPs.wtn()(find.pns.UPs.wtn, "unknown parents"),
+        
+        # In pairs of survey-years
+        pns.UPs.btn = find.KPs.btn()(find.pns.UPs.btn, "unknown parents")
       ))
     }
     
@@ -104,14 +122,14 @@ observeEvent({
       input$check.sub.tabs == "POPs.tab" && 
       is.null(ns.POPs())
     ) {
-      # In survey-years
-      ns.POPs.wtn = find.KPs.wtn()(find.POPs.wtn, "parent-offspring")
-        
-      # Between pairs of survey-years
-      ns.POPs.btn = find.KPs.btn()(find.POPs.btn, "parent-offspring")
-      
       # Update reactive value
-      ns.POPs(list(ns.POPs.wtn = ns.POPs.wtn, ns.POPs.btn = ns.POPs.btn))
+      ns.POPs(list(
+        # In survey-years
+        ns.POPs.wtn = find.KPs.wtn()(find.POPs.wtn, "parent-offspring"),
+        
+        # Between pairs of survey-years
+        ns.POPs.btn = find.KPs.btn()(find.POPs.btn, "parent-offspring")
+      ))
     }
     
     # Find numbers of same-mother pairs
@@ -126,43 +144,13 @@ observeEvent({
       input$check.sub.tabs == "SMPs.tab" && 
       is.null(ns.SMPs())
     ) {
-      # Between pairs of survey-years
-      ns.SMPs.btn = find.KPs.btn()(find.SMPs.btn, "same-mother")
-      
-      # Objects to store results
-      ns.SMPs.age.knwn = matrix(
-        nrow = n.sims(), ncol = n.yrs.chk.t(), 
-        dimnames = list(NULL, Year = yrs.chk.t())
-      )
-      
-      # Loop over histories
-      withProgress({
-        for (hist.ind in 1:n.sims()) {
-          # Get population data
-          pop.atts = attributes(sim.lst()$hists.lst[[hist.ind]])
-          mum = pop.atts$mum
-          
-          ## Same-mother pairs with ages known, in final year
-          
-          # Loop over check-years from earliest to latest
-          for (t in 1:n.yrs.chk.t()) {
-            # Same-mother pairs in the final year, with one born t years before
-            # the final year, and one born in the final year (max one per mum)
-            ns.SMPs.age.knwn[hist.ind, n.yrs.chk.t() + 1 - t] = sum(
-              mum[pop.atts$f.age == t & pop.atts$alive == 1] %in% 
-                mum[pop.atts$f.age == 0]
-            )
-          }
-
-          # Increment progress-bar
-          incProgress(1/n.sims())
-        }
-      }, value = 0, message = "Finding same-mother pairs")
-      
       # Update reactive value
       ns.SMPs(list(
-        ns.SMPs.wtn = ns.SMPs.wtn(), ns.SMPs.btn = ns.SMPs.btn,
-        ns.SMPs.age.knwn = ns.SMPs.age.knwn
+        # Between pairs of survey-years
+        ns.SMPs.btn = find.KPs.btn()(find.SMPs.btn, "same-mother"),
+        
+        # Same-mother pairs with ages known, in final year
+        ns.SMPs.age.knwn = find.KPs.t()(find.SMPs.age.knwn, "same-mother")
       ))
     }
     
@@ -178,54 +166,17 @@ observeEvent({
       input$check.sub.tabs == "SFPs.tab" && 
       is.null(ns.SFPs())
     ) {
-      # # Between pairs of survey-years
-      # ns.SFPs.btn = find.KPs.btn()(find.SFPs.btn, "same-father")
-      
-      # Objects to store results
-      ns.SFPs.age.knwn = ns.SFPs.same.age = matrix(
-        nrow = n.sims(), ncol = n.yrs.chk.t(), 
-        dimnames = list(NULL, Year = yrs.chk.t())
-      )
-      
-      # Loop over histories
-      withProgress({
-        for (hist.ind in 1:n.sims()) {
-          # Get population data
-          pop.atts = attributes(sim.lst()$hists.lst[[hist.ind]])
-          dad = pop.atts$dad
-          
-          ## Same-father pairs with ages known, in final year
-          
-          # Fathers of animals born in final year
-          dads.of.brn.f.yr = dad[pop.atts$f.age == 0]
-          
-          # Loop over check-years from earliest to latest
-          for (t in 1:n.yrs.chk.t()) {
-            # Same-father pairs in the final year, with one born t years before
-            # the final year, and one born in the final year (many possible per
-            # dad)
-            dads.of.brn.yr.t = dad[pop.atts$f.age == t & pop.atts$alive == 1]
-            max.dad.id = max(dads.of.brn.yr.t, dads.of.brn.f.yr)
-            ns.SFPs.age.knwn[hist.ind, n.yrs.chk.t() + 1 - t] = 
-              tabulate(dads.of.brn.yr.t, max.dad.id) %*% 
-              tabulate(dads.of.brn.f.yr, max.dad.id)
-            
-            # Same-father pairs in the final year, both born in the current year
-            # (many possible per dad)
-            ns.SFPs.same.age[hist.ind, n.yrs.chk.t() + 1 - t] = 
-              sum(choose(tabulate(dads.of.brn.yr.t), 2))
-          }
-          
-          # Increment progress-bar
-          incProgress(1/n.sims())
-        }
-      }, value = 0, message = "Finding same-father pairs")
-      
       # Update reactive value
       ns.SFPs(list(
         ns.SFPs.wtn = ns.SFPs.wtn(), 
-        # ns.SFPs.btn = ns.SFPs.btn,
-        ns.SFPs.age.knwn = ns.SFPs.age.knwn, ns.SFPs.same.age = ns.SFPs.same.age
+        # # Between pairs of survey-years
+        # ns.SFPs.btn = find.KPs.btn()(find.SFPs.btn, "same-father"),
+        
+        # Same-father pairs with ages known, in final year
+        ns.SFPs.age.knwn = find.KPs.t()(find.SFPs.age.knwn, "same-father"),
+        
+        # Same-father pairs with same ages known, in final year
+        ns.SFPs.same.age = find.KPs.t()(find.SFPs.same.age, "same-father")
       ))
     }
     
@@ -234,16 +185,13 @@ observeEvent({
       input$check.sub.tabs == "SibPs.tab" && 
       is.null(ns.SibPs())
     ) {
-      # Full-sibling pairs within survey-years
-      ns.FSPs.wtn = find.KPs.wtn()(find.FSPs.wtn, "full-sibling")
-      
-      # Half-sibling pairs within survey years
-      ns.HSPs.wtn = ns.SMPs.wtn() + ns.SFPs.wtn() - 2 * ns.FSPs.wtn
-      
       # Update reactive value
       ns.SibPs(list(
-        ns.FSPs.wtn = ns.FSPs.wtn, ns.HSPs.wtn = ns.HSPs.wtn
-        # ns.FSPs.btn = ns.FSPs.btn, ns.HSPs.btn = ns.HSPs.btn
+        # Full-sibling pairs within survey-years
+        ns.FSPs.wtn = find.KPs.wtn()(find.FSPs.wtn, "full-sibling"),
+        
+        # Half-sibling pairs within survey years
+        ns.HSPs.wtn = ns.SMPs.wtn() + ns.SFPs.wtn() - 2 * ns.FSPs.wtn
       ))
     }
   }

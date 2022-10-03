@@ -106,10 +106,51 @@ find.SFPs.btn = function(pop.atts, k) {
 find.FSPs.wtn = function(pop.atts, k) {
   # Full-sibling pairs within survey years
   sapply(1:k, function(s.ind) {
-    sum(choose(table(
-        pop.atts$mum[pop.atts$alv.s.yrs[, s.ind]], 
-        pop.atts$dad[pop.atts$alv.s.yrs[, s.ind]]
-      ), 2))
+    tbl = table(
+      pop.atts$mum[pop.atts$alv.s.yrs[, s.ind]], 
+      pop.atts$dad[pop.atts$alv.s.yrs[, s.ind]]
+    )
+    # Selecting before calling choose is 10x faster
+    sum(choose(tbl[tbl > 1], 2))
   })
+}
+
+# Same-mother pairs with ages known, in final year
+find.SMPs.age.knwn = function(pop.atts, n.yrs.chk.t) {
+  sapply(n.yrs.chk.t:1, function(t) {
+    # Same-mother pairs in the final year, with one born t years before the
+    # final year, and one born in the final year (max one per mum)
+    sum(
+      pop.atts$mum[pop.atts$f.age == t & pop.atts$alive == 1] %in% 
+        pop.atts$mum[pop.atts$f.age == 0]
+    )
+  })
+}
+
+# Same-father pairs with ages known, in final year
+find.SFPs.age.knwn = function(pop.atts, n.yrs.chk.t) {
+  # Fathers of animals born in final year
+  dads.of.brn.f.yr = pop.atts$dad[pop.atts$f.age == 0]
+  
+  # Same-father pairs in the final year, with one born t years before the final
+  # year, and one born in the final year (many possible per dad)
+  sapply(n.yrs.chk.t:1, function(t) {
+    dads.of.brn.yr.t = pop.atts$dad[pop.atts$f.age == t & pop.atts$alive == 1]
+    max.dad.id = max(dads.of.brn.yr.t, dads.of.brn.f.yr)
+    tabulate(dads.of.brn.yr.t, max.dad.id) %*% 
+      tabulate(dads.of.brn.f.yr, max.dad.id)
+  })
+}
+
+# Same-father pairs with same ages known, in final year
+find.SFPs.same.age = function(pop.atts, n.yrs.chk.t) {
+  # Same-father pairs in the final year, both born in the current year
+  # (many possible per dad)
+  sapply(n.yrs.chk.t:1, function(t) {
+    sum(choose(
+      tabulate(pop.atts$dad[pop.atts$f.age == t & pop.atts$alive == 1]), 2
+    ))
+  })
+  
 }
 
