@@ -1,17 +1,5 @@
 # Objects for checks sub-tabs
 
-# Nullify checks for simulated studies when new studies simulated
-observeEvent(input$simulate, {
-  checks.lst(NULL)
-  N.t.mat(NULL)
-  ns.SPs(NULL)
-  ns.POPs(NULL)
-  ns.SMPs(NULL)
-  ns.SFPs(NULL)
-  ns.SibPs(NULL)
-  prpn.unkn.prnts(NULL)
-})
-
 ## Reactives returning functions to find numbers of kin-pairs
 
 # In survey-years
@@ -71,6 +59,20 @@ find.KPs.t = reactive(function(find.func, KP.type) {
   message = paste("Finding", KP.type, "pairs in years up to final year"))
 })
 
+# Nullify things depending on last simulations
+bindEvent(observe({
+  checks.lst(NULL)
+  N.t.mat(NULL)
+  ns.SPs(NULL)
+  ns.POPs(NULL)
+  ns.SMPs.wtn(NULL)
+  ns.SFPs.wtn(NULL)
+  ns.SMPs(NULL)
+  ns.SFPs(NULL)
+  ns.SibPs(NULL)
+  pns.UPs(NULL)
+}), input$simulate)
+
 # Compute separate checks ----
 observeEvent({
   input$check.sub.tabs
@@ -105,10 +107,10 @@ observeEvent({
     if (
       input$check.sub.tabs %in% 
       c("POPs.tab", "SMPs.tab", "SFPs.tab", "SibPs.tab", "bias.tab") && 
-      is.null(prpn.unkn.prnts())
+      is.null(pns.UPs())
     ) {
       # Update reactive value
-      prpn.unkn.prnts(list(
+      pns.UPs(list(
         # In survey-years
         pns.UPs.wtn = find.KPs.wtn()(find.pns.UPs.wtn, "unknown parents"),
         

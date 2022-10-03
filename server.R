@@ -30,15 +30,15 @@ find.bias.srvy = function(errs) {
 }
 
 # Function to create module server for unknown parents modules
-unknPrntsServer <- function(id, prpn.unkn.prnts) {
+unknPrntsServer <- function(id, pns.UPs) {
   moduleServer(
     id,
     function(input, output, session) {
       output$unknPrntsWtn = renderTable(
-        find.bias.srvy(prpn.unkn.prnts()$pns.UPs.wtn)
+        find.bias.srvy(pns.UPs()$pns.UPs.wtn)
       )
       output$unknPrntsBtn = renderTable(
-        find.bias.srvy(prpn.unkn.prnts()$pns.UPs.btn)
+        find.bias.srvy(pns.UPs()$pns.UPs.btn)
       )
     }
   )
@@ -156,7 +156,7 @@ server <- function(input, output) {
   ns.SMPs = reactiveVal(saved.objs$ns.SMPs)
   ns.SFPs = reactiveVal(saved.objs$ns.SFPs)
   ns.SibPs = reactiveVal(saved.objs$ns.SFPs)
-  prpn.unkn.prnts = reactiveVal(saved.objs$prpn.unkn.prnts)
+  pns.UPs = reactiveVal(saved.objs$prpn.unkn.prnts)
   # ----
 
   # Variables bound to simulate button (for last simulation) ----

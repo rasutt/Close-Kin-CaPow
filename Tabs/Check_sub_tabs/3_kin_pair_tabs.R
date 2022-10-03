@@ -86,7 +86,7 @@ output$biasSPsPop = renderTable(find.bias.srvy(ns.SPs.errs()))
 output$nsSPsPop = renderPlot(nsKPsPlot(ns.SPs.errs(), kp.tps.pop.btn[2]))
 
 # Parent-offspring pairs
-unknPrntsServer("POPs.tab", prpn.unkn.prnts)
+unknPrntsServer("POPs.tab", pns.UPs)
 ns.POPs.wtn.errs = reactive({
   find.errs(ns.POPs()[["ns.POPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 3])
 })

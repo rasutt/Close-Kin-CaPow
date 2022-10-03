@@ -1,7 +1,7 @@
 # Simulation and outputs bound to simulate button
 
 # Simulate population and capture histories
-observeEvent(input$simulate, {
+bindEvent(observe({
   # Initial population size
   N.init = round(exp.N.t()[1])
   
@@ -30,7 +30,7 @@ observeEvent(input$simulate, {
   }, value = 0, message = "Simulating populations")
   
   sim.lst(list(hists.lst = hists.lst, N.fin.vec = N.fin.vec, Ns.vec = Ns.vec))
-})
+}), input$simulate)
 
 ## Last simulation
 
