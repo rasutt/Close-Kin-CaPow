@@ -119,7 +119,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "POPs.tab",
+        selected = "SPs.tab",
         # First study ----
         tabPanel(
           title = "First study",
@@ -155,6 +155,18 @@ ui <- fluidPage(
           h3("Error distributions"),
           plotOutput(outputId = "nsWtnPop"),
         ),
+        # Demographics ----
+        tabPanel(
+          title = "Demographics",
+          value = "Demo.tab",
+          h2("Demographics"),
+          p("Individual survival and population growth rates."),
+          h3("Biases"),
+          h4("Survival rate"),
+          tableOutput(outputId = "biasPhi"),
+          h3("Error distributions"),
+          plotOutput(outputId = "errsPhi"),
+        ),
         # All pairs ----
         tabPanel(
           title = "All pairs",
@@ -178,7 +190,7 @@ ui <- fluidPage(
           h3("Biases"),
           tableOutput(outputId = "biasSPsPop"),
           h3("Error distributions"),
-          plotOutput(outputId = "nsSPsPop"),
+          plotOutput(outputId = "nsSPsPop")
         ),
         # Parent-offspring pairs ----
         tabPanel(

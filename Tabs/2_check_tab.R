@@ -1,6 +1,6 @@
 # Objects for checks sub-tabs
 
-## Reactives returning functions to find numbers of kin-pairs
+## Reactives returning functions to find numbers of kin-pairs ----
 
 # In survey-years
 find.KPs.wtn = reactive(function(find.func, KP.type) {
@@ -59,10 +59,11 @@ find.KPs.t = reactive(function(find.func, KP.type) {
   message = paste("Finding", KP.type, "pairs in years up to final year"))
 })
 
-# Nullify things depending on last simulations
+# Nullify things depending on last simulations ----
 bindEvent(observe({
   checks.lst(NULL)
   N.t.mat(NULL)
+  avg.phi.obs(NULL)
   ns.SPs(NULL)
   ns.POPs(NULL)
   ns.SMPs.wtn(NULL)
@@ -85,13 +86,33 @@ observeEvent({
       is.null(N.t.mat())
     ) {
       withProgress({
-        N.t.mat(t(sapply(sim.lst()$hists.lst, function(hist) {
+        matrix(
+          N.t.mat(t(sapply(sim.lst()$hists.lst, function(hist) {
+            # Increment progress-bar
+            incProgress(1/n.sims())
+            
+            # Record population curve
+            attributes(hist)$N.t.vec
+          }))),
+          ncol = hist.len(), 
+          dimnames = list(NULL, Year = fst.year():fnl.year()), byrow = T
+        )
+      }, value = 0, message = "Finding population sizes")
+    }
+    
+    # Find observed survival rates
+    if (
+      input$check.sub.tabs %in% c("SPs.tab", "bias.tab") && 
+      is.null(avg.phi.obs())
+    ) {
+      withProgress({
+        avg.phi.obs(sapply(sim.lst()$hists.lst, function(hist) {
           # Increment progress-bar
           incProgress(1/n.sims())
           
           # Record population curve
-          attributes(hist)$N.t.vec
-        })))
+          attributes(hist)$avg.phi.obs
+        }))
       }, value = 0, message = "Finding population sizes")
     }
     
@@ -223,81 +244,81 @@ ns.APs.btn.pop = reactive({
   ns
 })
 
-# # Compute combined checks ----
-# observeEvent({
-#   input$check.sub.tabs
-#   input$nav.tab
-# }, {
-#   if (
-#     input$nav.tab == "check.tab" &&
-#     !(input$check.sub.tabs %in% 
-#       c("populations", "all.pairs", "SPs.tab", "POPs.tab", "SMPs.tab", 
-#         "SFPs.tab", "SibPs.tab")) && 
-#     is.null(checks.lst())
-#   ) {
-#     # Objects to store results
-#     # ns.caps.mat = ns.clvng.caps.mat = ns.clvng.mat = 
-#     #   matrix(nrow = n.sims(), ncol = k())
-#     # Ns.vec = numeric(n.sims())
-#     # ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr = array(
-#     #   dim = c(n.sims(), k(), n.kp.tps.cap.wtn),
-#     #   dimnames = list(NULL, Survey = srvy.yrs(), kp.type = kp.tps.cap.wtn)
-#     # )
-#     # ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr = array(
-#     #   dim = c(n.sims(), n.srvy.prs(), n.kp.tps.cap.btn),
-#     #   dimnames = list(NULL, Survey_pair = srvy.prs(), kp.type = kp.tps.cap.btn)
-#     # )
-# 
-#     # Loop over histories
-#     withProgress({
-#       for (hist.ind in 1:n.sims()) {
-#         # Get simulated family and capture histories of population of animals
-#         # over time
-#         pop.cap.hist = sim.lst()$hists.lst[[hist.ind]]
-#         
-#         # Insert population sizes in survey years for comparison with numbers of
-#         # kin pairs
-#         # ns.kps.pop.wtn.arr[hist.ind, , 1] = 
-#         #   attributes(pop.cap.hist)$N.t.vec[s.yr.inds()]
-#         
-#         # Record super-population size
-#         # Ns.vec[hist.ind] = attributes(pop.cap.hist)$Ns
-#         
-#         # Get numbers captured and calving in each survey
-#         # ns.caps = attributes(pop.cap.hist)$ns.caps
-#         # ns.caps.mat[hist.ind, ] = ns.caps
-#         # ns.clvng.mat[hist.ind, ] = attributes(pop.cap.hist)$ns.clvng
-#         # ns.clvng.caps.mat[hist.ind, ] = colSums(
-#         #   pop.cap.hist[, 4:(3 + k())] * pop.cap.hist[, (4 + k()):(3 + 2 * k())]
-#         # )
-#         
-#         # # Find numbers of kin pairs among samples
-#         # ns.kps.cap.lst = FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
-#         # ns.kps.cap.wtn.arr[hist.ind, , ] = t(ns.kps.cap.lst$wtn)
-#         # ns.kps.cap.btn.arr[hist.ind, , ] = t(ns.kps.cap.lst$btn)
-#         # 
-#         # # Find expected numbers of kin pairs among samples
-#         # exp.ns.kps.cap.lst = FindExpNsKPs(
-#         #   k(), n.srvy.prs(), exp.N.fin(), lambda(), fnl.year(), srvy.yrs(), 
-#         #   phi(), rho(), ns.caps, alpha()
-#         # )
-#         # exp.ns.kps.cap.wtn.arr[hist.ind, , ] = t(exp.ns.kps.cap.lst$wtn)
-#         # exp.ns.kps.cap.btn.arr[hist.ind, , ] = t(exp.ns.kps.cap.lst$btn)
-# 
-#         # Increment progress-bar
-#         incProgress(1/n.sims())
-#       }
-#     }, value = 0, message = "Checking simulations")
-#     
-#     checks.lst(list(
-#       # ns.caps.mat = ns.caps.mat,
-#       # ns.kps.cap.wtn.arr = ns.kps.cap.wtn.arr,
-#       # ns.kps.cap.btn.arr = ns.kps.cap.btn.arr,
-#       # exp.ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr,
-#       # exp.ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr,
-#     ))
-#   }
-# })
+# Compute combined checks ----
+observeEvent({
+  input$check.sub.tabs
+  input$nav.tab
+}, {
+  # if (
+  #   input$nav.tab == "check.tab" &&
+  #   !(input$check.sub.tabs %in%
+  #     c("populations", "all.pairs", "SPs.tab", "POPs.tab", "SMPs.tab",
+  #       "SFPs.tab", "SibPs.tab")) &&
+  #   is.null(checks.lst())
+  # ) {
+  #   # Objects to store results
+  #   # ns.caps.mat = ns.clvng.caps.mat = ns.clvng.mat =
+  #   #   matrix(nrow = n.sims(), ncol = k())
+  #   # Ns.vec = numeric(n.sims())
+  #   # ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr = array(
+  #   #   dim = c(n.sims(), k(), n.kp.tps.cap.wtn),
+  #   #   dimnames = list(NULL, Survey = srvy.yrs(), kp.type = kp.tps.cap.wtn)
+  #   # )
+  #   # ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr = array(
+  #   #   dim = c(n.sims(), n.srvy.prs(), n.kp.tps.cap.btn),
+  #   #   dimnames = list(NULL, Survey_pair = srvy.prs(), kp.type = kp.tps.cap.btn)
+  #   # )
+  # 
+  #   # Loop over histories
+  #   withProgress({
+  #     for (hist.ind in 1:n.sims()) {
+  #       # Get simulated family and capture histories of population of animals
+  #       # over time
+  #       pop.cap.hist = sim.lst()$hists.lst[[hist.ind]]
+  # 
+  #       # Insert population sizes in survey years for comparison with numbers of
+  #       # kin pairs
+  #       # ns.kps.pop.wtn.arr[hist.ind, , 1] =
+  #       #   attributes(pop.cap.hist)$N.t.vec[s.yr.inds()]
+  # 
+  #       # Record super-population size
+  #       # Ns.vec[hist.ind] = attributes(pop.cap.hist)$Ns
+  # 
+  #       # Get numbers captured and calving in each survey
+  #       # ns.caps = attributes(pop.cap.hist)$ns.caps
+  #       # ns.caps.mat[hist.ind, ] = ns.caps
+  #       # ns.clvng.mat[hist.ind, ] = attributes(pop.cap.hist)$ns.clvng
+  #       # ns.clvng.caps.mat[hist.ind, ] = colSums(
+  #       #   pop.cap.hist[, 4:(3 + k())] * pop.cap.hist[, (4 + k()):(3 + 2 * k())]
+  #       # )
+  # 
+  #       # # Find numbers of kin pairs among samples
+  #       # ns.kps.cap.lst = FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
+  #       # ns.kps.cap.wtn.arr[hist.ind, , ] = t(ns.kps.cap.lst$wtn)
+  #       # ns.kps.cap.btn.arr[hist.ind, , ] = t(ns.kps.cap.lst$btn)
+  #       #
+  #       # # Find expected numbers of kin pairs among samples
+  #       # exp.ns.kps.cap.lst = FindExpNsKPs(
+  #       #   k(), n.srvy.prs(), exp.N.fin(), lambda(), fnl.year(), srvy.yrs(),
+  #       #   phi(), rho(), ns.caps, alpha()
+  #       # )
+  #       # exp.ns.kps.cap.wtn.arr[hist.ind, , ] = t(exp.ns.kps.cap.lst$wtn)
+  #       # exp.ns.kps.cap.btn.arr[hist.ind, , ] = t(exp.ns.kps.cap.lst$btn)
+  # 
+  #       # Increment progress-bar
+  #       incProgress(1/n.sims())
+  #     }
+  #   }, value = 0, message = "Checking simulations")
+  # 
+  #   checks.lst(list(
+  #     # ns.caps.mat = ns.caps.mat,
+  #     # ns.kps.cap.wtn.arr = ns.kps.cap.wtn.arr,
+  #     # ns.kps.cap.btn.arr = ns.kps.cap.btn.arr,
+  #     # exp.ns.kps.cap.wtn.arr = exp.ns.kps.cap.wtn.arr,
+  #     # exp.ns.kps.cap.btn.arr = exp.ns.kps.cap.btn.arr,
+  #   ))
+  # }
+})
 
 # Estimated numbers of kin-pairs for whole population
 est.ns.kps.pop.lst = reactive({

@@ -29,10 +29,11 @@ SimPopStud <- function(
   t.lst.clf <- rep(NA, N.init)
   alive <- rep(T, N.init)
   
-  # Create vectors for population size and maturity statuses and enter first
-  # value
+  # Create vectors for population size and observed survival rates and enter
+  # first value
   N.t.vec <- numeric(hist.len)
   N.t.vec[1] <- N.init
+  phi.obs = numeric(hist.len - 1)
 
   # Create lists for life and calving statuses of animals in survey years
   alv.srvy <- clvng.srvy <- vector("list", k)
@@ -67,8 +68,10 @@ SimPopStud <- function(
 
     # Find survivors to current year
     alive[alive] <- as.logical(
-      rbinom(N.t.vec[t - 1], 1, phi * (1 - pmt.emgn * !female[alive]))
+      # rbinom(N.t.vec[t - 1], 1, phi * (1 - pmt.emgn * !female[alive]))
+      rbinom(N.t.vec[t - 1], 1, phi)
     )
+    phi.obs[t - 1] = sum(alive) / N.t.vec[t - 1]
 
     # Find possible mums (alive and mature this year)
     mums.poss <- which(alive & mature & female)
@@ -180,6 +183,7 @@ SimPopStud <- function(
   # rownames(alv.mat) <- ID
   
   # Attach parameters and implied birthrate
+  attributes(pop.hist)$avg.phi.obs <- mean(phi.obs)
   attributes(pop.hist)$beta <- beta
   attributes(pop.hist)$N.t.vec <- N.t.vec
   attributes(pop.hist)$ns.caps <- colSums(cap.hists)

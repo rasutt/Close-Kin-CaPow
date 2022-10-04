@@ -149,6 +149,7 @@ server <- function(input, output) {
   checks.lst = reactiveVal(saved.objs$checks.lst)
   fit.lst = reactiveVal(saved.objs$fit.lst)
   N.t.mat = reactiveVal(saved.objs$N.t.mat)
+  avg.phi.obs = reactiveVal(saved.objs$avg.phi.obs)
   ns.SPs = reactiveVal(saved.objs$ns.SPs)
   ns.POPs = reactiveVal(saved.objs$ns.POPs)
   ns.SMPs.wtn = reactiveVal(saved.objs$ns.SMPs.wtn)

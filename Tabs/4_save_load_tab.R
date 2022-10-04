@@ -39,6 +39,7 @@ output$downloadData <- downloadHandler(
       checks.lst = checks.lst(),
       fit.lst = fit.lst(),
       N.t.mat = N.t.mat(),
+      avg.phi.obs = avg.phi.obs(),
       ns.SPs = ns.SPs(),
       ns.POPs = ns.POPs(),
       ns.SMPs.wtn = ns.SMPs.wtn(),
@@ -93,6 +94,7 @@ observeEvent(input$file, {
   checks.lst(saved.objs$checks.lst)
   fit.lst(saved.objs$fit.lst)
   N.t.mat(saved.objs$N.t.mat)
+  avg.phi.obs(saved.objs$avg.phi.obs)
   ns.SPs(saved.objs$ns.SPs)
   ns.POPs(saved.objs$ns.POPs)
   ns.SMPs.wtn(saved.objs$ns.SMPs)

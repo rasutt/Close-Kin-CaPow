@@ -23,8 +23,16 @@ nsKPsPlot = function(errs, kp.type) {
   )
 }
 
-# Find errors for population sizes
+# Find errors for population sizes and survival rates
 ns.wtn.errs = reactive(find.errs(N.s.yrs(), est.ns.kps.pop.lst()$wtn[, 1]))
+phi.errs = reactive({
+  matrix(
+    find.errs(avg.phi.obs(), phi()), n.sims(), 
+    dimnames = list(NULL, "All times")
+  )
+})
+output$biasPhi = renderTable(find.bias.srvy(phi.errs()))
+output$errsPhi = renderPlot(nsKPsPlot(phi.errs(), "Phi"))
 
 ## Find errors and output bias tables and box plots for numbers of kin-pairs separately
 
