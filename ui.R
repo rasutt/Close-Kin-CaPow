@@ -119,7 +119,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "SPs.tab",
+        selected = "demo.tab",
         # First study ----
         tabPanel(
           title = "First study",
@@ -158,7 +158,7 @@ ui <- fluidPage(
         # Demographics ----
         tabPanel(
           title = "Demographics",
-          value = "Demo.tab",
+          value = "demo.tab",
           h2("Demographics"),
           p("Individual survival and population growth rates."),
           h3("Biases"),

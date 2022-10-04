@@ -28,4 +28,6 @@ output$checkExpPop = renderPlot({
 output$biasNsPopWtn = renderTable(find.bias.srvy(ns.wtn.errs()))
 
 # Boxplots
-output$nsWtnPop = renderPlot(nsKPsPlot(ns.wtn.errs(), kp.tps.pop.wtn[1]))
+output$nsWtnPop = renderPlot({
+  nsKPsPlot(ns.wtn.errs(), kp.tps.pop.wtn[1])
+})

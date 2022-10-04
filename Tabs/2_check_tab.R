@@ -31,7 +31,7 @@ find.KPs.btn = reactive(function(find.func, KP.type) {
         # Find kin-pairs
         find.func(attributes(hist), k())
       }),
-      ncol = n.srvy.prs(), dimnames = list(NULL, Survey = srvy.prs()), 
+      ncol = n.srvy.prs(), dimnames = list(NULL, Survey_pair = srvy.prs()), 
       byrow = T
     )
   }, 
@@ -86,23 +86,20 @@ observeEvent({
       is.null(N.t.mat())
     ) {
       withProgress({
-        matrix(
-          N.t.mat(t(sapply(sim.lst()$hists.lst, function(hist) {
-            # Increment progress-bar
-            incProgress(1/n.sims())
-            
-            # Record population curve
-            attributes(hist)$N.t.vec
-          }))),
-          ncol = hist.len(), 
-          dimnames = list(NULL, Year = fst.year():fnl.year()), byrow = T
-        )
-      }, value = 0, message = "Finding population sizes")
+        N.t.mat.new = t(sapply(sim.lst()$hists.lst, function(hist) {
+          # Increment progress-bar
+          incProgress(1/n.sims())
+          
+          # Record population curve
+          attributes(hist)$N.t.vec
+        }))}, value = 0, message = "Finding population sizes")
+      dimnames(N.t.mat.new) = list(NULL, Year = fst.year():fnl.year())
+      N.t.mat(N.t.mat.new)
     }
     
     # Find observed survival rates
     if (
-      input$check.sub.tabs %in% c("SPs.tab", "bias.tab") && 
+      input$check.sub.tabs %in% c("demo.tab", "bias.tab") && 
       is.null(avg.phi.obs())
     ) {
       withProgress({
@@ -226,22 +223,26 @@ observeEvent({
   }
 })
 
-# Checks based on population sizes
-N.s.yrs = reactive(N.t.mat()[, s.yr.inds()])
+# Population sizes in survey-years
+N.s.yrs = reactive({
+  N.s.yrs.new = N.t.mat()[, s.yr.inds()]
+
+  # Change label for column-names from Year to Survey_year
+  dimnames(N.s.yrs.new) = list(NULL, Survey_year = srvy.yrs())
+  N.s.yrs.new
+})
+
+# Total numbers of pairs within and between survey-years
 ns.APs.wtn.pop = reactive({
-  ns = choose(N.s.yrs(), 2)
-  colnames(ns) = srvy.yrs()
-  ns
+  choose(N.s.yrs(), 2)
 })
 ns.APs.btn.pop = reactive({
   # If there is only one survey-pair apply returns a vector so we have to make
   # it a matrix explicitly 
-  ns = t(matrix(
+  t(matrix(
     apply(N.s.yrs(), 1, combn, 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]),
-    nrow = n.srvy.prs()
+    nrow = n.srvy.prs(), dimnames = list(Survey_pair = srvy.prs(), NULL)
   ))
-  colnames(ns) = srvy.prs()
-  ns
 })
 
 # Compute combined checks ----

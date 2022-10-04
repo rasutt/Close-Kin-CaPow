@@ -24,7 +24,9 @@ nsKPsPlot = function(errs, kp.type) {
 }
 
 # Find errors for population sizes and survival rates
-ns.wtn.errs = reactive(find.errs(N.s.yrs(), est.ns.kps.pop.lst()$wtn[, 1]))
+ns.wtn.errs = reactive({
+  find.errs(N.s.yrs(), est.ns.kps.pop.lst()$wtn[, 1])
+})
 phi.errs = reactive({
   matrix(
     find.errs(avg.phi.obs(), phi()), n.sims(), 
@@ -130,7 +132,9 @@ ns.HSPs.wtn.errs = reactive({
 # ns.FSPs.btn.errs = reactive({
 #   find.errs(ns.FSPs()[["ns.FSPs.btn"]], est.ns.kps.pop.lst()$btn[, 6])
 # })
-output$biasFSPsPopWtn = renderTable(find.bias.srvy(ns.FSPs.wtn.errs()))
+output$biasFSPsPopWtn = renderTable({
+  find.bias.srvy(ns.FSPs.wtn.errs())
+})
 output$biasHSPsPopWtn = renderTable(find.bias.srvy(ns.HSPs.wtn.errs()))
 # output$biasHSPsPopBtn = renderTable(find.bias.srvy(ns.HSPs.btn.errs()))
 # output$biasFSPsPopBtn = renderTable(find.bias.srvy(ns.FSPs.btn.errs()))
