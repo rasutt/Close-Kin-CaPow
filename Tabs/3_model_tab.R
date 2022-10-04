@@ -129,15 +129,15 @@ observeEvent(input$simulate, {
 observeEvent(
   input$nav.tab, 
   if (input$nav.tab == "model.tab" && is.null(fit.lst())) {
-  # Boolean for models requested 
-  mod.bool = c(input$popan, input$close.kin)
-  
-  fit.lst(list(
-    ests = list(popan = fit.ppn()$ests, close.kin = fit.ck()$ests)[mod.bool],
-    ses = list(popan = fit.ppn()$ses, close.kin = fit.ck()$ses)[mod.bool],
-    cnvgs = list(popan = fit.ppn()$cnvgs, close.kin = fit.ck()$cnvgs)[mod.bool]
-  ))
-})
+    # Boolean for models requested 
+    mod.bool = c(input$popan, input$close.kin)
+    
+    fit.lst(list(
+      ests = list(popan = fit.ppn()$ests, close.kin = fit.ck()$ests)[mod.bool],
+      ses = list(popan = fit.ppn()$ses, close.kin = fit.ck()$ses)[mod.bool],
+      cnvgs = list(popan = fit.ppn()$cnvgs, close.kin = fit.ck()$cnvgs)[mod.bool]
+    ))
+  })
 
 # Check when optimizer converged and standard errors calculable
 check.ests = reactive({
@@ -160,7 +160,7 @@ check.ests = reactive({
     # Find differences between population parameter estimates and true values
     N.fin.errs[[i]] = ests[[i]][, 3] / sim.lst()$N.fin.vec[cis.ok[[i]]] - 1
     Ns.errs[[i]] = ests[[i]][, 4] / sim.lst()$Ns.vec[cis.ok[[i]]] - 1
-
+    
     # Confidence intervals (creates matrices of correct size)
     radius = 1.96 * fit.lst()$ses[[i]]
     lcbs[[i]] = fit.lst()$ests[[i]] - radius
@@ -292,12 +292,26 @@ output$CIPlot = renderPlot({
     # Loop over parameters, just lambda for now
     for (p in 1) {
       ord = order(fit.lst()$ests[[m]][, p])
-      # Setup plot
-      plot(
-        rep(1:n.sims(), 2), 
-        c(check.ests()$lcbs[[m]][, p], check.ests()$ucbs[[m]][, p]), 
-        main = mod.names()[m], ylab = est.par.names()[p], xlab = "", type = 'n'
-      )
+      
+      # If no valid estimates create empty plot
+      if (all(is.na(fit.lst()$ses[[m]][, p]))) {
+        plot(
+          1:n.sims(), 
+          rep(par.vals()[p], n.sims()), 
+          main = mod.names()[m], ylab = est.par.names()[p], xlab = "", 
+          type = 'n'
+          )
+      } 
+      # Otherwise plot CIs
+      else {
+        # Setup plot
+        plot(
+          rep(1:n.sims(), 2), 
+          c(check.ests()$lcbs[[m]][, p], check.ests()$ucbs[[m]][, p]), 
+          main = mod.names()[m], ylab = est.par.names()[p], xlab = "", 
+          type = 'n'
+        )
+      }
       # Plot estimates
       points(
         1:n.sims(), fit.lst()$ests[[m]][ord, p], pch = "-", 
