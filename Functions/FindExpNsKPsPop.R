@@ -46,7 +46,7 @@ FindEstNsKPsPop = function(
       exp.N.s.yrs[s.pr.inds[1]]
   }))
   
-  # Same-mother pairs between survey years
+  # Parent-offspring pairs between survey years
   exp.ns.POPs.btn = as.vector(combn(1:k, 2, function(s.pr.inds) {
     s.gap.lim = s.pr.inds[2] - s.pr.inds[1] - 1 - alpha
     4 * exp.N.s.yrs[s.pr.inds[2]] * phi * (lambda - phi) / lmb.m.ph.sq *

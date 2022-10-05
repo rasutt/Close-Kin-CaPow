@@ -236,6 +236,7 @@ N.s.yrs = reactive({
 # Total numbers of pairs within and between survey-years
 ns.APs = reactive(list(
   wtn = choose(N.s.yrs(), 2),
+  
   # If there is only one survey-pair apply returns a vector so we have to make
   # it a matrix explicitly 
   btn = t(matrix(

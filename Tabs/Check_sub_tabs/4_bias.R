@@ -15,8 +15,8 @@ ns.kps.pop.wtn.errs = reactive({
   arr = array(
     c(
       ns.wtn.errs()[[1]], ns.APs.errs()[[1]], ns.POPs.errs()[[1]], 
-      ns.SMPs.errs()[[2]], ns.SFPs.errs()[[3]], ns.SibPs.errs()[[1]], 
-      ns.SibPs.errs()[[2]]
+      ns.SMPs.errs()[[2]], ns.SFPs.errs()[[3]], ns.FSPs.errs()[[1]], 
+      ns.HSPs.errs()[[1]]
     ), 
     dim = c(n.sims(), k(), n.kp.tps.pop.wtn),
     dimnames = list(NULL, Survey = srvy.yrs(), kp.type = kp.tps.pop.wtn)
