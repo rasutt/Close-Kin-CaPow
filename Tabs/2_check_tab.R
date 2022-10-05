@@ -166,14 +166,14 @@ observeEvent({
     ) {
       # Update reactive value
       ns.SMPs(list(
+        # Same-mother pairs with ages known, in final year
+        ns.SMPs.age.knwn = find.KPs.t()(find.SMPs.age.knwn, "same-mother"),
+        
         # In survey-years
         ns.SMPs.wtn = ns.SMPs.wtn(),
         
         # Between pairs of survey-years
-        ns.SMPs.btn = find.KPs.btn()(find.SMPs.btn, "same-mother"),
-        
-        # Same-mother pairs with ages known, in final year
-        ns.SMPs.age.knwn = find.KPs.t()(find.SMPs.age.knwn, "same-mother")
+        ns.SMPs.btn = find.KPs.btn()(find.SMPs.btn, "same-mother")
       ))
     }
     
@@ -191,16 +191,17 @@ observeEvent({
     ) {
       # Update reactive value
       ns.SFPs(list(
-        ns.SFPs.wtn = ns.SFPs.wtn(), 
-        
-        # # Between pairs of survey-years
-        # ns.SFPs.btn = find.KPs.btn()(find.SFPs.btn, "same-father"),
-        
         # Same-father pairs with ages known, in final year
         ns.SFPs.age.knwn = find.KPs.t()(find.SFPs.age.knwn, "same-father"),
         
         # Same-father pairs with same ages known, in final year
-        ns.SFPs.same.age = find.KPs.t()(find.SFPs.same.age, "same-father")
+        ns.SFPs.same.age = find.KPs.t()(find.SFPs.same.age, "same-father"),
+        
+        # In survey-years
+        ns.SFPs.wtn = ns.SFPs.wtn()
+        
+        # # Between pairs of survey-years
+        # ns.SFPs.btn = find.KPs.btn()(find.SFPs.btn, "same-father")
       ))
     }
     

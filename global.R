@@ -42,8 +42,9 @@ kp.tps.t = c(
 # Numbers of types of kin-pairs
 n.kp.tps.pop.wtn = length(kp.tps.pop.wtn)
 n.kp.tps.pop.btn = length(kp.tps.pop.btn)
-n.kp.tps.cap.wtn = length(kp.tps.cap.wtn)
+n.kp.tps.cap.wtn = length(kp.tps.cap.wtn) 
 n.kp.tps.cap.btn = length(kp.tps.cap.btn)
 n.kp.tps.prb.wtn = length(kp.tps.prb.wtn)
 n.kp.tps.prb.btn = length(kp.tps.prb.btn)
 n.kp.tps.t = length(kp.tps.t)
+

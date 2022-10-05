@@ -36,60 +36,91 @@ phi.errs = reactive({
 output$biasPhi = renderTable(find.bias.srvy(phi.errs()))
 output$errsPhi = renderPlot(nsKPsPlot(phi.errs(), "Phi"))
 
-## Find errors and output bias tables and box plots for numbers of kin-pairs separately
+## Find errors and output bias tables and box plots for numbers of kin-pairs
+## separately
 
+# Changing to list approach
 # All-pairs
-ns.APs.wtn.errs = reactive({
-  find.errs(ns.APs.wtn.pop(), est.ns.kps.pop.lst()$wtn[, 2])
+ns.APs = reactive(list(ns.APs.wtn.pop(), ns.APs.btn.pop()))
+ns.APs.preds = reactive(list(
+  est.ns.kps.pop.lst()$wtn[, 2], est.ns.kps.pop.lst()$btn[, 1]
+))
+ns.APs.errs = reactive({
+  lapply(1:length(ns.APs()), function(i) {
+    find.errs(ns.APs()[[i]], ns.APs.preds()[[i]])
+  })
 })
-ns.APs.btn.errs = reactive({
-  find.errs(ns.APs.btn.pop(), est.ns.kps.pop.lst()$btn[, 1])
+ns.APs.bs.tbls = c("biasAPsPopWtn", "biasAPsPopBtn")
+ns.APs.err.plts = c("nsAPsWtnPop", "nsAPsBtnPop")
+lapply(1:length(ns.APs.bs.tbls), function(i) {
+  output[[ns.APs.bs.tbls[i]]] = renderTable(find.bias.srvy(ns.APs.errs()[[i]]))
+  output[[ns.APs.err.plts[i]]] = 
+    renderPlot(nsKPsPlot(ns.APs.errs()[[i]], "All-pairs"))
 })
-output$biasAPsPopWtn = renderTable(find.bias.srvy(ns.APs.wtn.errs()))
-output$biasAPsPopBtn = renderTable(find.bias.srvy(ns.APs.btn.errs()))
-output$nsAPsWtnPop = renderPlot(nsKPsPlot(ns.APs.wtn.errs(), kp.tps.pop.wtn[2]))
-output$nsAPsBtnPop = renderPlot(nsKPsPlot(ns.APs.btn.errs(), kp.tps.pop.btn[1]))
+
+# Parent-offspring pairs
+ns.POPs.preds = reactive(list(
+  est.ns.kps.pop.lst()$wtn[, 3], est.ns.kps.pop.lst()$btn[, 3]
+))
+ns.POPs.errs = reactive({
+  lapply(1:length(ns.POPs()), function(i) {
+    find.errs(ns.POPs()[[i]], ns.POPs.preds()[[i]])
+  })
+})
+ns.POPs.bs.tbls = c("biasPOPsPopWtn", "biasPOPsPopBtn")
+ns.POPs.err.plts = c("nsPOPsWtnPop", "nsPOPsBtnPop")
+lapply(1:length(ns.POPs.bs.tbls), function(i) {
+  output[[ns.POPs.bs.tbls[i]]] = renderTable(find.bias.srvy(ns.POPs.errs()[[i]]))
+  output[[ns.POPs.err.plts[i]]] = 
+    renderPlot(nsKPsPlot(ns.POPs.errs()[[i]], "Parent-offspring pairs"))
+})
 
 # Self-pairs
 ns.SPs.errs = reactive(find.errs(ns.SPs(), est.ns.kps.pop.lst()$btn[, 2]))
-output$biasSPsPop = renderTable(find.bias.srvy(ns.SPs.errs()))
-output$nsSPsPop = renderPlot(nsKPsPlot(ns.SPs.errs(), kp.tps.pop.btn[2]))
+output[["biasSPsPop"]] = renderTable(find.bias.srvy(ns.SPs.errs()))
+output[["nsSPsPop"]] = renderPlot(nsKPsPlot(ns.SPs.errs(), "Self-pairs"))
+
+# Same-mother pairs
+ns.SMPs.preds = reactive(list(
+  est.ns.kps.t()[, 1],  est.ns.kps.pop.lst()$wtn[, 4], 
+  est.ns.kps.pop.lst()$btn[, 4]
+))
+ns.SMPs.errs = reactive({
+  lapply(1:length(ns.SMPs()), function(i) {
+    find.errs(ns.SMPs()[[i]], ns.SMPs.preds()[[i]])
+  })
+})
+ns.SMPs.bs.tbls = c("biasSMPsAgeKnwn", "biasSMPsPopWtn", "biasSMPsPopBtn")
+ns.SMPs.err.plts = c("nsSMPsAgeKnwn", "nsSMPsWtnPop", "nsSMPsBtnPop")
+lapply(1:length(ns.SMPs.bs.tbls), function(i) {
+  output[[ns.SMPs.bs.tbls[i]]] = renderTable(find.bias.srvy(ns.SMPs.errs()[[i]]))
+  output[[ns.SMPs.err.plts[i]]] = 
+    renderPlot(nsKPsPlot(ns.SMPs.errs()[[i]], "Same-mother pairs"))
+})
 
 # Parent-offspring pairs
 unknPrntsServer("POPs.tab", pns.UPs)
-ns.POPs.wtn.errs = reactive({
-  find.errs(ns.POPs()[["ns.POPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 3])
-})
-ns.POPs.btn.errs = reactive({
-  find.errs(ns.POPs()[["ns.POPs.btn"]], est.ns.kps.pop.lst()$btn[, 3])
-})
-output$biasPOPsPopWtn = renderTable(find.bias.srvy(ns.POPs.wtn.errs()))
-output$biasPOPsPopBtn = renderTable(find.bias.srvy(ns.POPs.btn.errs()))
-output$nsPOPsWtnPop =
-  renderPlot(nsKPsPlot(ns.POPs.wtn.errs(), kp.tps.pop.wtn[3]))
-output$nsPOPsBtnPop =
-  renderPlot(nsKPsPlot(ns.POPs.btn.errs(), kp.tps.pop.btn[3]))
 
 # Same-mother pairs
 unknPrntsServer("SMPs.tab", pns.UPs)
-ns.SMPs.age.knwn.errs = reactive({
-  find.errs(ns.SMPs()[["ns.SMPs.age.knwn"]], est.ns.kps.t()[, 1])
-})
-ns.SMPs.wtn.errs = reactive({
-  find.errs(ns.SMPs()[["ns.SMPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 4])
-})
-ns.SMPs.btn.errs = reactive({
-  find.errs(ns.SMPs()[["ns.SMPs.btn"]], est.ns.kps.pop.lst()$btn[, 4])
-})
-output$biasSMPsAgeKnwn = renderTable(find.bias.srvy(ns.SMPs.age.knwn.errs()))
-output$biasSMPsPopWtn = renderTable(find.bias.srvy(ns.SMPs.wtn.errs()))
-output$biasSMPsPopBtn = renderTable(find.bias.srvy(ns.SMPs.btn.errs()))
-output$nsSMPsAgeKnwn = 
-  renderPlot(nsKPsPlot(ns.SMPs.age.knwn.errs(), kp.tps.t[1]))
-output$nsSMPsWtnPop = 
-  renderPlot(nsKPsPlot(ns.SMPs.wtn.errs(), kp.tps.pop.wtn[4]))
-output$nsSMPsBtnPop = 
-  renderPlot(nsKPsPlot(ns.SMPs.btn.errs(), kp.tps.pop.btn[4]))
+# ns.SMPs.age.knwn.errs = reactive({
+#   find.errs(ns.SMPs()[["ns.SMPs.age.knwn"]], est.ns.kps.t()[, 1])
+# })
+# ns.SMPs.wtn.errs = reactive({
+#   find.errs(ns.SMPs()[["ns.SMPs.wtn"]], est.ns.kps.pop.lst()$wtn[, 4])
+# })
+# ns.SMPs.btn.errs = reactive({
+#   find.errs(ns.SMPs()[["ns.SMPs.btn"]], est.ns.kps.pop.lst()$btn[, 4])
+# })
+# output$biasSMPsAgeKnwn = renderTable(find.bias.srvy(ns.SMPs.age.knwn.errs()))
+# output$biasSMPsPopWtn = renderTable(find.bias.srvy(ns.SMPs.wtn.errs()))
+# output$biasSMPsPopBtn = renderTable(find.bias.srvy(ns.SMPs.btn.errs()))
+# output$nsSMPsAgeKnwn = 
+#   renderPlot(nsKPsPlot(ns.SMPs.age.knwn.errs(), kp.tps.t[1]))
+# output$nsSMPsWtnPop = 
+#   renderPlot(nsKPsPlot(ns.SMPs.wtn.errs(), kp.tps.pop.wtn[4]))
+# output$nsSMPsBtnPop = 
+#   renderPlot(nsKPsPlot(ns.SMPs.btn.errs(), kp.tps.pop.btn[4]))
 
 # Same-father pairs
 unknPrntsServer("SFPs.tab", pns.UPs)

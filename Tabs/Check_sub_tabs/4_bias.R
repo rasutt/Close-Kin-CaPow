@@ -14,8 +14,8 @@ output$percUnknPrnts = renderTable({
 ns.kps.pop.wtn.errs = reactive({
   arr = array(
     c(
-      ns.wtn.errs(), ns.APs.wtn.errs(), ns.POPs.wtn.errs(), 
-      ns.SMPs.wtn.errs(), ns.SFPs.wtn.errs(), ns.FSPs.wtn.errs(), 
+      ns.wtn.errs(), ns.APs.errs()[[1]], ns.POPs.errs()[[1]], 
+      ns.SMPs.errs()[[2]], ns.SFPs.wtn.errs(), ns.FSPs.wtn.errs(), 
       ns.HSPs.wtn.errs() 
     ), 
     dim = c(n.sims(), k(), n.kp.tps.pop.wtn),
@@ -24,7 +24,8 @@ ns.kps.pop.wtn.errs = reactive({
 })
 ns.kps.pop.btn.errs = reactive({
   arr = array(
-    c(ns.APs.btn.errs(), ns.SPs.errs(), ns.POPs.btn.errs(), ns.SMPs.btn.errs()),
+    c(ns.APs.errs()[[2]], ns.SPs.errs(), ns.POPs.errs()[[2]], 
+      ns.SMPs.errs()[[3]]),
     dim = c(n.sims(), n.srvy.prs(), n.kp.tps.pop.btn),
     dimnames = list(NULL, Survey_pair = srvy.prs(), kp.type = kp.tps.pop.btn)
   )
@@ -32,7 +33,7 @@ ns.kps.pop.btn.errs = reactive({
 ns.kps.t.errs = reactive({
   arr = array(
     c(
-      ns.SMPs.age.knwn.errs(), ns.SFPs.age.knwn.errs(), ns.SFPs.same.age.errs()
+      ns.SMPs.errs()[[1]], ns.SFPs.age.knwn.errs(), ns.SFPs.same.age.errs()
     ),
     dim = c(n.sims(), n.yrs.chk.t(), n.kp.tps.t),
     dimnames = list(NULL, Year = yrs.chk.t(), kp.type = kp.tps.t)
