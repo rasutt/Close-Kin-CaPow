@@ -234,17 +234,15 @@ N.s.yrs = reactive({
 })
 
 # Total numbers of pairs within and between survey-years
-ns.APs.wtn.pop = reactive({
-  choose(N.s.yrs(), 2)
-})
-ns.APs.btn.pop = reactive({
+ns.APs = reactive(list(
+  wtn = choose(N.s.yrs(), 2),
   # If there is only one survey-pair apply returns a vector so we have to make
   # it a matrix explicitly 
-  t(matrix(
+  btn = t(matrix(
     apply(N.s.yrs(), 1, combn, 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]),
     nrow = n.srvy.prs(), dimnames = list(Survey_pair = srvy.prs(), NULL)
   ))
-})
+))
 
 # Compute combined checks ----
 observeEvent({
@@ -323,7 +321,7 @@ observeEvent({
 })
 
 # Estimated numbers of kin-pairs for whole population
-est.ns.kps.pop.lst = reactive({
+est.ns.kps.pop = reactive({
   FindEstNsKPsPop(
     exp.N.t(), s.yr.inds(), phi(), lambda(), alpha(), srvy.yrs(), k()
   )

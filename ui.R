@@ -133,15 +133,15 @@ ui <- fluidPage(
           
           h3("Numbers of kin-pairs in whole population"),
           h4("Within surveys"),
-          tableOutput(outputId = "firstNsKPsPopWtn"),
+          tableOutput(outputId = "firstNsKPsWtnPop"),
           h4("Between surveys"),
-          tableOutput(outputId = "firstNsKPsPopBtn"),
+          tableOutput(outputId = "firstNsKPsBtnPop"),
           
           h3("Estimated numbers of kin-pairs in whole population"),
           h4("Within surveys"),
-          tableOutput(outputId = "firstEstNsKPsPopWtn"),
+          tableOutput(outputId = "firstEstNsKPsWtnPop"),
           h4("Between surveys"),
-          tableOutput(outputId = "firstEstNsKPsPopBtn")
+          tableOutput(outputId = "firstEstNsKPsBtnPop")
         ),
         # Populations ----
         tabPanel(
@@ -151,7 +151,7 @@ ui <- fluidPage(
           p("Numbers of individuals that are alive in the population."),
           plotOutput(outputId = "checkExpPop"),
           h3("Biases"),
-          tableOutput(outputId = "biasNsPopWtn"),
+          tableOutput(outputId = "bsNsWtnPop"),
           h3("Error distributions"),
           plotOutput(outputId = "nsWtnPop"),
         ),
@@ -163,7 +163,7 @@ ui <- fluidPage(
           p("Individual survival and population growth rates."),
           h3("Biases"),
           h4("Survival rate"),
-          tableOutput(outputId = "biasPhi"),
+          tableOutput(outputId = "bsPhi"),
           h3("Error distributions"),
           plotOutput(outputId = "errsPhi"),
         ),
@@ -174,8 +174,8 @@ ui <- fluidPage(
           h2("All pairs"),
           p("Total numbers of pairs of individuals."),
           h3("Biases"),
-          tableOutput(outputId = "biasAPsPopWtn"),
-          tableOutput(outputId = "biasAPsPopBtn"),
+          tableOutput(outputId = "bsAPsWtnPop"),
+          tableOutput(outputId = "bsAPsBtnPop"),
           h3("Error distributions"),
           plotOutput(outputId = "nsAPsWtnPop"),
           plotOutput(outputId = "nsAPsBtnPop")
@@ -188,7 +188,7 @@ ui <- fluidPage(
           p("Numbers of pairs of individuals that are the same individual in
           different survey-years."),
           h3("Biases"),
-          tableOutput(outputId = "biasSPsPop"),
+          tableOutput(outputId = "bsSPsPop"),
           h3("Error distributions"),
           plotOutput(outputId = "nsSPsPop")
         ),
@@ -200,8 +200,8 @@ ui <- fluidPage(
           p("Numbers of pairs of individuals that are parent and offspring."),
           unknPrntsTbl("POPs.tab"),
           h3("Biases"),
-          tableOutput(outputId = "biasPOPsPopWtn"),
-          tableOutput(outputId = "biasPOPsPopBtn"),
+          tableOutput(outputId = "bsPOPsWtnPop"),
+          tableOutput(outputId = "bsPOPsBtnPop"),
           h3("Error distributions"),
           plotOutput(outputId = "nsPOPsWtnPop"),
           plotOutput(outputId = "nsPOPsBtnPop")
@@ -216,10 +216,10 @@ ui <- fluidPage(
           h3("Biases"),
           p("Numbers in the final year, with one born in
             the year indicated, and one born in the final year."),
-          tableOutput(outputId = "biasSMPsAgeKnwn"),
+          tableOutput(outputId = "bsSMPsAgeKnwn"),
           p("Numbers in and between survey-years, ages unknown."),
-          tableOutput(outputId = "biasSMPsPopWtn"),
-          tableOutput(outputId = "biasSMPsPopBtn"),
+          tableOutput(outputId = "bsSMPsWtnPop"),
+          tableOutput(outputId = "bsSMPsBtnPop"),
           h3("Error distributions"),
           plotOutput(outputId = "nsSMPsAgeKnwn"),
           plotOutput(outputId = "nsSMPsWtnPop"),
@@ -235,12 +235,12 @@ ui <- fluidPage(
           h3("Biases"),
           p("Numbers in the final year, with one born in
             the year indicated, and one born in the final year."),
-          tableOutput(outputId = "biasSFPsAgeKnwn"),
+          tableOutput(outputId = "bsSFPsAgeKnwn"),
           p("Numbers in the final year, both born in the year indicated."),
-          tableOutput(outputId = "biasSFPsSameAge"),
+          tableOutput(outputId = "bsSFPsSameAge"),
           p("Numbers in and between survey-years, ages unknown."),
-          tableOutput(outputId = "biasSFPsPopWtn"),
-          # tableOutput(outputId = "biasSFPsPopBtn"),
+          tableOutput(outputId = "bsSFPsWtnPop"),
+          # tableOutput(outputId = "bsSFPsBtnPop"),
           h3("Error distributions"),
           plotOutput(outputId = "nsSFPsAgeKnwn"),
           plotOutput(outputId = "nsSFPsSameAge"),
@@ -257,12 +257,12 @@ ui <- fluidPage(
           h3("Biases"),
           h4("Full-sibling pairs"),
           p("Pairs of individuals that share two parents."),
-          tableOutput(outputId = "biasFSPsPopWtn"),
-          # tableOutput(outputId = "biasFSPsPopBtn"),
+          tableOutput(outputId = "bsFSPsWtnPop"),
+          # tableOutput(outputId = "bsFSPsBtnPop"),
           h4("Half-sibling pairs"),
           p("Pairs of individuals that share one parent."),
-          tableOutput(outputId = "biasHSPsPopWtn"),
-          # tableOutput(outputId = "biasSFPsPopBtn"),
+          tableOutput(outputId = "bsHSPsWtnPop"),
+          # tableOutput(outputId = "bsSFPsBtnPop"),
           h3("Error distributions"),
           plotOutput(outputId = "nsFSPsWtnPop"),
           plotOutput(outputId = "nsHSPsWtnPop")
@@ -272,7 +272,7 @@ ui <- fluidPage(
         # Biases ----
         tabPanel(
           title = "Overall biases",
-          value = "bias.tab",
+          value = "bs.tab",
           h2("Overall biases"),
           p("Average estimator biases over all years."),
           h3("Unknown parents"),
@@ -282,23 +282,23 @@ ui <- fluidPage(
           h3("Numbers in whole population"),
           h4("Temporal estimates"),
           textOutput("tempEstBiasNote"),
-          tableOutput(outputId = "biasNsKPsTemp"),
+          tableOutput(outputId = "bsNsKPsTemp"),
           h4("Within surveys"),
-          tableOutput(outputId = "biasNsKPsPopWtn"),
+          tableOutput(outputId = "bsNsKPsWtnPop"),
           h4("Between surveys"),
-          tableOutput(outputId = "biasNsKPsPopBtn"),
+          tableOutput(outputId = "bsNsKPsBtnPop"),
           
           # h3("Probabilities"),
           # h4("Within surveys"),
-          # tableOutput(outputId = "biasProbsKPsWtn"),
+          # tableOutput(outputId = "bsProbsKPsWtn"),
           # h4("Between surveys"),
-          # tableOutput(outputId = "biasProbsKPsBtn"),
+          # tableOutput(outputId = "bsProbsKPsBtn"),
           
           # h3("Numbers among sampled animals"),
           # h4("Within surveys"),
-          # tableOutput(outputId = "biasNsKPsCapWtn"),
+          # tableOutput(outputId = "bsNsKPsCapWtn"),
           # h4("Between surveys")
-          # tableOutput(outputId = "biasNsKPsCapBtn")
+          # tableOutput(outputId = "bsNsKPsCapBtn")
         ),
       )
     ), 
