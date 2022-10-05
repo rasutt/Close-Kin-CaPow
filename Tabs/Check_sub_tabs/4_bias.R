@@ -24,17 +24,17 @@ ns.kps.pop.wtn.errs = reactive({
 })
 ns.kps.pop.btn.errs = reactive({
   arr = array(
-    c(ns.APs.errs()[[2]], ns.SPs.errs()[[1]], ns.POPs.errs()[[2]], 
-      ns.SMPs.errs()[[3]]),
+    c(
+      ns.APs.errs()[[2]], ns.SPs.errs()[[1]], ns.POPs.errs()[[2]], 
+      ns.SMPs.errs()[[3]]
+    ),
     dim = c(n.sims(), n.srvy.prs(), n.kp.tps.pop.btn),
     dimnames = list(NULL, Survey_pair = srvy.prs(), kp.type = kp.tps.pop.btn)
   )
 })
 ns.kps.t.errs = reactive({
   arr = array(
-    c(
-      ns.SMPs.errs()[[1]], ns.SFPs.errs()[[1]], ns.SFPs.errs()[[2]]
-    ),
+    c(ns.SMPs.errs()[[1]], ns.SFPs.errs()[[1]], ns.SFPs.errs()[[2]]),
     dim = c(n.sims(), n.yrs.chk.t(), n.kp.tps.t),
     dimnames = list(NULL, Year = yrs.chk.t(), kp.type = kp.tps.t)
   )
@@ -45,7 +45,7 @@ ns.kps.prb.wtn.errs = reactive({
     checks.lst()$ns.kps.pop.wtn.arr[, , -1:-2] / 
       array(
         rep(checks.lst()$ns.kps.pop.wtn.arr[, , 2], n.kp.tps.prb.wtn), 
-        c(n.sims(), k(), n.kp.tps.prb.wtn)
+        dim = c(n.sims(), k(), n.kp.tps.prb.wtn)
       ), 
     est.ns.kps.pop()$wtn[, -1:-2] / est.ns.kps.pop()$wtn[, 2]
   )
@@ -57,7 +57,7 @@ ns.kps.prb.btn.errs = reactive({
     checks.lst()$ns.kps.pop.btn.arr[, , -1, drop = F] / 
       array(
         rep(checks.lst()$ns.kps.pop.btn.arr[, , 1], n.kp.tps.prb.btn), 
-        c(n.sims(), n.srvy.prs(), n.kp.tps.prb.btn)
+        dim = c(n.sims(), n.srvy.prs(), n.kp.tps.prb.btn)
       ), 
     est.ns.kps.pop()$btn[, -1] / est.ns.kps.pop()$btn[, 1]
   )

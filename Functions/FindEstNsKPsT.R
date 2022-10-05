@@ -55,7 +55,8 @@ FindEstNsKPsT = function(
 
   # Combine and return
   cbind(
-    est.ns.SMPs.fnl.b1.fnl, est.ns.SFPs.fnl.b1.fnl, est.ns.SFPs.fnl.b
+    SMPs.kwn.age = est.ns.SMPs.fnl.b1.fnl, SFPs.kwn.age = est.ns.SFPs.fnl.b1.fnl, 
+    SFPs.sm.age = est.ns.SFPs.fnl.b
     # est.ns.SMPs.tm2.tm1.t.f.yr, est.ns.SMPs.tm1.f.yrm1.t.f.yr,
     # est.ns.SMPs.tm1.btwn.t.f.yr.t.f.yr, est.ns.SMPs.fst.yr.btwn.t.f.yr
   )

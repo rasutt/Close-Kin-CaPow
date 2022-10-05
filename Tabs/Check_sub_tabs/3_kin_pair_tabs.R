@@ -89,7 +89,7 @@ show.errs.new(
 
 # Same-mother pairs
 ns.SMPs.preds = reactive(list(
-  est.ns.kps.t()[, 1],  est.ns.kps.pop()$wtn[, "SMPs"], 
+  est.ns.kps.t()[, "SFPs.kwn.age"],  est.ns.kps.pop()$wtn[, "SMPs"], 
   est.ns.kps.pop()$btn[, "SMPs"]
 ))
 ns.SMPs.errs = reactive(l.fnd.errs(ns.SMPs(), ns.SMPs.preds()))
@@ -99,7 +99,8 @@ show.errs.new(
 
 # Same-father pairs
 ns.SFPs.preds = reactive(list(
-  est.ns.kps.t()[, 2],  est.ns.kps.t()[, 3], est.ns.kps.pop()$wtn[, "SFPs"]
+  est.ns.kps.t()[, "SFPs.kwn.age"],  est.ns.kps.t()[, "SFPs.sm.age"], 
+  est.ns.kps.pop()$wtn[, "SFPs"]
 ))
 ns.SFPs.errs = reactive(l.fnd.errs(ns.SFPs(), ns.SFPs.preds()))
 show.errs.new(
@@ -111,6 +112,8 @@ ns.SibPs.preds = reactive(list(
   est.ns.kps.pop()$wtn[, "FSPs"], est.ns.kps.pop()$wtn[, "HSPs"]
 ))
 ns.SibPs.errs = reactive(l.fnd.errs(ns.SibPs(), ns.SibPs.preds()))
+
+# Old function here because SibPs is list with different kin-pair types
 show.errs(
   ns.SibPs.errs, c("FSPsWtnPop", "HSPsWtnPop"), 
   c("Full-sibling pairs", "Half-sibling pairs")
