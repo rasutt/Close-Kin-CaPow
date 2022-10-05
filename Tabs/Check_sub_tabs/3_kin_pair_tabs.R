@@ -13,10 +13,10 @@ l.fnd.errs = function(ns, preds) {
   lapply(1:length(ns), function(i) find.errs(ns[[i]], preds[[i]]))
 }
 
-# Function to display estimate errors as bias tables and box plots
+# Functions to display estimate errors as bias tables and box plots
 show.errs = function(errs, kp.tp.vrtns, kp.tp.nms) {
   tbls = paste0("bs", kp.tp.vrtns)
-  plts = paste0("ns", kp.tp.vrtns)
+  plts = paste0("errs", kp.tp.vrtns)
   
   lapply(1:length(tbls), function(i) {
     output[[tbls[i]]] = renderTable(find.bias.srvy(errs()[[i]]))
@@ -25,7 +25,7 @@ show.errs = function(errs, kp.tp.vrtns, kp.tp.nms) {
 }
 show.errs.new = function(errs, kp.tp, kp.vrtns, kp.tp.nm) {
   tbls = paste0("bs", kp.tp, kp.vrtns)
-  plts = paste0("ns", kp.tp, kp.vrtns)
+  plts = paste0("errs", kp.tp, kp.vrtns)
 
   lapply(1:length(tbls), function(i) {
     output[[tbls[i]]] = renderTable(find.bias.srvy(errs()[[i]]))
@@ -48,27 +48,22 @@ nsKPsPlot = function(errs, kp.type) {
   )
 }
 
-## Find errors and output bias tables and box plots for numbers of kin-pairs
-## separately
+## Find errors and output bias tables and box plots for estimators separately
 
 # Population sizes
 ns.wtn.errs = reactive({
-  find.errs(N.s.yrs(), est.ns.kps.pop()$wtn[, 1])
+  list(find.errs(N.s.yrs(), est.ns.kps.pop()$wtn[, 1]))
 })
-output$bsNsWtnPop = renderTable(find.bias.srvy(ns.wtn.errs()))
-output$nsWtnPop = renderPlot({
-  nsKPsPlot(ns.wtn.errs(), kp.tps.pop.wtn[1])
-})
+show.errs.new(ns.wtn.errs, "Ns", "WtnPop", "Population sizes")
 
 # Survival rates
 phi.errs = reactive({
-  matrix(
+  list(matrix(
     find.errs(avg.phi.obs(), phi()), n.sims(), 
     dimnames = list(NULL, "All times")
-  )
+  ))
 })
-output$bsPhi = renderTable(find.bias.srvy(phi.errs()))
-output$errsPhi = renderPlot(nsKPsPlot(phi.errs(), "Phi"))
+show.errs.new(phi.errs, "Phi", "", "Survival rates")
 
 # All-pairs
 ns.APs.preds = reactive({

@@ -153,7 +153,7 @@ ui <- fluidPage(
           h3("Biases"),
           tableOutput(outputId = "bsNsWtnPop"),
           h3("Error distributions"),
-          plotOutput(outputId = "nsWtnPop"),
+          plotOutput(outputId = "errsNsWtnPop"),
         ),
         # Demographics ----
         tabPanel(
@@ -177,8 +177,8 @@ ui <- fluidPage(
           tableOutput(outputId = "bsAPsWtnPop"),
           tableOutput(outputId = "bsAPsBtnPop"),
           h3("Error distributions"),
-          plotOutput(outputId = "nsAPsWtnPop"),
-          plotOutput(outputId = "nsAPsBtnPop")
+          plotOutput(outputId = "errsAPsWtnPop"),
+          plotOutput(outputId = "errsAPsBtnPop")
         ),
         # Self-pairs ----
         tabPanel(
@@ -190,7 +190,7 @@ ui <- fluidPage(
           h3("Biases"),
           tableOutput(outputId = "bsSPsPop"),
           h3("Error distributions"),
-          plotOutput(outputId = "nsSPsPop")
+          plotOutput(outputId = "errsSPsPop")
         ),
         # Parent-offspring pairs ----
         tabPanel(
@@ -203,8 +203,8 @@ ui <- fluidPage(
           tableOutput(outputId = "bsPOPsWtnPop"),
           tableOutput(outputId = "bsPOPsBtnPop"),
           h3("Error distributions"),
-          plotOutput(outputId = "nsPOPsWtnPop"),
-          plotOutput(outputId = "nsPOPsBtnPop")
+          plotOutput(outputId = "errsPOPsWtnPop"),
+          plotOutput(outputId = "errsPOPsBtnPop")
         ),
         # Same-mother pairs ----
         tabPanel(
@@ -221,9 +221,9 @@ ui <- fluidPage(
           tableOutput(outputId = "bsSMPsWtnPop"),
           tableOutput(outputId = "bsSMPsBtnPop"),
           h3("Error distributions"),
-          plotOutput(outputId = "nsSMPsAgeKnwn"),
-          plotOutput(outputId = "nsSMPsWtnPop"),
-          plotOutput(outputId = "nsSMPsBtnPop")
+          plotOutput(outputId = "errsSMPsAgeKnwn"),
+          plotOutput(outputId = "errsSMPsWtnPop"),
+          plotOutput(outputId = "errsSMPsBtnPop")
         ),
         # Same-father pairs ----
         tabPanel(
@@ -238,14 +238,14 @@ ui <- fluidPage(
           tableOutput(outputId = "bsSFPsAgeKnwn"),
           p("Numbers in the final year, both born in the year indicated."),
           tableOutput(outputId = "bsSFPsSameAge"),
-          p("Numbers in and between survey-years, ages unknown."),
+          p("Numbers in survey-years, ages unknown."),
           tableOutput(outputId = "bsSFPsWtnPop"),
           # tableOutput(outputId = "bsSFPsBtnPop"),
           h3("Error distributions"),
-          plotOutput(outputId = "nsSFPsAgeKnwn"),
-          plotOutput(outputId = "nsSFPsSameAge"),
-          plotOutput(outputId = "nsSFPsWtnPop"),
-          # plotOutput(outputId = "nsSFPsBtnPop")
+          plotOutput(outputId = "errsSFPsAgeKnwn"),
+          plotOutput(outputId = "errsSFPsSameAge"),
+          plotOutput(outputId = "errsSFPsWtnPop"),
+          # plotOutput(outputId = "errsSFPsBtnPop")
         ),
         # Sibling-pairs ----
         tabPanel(
@@ -264,15 +264,15 @@ ui <- fluidPage(
           tableOutput(outputId = "bsHSPsWtnPop"),
           # tableOutput(outputId = "bsSFPsBtnPop"),
           h3("Error distributions"),
-          plotOutput(outputId = "nsFSPsWtnPop"),
-          plotOutput(outputId = "nsHSPsWtnPop")
-          # plotOutput(outputId = "nsSFPsWtnPop"),
-          # plotOutput(outputId = "nsSFPsBtnPop")
+          plotOutput(outputId = "errsFSPsWtnPop"),
+          plotOutput(outputId = "errsHSPsWtnPop")
+          # plotOutput(outputId = "errsSFPsWtnPop"),
+          # plotOutput(outputId = "errsSFPsBtnPop")
         ),
         # Biases ----
         tabPanel(
           title = "Overall biases",
-          value = "bs.tab",
+          value = "bias.tab",
           h2("Overall biases"),
           p("Average estimator biases over all years."),
           h3("Unknown parents"),
