@@ -247,43 +247,87 @@ div.tocify {
 </div>
 
 
-<div id="offspring-born-before-time-of-first-sample" class="section level3" number="0.0.1">
-<h3><span class="header-section-number">0.0.1</span> Offspring born before time of first sample</h3>
-<p>If there is a parent-offspring pair (POP) at time <span class="math inline">\(t_1\)</span>, then there is a POP between time <span class="math inline">\(t_1\)</span> and a later time <span class="math inline">\(t_2\)</span> for each animal that survives to time <span class="math inline">\(t_2\)</span>. Note that for simplicity if both survive we are counting two POPs rather than distinguishing this case from when just one survives. The probability of each animal surviving is <span class="math inline">\(\phi^{t_2 - t_1}\)</span>, where <span class="math inline">\(\phi\)</span> is the probability that an animal survives from time <span class="math inline">\(t\)</span> to time <span class="math inline">\(t + 1\)</span>. So the expected number of POPs between two such times, for which the offspring is born at or before the first time, is
+<p>In a parent-offspring pair (POP) in which one animal is alive at time <span class="math inline">\(t_1\)</span> and the other is alive at a later time <span class="math inline">\(t_2\)</span>, so that <span class="math inline">\(t_2 &gt; t_1\)</span>, the parent must be alive at time <span class="math inline">\(t_1\)</span>. If it is not yet born then neither is the offspring, so neither is alive at time <span class="math inline">\(t_1\)</span>. If it is already dead then it is not alive at either time <span class="math inline">\(t_1\)</span> or <span class="math inline">\(t_2\)</span>.</p>
+<p>In any such pair either the offspring was alive at time <span class="math inline">\(t_1\)</span>, or it was born at a time <span class="math inline">\(t\)</span> such that <span class="math inline">\(t_1 &lt; t \le t_2\)</span>. If it is already dead by time <span class="math inline">\(t_1\)</span> then it is not alive at either time <span class="math inline">\(t_1\)</span> or <span class="math inline">\(t_2\)</span>. If it was born after time <span class="math inline">\(t_2\)</span> then it was not alive at either time <span class="math inline">\(t_1\)</span> or <span class="math inline">\(t_2\)</span>.</p>
+<div id="offspring-alive-at-time-of-first-sample" class="section level3" number="0.0.1">
+<h3><span class="header-section-number">0.0.1</span> Offspring alive at time of first sample</h3>
+<p>If the offspring was alive at time <span class="math inline">\(t_1\)</span>, then the pair are both alive at time <span class="math inline">\(t_1\)</span>. Then there is a POP between time <span class="math inline">\(t_1\)</span> and a later time <span class="math inline">\(t_2\)</span> for each animal that survives to time <span class="math inline">\(t_2\)</span>. The probability of each animal surviving is <span class="math inline">\(\phi^{t_2 - t_1}\)</span>, where <span class="math inline">\(\phi\)</span> is the probability that an animal survives from time <span class="math inline">\(t\)</span> to time <span class="math inline">\(t + 1\)</span>. So the expected number of POPs is
 <span class="math display">\[ E(PO_{t_1}) 2 \phi^{t_2 - t_1} = 2 E(N_{t_1}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} 2 \phi^{t_2 - t_1} \]</span>
 <span class="math display">\[ = 4 E(N_{t_2}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} \left( \frac{\phi}{\lambda} \right)^{t_2 - t_1}, \]</span>
 where <span class="math inline">\(E(PO_{t_1})\)</span> is the expected number of POPs at time <span class="math inline">\(t_1\)</span> as derived on pages 38-39 of Dissertation.pdf.</p>
 </div>
-<div id="offspring-born-after-time-of-first-sample" class="section level3" number="0.0.2">
-<h3><span class="header-section-number">0.0.2</span> Offspring born after time of first sample</h3>
-<p>If there is a parent-offspring pair where one animal is alive at time <span class="math inline">\(t_1\)</span> and the other is alive at a later time <span class="math inline">\(t_2\)</span>, then the parent must be alive at time <span class="math inline">\(t_1\)</span>. The offspring may be born after the first time.</p>
-<p>The expected number of animals born each year is
+<div id="offspring-born-between-sample-times" class="section level3" number="0.0.2">
+<h3><span class="header-section-number">0.0.2</span> Offspring born between sample-times</h3>
+<p>If the offspring was born at a time <span class="math inline">\(t\)</span> such that <span class="math inline">\(t_1 &lt; t \le t_2\)</span>, then there is a POP for each of its parents that was alive at time <span class="math inline">\(t_1\)</span>, if and only if the offspring survives to time <span class="math inline">\(t_2\)</span>.</p>
+<p>The expected number of animals born in any year <span class="math inline">\(t\)</span> is
 <span class="math display">\[ E(B_t) = \left(1 - \frac{\phi}{\lambda} \right) E(N_t), \]</span>
 as explained in HSP-probability.pdf, where <span class="math inline">\(N_t\)</span> is the population at time <span class="math inline">\(t\)</span>, and
 <span class="math display">\[ \lambda = \frac{E(N_{t + 1})}{E(N_t)} \]</span></p>
-<p>If an animal is born between time <span class="math inline">\(t_1\)</span> and time <span class="math inline">\(t_1 + \alpha + 1\)</span>, where <span class="math inline">\(\alpha\)</span> is the age of sexual maturity for its species, then its parents must have been alive at time <span class="math inline">\(t_1\)</span> in order that they be mature and breed the year before the offspring is born. Therefore there is a POP between times <span class="math inline">\(t_1\)</span> and <span class="math inline">\(t_2\)</span> for every animal born between time <span class="math inline">\(t_1\)</span> and time <span class="math inline">\(t_1 + \alpha + 1\)</span> and surviving to time <span class="math inline">\(t_2\)</span>.</p>
+<p>The probability that the offspring survives to time <span class="math inline">\(t_2\)</span> is <span class="math inline">\(\phi^{t_2 - t}\)</span>.</p>
+<p>Let <span class="math inline">\(\alpha\)</span> be the age of maturity for the species, the minimum age at which an animal may have a calf alive in the population. If the offspring was born between time <span class="math inline">\(t_1\)</span> and time <span class="math inline">\(t_1 + \alpha\)</span>, so that <span class="math inline">\(t_1 &lt; t \le \alpha\)</span>, then its parents must have been alive at time <span class="math inline">\(t_1\)</span> in order that they be mature the year the offspring is born.</p>
+<p>If the offspring was born between time <span class="math inline">\(t_1 + \alpha\)</span> and time <span class="math inline">\(t_2\)</span>, so that <span class="math inline">\(t_1 + \alpha &lt; t \le t_2\)</span>, then the probability that each of its parents were alive at time <span class="math inline">\(t_1\)</span> is given by the number of animals that survived from time <span class="math inline">\(t_1\)</span> to time <span class="math inline">\(t\)</span>, divided by the total number of mature animals at time <span class="math inline">\(t\)</span>, the number that survived from time <span class="math inline">\(t - \alpha\)</span> to time <span class="math inline">\(t\)</span>.</p>
 <p>The expected number of animals that were alive at time <span class="math inline">\(t_1\)</span>, and survived until time <span class="math inline">\(t\)</span>, is
 <span class="math display">\[ \left( \frac{\phi}{\lambda} \right)^{t - t_1} E(N_t) \]</span>
 The expected number of animals that are mature at time <span class="math inline">\(t\)</span> is the expected number that were alive at time <span class="math inline">\(t - \alpha\)</span>, and survived until time <span class="math inline">\(t\)</span>, that is
-<span class="math display">\[ \left( \frac{\phi}{\lambda} \right)^\alpha E(N_t) \]</span></p>
-<p>For animals born at time <span class="math inline">\(t\)</span>, where <span class="math inline">\(t &gt; t_1 + \alpha + 1\)</span>, the probability that each of their parents was alive at time <span class="math inline">\(t_1\)</span> is thus
-<span class="math display">\[ \frac{\left( \frac{\phi}{\lambda} \right)^{t - 1 - t_1} E(N_{t - 1})}{\left( \frac{\phi}{\lambda} \right)^\alpha E(N_{t - 1})} \]</span>
-<span class="math display">\[ = \left( \frac{\phi}{\lambda} \right)^{t - 1 - t_1 - \alpha}, \]</span>
-since we know that their parents survived until time <span class="math inline">\(t - 1\)</span> and were mature then.</p>
-<p>So the expected number of POPs between times <span class="math inline">\(t_1\)</span> and <span class="math inline">\(t_2\)</span>, in which the offspring was born at a time <span class="math inline">\(t\)</span> between times <span class="math inline">\(t_1\)</span> and <span class="math inline">\(t_2\)</span>, and survives to time <span class="math inline">\(t_2\)</span>, is
-<span class="math display">\[ 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \phi^{t_2 - t}, \]</span>
-when, <span class="math inline">\(t &gt; t_1 + \alpha + 1\)</span>, and
-<span class="math display">\[ 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \phi^{t_2 - t} \left( \frac{\phi}{\lambda} \right)^{t - 1 - t_1 - \alpha}, \]</span>
-when <span class="math inline">\(t \le t_1 + \alpha + 1\)</span>, where the factor of two is due to the offspring having two parents. That is
-<span class="math display">\[ 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \phi^{t_2 - t} \left( \frac{\phi}{\lambda} \right)^{max\{0, t - 1 - t_1 - \alpha\}}. \]</span></p>
+<span class="math display">\[ \left( \frac{\phi}{\lambda} \right)^{t - (t + \alpha)} E(N_t) = \left( \frac{\phi}{\lambda} \right)^{\alpha} E(N_t) \]</span></p>
+<p>For animals born at time <span class="math inline">\(t\)</span>, where <span class="math inline">\(t &gt; t_1 + \alpha\)</span>, the probability that each of their parents was alive at time <span class="math inline">\(t_1\)</span> is thus
+<span class="math display">\[ \frac{\left( \frac{\phi}{\lambda} \right)^{t - t_1} E(N_t)}{\left( \frac{\phi}{\lambda} \right)^{\alpha} E(N_t)} \]</span>
+<span class="math display">\[ = \left( \frac{\phi}{\lambda} \right)^{t - (t_1 + \alpha)}. \]</span></p>
+<p>So the expected number of POPs between times <span class="math inline">\(t_1\)</span> and <span class="math inline">\(t_2\)</span>, in which the offspring was born at a time <span class="math inline">\(t\)</span> such that <span class="math inline">\(t_1 &lt; t \le t_2\)</span>, and survives to time <span class="math inline">\(t_2\)</span>, is
+<span class="math display">\[\begin{cases}
+  2 \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \phi^{t_2 - t}, &amp; 
+  t_1 &lt; t \le \min\{t_1 + \alpha, t_2\}, \\
+  2 \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \phi^{t_2 - t} \left( \frac{\phi}{\lambda} \right)^{t - (t_1 + \alpha)}, &amp; 
+  \min\{t_1 + \alpha, t_2\} &lt; t \le t_2,
+\end{cases}\]</span>
+where the factor of two is due to the offspring having two parents,
+<span class="math display">\[= 
+\begin{cases}
+  2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \left( \frac{\phi}{\lambda} \right)^{t_2 - t}, &amp; 
+  t_1 &lt; t \le \min\{t_1 + \alpha, t_2\}, \\
+  2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \left( \frac{\phi}{\lambda} \right)^{t_2 - t} \left( \frac{\phi}{\lambda} \right)^{t - (t_1 + \alpha)}, &amp; 
+  \min\{t_1 + \alpha, t_2\} &lt; t \le t_2,
+\end{cases}\]</span>
+<span class="math display">\[= 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \left( \frac{\phi}{\lambda} \right)^{t_2} \times 
+\begin{cases}
+  \left( \frac{\phi}{\lambda} \right)^{- t}, &amp; 
+  t_1 &lt; t \le \min\{t_1 + \alpha, t_2\}, \\
+  \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)}, &amp; 
+  \min\{t_1 + \alpha, t_2\} &lt; t \le t_2.
+\end{cases}\]</span></p>
 <p>Summing over the possible years gives the expected total number of such pairs
-<span class="math display">\[ \sum_{t_1 &lt; t \le t_2} 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \phi^{t_2 - t} \left( \frac{\phi}{\lambda} \right)^{max\{0, t - 1 - t_1 - \alpha\}} \]</span>
-<span class="math display">\[ = 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \sum_{t_1 &lt; t \le t_2} \left( \frac{\phi}{\lambda} \right)^{t_2 - t} \left( \frac{\phi}{\lambda} \right)^{max\{0, t - 1 - t_1 - \alpha\}} \]</span>
-<span class="math display">\[ = 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \sum_{t_1 &lt; t \le t_2} \left( \frac{\phi}{\lambda} \right)^{max\{t_2 - t, t_2 - 1 - t_1 - \alpha\}} \]</span>
-<span class="math display">\[ = 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \left\{ \left( \frac{\phi}{\lambda} \right)^{max\{0, t_2 - t_1 - 1 - \alpha\}} + ... + \left( \frac{\phi}{\lambda} \right)^{max\{t_2 - t_1 - 1, t_2 - t_1 - 1 - \alpha\}} \right\}. \]</span></p>
-<p>Adding the expected number of POPs in which the offspring is born before the time of the first sample, and dividing by the expected total number of pairs of animals between times <span class="math inline">\(t_1\)</span> and <span class="math inline">\(t_2\)</span>, which can be approximated by <span class="math inline">\(E(N_{t_1}) E(N_{t_2})\)</span>, gives the probability of a POP between samples, as
-<span class="math display">\[ P(POP_{t_1, t_2}) = \frac{4}{E(N_{t_1})} \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} \left( \frac{\phi}{\lambda} \right)^{t_2 - t_1} + \]</span>
-<span class="math display">\[ \frac{2}{E(N_{t_1})} \left(1 - \frac{\phi}{\lambda} \right) \left\{ \left( \frac{\phi}{\lambda} \right)^{max\{0, t_2 - t_1 - 1 - \alpha\}} + ... + \left( \frac{\phi}{\lambda} \right)^{max\{t_2 - t_1 - 1, t_2 - t_1 - 1 - \alpha\}} \right\}. \]</span></p>
+<span class="math display">\[ \sum_{t_1 &lt; t \le t_2} 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \left( \frac{\phi}{\lambda} \right)^{t_2} \times 
+\begin{cases}
+  \left( \frac{\phi}{\lambda} \right)^{- t}, &amp; 
+  t_1 &lt; t \le \min\{t_1 + \alpha, t_2\}, \\
+  \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)}, &amp; 
+  \min\{t_1 + \alpha, t_2\} &lt; t \le t_2,
+\end{cases}\]</span>
+<span class="math display">\[ = 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \left( \frac{\phi}{\lambda} \right)^{t_2} \sum_{t_1 &lt; t \le t_2} 
+\begin{cases}
+  \left( \frac{\phi}{\lambda} \right)^{- t}, &amp; 
+  t_1 &lt; t \le \min\{t_1 + \alpha, t_2\}, \\
+  \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)}, &amp; 
+  \min\{t_1 + \alpha, t_2\} &lt; t \le t_2,
+\end{cases}\]</span>
+<span class="math display">\[ = 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \left( \frac{\phi}{\lambda} \right)^{t_2} \left\{ \sum_{t_1 &lt; t \le \min\{t_1 + \alpha, t_2\}} \left( \frac{\phi}{\lambda} \right)^{- t} + \sum_{\min\{t_1 + \alpha, t_2\} &lt; t \le t_2} \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)} \right\},\]</span>
+<span class="math display">\[\sum_{t_1 &lt; t \le \min\{t_1 + \alpha, t_2\}} \left( \frac{\phi}{\lambda} \right)^{-t} = \frac{\left( \frac{\phi}{\lambda} \right)^{-(t_1 + 1)} - \left( \frac{\phi}{\lambda} \right)^{-(\min\{t_1 + \alpha, t_2\} + 1)}} {1 - \left( \frac{\phi}{\lambda} \right)^{-1}},\]</span>
+<span class="math display">\[\sum_{\min\{t_1 + \alpha, t_2\} &lt; t \le t_2} \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)} = 
+\begin{cases}
+  \left\{ t_2 - (t_1 + \alpha) \right\} \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)}, &amp; 
+  t_1 + \alpha &lt; t_2, \\
+  0, &amp; 
+  t_1 + \alpha \ge t_2.
+\end{cases}\]</span></p>
+<p>Adding the expected number of POPs in which the offspring is alive at the time of the first sample gives the expected number of POPs between samples, as
+<span class="math display">\[ E(POP_{t_1, t_2}) = 4 E(N_{t_2}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} \left( \frac{\phi}{\lambda} \right)^{t_2 - t_1} + 2 E(N_{t_2}) \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right)^{t_2} \times\]</span>
+<span class="math display">\[ \left[ \frac{\left( \frac{\phi}{\lambda} \right)^{-(t_1 + 1)} - \left( \frac{\phi}{\lambda} \right)^{-(\min\{t_1 + \alpha, t_2\} + 1)}} {1 - \left( \frac{\phi}{\lambda} \right)^{-1}} + 
+\begin{cases}
+  \left\{ t_2 - (t_1 + \alpha) \right\} \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)}, &amp; 
+  t_1 + \alpha &lt; t_2, \\
+  0, &amp; 
+  t_1 + \alpha \ge t_2.
+\end{cases} \right]. \]</span></p>
 </div>
 
 
