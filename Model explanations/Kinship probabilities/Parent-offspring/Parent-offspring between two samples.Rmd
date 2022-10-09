@@ -65,7 +65,7 @@ $$= 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \left( \frac{\phi}{\lamb
 \begin{cases}
   \left( \frac{\phi}{\lambda} \right)^{- t}, & 
   t_1 < t \le \min\{t_1 + \alpha, t_2\}, \\
-  \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)}, & 
+  \left( \frac{\phi}{\lambda} \right)^{-(t_1 + \alpha)}, & 
   \min\{t_1 + \alpha, t_2\} < t \le t_2.
 \end{cases}$$
 
@@ -74,21 +74,21 @@ $$ \sum_{t_1 < t \le t_2} 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \l
 \begin{cases}
   \left( \frac{\phi}{\lambda} \right)^{- t}, & 
   t_1 < t \le \min\{t_1 + \alpha, t_2\}, \\
-  \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)}, & 
+  \left( \frac{\phi}{\lambda} \right)^{-(t_1 + \alpha)}, & 
   \min\{t_1 + \alpha, t_2\} < t \le t_2,
 \end{cases}$$
 $$ = 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \left( \frac{\phi}{\lambda} \right)^{t_2} \sum_{t_1 < t \le t_2} 
 \begin{cases}
   \left( \frac{\phi}{\lambda} \right)^{- t}, & 
   t_1 < t \le \min\{t_1 + \alpha, t_2\}, \\
-  \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)}, & 
+  \left( \frac{\phi}{\lambda} \right)^{-(t_1 + \alpha)}, & 
   \min\{t_1 + \alpha, t_2\} < t \le t_2,
 \end{cases}$$
-$$ = 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \left( \frac{\phi}{\lambda} \right)^{t_2} \left\{ \sum_{t_1 < t \le \min\{t_1 + \alpha, t_2\}} \left( \frac{\phi}{\lambda} \right)^{- t} + \sum_{\min\{t_1 + \alpha, t_2\} < t \le t_2} \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)} \right\},$$
+$$ = 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \left( \frac{\phi}{\lambda} \right)^{t_2} \left\{ \sum_{t_1 < t \le \min\{t_1 + \alpha, t_2\}} \left( \frac{\phi}{\lambda} \right)^{- t} + \sum_{\min\{t_1 + \alpha, t_2\} < t \le t_2} \left( \frac{\phi}{\lambda} \right)^{-(t_1 + \alpha)} \right\},$$
 $$\sum_{t_1 < t \le \min\{t_1 + \alpha, t_2\}} \left( \frac{\phi}{\lambda} \right)^{-t} = \frac{\left( \frac{\phi}{\lambda} \right)^{-(t_1 + 1)} - \left( \frac{\phi}{\lambda} \right)^{-(\min\{t_1 + \alpha, t_2\} + 1)}} {1 - \left( \frac{\phi}{\lambda} \right)^{-1}},$$
-$$\sum_{\min\{t_1 + \alpha, t_2\} < t \le t_2} \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)} = 
+$$\sum_{\min\{t_1 + \alpha, t_2\} < t \le t_2} \left( \frac{\phi}{\lambda} \right)^{-(t_1 + \alpha)} = 
 \begin{cases}
-  \left\{ t_2 - (t_1 + \alpha) \right\} \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)}, & 
+  \left\{ t_2 - (t_1 + \alpha) \right\} \left( \frac{\phi}{\lambda} \right)^{-(t_1 + \alpha)}, & 
   t_1 + \alpha < t_2, \\
   0, & 
   t_1 + \alpha \ge t_2.
@@ -98,7 +98,7 @@ Adding the expected number of POPs in which the offspring is alive at the time o
 $$ E(POP_{t_1, t_2}) = 4 E(N_{t_2}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} \left( \frac{\phi}{\lambda} \right)^{t_2 - t_1} + 2 E(N_{t_2}) \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right)^{t_2} \times$$
 $$ \left[ \frac{\left( \frac{\phi}{\lambda} \right)^{-(t_1 + 1)} - \left( \frac{\phi}{\lambda} \right)^{-(\min\{t_1 + \alpha, t_2\} + 1)}} {1 - \left( \frac{\phi}{\lambda} \right)^{-1}} + 
 \begin{cases}
-  \left\{ t_2 - (t_1 + \alpha) \right\} \left( \frac{\phi}{\lambda} \right)^{t_2 - (t_1 + \alpha)}, & 
+  \left\{ t_2 - (t_1 + \alpha) \right\} \left( \frac{\phi}{\lambda} \right)^{-(t_1 + \alpha)}, & 
   t_1 + \alpha < t_2, \\
   0, & 
   t_1 + \alpha \ge t_2.

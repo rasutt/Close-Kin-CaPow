@@ -41,26 +41,34 @@ FindEstNsKPsPop = function(
   exp.ns.APs.btn = as.vector(combn(exp.N.s.yrs, 2, function(x) x[1] * x[2]))
   
   # Self-pairs between pairs of survey years
-  exp.ns.SPs.btn = as.vector(combn(1:k, 2, function(s.pr.inds) {
-    phi^(srvy.yrs[s.pr.inds[2]] - srvy.yrs[s.pr.inds[1]]) * 
-      exp.N.s.yrs[s.pr.inds[1]]
+  exp.ns.SPs.btn = as.vector(combn(1:k, 2, function(s.inds) {
+    phi^(srvy.yrs[s.inds[2]] - srvy.yrs[s.inds[1]]) * 
+      exp.N.s.yrs[s.inds[1]]
   }))
   
   # Parent-offspring pairs between survey years
-  exp.ns.POPs.btn = as.vector(combn(1:k, 2, function(s.pr.inds) {
-    s.gap.lim = s.pr.inds[2] - s.pr.inds[1] - 1 - alpha
-    4 * exp.N.s.yrs[s.pr.inds[2]] * phi * (lambda - phi) / lmb.m.ph.sq *
-      (phi / lambda)^(s.pr.inds[2] - s.pr.inds[1]) +
-      2 * (1 - phi / lambda) * exp.N.s.yrs[s.pr.inds[2]] * 
-      sum((phi / lambda)^pmax(0:(s.gap.lim + alpha), s.gap.lim))
+  exp.ns.POPs.btn = as.vector(combn(1:k, 2, function(s.inds) {
+    t1 = srvy.yrs[s.inds[1]]
+    t2 = srvy.yrs[s.inds[2]]
+    4 * exp.N.s.yrs[s.inds[2]] * phi * (lambda - phi) / lmb.m.ph.sq *
+      (phi / lambda)^(t2 - t1) +
+      2 * (1 - phi / lambda) * exp.N.s.yrs[s.inds[2]] * (phi / lambda)^t2 * 
+      (((phi / lambda)^(-(t1 + 1)) -
+          (phi / lambda)^(-(min(t1 + alpha, t2) + 1))) /
+         (1 - (phi / lambda)^(-1)) + 
+         ifelse(
+           t1 + alpha < t2, 
+           (t2 - (t1 + alpha)) * (phi / lambda)^(-(t1 + alpha)),
+           0
+         ))
   }))
   
   # Same-mother pairs between survey years
-  exp.ns.SMPs.btn = as.vector(combn(1:k, 2, function(s.pr.inds) {
-    exp.ns.SMPs.wtn[s.pr.inds[1]] * 
-      phi^(srvy.yrs[s.pr.inds[2]] - srvy.yrs[s.pr.inds[1]]) *
+  exp.ns.SMPs.btn = as.vector(combn(1:k, 2, function(s.inds) {
+    exp.ns.SMPs.wtn[s.inds[1]] * 
+      phi^(srvy.yrs[s.inds[2]] - srvy.yrs[s.inds[1]]) *
       (lmb.m.ph.sq / phi^2 * 
-         (srvy.yrs[s.pr.inds[2]] - srvy.yrs[s.pr.inds[1]]) + 2)
+         (srvy.yrs[s.inds[2]] - srvy.yrs[s.inds[1]]) + 2)
   }))
   
   # Return as list
