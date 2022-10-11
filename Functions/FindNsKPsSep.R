@@ -62,15 +62,15 @@ find.SMPs.wtn = function(pop.atts, k) {
   sapply(1:k, function(s.ind) sum(choose(mum.tab.lst[[s.ind]], 2)))
 }
 
-# Find same-mother pairs with ages unknown, between survey-years
-find.SMPs.btn = function(pop.atts, k) {
+# Find same-mother pairs with ages unknown, and self-pairs, between survey-years
+find.SMSPs.btn = function(pop.atts, k) {
   # List of frequency tables of mums in each survey year
   max.mum = max(pop.atts$mum, na.rm = T)
   mum.tab.lst = lapply(1:k, function(s.ind) {
     tabulate(pop.atts$mum[pop.atts$alv.s.yrs[, s.ind]], max.mum)
   })
-  
-  # Same-mother pairs between survey years
+
+  # Same-mother and self-pairs between survey years
   as.vector(combn(1:k, 2, function(s.inds) {
     mum.tab.lst[[s.inds[1]]] %*% mum.tab.lst[[s.inds[2]]]
   }))
@@ -88,15 +88,15 @@ find.SFPs.wtn = function(pop.atts, k) {
   sapply(1:k, function(s.ind) sum(choose(dad.tab.lst[[s.ind]], 2)))
 }
 
-# Find same-father pairs with ages unknown, between survey-years
-find.SFPs.btn = function(pop.atts, k) {
+# Find same-father pairs with ages unknown, and self-pairs, between survey-years
+find.SFSPs.btn = function(pop.atts, k) {
   # List of frequency tables of dads in each survey year
   max.dad = max(pop.atts$dad, na.rm = T)
   dad.tab.lst = lapply(1:k, function(s.ind) {
     tabulate(pop.atts$dad[pop.atts$alv.s.yrs[, s.ind]], max.dad)
   })
   
-  # Same-father pairs between survey years
+  # Same-father and self-pairs between survey years
   as.vector(combn(1:k, 2, function(s.inds) {
     dad.tab.lst[[s.inds[1]]] %*% dad.tab.lst[[s.inds[2]]]
   }))
@@ -110,6 +110,7 @@ find.FSPs.wtn = function(pop.atts, k) {
       pop.atts$mum[pop.atts$alv.s.yrs[, s.ind]], 
       pop.atts$dad[pop.atts$alv.s.yrs[, s.ind]]
     )
+    
     # Selecting before calling choose is 10x faster
     sum(choose(tbl[tbl > 1], 2))
   })

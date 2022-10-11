@@ -115,7 +115,8 @@ observeEvent({
     
     # Find numbers of self-pairs between survey-years in simulated populations
     if (
-      input$check.sub.tabs %in% c("SPs.tab", "bias.tab") && 
+      input$check.sub.tabs %in% 
+      c("SPs.tab", "SMPs.tab", "bias.tab") && 
       is.null(ns.SPs())
     ) {
       ns.SPs(find.KPs.btn()(find.SPs, "self-pairs"))
@@ -173,7 +174,9 @@ observeEvent({
         ns.SMPs.wtn = ns.SMPs.wtn(),
         
         # Between pairs of survey-years
-        ns.SMPs.btn = find.KPs.btn()(find.SMPs.btn, "same-mother")
+        ns.SMPs.btn = 
+          find.KPs.btn()(find.SMSPs.btn, "same-mother and self-pairs") - 
+          ns.SPs()
       ))
     }
     
@@ -201,7 +204,9 @@ observeEvent({
         ns.SFPs.wtn = ns.SFPs.wtn()
         
         # # Between pairs of survey-years
-        # ns.SFPs.btn = find.KPs.btn()(find.SFPs.btn, "same-father")
+        # ns.SFPs.btn = 
+        #   find.KPs.btn()(find.SFSPs.btn, "same-father and self-pairs") - 
+        #   ns.SPs()
       ))
     }
     
