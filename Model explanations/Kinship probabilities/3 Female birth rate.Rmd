@@ -1,0 +1,77 @@
+---
+title: "Birth rate among mature females"
+output: bookdown::html_document2
+---
+
+Assume that 
+
+- survival satisfies the Markov property $P(A_{t + 1}|A_t) = P(A_{t + 1}|A_t, A_{t - 1}, ...)$, i.e. survival at later times is independent of survival at earlier times.
+
+Then
+$$P(A_{t + 2}|A_t) = P(A_{t + 2}|A_{t + 1}, A_t) P(A_{t + 1}|A_t)$$
+$$ = P(A_{t + 2}|A_{t + 1}) P(A_{t + 1}|A_t)$$
+$$ = \phi^2,$$
+and
+$$\begin{equation}
+  P(A_{t_2}|A_{t_1}) = \phi^{t_2 - t_1},
+  (\#eq:phi)
+\end{equation}$$
+where $t_2 > t_1$.
+
+Let 
+
+- $\alpha$ be the age of sexual maturity of animals in the population, i.e. the minimum age at which an animal may have offspring alive in the population, and
+- $F_t$ be the number of mature females that are alive in the population at time $t$.
+
+Assume that
+
+- animals are equally likely to be born male or female.
+
+Then 
+
+- an animal is alive and mature at time $t$ if and only if it was alive in the population at time $t - \alpha$ and survived to time $t$,
+- the probability that an animal that was alive in the population at time $t - \alpha$ survives until time $t$ is 
+
+$$P(A_{t}|A_{t - \alpha}) = \phi^{t - (t - \alpha)} = \phi^{\alpha},$$
+from \@ref(eq:phi),
+
+- the probability that an animal is female is $\frac{1}{2}$,
+
+$$F_t \sim Bin\left(N_{t - \alpha}, \frac{\phi^\alpha}{2}\right),$$
+and
+$$E(F_t) = E(E(F_t|N_{t - \alpha}))$$
+$$= E\left(N_{t - \alpha}\frac{\phi^\alpha}{2}\right)$$
+$$= E(N_{t - \alpha})\frac{\phi^\alpha}{2}$$
+$$= \frac{E(N_t)}{\lambda^\alpha}\frac{\phi^\alpha}{2},$$
+from \@ref(eq:expNt),
+$$\begin{equation}
+  E(F_t) = \frac{E(N_t)}{2}\left(\frac{\phi}{\lambda}\right)^\alpha.
+  (\#eq:expFt)
+\end{equation}$$
+
+Let
+
+- $\beta$ be the probability that a given mature female gives birth to a calf at a given time.
+
+Assume that
+
+- a given female cannot give birth to more than one calf at a given time, and
+- births occur independently of each other.
+
+Then
+
+$$B_t \sim Bin(F_t, \beta),$$
+$$E(B_t) = E(E(B_t|F_t))$$
+$$= E(F_t \beta)$$
+$$= E(F_t) \beta,$$
+and
+$$\beta = \frac{E(B_t)}{E(F_t)},$$
+$$= \frac{E(N_{t - 1}) (\lambda - \phi)} {\frac{E(N_t)}{2}\left(\frac{\phi}{\lambda}\right)^\alpha},$$
+from \@ref(eq:expBt) and \@ref(eq:expFt),
+$$= 2 \frac{E(N_{t - 1}) (\lambda - \phi)} {E(N_t) }\left(\frac{\lambda}{\phi}\right)^\alpha$$
+$$= 2 \frac{E(N_{t - 1}) (\lambda - \phi)} {E(N_{t - 1}) \lambda }\left(\frac{\lambda}{\phi}\right)^\alpha$$
+$$\begin{equation}
+  \beta = 2\left(1 - \frac{\phi}{\lambda} \right) \left(\frac{\lambda}{\phi}\right)^\alpha.
+  (\#eq:beta)
+\end{equation}$$
+

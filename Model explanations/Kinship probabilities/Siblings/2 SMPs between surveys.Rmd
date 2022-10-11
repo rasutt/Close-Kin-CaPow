@@ -1,0 +1,65 @@
+---
+title: "Expected number of same-mother pairs between survey-years"
+output: bookdown::html_document2
+---
+
+Let $i$ and $j$ be a pair of animals, where 
+
+- one is alive at sample-time $t_1$, and the other is alive at sample-time $t_2$, where $t_1 < t_2$,
+- $i$ has birth year $b_1$, and $j$ has birth year $b_2$, where $b_1 < b_2$, and
+- $i$ and $j$ have the same mother.
+
+By specifying which animal is older in a same-mother pair (SMP) this way, as we did earlier, we can sum over the birth years of the animals without double-counting.  
+
+$i$ must be alive at $t_1$.  If it is already dead then it is not alive at either $t_1$ or $t_2$.  If it is not yet born then neither is $j$, so neither is alive at $t_1$.  But $j$ may be alive at $t_1$, or be born between $t_1$ and $t_2$, so that $t_1 < b_2 \le t_2$.
+
+### Younger animal alive at time of first sample
+
+If $j$ is alive at $t_1$, then the pair are both alive forming an SMP at $t_1$.  Then there is an SMP between $t_1$ and $t_2$ for each animal that survives to $t_2$.  The probability of each animal surviving is $\phi^{t_2 - t_1}$, where $\phi$ is the probability that an animal survives from time $t$ to time $t + 1$.  So the expected number of SMPs is
+$$ 2 E(SMP_{t_1}) \phi^{t_2 - t_1}, $$
+where $E(SMP_{t_1})$ is the expected number of SMPs at $t_1$ as derived earlier, $N_t$ is the population size at time $t$, and
+$$ \lambda = \frac{E(N_{t + 1})}{E(N_t)}, $$
+is the population growth rate.
+
+### Younger animal born between sample-times
+
+If an animal $j$ is born at a time $b_2$ such that $t_1 < b_2 \le t_2$, then there is an SMP between $t_1$ and $t_2$ for each animal $i$ that is born at a time $b_1$ before $t_1$, so that $b_1 < t_1$, and survives until $t_1$, and has a mother that survives until $b_2$, and gives birth to $j$ then, given $j$ survives to $t_2$.
+
+The probability that $i$ survives to $t_1$ is $\phi^{t_1 - b_1}$.
+
+The probability that the mother survives from $b_1$ to $b_2$ is $\phi^{b_2 - b_1}$.
+
+The probability that the mother has another calf at $b_2$, given that she survives until then, is $\beta$.
+
+The probability that this calf survives to time $t_2$ is $\phi^{t_2 - b_2}$.
+
+For each animal born at time $b_1$ the probability that it forms a pair such as $i$ and $j$ is then 
+$$\phi^{t_1 - b_1}\phi^{b_2 - b_1}\beta\phi^{t_2 - b_2} = \beta \phi^{t_1 + t_2 - 2 b_1}.$$
+
+Let $SMP_{t_1, t_2, b_1, b_2}$ be the number of pairs such as $i$ and $j$.  Then
+$$SMP_{t_1, t_2, b_1, b_2} \sim Bin(B_{b_1}, \beta \phi^{t_1 + t_2 - 2 b_1}),$$
+and following the same reasoning as above
+$$E(SMP_{t_1, t_2, b_1, b_2}) = E(B_{b_1}) \beta \phi^{t_1 + t_2 - 2 b_1}$$
+
+Summing over the possible birth years gives
+$$E \left( \sum_{b_1 \le t_1}\sum_{t_1 < b_2 \le t_2}SMP_{t_1, t_2, b_1, b_2} \right) = \sum_{b_1 \le t_1}\sum_{t_1 < b_2 \le t_2}E(SMP_{t_1, t_2, b_1, b_2}),$$
+where the indices of the summations are $b_1$ and $b_2$ respectively, made implicit to simplify the notation,
+$$= \sum_{b_1 \le t_1} \sum_{t_1 < b_2 \le t_2} E(B_{b_1}) \beta \phi^{t_1 + t_2 - 2 b_1}$$
+$$= \sum_{b_1 \le t_1} \sum_{t_1 < b_2 \le t_2} E(N_{b_1})\left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 + t_2 - 2 b_1}$$
+$$= \sum_{b_1 \le t_1} \sum_{t_1 < b_2 \le t_2} \frac{E(N_{t_2})} {\lambda^{t_2 - b_1}} \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 + t_2 - 2 b_1}$$
+$$= \frac{E(N_{t_2})} {\lambda^{t_2}} \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 + t_2} \sum_{b_1 \le t_1} \sum_{t_1 < b_2 \le t_2} \frac{\phi^{-2 b_1}} {\lambda^{-b_1}}$$
+$$= E(N_{t_2}) \beta \left(1 - \frac{\phi}{\lambda}\right) \phi^{t_1} \left(\frac{\phi} {\lambda}\right)^{t_2} \sum_{b_1 \le t_1} \sum_{t_1 < b_2 \le t_2} \left(\frac{\phi^2} {\lambda}\right)^{-b_1}$$
+$$= E(N_{t_2}) \beta \left(1 - \frac{\phi}{\lambda}\right) \phi^{t_1} \left(\frac{\phi} {\lambda}\right)^{t_2} \sum_{b_1 \le t_1} (t_2 - t_1) \left(\frac{\phi^2} {\lambda}\right)^{-b_1}$$
+$$= (t_2 - t_1) E(N_{t_2}) \beta \left(1 - \frac{\phi}{\lambda}\right) \phi^{t_1} \left(\frac{\phi} {\lambda}\right)^{t_2} \sum_{b_1 \le t_1} \left(\frac{\phi^2} {\lambda}\right)^{-b_1},$$
+$$\sum_{b_1 \le t_1} \left(\frac{\phi^2} {\lambda}\right)^{-b_1} = \left(\frac{\phi^2} {\lambda}\right)^{-t_1} + \left(\frac{\phi^2} {\lambda}\right)^{-(t_1 - 1)} + \left(\frac{\phi^2} {\lambda}\right)^{-(t_1 - 2)} + ...$$
+$$= \left(\frac{\phi^2} {\lambda}\right)^{-t_1} + \left(\frac{\phi^2} {\lambda}\right)^{-t_1 + 1} + \left(\frac{\phi^2} {\lambda}\right)^{-t_1 + 2} + ...$$
+$$= \frac{\left(\frac{\phi^2} {\lambda}\right)^{-t_1}}{1 - \frac{\phi^2} {\lambda}},$$
+because $0 < \frac{\phi^2} {\lambda} < 1$, and
+$$E \left( \sum_{b_1 \le t_1}\sum_{t_1 < b_2 \le t_2}SMP_{t_1, t_2, b_1, b_2} \right) = (t_2 - t_1) E(N_{t_2}) \beta \left(1 - \frac{\phi}{\lambda}\right) \phi^{t_1} \left(\frac{\phi} {\lambda}\right)^{t_2} \frac{\left(\frac{\phi^2} {\lambda}\right)^{-t_1}}{1 - \frac{\phi^2} {\lambda}}$$
+$$= (t_2 - t_1) E(N_{t_2}) \beta \left(1 - \frac{\phi}{\lambda}\right) \left(\frac{\phi} {\lambda}\right)^{t_2 - t_1} \frac{1}{1 - \frac{\phi^2} {\lambda}}$$
+$$= (t_2 - t_1) E(N_{t_2}) \beta \left(1 - \frac{\phi}{\lambda}\right) \frac{\lambda}{\lambda - \phi^2} \left(\frac{\phi} {\lambda}\right)^{t_2 - t_1}.$$
+
+Let $SMP_{t_1, t_2}$ be the number of pairs of animals such as $i$ and $j$, but with any birth years.
+
+Then
+$$SMP_{t_1, t_2} = 2 E(SMP_{t_1}) \phi^{t_2 - t_1} + (t_2 - t_1) E(N_{t_2}) \beta \left(1 - \frac{\phi}{\lambda}\right) \frac{\lambda}{\lambda - \phi^2} \left(\frac{\phi} {\lambda}\right)^{t_2 - t_1}.$$

@@ -1,0 +1,59 @@
+---
+title: "Expected number of animals born at a given time"
+output: bookdown::html_document2
+---
+
+Let 
+
+- $N_t$ be a random variable representing the size of a given population at time $t$, and
+- $\lambda := \frac {E(N_{t + 1})}{E(N_{t})}$ be the (constant) population growth rate, where $E(.)$ is the expected value of $.$.
+
+Then
+$$E(N_{t + 1}) = E(N_t) \lambda,$$
+$$E(N_{t + 2}) = E(N_{t + 1}) \lambda = E(N_t) \lambda^2,$$
+and
+$$\begin{equation}
+  E(N_{t_2}) = E(N_{t_1}) \lambda^{t_2 - t_1}.
+  (\#eq:expNt)
+\end{equation}$$
+
+Let
+
+- $A_t$ be the event that a given animal is alive in the population at time $t$,
+- $\phi := P(A_{t + 1}|A_t)$ be the (constant) individual survival rate of all such animals, and
+- $S_t$ be the number of animals that survive from time $t$ to time $t + 1$. 
+
+Assume that
+
+- the survival of each animal occurs independently of that of any other.
+
+Then
+$$S_t \sim Bin(N_{t}, \phi),$$
+and
+$$E(S_t) = E\{E(S_t|N_t)\}$$
+$$= E(N_t \phi)$$
+$$\begin{equation}
+  E(S_t) = E(N_t) \phi.
+  (\#eq:expSt)
+\end{equation}$$
+
+Let 
+
+- $B_t$ be the number of animals that are born at time $t$.  
+
+Assume that
+
+- there is no migration to or from the population.
+
+Then
+$$B_t = N_t - S_{t - 1},$$
+and
+$$E(B_t) = E(N_t - S_{t - 1})$$
+$$= E(N_t) - E(S_{t - 1})$$
+$$= E(N_{t - 1}) \lambda - E(N_{t - 1}) \phi,$$
+from \@ref(eq:expNt) and \@ref(eq:expSt),
+$$\begin{equation}
+  E(B_t) = E(N_{t - 1}) (\lambda - \phi).
+  (\#eq:expBt)
+\end{equation}$$
+

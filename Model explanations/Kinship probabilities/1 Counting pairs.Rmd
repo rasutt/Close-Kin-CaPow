@@ -1,0 +1,6 @@
+---
+title: "A note about counting pairs"
+output: html_document
+---
+
+Throughout this work my approach involves deriving the expected numbers of pairs of animals that satisfy certain conditions.  To be clear, I am always counting pairs without regard to the order of the animals within the pair.  That is, I do not distinguish the pair $(i, j)$ from the pair $(j, i)$, I consider them to be the same pair, and count them together as one pair.

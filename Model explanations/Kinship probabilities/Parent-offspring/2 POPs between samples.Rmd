@@ -15,8 +15,8 @@ In a parent-offspring pair (POP) in which one animal is alive at time $t_1$ and 
 
 ### Offspring alive at time of first sample
 
-If the offspring is alive at $t_1$, then the pair are both alive at $t_1$.  Then there is a POP between $t_1$ and $t_2$ for each animal that survives to $t_2$.  The probability of each animal surviving is $\phi^{t_2 - t_1}$, where $\phi$ is the probability that an animal survives from time $t$ to time $t + 1$.  So the expected number of POPs is
-$$ E(PO_{t_1}) 2 \phi^{t_2 - t_1} = 2 E(N_{t_1}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} 2 \phi^{t_2 - t_1} $$
+If the offspring is alive at $t_1$, then the pair are both alive, forming a POP at $t_1$.  Then there is a POP between $t_1$ and $t_2$ for each animal that survives to $t_2$.  The probability of each animal surviving is $\phi^{t_2 - t_1}$, where $\phi$ is the probability that an animal survives from time $t$ to time $t + 1$.  So the expected number of POPs is
+$$ 2 E(PO_{t_1}) \phi^{t_2 - t_1} = 4 E(N_{t_1}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} \phi^{t_2 - t_1} $$
 $$ = 4 E(N_{t_2}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} \left( \frac{\phi}{\lambda} \right)^{t_2 - t_1}, $$
 where $E(PO_{t_1})$ is the expected number of POPs at $t_1$ as derived on pages 38-39 of my dissertation, $N_t$ is the population size at time $t$, and
 $$ \lambda = \frac{E(N_{t + 1})}{E(N_t)}, $$

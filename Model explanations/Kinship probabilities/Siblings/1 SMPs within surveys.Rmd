@@ -1,0 +1,67 @@
+---
+title: "Expected number of same-mother pairs within survey-years"
+output: bookdown::html_document2
+---
+
+Let $b_1$, and $b_2$ be the years of birth of a pair of animals that are alive at time $t$.  New Zealand southern right whales have one calf at a time, so if the animals have the same mother then $b_1 \ne b_2$.  Let $b_1$ be the birth year of the older sibling, so that $b_1 < b_2$.
+
+For each animal born at time $b_1$ the probability that it survives to time $t$ is $\phi^{t - b_1}$.
+
+The probability that the mother survives from time $b_1$ to time $b_2$ is $\phi^{b_2 - b_1}$.
+
+The probability that the mother has another calf at time $b_2$, given that she survives until then, is $\beta$.
+
+The probability that this calf survives to time $t$ is $\phi^{t - b_2}$.
+
+For each animal born at time $b_1$ the probability that there is an animal born at time $b_2$ with the same mother, and that they both survive to time $t$ is then $\phi^{t - b_1}\phi^{b_2 - b_1}\beta\phi^{t - b_2} = \phi^{2(t - b_1)}\beta$.
+
+Let $SMP_{t, b_1, b_2}$ be the number of pairs of animals at time $t$, with birth years $b_1$ and $b_2$, where $b_1 < b_2$, and the same mother.  
+
+Then
+$$SMP_{t, b_1, b_2} \sim Bin(B_{b_1}, \phi^{2(t - b_1)}\beta),$$
+and
+$$E(SMP_{t, b_1, b_2}) = E(E(SMP_{t, b_1, b_2}|B_{b_1}))$$
+$$= E(B_{b_1}\phi^{2(t - b_1)}\beta)$$
+$$= E(B_{b_1})\phi^{2(t - b_1)}\beta$$
+$$= E(N_{b_1})\left(1 - \frac{\phi}{\lambda}\right)\phi^{2(t - b_1)}\beta$$
+$$= \frac{E(N_t)}{\lambda^{t - b_1}}\left(1 - \frac{\phi}{\lambda}\right)\phi^{2(t - b_1)}\beta$$
+$$= E(N_t)\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}\beta$$
+$$= E(N_t)\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}2\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\lambda}{\phi}\right)^\alpha$$
+$$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}.$$
+
+Let $SMP_t$ be the number of pairs of animals at time $t$ with the same mother and any birth years.
+
+Then
+$$SMP_t = \sum_{b_1 < t}\sum_{b_1 < b_2 \le t}SMP_{t, b_1, b_2},$$
+$$E(SMP_t) = \sum_{b_1 < t}\sum_{b_1 < b_2 \le t}E(SMP_{t, b_1, b_2}),$$
+$$= \sum_{b_1 < t}\sum_{b_1 < b_2 \le t}2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}$$
+$$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\sum_{b_1 < t}\sum_{b_1 < b_2 \le t}\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}$$
+$$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\sum_{b_1 < t}(t - b_1)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}$$
+$$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\left\{\frac{\phi^2}{\lambda} + 2\left(\frac{\phi^2}{\lambda}\right)^2 + 3\left(\frac{\phi^2}{\lambda}\right)^3 + ...\right\},$$
+$$r + 2r^2 + 3r^3 + ... = \frac{1 - r}{1 - r}(r + 2r^2 + 3r^3 + ...)$$
+$$= \frac{1}{1 - r}(r + 2r^2 + 3r^3 + ... - r^2 - 2r^3 - 3r^4 - ...)$$
+$$= \frac{1}{1 - r}(r + r^2 + r^3 + ...),$$
+for $|r| < 1$,
+$$= \frac{1}{1 - r}\frac{1 - r}{1 - r}(r + r^2 + r^3 + ...)$$
+$$= \frac{1}{1 - r}\frac{1}{1 - r}(r + r^2 + r^3 + ... - r^2 - r^3 - r^4 - ...)$$
+$$= \frac{1}{1 - r}\frac{1}{1 - r}r,$$
+for $|r| < 1$,
+$$= \frac{r}{(1 - r)^2},$$
+and
+$$E(SMP_t) = 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\left\{\frac{\phi^2}{\lambda} + 2\left(\frac{\phi^2}{\lambda}\right)^2 + 3\left(\frac{\phi^2}{\lambda}\right)^3 + ...\right\}$$
+$$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\frac{\frac{\phi^2}{\lambda}}{\left( 1 - \frac{\phi^2}{\lambda} \right)^2}$$
+because 
+$$0 \le S_t \le N_{t + 1},$$
+$$0 \le E(S_t) \le E(N_{t + 1}),$$
+$$0 \le E(N_t) \phi \le E(N_t) \lambda,$$
+from \@ref(eq:expNt) and \@ref(eq:expSt), and
+\begin{equation}
+  0 \le \phi \le \lambda,
+  (\#eq:philambda)
+\end{equation}
+$$0 < \frac{\phi}{\lambda} < 1,$$
+and
+$$0 < \frac{\phi^2}{\lambda} < 1,$$
+as $0 < \phi < 1$,
+$$= 2E(N_t)\left(1 - \frac{\phi}{\lambda}\right)^2\left(\frac{\lambda}{\phi}\right)^\alpha\frac{\lambda\phi^2}{\left(\lambda - \phi^2\right)^2}.$$
+
