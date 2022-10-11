@@ -85,11 +85,12 @@ show.errs(
 # Same-mother pairs
 ns.SMPs.preds = reactive(list(
   est.ns.kps.t()[, "SMPs.kwn.age"],  est.ns.kps.pop()$wtn[, "SMPs"], 
-  est.ns.kps.pop()$btn[, "SMPs"]
+  est.ns.kps.pop()$btn[, "SMPs"], est.ns.kps.pop()$btn[, "SMPs.kwn.age"]
 ))
 ns.SMPs.errs = reactive(l.fnd.errs(ns.SMPs(), ns.SMPs.preds()))
 show.errs(
-  ns.SMPs.errs, "SMPs", c("AgeKnwn", "WtnPop", "BtnPop"), "Same-mother pairs"
+  ns.SMPs.errs, "SMPs", c("AgeKnwn", "WtnPop", "BtnPop", "BtnAgeKnwnPop"), 
+  "Same-mother pairs"
 )
 
 # Same-father pairs

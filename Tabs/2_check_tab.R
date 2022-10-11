@@ -39,6 +39,27 @@ find.KPs.btn = reactive(function(find.func, KP.type) {
   message = paste("Finding", KP.type, "pairs between survey-years"))
 })
 
+# Between pairs of survey-years
+find.KPs.age.known.btn = reactive(
+  function(find.func, KP.type) {
+  # Need to specify matrix in case just one column or sapply returns a vector
+  withProgress({
+    matrix(
+      sapply(sim.lst()$hists.lst, function(hist) {
+        # Increment progress-bar
+        incProgress(1/n.sims())
+        
+        # Find kin-pairs
+        find.func(attributes(hist), k(), fnl.year(), srvy.yrs())
+      }),
+      ncol = n.srvy.prs(), dimnames = list(NULL, Survey_pair = srvy.prs()), 
+      byrow = T
+    )
+  }, 
+  value = 0, 
+  message = paste("Finding", KP.type, "pairs between survey-years"))
+})
+
 # In years up to final year
 find.KPs.t = reactive(function(find.func, KP.type) {
   # Need to specify matrix in case just one column or sapply returns a vector
@@ -176,7 +197,11 @@ observeEvent({
         # Between pairs of survey-years
         ns.SMPs.btn = 
           find.KPs.btn()(find.SMSPs.btn, "same-mother and self-pairs") - 
-          ns.SPs()
+          ns.SPs(),
+        
+        # Between survey-years, ages known
+        ns.SMPs.age.known.btn = 
+          find.KPs.age.known.btn()(find.SMPs.age.known.btn, "same-mother")
       ))
     }
     

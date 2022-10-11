@@ -69,11 +69,36 @@ find.SMSPs.btn = function(pop.atts, k) {
   mum.tab.lst = lapply(1:k, function(s.ind) {
     tabulate(pop.atts$mum[pop.atts$alv.s.yrs[, s.ind]], max.mum)
   })
-
+  
   # Same-mother and self-pairs between survey years
   as.vector(combn(1:k, 2, function(s.inds) {
     mum.tab.lst[[s.inds[1]]] %*% mum.tab.lst[[s.inds[2]]]
   }))
+}
+
+# Find same-mother pairs with ages known (both zero), between survey-years
+find.SMPs.age.known.btn = function(pop.atts, k, fnl.year, srvy.yrs) {
+  alv.s.yrs = pop.atts$alv.s.yrs
+  new.born = sapply(1:k, function(s.ind) {
+    pop.atts$f.age == fnl.year - srvy.yrs[s.ind]
+  })
+  
+  # List of frequency tables of mums of animals born in each survey year
+  max.mum = max(pop.atts$mum, na.rm = T)
+  mum.tab.lst = lapply(1:k, function(s.ind) {
+    tabulate(pop.atts$mum[alv.s.yrs[, s.ind] & new.born[, s.ind]], max.mum)
+  })
+  
+  # Same-mother pairs between survey years
+  as.vector(combn(1:k, 2, function(s.inds) {
+    mum.tab.lst[[s.inds[1]]] %*% mum.tab.lst[[s.inds[2]]]
+  })) - 
+    as.vector(combn(1:k, 2, function(s.inds) {
+      sum(
+        pop.atts$ID[alv.s.yrs[, s.inds[1]] & new.born[, s.inds[1]]] %in% 
+          pop.atts$ID[alv.s.yrs[, s.inds[2]] & new.born[, s.inds[2]]]
+      )
+    }))
 }
 
 # Find same-father pairs with ages unknown, in survey-years

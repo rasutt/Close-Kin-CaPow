@@ -40,14 +40,14 @@ Let $SMP_{t_1, t_2, b_1, b_2}$ be the number of pairs such as $i$ and $j$.  Then
 $$SMP_{t_1, t_2, b_1, b_2} \sim Bin(B_{b_1}, \beta \phi^{t_1 + t_2 - 2 b_1}),$$
 and following the same reasoning as above
 $$E(SMP_{t_1, t_2, b_1, b_2}) = E(B_{b_1}) \beta \phi^{t_1 + t_2 - 2 b_1}$$
+$$= E(N_{b_1}) \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 + t_2 - 2 b_1}$$
+$$= \frac{E(N_{t_2})} {\lambda^{t_2 - b_1}} \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 + t_2 - 2 b_1}$$
+$$= E(N_{t_2}) \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 - b_1} \left(\frac{\phi} {\lambda}\right)^{t_2 - b_1}$$
 
 Summing over the possible birth years gives
 $$E \left( \sum_{b_1 \le t_1}\sum_{t_1 < b_2 \le t_2}SMP_{t_1, t_2, b_1, b_2} \right) = \sum_{b_1 \le t_1}\sum_{t_1 < b_2 \le t_2}E(SMP_{t_1, t_2, b_1, b_2}),$$
 where the indices of the summations are $b_1$ and $b_2$ respectively, made implicit to simplify the notation,
-$$= \sum_{b_1 \le t_1} \sum_{t_1 < b_2 \le t_2} E(B_{b_1}) \beta \phi^{t_1 + t_2 - 2 b_1}$$
-$$= \sum_{b_1 \le t_1} \sum_{t_1 < b_2 \le t_2} E(N_{b_1})\left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 + t_2 - 2 b_1}$$
-$$= \sum_{b_1 \le t_1} \sum_{t_1 < b_2 \le t_2} \frac{E(N_{t_2})} {\lambda^{t_2 - b_1}} \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 + t_2 - 2 b_1}$$
-$$= \frac{E(N_{t_2})} {\lambda^{t_2}} \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 + t_2} \sum_{b_1 \le t_1} \sum_{t_1 < b_2 \le t_2} \frac{\phi^{-2 b_1}} {\lambda^{-b_1}}$$
+$$= \sum_{b_1 \le t_1} \sum_{t_1 < b_2 \le t_2} E(N_{t_2}) \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 - b_1} \left(\frac{\phi} {\lambda}\right)^{t_2 - b_1}$$
 $$= E(N_{t_2}) \beta \left(1 - \frac{\phi}{\lambda}\right) \phi^{t_1} \left(\frac{\phi} {\lambda}\right)^{t_2} \sum_{b_1 \le t_1} \sum_{t_1 < b_2 \le t_2} \left(\frac{\phi^2} {\lambda}\right)^{-b_1}$$
 $$= E(N_{t_2}) \beta \left(1 - \frac{\phi}{\lambda}\right) \phi^{t_1} \left(\frac{\phi} {\lambda}\right)^{t_2} \sum_{b_1 \le t_1} (t_2 - t_1) \left(\frac{\phi^2} {\lambda}\right)^{-b_1}$$
 $$= (t_2 - t_1) E(N_{t_2}) \beta \left(1 - \frac{\phi}{\lambda}\right) \phi^{t_1} \left(\frac{\phi} {\lambda}\right)^{t_2} \sum_{b_1 \le t_1} \left(\frac{\phi^2} {\lambda}\right)^{-b_1},$$

@@ -56,12 +56,13 @@ dyn.load(dynlib("TMB_objective_functions/CloseKinNLL"))
 
 # Define server logic for app
 server <- function(input, output) {
-  # Reactive variables (for next simulation) ----
+  # Reactive variables (for next simulation).  Can ignore warnings for invalid
+  # inputs while typing survey years ---- 
   # Population growth rate
   lambda.rct <- reactive(input$rho + input$phi) 
   # Survey years
   srvy.yrs.rct = reactive({
-    eval(parse(text = paste0("c(", sort(input$srvy.yrs), ")")))
+    sort(eval(parse(text = paste0("c(", input$srvy.yrs, ")"))))
   })
   # Number of surveys 
   k.rct = reactive(length(srvy.yrs.rct()))

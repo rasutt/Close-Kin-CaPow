@@ -76,7 +76,13 @@ FindEstNsKPsPop = function(
       2 * srvy.gap * exp.N.s.yrs[s.inds[2]] * beta * (1 - phi/lambda) * 
       lambda / lmb.m.ph.sq * (phi/lambda)^srvy.gap
   }))
-
+  
+  # Same-mother pairs between surveys, ages known (both zero)
+  exp.ns.SMPs.kwn.age.btn = as.vector(combn(1:k, 2, function(s.inds) {
+    exp.N.s.yrs[s.inds[2]] * (1 - phi/lambda) * beta * 
+      (phi/lambda)^(srvy.yrs[s.inds[2]] - srvy.yrs[s.inds[1]])
+  }))
+  
   # Return as list
   list(
     wtn = cbind(
@@ -86,7 +92,7 @@ FindEstNsKPsPop = function(
     ),
     btn = cbind(
       APs = exp.ns.APs.btn, POPs = exp.ns.POPs.btn, SPs = exp.ns.SPs.btn, 
-      SMPs = exp.ns.SMPs.btn
+      SMPs = exp.ns.SMPs.btn, SMPs.kwn.age = exp.ns.SMPs.kwn.age.btn
     )
   )
 }

@@ -220,10 +220,12 @@ ui <- fluidPage(
           p("Numbers in and between survey-years, ages unknown."),
           tableOutput(outputId = "bsSMPsWtnPop"),
           tableOutput(outputId = "bsSMPsBtnPop"),
+          tableOutput(outputId = "bsSMPsBtnAgeKnwnPop"),
           h3("Error distributions"),
           plotOutput(outputId = "errsSMPsAgeKnwn"),
           plotOutput(outputId = "errsSMPsWtnPop"),
-          plotOutput(outputId = "errsSMPsBtnPop")
+          plotOutput(outputId = "errsSMPsBtnPop"),
+          plotOutput(outputId = "errsSMPsBtnAgeKnwnPop")
         ),
         # Same-father pairs ----
         tabPanel(

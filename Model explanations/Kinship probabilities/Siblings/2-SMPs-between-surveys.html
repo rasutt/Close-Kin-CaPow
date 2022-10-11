@@ -199,14 +199,14 @@ is the population growth rate.</p>
 <p>Let <span class="math inline">\(SMP_{t_1, t_2, b_1, b_2}\)</span> be the number of pairs such as <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>. Then
 <span class="math display">\[SMP_{t_1, t_2, b_1, b_2} \sim Bin(B_{b_1}, \beta \phi^{t_1 + t_2 - 2 b_1}),\]</span>
 and following the same reasoning as above
-<span class="math display">\[E(SMP_{t_1, t_2, b_1, b_2}) = E(B_{b_1}) \beta \phi^{t_1 + t_2 - 2 b_1}\]</span></p>
+<span class="math display">\[E(SMP_{t_1, t_2, b_1, b_2}) = E(B_{b_1}) \beta \phi^{t_1 + t_2 - 2 b_1}\]</span>
+<span class="math display">\[= E(N_{b_1}) \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 + t_2 - 2 b_1}\]</span>
+<span class="math display">\[= \frac{E(N_{t_2})} {\lambda^{t_2 - b_1}} \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 + t_2 - 2 b_1}\]</span>
+<span class="math display">\[= E(N_{t_2}) \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 - b_1} \left(\frac{\phi} {\lambda}\right)^{t_2 - b_1}\]</span></p>
 <p>Summing over the possible birth years gives
 <span class="math display">\[E \left( \sum_{b_1 \le t_1}\sum_{t_1 &lt; b_2 \le t_2}SMP_{t_1, t_2, b_1, b_2} \right) = \sum_{b_1 \le t_1}\sum_{t_1 &lt; b_2 \le t_2}E(SMP_{t_1, t_2, b_1, b_2}),\]</span>
 where the indices of the summations are <span class="math inline">\(b_1\)</span> and <span class="math inline">\(b_2\)</span> respectively, made implicit to simplify the notation,
-<span class="math display">\[= \sum_{b_1 \le t_1} \sum_{t_1 &lt; b_2 \le t_2} E(B_{b_1}) \beta \phi^{t_1 + t_2 - 2 b_1}\]</span>
-<span class="math display">\[= \sum_{b_1 \le t_1} \sum_{t_1 &lt; b_2 \le t_2} E(N_{b_1})\left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 + t_2 - 2 b_1}\]</span>
-<span class="math display">\[= \sum_{b_1 \le t_1} \sum_{t_1 &lt; b_2 \le t_2} \frac{E(N_{t_2})} {\lambda^{t_2 - b_1}} \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 + t_2 - 2 b_1}\]</span>
-<span class="math display">\[= \frac{E(N_{t_2})} {\lambda^{t_2}} \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 + t_2} \sum_{b_1 \le t_1} \sum_{t_1 &lt; b_2 \le t_2} \frac{\phi^{-2 b_1}} {\lambda^{-b_1}}\]</span>
+<span class="math display">\[= \sum_{b_1 \le t_1} \sum_{t_1 &lt; b_2 \le t_2} E(N_{t_2}) \left(1 - \frac{\phi}{\lambda}\right) \beta \phi^{t_1 - b_1} \left(\frac{\phi} {\lambda}\right)^{t_2 - b_1}\]</span>
 <span class="math display">\[= E(N_{t_2}) \beta \left(1 - \frac{\phi}{\lambda}\right) \phi^{t_1} \left(\frac{\phi} {\lambda}\right)^{t_2} \sum_{b_1 \le t_1} \sum_{t_1 &lt; b_2 \le t_2} \left(\frac{\phi^2} {\lambda}\right)^{-b_1}\]</span>
 <span class="math display">\[= E(N_{t_2}) \beta \left(1 - \frac{\phi}{\lambda}\right) \phi^{t_1} \left(\frac{\phi} {\lambda}\right)^{t_2} \sum_{b_1 \le t_1} (t_2 - t_1) \left(\frac{\phi^2} {\lambda}\right)^{-b_1}\]</span>
 <span class="math display">\[= (t_2 - t_1) E(N_{t_2}) \beta \left(1 - \frac{\phi}{\lambda}\right) \phi^{t_1} \left(\frac{\phi} {\lambda}\right)^{t_2} \sum_{b_1 \le t_1} \left(\frac{\phi^2} {\lambda}\right)^{-b_1},\]</span>
