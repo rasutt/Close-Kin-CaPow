@@ -220,6 +220,8 @@ ui <- fluidPage(
           p("Numbers in and between survey-years, ages unknown."),
           tableOutput(outputId = "bsSMPsWtnPop"),
           tableOutput(outputId = "bsSMPsBtnPop"),
+          p("Numbers between survey-years, one born five years before first, one
+            born in last."),
           tableOutput(outputId = "bsSMPsBtnAgeKnwnPop"),
           h3("Error distributions"),
           plotOutput(outputId = "errsSMPsAgeKnwn"),
