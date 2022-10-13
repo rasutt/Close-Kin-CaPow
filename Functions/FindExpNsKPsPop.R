@@ -26,9 +26,9 @@ FindEstNsKPsPop = function(
     phi^2 / lmb.m.ph.sq^2
   
   # Same-father pairs within survey years
-  exp.ns.SFPs.wtn = prb.nw.brn.sq * prb.mtr * lambda * 
-    (exp.N.s.yrs / lmb.m.ph.sq * (2 * phi^3 / lmb.m.ph.sq + lambda) - 
-       lambda^alpha / (1 - phi^2))
+  exp.ns.SFPs.wtn = prb.nw.brn.sq * prb.mtr *
+    (exp.N.s.yrs / lmb.m.ph.sq * (2 * phi^3 / lmb.m.ph.sq + lambda * phi) - 
+       lambda^alpha * phi / (1 - phi^2))
   
   # Full-sibling pairs within survey years
   exp.ns.FSPs.wtn = 4 * prb.nw.brn.sq * prb.mtr^2 * phi^4 / 
