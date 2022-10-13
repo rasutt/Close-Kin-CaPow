@@ -214,8 +214,8 @@ observeEvent({
       ns.SFPs.wtn(find.KPs.wtn()(find.SFPs.wtn, "same-father"))
     }
     if (
-      input$check.sub.tabs %in% c("SFPs.tab", "bias.tab") && 
-      is.null(ns.SFPs())
+      # is.null(ns.SFPs()) &&
+      input$check.sub.tabs %in% c("SFPs.tab", "bias.tab") 
     ) {
       # Update reactive value
       ns.SFPs(list(

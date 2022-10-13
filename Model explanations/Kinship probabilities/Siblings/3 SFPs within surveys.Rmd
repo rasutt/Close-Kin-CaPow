@@ -1,16 +1,11 @@
 ---
-title: "Expected number of same-father pairs"
+title: "Expected number of same-father pairs within survey years"
 author: "Robin Aldridge-Sutton"
-output:
-  html_document:
-    toc: true
+date: "`r Sys.Date()`"
+output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-### Expected number of same-father pairs within survey years, with different birth years
+### Different birth years
 
 Male NZSRWs can breed with more than one female and have more than one offspring per year.  
 
@@ -49,36 +44,7 @@ $$= E(B_{b_1})E(B_{b_2}) \phi \frac{1}{E(F_{b_2})} \phi^{2(t - b_1)}$$
 $$= E(B_{b_1}) \beta \phi^{2(t - b_1) + 1}$$
 $$= E(SMP_{t, b_1, b_2}) \phi.$$
 
-### Expected number of same-father pairs between survey years, with different birth years
-
-Let $SFP_{t_1, t_2, b_1, b_2, i}$ be the number of pairs of animals $i$ and $j$, where 
-- $i$ is alive at time $t_1$, $j$ is alive at time $t_2$, and $t_1 < t_2$,
-- $i$ is born at time $b_1$, and $j$ is born at a later time $b_2$, and
-- $i$ and $j$ have the same father.
-
-Also let $SFP_{t_1, t_2, b_1, b_2}$ be the total number of pairs such as $i$ and $j$.
-
-Then the probability that $i$ survives to time $t$ is $\phi^{t_1 - b_1}$, the probability that the father survives from time $b_1 - 1$ to time $b_2 - 1$ is $\phi^{b_2 - 1 - (b_1 - 1)} = \phi^{b_2 - b_1}$, the probability that $j$ has that father is $\frac{1}{M_{b_2 - 1}}$, and the probability that it survives to time $t_2$ is $\phi^{t_2 - b_2}$. So for any animal born at time $b_1$, the probability that an animal born at time $b_2$ forms a same-father pair with it at time $t$ is $\frac{\phi^{2(t_1 - b_1) + t_2 - t_1}}{M_{b_2 - 1}}$.  Then
-$$SFP_{t_1, t_2, b_1, b_2, i} \sim Bin\left(B_{b_2}, \frac{\phi^{2(t - b_1) + t_2 - t_1}}{M_{b_2 - 1}}\right),$$
-and following the same reasoning as above,
-$$E(SFP_{t_1, t_2, b_1, b_2}) = E(B_{b_1})E\left\{B_{b_2} \frac{\phi^{2(t_1 - b_1) + t_2 - t_1}}{M_{b_2 - 1}}\right\}$$
-$$= E(B_{b_1})E\left\{B_{b_2} \frac{\phi^{2(t_1 - b_1)}}{M_{b_2 - 1}}\right\} \phi^{t_2 - t_1}$$
-$$= E(SFP_{t_1, b_1, b_2}) \phi^{t_2 - t_1}$$
-$$= E(SMP_{t_1, b_1, b_2}) \phi^{t_2 - t_1 + 1}$$
-$$= E(SMP_{t_1, t_2, b_1, b_2}) \phi$$
-
-Let $SFP_{t_1, t_2}$ be the number of pairs of animals $i$ and $j$, where 
-- $i$ is alive at time $t_1$, $j$ is alive at time $t_2$, and $t_1 < t_2$, and
-- $i$ and $j$ have the same father.
-
-Then 
-$$SFP_{t_1, t_2} = \sum_{b_1 < t_1}\sum_{b_1 < b_2 \le t_2} SFP_{t_1, t_2, b_1, b_2},$$
-$$E(SFP_{t_1, t_2}) = \sum_{b_1 < t_1}\sum_{b_1 < b_2 \le t_2}E(SFP_{t_1, t_2, b_1, b_2}),$$
-$$= \sum_{b_1 < t_1}\sum_{b_1 < b_2 \le t_2} E(SMP_{t_1, t_2, b_1, b_2}) \phi,$$
-$$= \phi \sum_{b_1 < t_1}\sum_{b_1 < b_2 \le t_2} E(SMP_{t_1, t_2, b_1, b_2}),$$
-$$= \phi E(SMP_{t_1, t_2}),$$
-
-### Expected number of same-father pairs within survey years, with the same birth year
+### Same birth year
 
 Let 
 
@@ -134,20 +100,7 @@ $$= \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left\{ \left(1
 $$= \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left(1 - \frac{\phi}{\lambda} \right)^2  \left( \frac{\lambda}{\phi}\right)^{2 \alpha} \phi^{2 (t - b + \alpha)} \lambda \left( \frac{1}{\phi} \right)^\alpha$$
 $$= \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \left(1 - \frac{\phi}{\lambda} \right)^2  \left( \frac{\lambda^2}{\phi}\right)^{\alpha} \phi^{2 (t - b)} \lambda.$$
 
-### Expected number of same-father pairs between survey years, with the same birth year
-
-Let $SFP_{t_1, t_2, b}$ be the number of pairs of animals $i$ and $j$, where 
-- $i$ is alive at time $t_1$, $j$ is alive at time $t_2$, and $t_1 < t_2$,
-- $i$ and $j$ are both born at time $b$, and
-- $i$ and $j$ have the same father.
-
-Then each such pair is a pair that is counted in $SFP_{t_1, b}$ above, but where one animal survives on from time $t_1$ to time $t_2$.  Then
-$$SFP_{t_1, t_2, b} \sim Bin\left(2 SFP_{t_1, b} \phi^{t_1 - t_2} \right),$$
-$$E(SFP_{t_1, t_2, b}) = E\left\{E(2 SFP_{t_1, t_2, b}|SFP_{t_1, b}) \right\}$$
-$$= E\left\{2 SFP_{t_1, b} \phi^{t_1 - t_2}\right\}$$
-$$= 2 E(SFP_{t_1, b}) \phi^{t_1 - t_2}$$
-
-### Expected number of same-father pairs within survey years
+### Total over all birth years
 
 Let $SFP_t$ be the total number of pairs of animals at time $t$ with the same father.  Then
 $$SFP_t = \sum_{b_1 < t}\sum_{b_1 < b_2 \le t}SFP_{t, b_1, b_2} + \sum_{b \le t} SFP_{t, b}$$
@@ -171,20 +124,4 @@ $$\left(1 - \frac{\phi}{\lambda} \right)^2 \left( \frac{\lambda^2}{\phi}\right)^
 $$= \left(1 - \frac{\phi}{\lambda}\right)^2 \left(\frac{\lambda}{\phi}\right)^\alpha \lambda \left[ \frac{2E(N_t)\phi^3}{\left(\lambda - \phi^2\right)^2} + \lambda^\alpha \left\{\frac{E(N_t)}{\lambda^{\alpha}} \frac{\lambda}{\lambda - \phi^2} - \frac{1}{1 - \phi^2} \right\} \right] $$
 $$= \left(1 - \frac{\phi}{\lambda}\right)^2 \left(\frac{\lambda}{\phi}\right)^\alpha \lambda \left\{ \frac{2E(N_t)\phi^3}{\left(\lambda - \phi^2\right)^2} + \frac{E(N_t)\lambda}{\lambda - \phi^2} - \frac{\lambda^\alpha}{1 - \phi^2} \right\} $$
 $$= \left(1 - \frac{\phi}{\lambda}\right)^2 \left(\frac{\lambda}{\phi}\right)^\alpha \lambda \left\{ \frac{E(N_t)}{\lambda - \phi^2} \left( \frac{2\phi^3}{\lambda - \phi^2} + \lambda \right) - \frac{\lambda^\alpha}{1 - \phi^2} \right\} $$
-
-### Expected number of same-father pairs between survey years
-
-Let $SFP_{t_1, t_2}$ be the total number of pairs of animals $i$ and $j$, where 
-- $i$ is alive at time $t_1$, $j$ is alive at time $t_2$, and $t_1 < t_2$,
-- $i$ and $j$ have the same father.
-
-Then
-$$SFP_{t_1, t_2} = \sum_{b_1 < t_1}\sum_{b_1 < b_2 \le t_2} SFP_{t_1, t_2, b_1, b_2} + \sum_{b < t_1} SFP_{t_1, t_2, b}$$
-$$E(SFP_{t_1, t_2}) = E\left(\sum_{b_1 < t_1}\sum_{b_1 < b_2 \le t_2}SFP_{t_1, t_2, b_1, b_2} +  \sum_{b < t_1}SFP_{t_1, t_2, b} \right)$$
-$$= \sum_{b_1 < t_1}\sum_{b_1 < b_2 \le t_2} E(SFP_{t_1, t_2, b_1, b_2}) +  \sum_{b < t_1}E(SFP_{t_1, t_2, b})$$
-$$= \phi E(SMP_{t_1, t_2}) + \sum_{b < t_1} 2 E(SFP_{t_1, b}) \phi^{t_1 - t_2}$$
-$$= \phi E(SMP_{t_1, t_2}) + 2 \phi^{t_1 - t_2} \sum_{b < t_1} E(SFP_{t_1, b})$$
-$$= \phi E(SMP_{t_1, t_2}) + 2 \phi^{t_1 - t_2} \left(1 - \frac{\phi}{\lambda} \right)^2 \left( \frac{\lambda^2}{\phi}\right)^{\alpha} \lambda \left\{\frac{E(N_{t_1})}{\lambda^{\alpha}} \frac{\lambda}{\lambda - \phi^2} - \frac{1}{1 - \phi^2}\right\}$$
-
-
 

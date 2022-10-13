@@ -29,9 +29,9 @@ FindEstNsKPsT = function(
   est.ns.SFPs.fnl.b1.fnl = est.ns.SMPs.fnl.b1.fnl * phi
   
   # Same-father pairs in the final year, both born in the current year
-  est.ns.SFPs.fnl.b = phi^(2 * f.yr.m.t.vec) * 
+  est.ns.SFPs.fnl.b = phi^(2 * f.yr.m.t.vec + 1) * 
     (est.N.fin / lambda^(alpha + f.yr.m.t.vec) - 1) *
-    (lambda^2 / phi)^alpha * lambda * prb.nw.brn.sq
+    (lambda^2 / phi)^alpha * prb.nw.brn.sq
   
   # # Same-mother pairs between each year and final year, born in two years
   # # preceding each year
