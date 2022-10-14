@@ -183,8 +183,8 @@ observeEvent({
       ns.SMPs.wtn(find.KPs.wtn()(find.SMPs.wtn, "same-mother"))
     }
     if (
-      input$check.sub.tabs %in% c("SMPs.tab", "bias.tab") && 
-      is.null(ns.SMPs())
+      is.null(ns.SMPs()) &&
+      input$check.sub.tabs %in% c("SMPs.tab", "bias.tab")
     ) {
       # Update reactive value
       ns.SMPs(list(
@@ -214,7 +214,7 @@ observeEvent({
       ns.SFPs.wtn(find.KPs.wtn()(find.SFPs.wtn, "same-father"))
     }
     if (
-      # is.null(ns.SFPs()) &&
+      is.null(ns.SFPs()) &&
       input$check.sub.tabs %in% c("SFPs.tab", "bias.tab") 
     ) {
       # Update reactive value
@@ -237,8 +237,8 @@ observeEvent({
     
     # Find numbers of full and half-sibling pairs
     if (
-      input$check.sub.tabs %in% c("SibPs.tab", "bias.tab") && 
-      is.null(ns.SibPs())
+      # is.null(ns.SibPs()) && 
+      input$check.sub.tabs %in% c("SibPs.tab", "bias.tab")
     ) {
       # Full-sibling pairs within survey-years
       ns.FSPs.wtn = find.KPs.wtn()(find.FSPs.wtn, "full-sibling")

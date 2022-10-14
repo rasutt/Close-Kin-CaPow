@@ -183,18 +183,21 @@ pre code {
 and
 <span class="math display">\[E(SMP_{t, b_1, b_2}) = E(E(SMP_{t, b_1, b_2}|B_{b_1}))\]</span>
 <span class="math display">\[= E(B_{b_1}\phi^{2(t - b_1)}\beta)\]</span>
-<span class="math display">\[= E(B_{b_1})\phi^{2(t - b_1)}\beta\]</span>
+<span class="math display" id="eq:expSMP">\[\begin{equation}
+  = E(B_{b_1})\phi^{2(t - b_1)}\beta
+  \tag{1}
+\end{equation}\]</span>
 <span class="math display">\[= E(N_{b_1})\left(1 - \frac{\phi}{\lambda}\right)\phi^{2(t - b_1)}\beta\]</span>
 <span class="math display">\[= \frac{E(N_t)}{\lambda^{t - b_1}}\left(1 - \frac{\phi}{\lambda}\right)\phi^{2(t - b_1)}\beta\]</span>
-<span class="math display">\[= E(N_t)\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}\beta\]</span></p>
+<span class="math display">\[= E(N_t)\beta \left(1 - \frac{\phi}{\lambda}\right) \left(\frac{\phi^2}{\lambda}\right)^{t - b_1}\]</span></p>
 <p>Let <span class="math inline">\(SMP_t\)</span> be the number of pairs of animals at time <span class="math inline">\(t\)</span> with the same mother and any birth years.</p>
 <p>Then
 <span class="math display">\[SMP_t = \sum_{b_1 &lt; t}\sum_{b_1 &lt; b_2 \le t}SMP_{t, b_1, b_2},\]</span>
 <span class="math display">\[E(SMP_t) = \sum_{b_1 &lt; t}\sum_{b_1 &lt; b_2 \le t}E(SMP_{t, b_1, b_2}),\]</span>
-<span class="math display">\[= \sum_{b_1 &lt; t}\sum_{b_1 &lt; b_2 \le t} E(N_t)\left(1 - \frac{\phi}{\lambda}\right)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}\beta\]</span>
-<span class="math display">\[= E(N_t)\left(1 - \frac{\phi}{\lambda}\right) \beta \sum_{b_1 &lt; t}\sum_{b_1 &lt; b_2 \le t}\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}\]</span>
-<span class="math display">\[= E(N_t)\left(1 - \frac{\phi}{\lambda}\right) \beta \sum_{b_1 &lt; t}(t - b_1)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}\]</span>
-<span class="math display">\[= E(N_t)\left(1 - \frac{\phi}{\lambda}\right) \beta \left\{\frac{\phi^2}{\lambda} + 2\left(\frac{\phi^2}{\lambda}\right)^2 + 3\left(\frac{\phi^2}{\lambda}\right)^3 + ...\right\},\]</span>
+<span class="math display">\[= \sum_{b_1 &lt; t}\sum_{b_1 &lt; b_2 \le t} E(N_t)\beta \left(1 - \frac{\phi}{\lambda}\right) \left(\frac{\phi^2}{\lambda}\right)^{t - b_1}\]</span>
+<span class="math display">\[= E(N_t)\beta \left(1 - \frac{\phi}{\lambda}\right) \sum_{b_1 &lt; t}\sum_{b_1 &lt; b_2 \le t}\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}\]</span>
+<span class="math display">\[= E(N_t) \beta\left(1 - \frac{\phi}{\lambda}\right) \sum_{b_1 &lt; t}(t - b_1)\left(\frac{\phi^2}{\lambda}\right)^{t - b_1}\]</span>
+<span class="math display">\[= E(N_t) \beta\left(1 - \frac{\phi}{\lambda}\right) \left\{\frac{\phi^2}{\lambda} + 2\left(\frac{\phi^2}{\lambda}\right)^2 + 3\left(\frac{\phi^2}{\lambda}\right)^3 + ...\right\},\]</span>
 <span class="math display">\[r + 2r^2 + 3r^3 + ... = \frac{1 - r}{1 - r}(r + 2r^2 + 3r^3 + ...)\]</span>
 <span class="math display">\[= \frac{1}{1 - r}(r + 2r^2 + 3r^3 + ... - r^2 - 2r^3 - 3r^4 - ...)\]</span>
 <span class="math display">\[= \frac{1}{1 - r}(r + r^2 + r^3 + ...),\]</span>
@@ -205,7 +208,7 @@ for <span class="math inline">\(|r| &lt; 1\)</span>,
 for <span class="math inline">\(|r| &lt; 1\)</span>,
 <span class="math display">\[= \frac{r}{(1 - r)^2},\]</span>
 and
-<span class="math display">\[E(SMP_t) = E(N_t)\left(1 - \frac{\phi}{\lambda}\right) \beta \frac{\frac{\phi^2}{\lambda}}{\left( 1 - \frac{\phi^2}{\lambda} \right)^2}\]</span>
+<span class="math display">\[E(SMP_t) = E(N_t) \beta\left(1 - \frac{\phi}{\lambda}\right) \frac{\frac{\phi^2}{\lambda}}{\left( 1 - \frac{\phi^2}{\lambda} \right)^2}\]</span>
 because
 <span class="math display">\[0 \le S_t \le N_{t + 1},\]</span>
 <span class="math display">\[0 \le E(S_t) \le E(N_{t + 1}),\]</span>
@@ -213,13 +216,14 @@ because
 from <a href="#eq:expNt">(<strong>??</strong>)</a> and <a href="#eq:expSt">(<strong>??</strong>)</a>, and
 <span class="math display" id="eq:philambda">\[\begin{equation}
   0 \le \phi \le \lambda,
-  \tag{1}
+  \tag{2}
 \end{equation}\]</span>
 <span class="math display">\[0 &lt; \frac{\phi}{\lambda} &lt; 1,\]</span>
 and
 <span class="math display">\[0 &lt; \frac{\phi^2}{\lambda} &lt; 1,\]</span>
 as <span class="math inline">\(0 &lt; \phi &lt; 1\)</span>,
-<span class="math display">\[= E(N_t)\left(1 - \frac{\phi}{\lambda}\right) \beta \frac{\lambda\phi^2}{\left(\lambda - \phi^2\right)^2}.\]</span></p>
+<span class="math display">\[= E(N_t) \beta\left(1 - \frac{\phi}{\lambda}\right) \frac{\lambda\phi^2}{\left(\lambda - \phi^2\right)^2}.\]</span>
+<span class="math display">\[= E(N_t) \beta \frac{(\lambda - \phi)\phi^2}{\left(\lambda - \phi^2\right)^2}.\]</span></p>
 
 
 
