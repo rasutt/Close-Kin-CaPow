@@ -214,7 +214,7 @@ observeEvent({
       ns.SFPs.wtn(find.KPs.wtn()(find.SFPs.wtn, "same-father"))
     }
     if (
-      is.null(ns.SFPs()) &&
+      # is.null(ns.SFPs()) &&
       input$check.sub.tabs %in% c("SFPs.tab", "bias.tab") 
     ) {
       # Update reactive value
@@ -226,12 +226,12 @@ observeEvent({
         ns.SFPs.same.age = find.KPs.t()(find.SFPs.same.age, "same-father"),
         
         # In survey-years
-        ns.SFPs.wtn = ns.SFPs.wtn()
+        ns.SFPs.wtn = ns.SFPs.wtn(),
         
-        # # Between pairs of survey-years
-        # ns.SFPs.btn = 
-        #   find.KPs.btn()(find.SFSPs.btn, "same-father and self-pairs") - 
-        #   ns.SPs()
+        # Between pairs of survey-years
+        ns.SFPs.btn =
+          find.KPs.btn()(find.SFSPs.btn, "same-father and self-pairs") -
+          ns.SPs()
       ))
     }
     

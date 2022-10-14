@@ -242,14 +242,14 @@ ui <- fluidPage(
           tableOutput(outputId = "bsSFPsAgeKnwn"),
           p("Numbers in the final year, both born in the year indicated."),
           tableOutput(outputId = "bsSFPsSameAge"),
-          p("Numbers in survey-years, ages unknown."),
+          p("Numbers in and between survey-years, ages unknown."),
           tableOutput(outputId = "bsSFPsWtnPop"),
-          # tableOutput(outputId = "bsSFPsBtnPop"),
+          tableOutput(outputId = "bsSFPsBtnPop"),
           h3("Error distributions"),
           plotOutput(outputId = "errsSFPsAgeKnwn"),
           plotOutput(outputId = "errsSFPsSameAge"),
           plotOutput(outputId = "errsSFPsWtnPop"),
-          # plotOutput(outputId = "errsSFPsBtnPop")
+          plotOutput(outputId = "errsSFPsBtnPop")
         ),
         # Sibling-pairs ----
         tabPanel(

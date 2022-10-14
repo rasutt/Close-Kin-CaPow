@@ -128,7 +128,7 @@ $$= \phi \sum_{b_1 < t}\sum_{b_1 < b_2 \le t} E(SMP_{t, b_1, b_2}) + \sum_{b \le
 $$= \phi E(SMP_t) + \sum_{b \le t} E(SFP_{t, b}),$$
 $$\sum_{b \le t} E(SFP_{t, b}) = \sum_{b \le t} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \frac{\beta^2 \phi^{2 (t - b) + \alpha + 1}}{4},$$
 using \@ref(eq:expSFPtb),
-$$= \frac{\beta^2 \phi^{\alpha + 1}}{4} \sum_{b \le t} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\}   \phi^{2 (t - b)},$$
+$$= \frac{\beta^2 \phi^{\alpha + 1}}{4} \sum_{b \le t} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \phi^{2 (t - b)},$$
 $$\sum_{b \le t} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\}   \phi^{2 (t - b)} = \sum_{b \le t} \left\{ \frac{E(N_t)}{\lambda^{\alpha}} \left(\frac{\phi^2}{\lambda}\right)^{t - b} - \phi^{2 (t - b)} \right\}$$
 $$= \sum_{b \le t} \frac{E(N_t)}{\lambda^{\alpha}} \left(\frac{\phi^2}{\lambda}\right)^{t - b} - \sum_{b \le t} \phi^{2 (t - b)} $$
 $$= \frac{E(N_t)}{\lambda^{\alpha}} \sum_{b \le t}  \left(\frac{\phi^2}{\lambda}\right)^{t - b} - \sum_{b \le t} \phi^{2 (t - b)} $$

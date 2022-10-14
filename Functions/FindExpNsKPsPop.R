@@ -8,8 +8,8 @@ FindEstNsKPsPop = function(
   exp.N.s.yrs = exp.N.t[s.yr.inds]
   # Probability that two animals are new-born independently
   prb.nw.brn.sq = (1 - phi / lambda)^2
-  # Probability that an animal is mature
-  prb.mtr = (lambda / phi)^alpha
+  # Reciprocal of probability that an animal is mature
+  rcl.prb.mtr = (lambda / phi)^alpha
   # Lambda minus phi-squared
   lmb.m.ph.sq = lambda - phi^2
   # Birth rate among mature females
@@ -27,13 +27,13 @@ FindEstNsKPsPop = function(
   exp.ns.SMPs.wtn = exp.N.s.yrs * beta * (lambda - phi) * phi^2 / lmb.m.ph.sq^2
   
   # Same-father pairs within survey years
-  exp.ns.SFPs.wtn = phi * exp.ns.SMPs.wtn + beta^2 * phi^(alpha + 1) / 4 * 
+  exp.ns.SFPs.diff.b.yrs.wtn = phi * exp.ns.SMPs.wtn
+  exp.ns.SFPs.same.b.yr.wtn = beta^2 * phi^(alpha + 1) / 4 * 
     (exp.N.s.yrs / (lambda^(alpha - 1) * lmb.m.ph.sq) - 1 / (1 - phi^2))
-
+  exp.ns.SFPs.wtn = exp.ns.SFPs.diff.b.yrs.wtn + exp.ns.SFPs.same.b.yr.wtn
+  
   # Full-sibling pairs within survey years
-  # exp.ns.FSPs.wtn = 4 * prb.nw.brn.sq * prb.mtr^2 * phi^4 / 
-  #   (lambda - phi^3) / (1 - phi^2)
-  exp.ns.FSPs.wtn = 2 * beta * prb.mtr * (lambda - phi) * phi^4 / 
+  exp.ns.FSPs.wtn = 2 * beta * rcl.prb.mtr * (lambda - phi) * phi^4 / 
     (lambda * (lambda - phi^3) * (1 - phi^2))
   
   # Half-sibling pairs within survey years
@@ -82,6 +82,13 @@ FindEstNsKPsPop = function(
       (phi/lambda)^(srvy.yrs[s.inds[2]] - srvy.yrs[s.inds[1]] + 5)
   }))
   
+  # Same-father pairs between survey years
+  exp.ns.SFPs.btn = phi * exp.ns.SMPs.btn + 
+    as.vector(combn(1:k, 2, function(s.inds) {
+      2 * phi^(srvy.yrs[s.inds[2]] - srvy.yrs[s.inds[1]]) * 
+        exp.ns.SFPs.same.b.yr.wtn[s.inds[1]]
+    }))
+  
   # Return as list
   list(
     wtn = cbind(
@@ -91,7 +98,8 @@ FindEstNsKPsPop = function(
     ),
     btn = cbind(
       APs = exp.ns.APs.btn, POPs = exp.ns.POPs.btn, SPs = exp.ns.SPs.btn, 
-      SMPs = exp.ns.SMPs.btn, SMPs.kwn.age = exp.ns.SMPs.kwn.age.btn
+      SMPs = exp.ns.SMPs.btn, SMPs.kwn.age = exp.ns.SMPs.kwn.age.btn,
+      SFPs = exp.ns.SFPs.btn
     )
   )
 }

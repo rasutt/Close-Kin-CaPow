@@ -1,5 +1,5 @@
 ---
-title: "Expected numbers of full and half-sibling pairs within surveys"
+title: "Expected numbers of full and half-sibling pairs between surveys"
 author: "Robin Aldridge-Sutton"
 output:
   html_document:
@@ -11,6 +11,37 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ### Full-sibling pairs
+
+## Younger animal alive at time of first sample
+
+$$ 2 E(FSP_{t_1}) \phi^{t_2 - t_1} $$
+
+### Younger animal born between sample-times
+
+If an animal $j$ is born at a time $b_2$ such that $t_1 < b_2 \le t_2$, then there is an FSP between $t_1$ and $t_2$ for each animal $i$ that is born at a time $b_1$ before $t_1$, so that $b_1 < t_1$, and survives until $t_1$, and has a mother that survives until $b_2$, and gives birth to $j$ then, and a father that survives to $b_2 - 1$ and conceives $j$ then, given $j$ survives to $t_2$.
+
+The probability that $i$ survives to $t_1$ is $\phi^{t_1 - b_1}$.
+
+The probability that the mother survives from $b_1$ to $b_2$ is $\phi^{b_2 - b_1}$.
+
+The probability that the mother has another calf at $b_2$, given that she survives until then, is $\beta$.
+
+The probability that the father survives from $b_1 - 1$ to $b_2 - 1$ is $\phi^{b_2 - 1 - (b_1 - 1)} = \phi^{b_2 - b_1}$.
+
+The probability that the father conceives a calf at $b_2 - 1$, given that he survives until then, is $\frac{1}{M^*_{b_2-1}}$.
+
+The probability that this calf survives to time $t_2$ is $\phi^{t_2 - b_2}$.
+
+For each animal born at time $b_1$ the probability that it forms a pair such as $i$ and $j$ is then 
+$$\phi^{t_1 - b_1} \phi^{b_2 - b_1} \beta \phi^{b_2 - b_1} \frac{1}{M^*_{b_2-1}} \phi^{t_2 - b_2} = \frac{\beta \phi^{t_1 + t_2 + b_2 - 3 b_1}}{M^*_{b_2-1}}.$$
+
+Let $FSP_{t_1, t_2, b_1, b_2}$ be the number of pairs such as $i$ and $j$.  Then
+$$FSP_{t_1, t_2, b_1, b_2} \sim Bin \left( B_{b_1}, \frac{\beta \phi^{t_1 + t_2 + b_2 - 3 b_1}}{M^*_{b_2-1}} \right),$$
+and following the same reasoning as above
+$$E(FSP_{t_1, t_2, b_1, b_2}) = E(B_{b_1}) \frac{\beta \phi^{t_1 + t_2 + b_2 - 3 b_1}}{M^*_{b_2-1}}$$
+$$= E(N_{b_1}) \left(1 - \frac{\phi}{\lambda}\right) \frac{\beta \phi^{t_1 + t_2 + b_2 - 3 b_1}}{M^*_{b_2-1}}$$
+...
+$$$$
 
 Let 
 
