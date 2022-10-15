@@ -110,7 +110,7 @@ FindEstNsKPsPop = function(
     btn = cbind(
       APs = exp.ns.APs.btn, POPs = exp.ns.POPs.btn, SPs = exp.ns.SPs.btn, 
       SMPs = exp.ns.SMPs.btn, SMPs.kwn.age = exp.ns.SMPs.kwn.age.btn,
-      SFPs = exp.ns.SFPs.btn
+      SFPs = exp.ns.SFPs.btn, FSPs = exp.ns.FSPs.btn
     )
   )
 }

@@ -136,9 +136,9 @@ observeEvent({
     
     # Find numbers of self-pairs between survey-years in simulated populations
     if (
+      # is.null(ns.SPs()) && 
       input$check.sub.tabs %in% 
-      c("SPs.tab", "SMPs.tab", "bias.tab") && 
-      is.null(ns.SPs())
+      c("SPs.tab", "SMPs.tab", "SibPs.tab", "bias.tab")
     ) {
       ns.SPs(find.KPs.btn()(find.SPs, "self-pairs"))
     }
@@ -242,10 +242,13 @@ observeEvent({
     ) {
       # Full-sibling pairs within survey-years
       ns.FSPs.wtn = find.KPs.wtn()(find.FSPs.wtn, "full-sibling")
+      ns.FSPs.btn = 
+        find.KPs.btn()(find.FSSPs.btn, "full-sibling and self-pairs") - ns.SPs()
       
       # Update reactive value
       ns.SibPs(list(
         ns.FSPs.wtn = ns.FSPs.wtn,
+        ns.FSPs.btn = ns.FSPs.btn,
         
         # Half-sibling pairs within survey years
         ns.HSPs.wtn = ns.SMPs.wtn() + ns.SFPs.wtn() - 2 * ns.FSPs.wtn

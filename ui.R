@@ -262,16 +262,16 @@ ui <- fluidPage(
           h4("Full-sibling pairs"),
           p("Pairs of individuals that share two parents."),
           tableOutput(outputId = "bsFSPsWtnPop"),
-          # tableOutput(outputId = "bsFSPsBtnPop"),
+          tableOutput(outputId = "bsFSPsBtnPop"),
           h4("Half-sibling pairs"),
           p("Pairs of individuals that share one parent."),
           tableOutput(outputId = "bsHSPsWtnPop"),
-          # tableOutput(outputId = "bsSFPsBtnPop"),
+          # tableOutput(outputId = "bsHSPsBtnPop"),
           h3("Error distributions"),
           plotOutput(outputId = "errsFSPsWtnPop"),
+          plotOutput(outputId = "errsFSPsBtnPop"),
           plotOutput(outputId = "errsHSPsWtnPop")
-          # plotOutput(outputId = "errsSFPsWtnPop"),
-          # plotOutput(outputId = "errsSFPsBtnPop")
+          # plotOutput(outputId = "errsHSPsBtnPop")
         ),
         # Biases ----
         tabPanel(

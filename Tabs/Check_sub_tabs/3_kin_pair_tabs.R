@@ -107,10 +107,14 @@ show.errs(
 
 # Sibling-pairs
 ns.SibPs.preds = reactive(list(
-  est.ns.kps.pop()$wtn[, "FSPs"], est.ns.kps.pop()$wtn[, "HSPs"]
+  est.ns.kps.pop()$wtn[, "FSPs"], est.ns.kps.pop()$btn[, "FSPs"], 
+  est.ns.kps.pop()$wtn[, "HSPs"]
 ))
-ns.FSPs.errs = reactive(l.fnd.errs(ns.SibPs()[1], ns.SibPs.preds()[1]))
-ns.HSPs.errs = reactive(l.fnd.errs(ns.SibPs()[2], ns.SibPs.preds()[2]))
-show.errs(ns.FSPs.errs, "FSPs", "WtnPop", "Full-sibling pairs")
+ns.FSPs.errs = reactive({
+  print(str(ns.SibPs()))
+  l.fnd.errs(ns.SibPs()[1:2], ns.SibPs.preds()[1:2])
+})
+ns.HSPs.errs = reactive(l.fnd.errs(ns.SibPs()[3], ns.SibPs.preds()[3]))
+show.errs(ns.FSPs.errs, "FSPs", c("WtnPop", "BtnPop"), "Full-sibling pairs")
 show.errs(ns.HSPs.errs, "HSPs", "WtnPop", "Half-sibling pairs")
 
