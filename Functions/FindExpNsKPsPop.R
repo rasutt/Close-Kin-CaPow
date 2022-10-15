@@ -6,14 +6,16 @@ FindEstNsKPsPop = function(
   
   # Expected population sizes in survey years
   exp.N.s.yrs = exp.N.t[s.yr.inds]
+  # Probability not new-born (phi over lambda)
+  p.o.l = phi / lambda
   # Probability that two animals are new-born independently
-  prb.nw.brn.sq = (1 - phi / lambda)^2
+  prb.nw.brn.sq = (1 - p.o.l)^2
   # Reciprocal of probability that an animal is mature
   rcl.prb.mtr = (lambda / phi)^alpha
   # Lambda minus phi-squared
   lmb.m.ph.sq = lambda - phi^2
   # Birth rate among mature females
-  beta = 2 * (1 - phi/lambda) * (lambda/phi)^alpha
+  beta = 2 * (1 - p.o.l) * (lambda/phi)^alpha
   
   # Expected numbers of kin-pairs
   
@@ -53,14 +55,14 @@ FindEstNsKPsPop = function(
     t1 = srvy.yrs[s.inds[1]]
     t2 = srvy.yrs[s.inds[2]]
     4 * exp.N.s.yrs[s.inds[2]] * phi * (lambda - phi) / lmb.m.ph.sq *
-      (phi / lambda)^(t2 - t1) +
-      2 * (1 - phi / lambda) * exp.N.s.yrs[s.inds[2]] * (phi / lambda)^t2 * 
-      (((phi / lambda)^(-(t1 + 1)) -
-          (phi / lambda)^(-(min(t1 + alpha, t2) + 1))) /
-         (1 - (phi / lambda)^(-1)) + 
+      (p.o.l)^(t2 - t1) +
+      2 * (1 - p.o.l) * exp.N.s.yrs[s.inds[2]] * (p.o.l)^t2 * 
+      (((p.o.l)^(-(t1 + 1)) -
+          (p.o.l)^(-(min(t1 + alpha, t2) + 1))) /
+         (1 - (p.o.l)^(-1)) + 
          ifelse(
            t1 + alpha < t2, 
-           (t2 - (t1 + alpha)) * (phi / lambda)^(-(t1 + alpha)),
+           (t2 - (t1 + alpha)) * (p.o.l)^(-(t1 + alpha)),
            0
          ))
   }))
@@ -72,14 +74,14 @@ FindEstNsKPsPop = function(
     
     # Same-mother pairs
     2 * exp.ns.SMPs.wtn[s.inds[1]] * phi^srvy.gap +
-      srvy.gap * exp.N.s.yrs[s.inds[2]] * beta * (1 - phi/lambda) * 
-      lambda / lmb.m.ph.sq * (phi/lambda)^srvy.gap
+      srvy.gap * exp.N.s.yrs[s.inds[2]] * beta * (1 - p.o.l) * 
+      lambda / lmb.m.ph.sq * (p.o.l)^srvy.gap
   }))
   
   # Same-mother pairs between surveys, ages known (five and zero)
   exp.ns.SMPs.kwn.age.btn = as.vector(combn(1:k, 2, function(s.inds) {
-    exp.N.s.yrs[s.inds[2]] * (1 - phi/lambda) * beta * phi^5 *
-      (phi/lambda)^(srvy.yrs[s.inds[2]] - srvy.yrs[s.inds[1]] + 5)
+    exp.N.s.yrs[s.inds[2]] * (1 - p.o.l) * beta * phi^5 *
+      (p.o.l)^(srvy.yrs[s.inds[2]] - srvy.yrs[s.inds[1]] + 5)
   }))
   
   # Same-father pairs between survey years
@@ -87,6 +89,15 @@ FindEstNsKPsPop = function(
     as.vector(combn(1:k, 2, function(s.inds) {
       2 * phi^(srvy.yrs[s.inds[2]] - srvy.yrs[s.inds[1]]) * 
         exp.ns.SFPs.same.b.yr.wtn[s.inds[1]]
+    }))
+  
+  # Full-sibling pairs between survey years
+  exp.ns.FSPs.btn = 2 * beta * (1 - p.o.l) * rcl.prb.mtr * 
+    as.vector(combn(1:k, 2, function(s.inds) {
+      t1 = srvy.yrs[s.inds[1]]
+      t2 = srvy.yrs[s.inds[2]]
+      phi^(t1 + t2 + 1) * (p.o.l^(t1 + 1) - p.o.l^(t2 + 1)) / 
+        ((phi^3 / lambda)^t1 * (1 - phi^3 / lambda) * (1 - p.o.l))
     }))
   
   # Return as list

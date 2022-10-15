@@ -109,7 +109,7 @@ $$= E\left\{{N_{b - \alpha} \choose 2} \right\}\frac{\beta^2 \phi^{2 (t - b + \a
 $$= E\left\{\frac{N_{b - \alpha}(N_{b - \alpha} - 1)}{2} \right\}\frac{\beta^2 \phi^{2 (t - b + \alpha)}}{4 E(M^*_{b - 1})}$$
 $$\approx \frac{E(N_{b - \alpha})E(N_{b - \alpha} - 1)}{2} \frac{\beta^2 \phi^{2 (t - b + \alpha)}}{4 E(M^*_{b - 1})}$$
 $$= \frac{E(N_b)}{\lambda^\alpha} \left\{ \frac{E(N_t)}{\lambda^{t - (b - \alpha)}} - 1 \right\} \frac{\beta^2 \phi^{2 (t - b + \alpha)}}{8 E(M^*_{b - 1})}$$
-$$= \frac{E(N_b)}{\lambda^\alpha} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \frac{\beta^2 \phi^{2 (t - b + \alpha)}}{8 \frac{E(N_b)}{2}\left(\frac{\phi}{\lambda}\right)^\alpha \phi^{-1}}$$
+$$= \frac{E(N_b)}{\lambda^\alpha} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \frac{\beta^2 \phi^{2 (t - b + \alpha)}}{8 \frac{E(N_b)}{2}\left(\frac{\phi}{\lambda}\right)^\alpha \phi^{-1}},$$
 using \@ref(eq:expM),
 $$= \frac{E(N_b)}{\lambda^\alpha} \left\{ \frac{E(N_t)}{\lambda^{t - b + \alpha}} - 1 \right\} \frac{\beta^2 \phi^{2 (t - b + \alpha) + 1}}{4 E(N_b)} \left( \frac{\lambda}{\phi} \right)^{\alpha}$$
 $$\begin{equation}
