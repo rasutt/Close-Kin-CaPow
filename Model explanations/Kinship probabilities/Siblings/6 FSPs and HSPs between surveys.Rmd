@@ -10,9 +10,9 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Full-sibling pairs
+## Full-sibling pairs
 
-## Younger animal alive at time of first sample
+### Younger animal alive at time of first sample
 
 $$ 2 E(FSP_{t_1}) \phi^{t_2 - t_1} $$
 
@@ -54,5 +54,9 @@ $$= \left\{\left( \frac{\phi^3}{\lambda} \right)^{-t_1} + \left( \frac{\phi^3}{\
 $$= \left\{ \frac{\left( \frac{\phi^3}{\lambda} \right)^{-t_1}}{1 - \left( \frac{\phi^3}{\lambda} \right)} \right\} \left\{ \frac{\left( \frac{\phi}{\lambda} \right)^{t_1 + 1} - \left( \frac{\phi}{\lambda} \right)^{t_2 + 1}}{1 - \left( \frac{\phi}{\lambda} \right)} \right\}$$
 $$= \frac{\left( \frac{\phi}{\lambda} \right)^{t_1 + 1} - \left( \frac{\phi}{\lambda} \right)^{t_2 + 1}}{\left( \frac{\phi^3}{\lambda} \right)^{t_1} \left\{ 1 - \left( \frac{\phi^3}{\lambda} \right)\right\} \left\{1 - \left( \frac{\phi}{\lambda} \right) \right\}}$$
 $$E(FSP_{t_1, t_2}) = 2 \beta \left(1 - \frac{\phi}{\lambda}\right) \left(\frac{\lambda}{\phi}\right)^\alpha \phi^{t_1 + t_2 + 1} \frac{\left( \frac{\phi}{\lambda} \right)^{t_1 + 1} - \left( \frac{\phi}{\lambda} \right)^{t_2 + 1}}{\left( \frac{\phi^3}{\lambda} \right)^{t_1} \left\{ 1 - \left( \frac{\phi^3}{\lambda} \right)\right\} \left\{1 - \left( \frac{\phi}{\lambda} \right) \right\}}$$
+
+### Total full-sibling pairs
+
+$$E(FSP_{t_1, t_2}) = 2 E(FSP_{t_1}) \phi^{t_2 - t_1} + 2 \beta \left(1 - \frac{\phi}{\lambda}\right) \left(\frac{\lambda}{\phi}\right)^\alpha \phi^{t_1 + t_2 + 1} \frac{\left( \frac{\phi}{\lambda} \right)^{t_1 + 1} - \left( \frac{\phi}{\lambda} \right)^{t_2 + 1}}{\left( \frac{\phi^3}{\lambda} \right)^{t_1} \left\{ 1 - \left( \frac{\phi^3}{\lambda} \right)\right\} \left\{1 - \left( \frac{\phi}{\lambda} \right) \right\}}$$
 
 

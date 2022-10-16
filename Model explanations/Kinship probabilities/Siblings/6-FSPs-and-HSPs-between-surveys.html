@@ -175,20 +175,21 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#full-sibling-pairs">Full-sibling pairs</a></li>
-<li><a href="#younger-animal-alive-at-time-of-first-sample">Younger animal alive at time of first sample</a>
+<li><a href="#full-sibling-pairs">Full-sibling pairs</a>
 <ul>
+<li><a href="#younger-animal-alive-at-time-of-first-sample">Younger animal alive at time of first sample</a></li>
 <li><a href="#younger-animal-born-between-sample-times">Younger animal born between sample-times</a></li>
+<li><a href="#total-full-sibling-pairs">Total full-sibling pairs</a></li>
 </ul></li>
 </ul>
 </div>
 
-<div id="full-sibling-pairs" class="section level3">
-<h3>Full-sibling pairs</h3>
-</div>
-<div id="younger-animal-alive-at-time-of-first-sample" class="section level2">
-<h2>Younger animal alive at time of first sample</h2>
+<div id="full-sibling-pairs" class="section level2">
+<h2>Full-sibling pairs</h2>
+<div id="younger-animal-alive-at-time-of-first-sample" class="section level3">
+<h3>Younger animal alive at time of first sample</h3>
 <p><span class="math display">\[ 2 E(FSP_{t_1}) \phi^{t_2 - t_1} \]</span></p>
+</div>
 <div id="younger-animal-born-between-sample-times" class="section level3">
 <h3>Younger animal born between sample-times</h3>
 <p>If an animal <span class="math inline">\(j\)</span> is born at a time <span class="math inline">\(b_2\)</span> such that <span class="math inline">\(t_1 &lt; b_2 \le t_2\)</span>, then there is an FSP between <span class="math inline">\(t_1\)</span> and <span class="math inline">\(t_2\)</span> for each animal <span class="math inline">\(i\)</span> that is born at a time <span class="math inline">\(b_1\)</span> before <span class="math inline">\(t_1\)</span>, so that <span class="math inline">\(b_1 &lt; t_1\)</span>, and survives until <span class="math inline">\(t_1\)</span>, and has a mother that survives until <span class="math inline">\(b_2\)</span>, and gives birth to <span class="math inline">\(j\)</span> then, and a father that survives to <span class="math inline">\(b_2 - 1\)</span> and conceives <span class="math inline">\(j\)</span> then, given <span class="math inline">\(j\)</span> survives to <span class="math inline">\(t_2\)</span>.</p>
@@ -201,6 +202,10 @@ pre code {
 <p>For each animal born at time <span class="math inline">\(b_1\)</span> the probability that it forms a pair such as <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> is then <span class="math display">\[\phi^{t_1 - b_1} \phi^{b_2 - b_1} \beta \phi^{b_2 - b_1} \frac{1}{M^*_{b_2-1}} \phi^{t_2 - b_2} = \frac{\beta \phi^{t_1 + t_2 + b_2 - 3 b_1}}{M^*_{b_2-1}}.\]</span></p>
 <p>Let <span class="math inline">\(FSP_{t_1, t_2, b_1, b_2}\)</span> be the number of pairs such as <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>. Then <span class="math display">\[FSP_{t_1, t_2, b_1, b_2} \sim Bin \left( B_{b_1}, \frac{\beta \phi^{t_1 + t_2 + b_2 - 3 b_1}}{M^*_{b_2-1}} \right),\]</span> and following the same reasoning as above <span class="math display">\[E(FSP_{t_1, t_2, b_1, b_2}) = E(B_{b_1}) \frac{\beta \phi^{t_1 + t_2 + b_2 - 3 b_1}}{M^*_{b_2-1}}\]</span> <span class="math display">\[= E(N_{b_1}) \left(1 - \frac{\phi}{\lambda}\right) \frac{\beta \phi^{t_1 + t_2 + b_2 - 3 b_1}}{M^*_{b_2-1}}\]</span> <span class="math display">\[= E(N_{b_1}) \left(1 - \frac{\phi}{\lambda}\right) \frac{\beta \phi^{t_1 + t_2 + b_2 - 3 b_1}}{\frac{E(N_{b_2})}{2}\left(\frac{\phi}{\lambda}\right)^\alpha \phi^{-1}}\]</span> <span class="math display">\[= 2 \beta \frac{E(N_{b_1})}{E(N_{b_2})} \left(1 - \frac{\phi}{\lambda}\right) \left(\frac{\lambda}{\phi}\right)^\alpha \phi^{t_1 + t_2 + b_2 - 3 b_1 + 1}\]</span></p>
 <p><span class="math display">\[E \left( \sum_{b_1 \le t_1}\sum_{t_1 &lt; b_2 \le t_2}FSP_{t_1, t_2, b_1, b_2} \right) = \sum_{b_1 \le t_1}\sum_{t_1 &lt; b_2 \le t_2}E(FSP_{t_1, t_2, b_1, b_2})\]</span> <span class="math display">\[= \sum_{b_1 \le t_1}\sum_{t_1 &lt; b_2 \le t_2} 2 \beta \frac{E(N_{b_1})}{E(N_{b_2})} \left(1 - \frac{\phi}{\lambda}\right) \left(\frac{\lambda}{\phi}\right)^\alpha \phi^{t_1 + t_2 + b_2 - 3 b_1 + 1}\]</span> <span class="math display">\[= 2 \beta \left(1 - \frac{\phi}{\lambda}\right) \left(\frac{\lambda}{\phi}\right)^\alpha \phi^{t_1 + t_2 + 1} \sum_{b_1 \le t_1}\sum_{t_1 &lt; b_2 \le t_2}\frac{E(N_{t_2}) \lambda^{t_2 - b_2}}{E(N_{t_2})\lambda^{t_2 - b_1}} \phi^{b_2 - 3 b_1}\]</span> <span class="math display">\[= 2 \beta \left(1 - \frac{\phi}{\lambda}\right) \left(\frac{\lambda}{\phi}\right)^\alpha \phi^{t_1 + t_2 + 1} \sum_{b_1 \le t_1}\sum_{t_1 &lt; b_2 \le t_2} \lambda^{b_1 - b_2} \phi^{b_2 - 3 b_1}\]</span> <span class="math display">\[\sum_{b_1 \le t_1}\sum_{t_1 &lt; b_2 \le t_2} \lambda^{b_1 - b_2} \phi^{b_2 - 3 b_1} = \sum_{b_1 \le t_1}\sum_{t_1 &lt; b_2 \le t_2} \left( \frac{\phi}{\lambda} \right)^{b_2 - b_1} \phi^{-2 b_1}\]</span> <span class="math display">\[= \sum_{b_1 \le t_1} \left( \frac{\phi}{\lambda} \right)^{-b_1} \phi^{-2 b_1} \sum_{t_1 &lt; b_2 \le t_2} \left( \frac{\phi}{\lambda} \right)^{b_2}\]</span> <span class="math display">\[= \sum_{b_1 \le t_1} \left( \frac{\phi^3}{\lambda} \right)^{-b_1} \sum_{t_1 &lt; b_2 \le t_2} \left( \frac{\phi}{\lambda} \right)^{b_2}\]</span> <span class="math display">\[= \left\{\left( \frac{\phi^3}{\lambda} \right)^{-t_1} + \left( \frac{\phi^3}{\lambda} \right)^{-(t_1 - 1)} + ... \right\} \frac{\left( \frac{\phi}{\lambda} \right)^{t_1 + 1} - \left( \frac{\phi}{\lambda} \right)^{t_2 + 1}}{1 - \left( \frac{\phi}{\lambda} \right)}\]</span> <span class="math display">\[= \left\{ \frac{\left( \frac{\phi^3}{\lambda} \right)^{-t_1}}{1 - \left( \frac{\phi^3}{\lambda} \right)} \right\} \left\{ \frac{\left( \frac{\phi}{\lambda} \right)^{t_1 + 1} - \left( \frac{\phi}{\lambda} \right)^{t_2 + 1}}{1 - \left( \frac{\phi}{\lambda} \right)} \right\}\]</span> <span class="math display">\[= \frac{\left( \frac{\phi}{\lambda} \right)^{t_1 + 1} - \left( \frac{\phi}{\lambda} \right)^{t_2 + 1}}{\left( \frac{\phi^3}{\lambda} \right)^{t_1} \left\{ 1 - \left( \frac{\phi^3}{\lambda} \right)\right\} \left\{1 - \left( \frac{\phi}{\lambda} \right) \right\}}\]</span> <span class="math display">\[E(FSP_{t_1, t_2}) = 2 \beta \left(1 - \frac{\phi}{\lambda}\right) \left(\frac{\lambda}{\phi}\right)^\alpha \phi^{t_1 + t_2 + 1} \frac{\left( \frac{\phi}{\lambda} \right)^{t_1 + 1} - \left( \frac{\phi}{\lambda} \right)^{t_2 + 1}}{\left( \frac{\phi^3}{\lambda} \right)^{t_1} \left\{ 1 - \left( \frac{\phi^3}{\lambda} \right)\right\} \left\{1 - \left( \frac{\phi}{\lambda} \right) \right\}}\]</span></p>
+</div>
+<div id="total-full-sibling-pairs" class="section level3">
+<h3>Total full-sibling pairs</h3>
+<p><span class="math display">\[E(FSP_{t_1, t_2}) = 2 E(FSP_{t_1}) \phi^{t_2 - t_1} + 2 \beta \left(1 - \frac{\phi}{\lambda}\right) \left(\frac{\lambda}{\phi}\right)^\alpha \phi^{t_1 + t_2 + 1} \frac{\left( \frac{\phi}{\lambda} \right)^{t_1 + 1} - \left( \frac{\phi}{\lambda} \right)^{t_2 + 1}}{\left( \frac{\phi^3}{\lambda} \right)^{t_1} \left\{ 1 - \left( \frac{\phi^3}{\lambda} \right)\right\} \left\{1 - \left( \frac{\phi}{\lambda} \right) \right\}}\]</span></p>
 </div>
 </div>
 

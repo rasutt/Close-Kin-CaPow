@@ -87,10 +87,10 @@ bindEvent(observe({
   avg.phi.obs(NULL)
   ns.SPs(NULL)
   ns.POPs(NULL)
-  ns.SMPs.wtn(NULL)
-  ns.SFPs.wtn(NULL)
   ns.SMPs(NULL)
   ns.SFPs(NULL)
+  ns.SMPs.t(NULL)
+  ns.SFPs.t(NULL)
   ns.SibPs(NULL)
   pns.UPs(NULL)
 }), input$simulate)
@@ -176,28 +176,30 @@ observeEvent({
     
     # Find numbers of same-mother pairs
     if (
-      input$check.sub.tabs %in% c("SMPs.tab", "SibPs.tab", "bias.tab") && 
-      is.null(ns.SMPs.wtn())
+      # is.null(ns.SMPs()) && 
+      input$check.sub.tabs %in% c("SMPs.tab", "SibPs.tab", "bias.tab")
     ) {
       # In survey-years
-      ns.SMPs.wtn(find.KPs.wtn()(find.SMPs.wtn, "same-mother"))
+      ns.SMPs(list(
+        wtn = find.KPs.wtn()(find.SMPs.wtn, "same-mother"),
+        btn = find.KPs.btn()(find.SMSPs.btn, "same-mother and self-pairs") - 
+          ns.SPs()
+      ))
     }
     if (
-      is.null(ns.SMPs()) &&
+      # is.null(ns.SMPs.t()) &&
       input$check.sub.tabs %in% c("SMPs.tab", "bias.tab")
     ) {
       # Update reactive value
-      ns.SMPs(list(
+      ns.SMPs.t(list(
         # Same-mother pairs with ages known, in final year
         ns.SMPs.age.knwn = find.KPs.t()(find.SMPs.age.knwn, "same-mother"),
         
         # In survey-years
-        ns.SMPs.wtn = ns.SMPs.wtn(),
+        ns.SMPs.wtn = ns.SMPs()$wtn,
         
         # Between pairs of survey-years
-        ns.SMPs.btn = 
-          find.KPs.btn()(find.SMSPs.btn, "same-mother and self-pairs") - 
-          ns.SPs(),
+        ns.SMPs.btn = ns.SMPs()$btn,
         
         # Between survey-years, ages known
         ns.SMPs.age.known.btn = 
@@ -207,18 +209,22 @@ observeEvent({
     
     # Find numbers of same-father pairs
     if (
-      input$check.sub.tabs %in% c("SFPs.tab", "SibPs.tab", "bias.tab") && 
-      is.null(ns.SFPs.wtn())
+      # is.null(ns.SFPs()) && 
+      input$check.sub.tabs %in% c("SFPs.tab", "SibPs.tab", "bias.tab")
     ) {
       # In survey-years
-      ns.SFPs.wtn(find.KPs.wtn()(find.SFPs.wtn, "same-father"))
+      ns.SFPs(list(
+        wtn = find.KPs.wtn()(find.SFPs.wtn, "same-father"),
+        btn = find.KPs.btn()(find.SFSPs.btn, "same-father and self-pairs") - 
+          ns.SPs()
+      ))
     }
     if (
-      # is.null(ns.SFPs()) &&
+      # is.null(ns.SFPs.t()) &&
       input$check.sub.tabs %in% c("SFPs.tab", "bias.tab") 
     ) {
       # Update reactive value
-      ns.SFPs(list(
+      ns.SFPs.t(list(
         # Same-father pairs with ages known, in final year
         ns.SFPs.age.knwn = find.KPs.t()(find.SFPs.age.knwn, "same-father"),
         
@@ -226,12 +232,10 @@ observeEvent({
         ns.SFPs.same.age = find.KPs.t()(find.SFPs.same.age, "same-father"),
         
         # In survey-years
-        ns.SFPs.wtn = ns.SFPs.wtn(),
+        ns.SFPs.wtn = ns.SFPs()$wtn,
         
         # Between pairs of survey-years
-        ns.SFPs.btn =
-          find.KPs.btn()(find.SFSPs.btn, "same-father and self-pairs") -
-          ns.SPs()
+        ns.SFPs.btn = ns.SFPs()$btn
       ))
     }
     
@@ -240,18 +244,18 @@ observeEvent({
       # is.null(ns.SibPs()) && 
       input$check.sub.tabs %in% c("SibPs.tab", "bias.tab")
     ) {
-      # Full-sibling pairs within survey-years
+      # Full-sibling pairs
       ns.FSPs.wtn = find.KPs.wtn()(find.FSPs.wtn, "full-sibling")
-      ns.FSPs.btn = 
-        find.KPs.btn()(find.FSSPs.btn, "full-sibling and self-pairs") - ns.SPs()
-      
+      ns.FSPs.btn = find.KPs.btn()(find.FSPs.btn, "full-sibling")
+
       # Update reactive value
       ns.SibPs(list(
         ns.FSPs.wtn = ns.FSPs.wtn,
         ns.FSPs.btn = ns.FSPs.btn,
         
-        # Half-sibling pairs within survey years
-        ns.HSPs.wtn = ns.SMPs.wtn() + ns.SFPs.wtn() - 2 * ns.FSPs.wtn
+        # Half-sibling pairs
+        ns.HSPs.wtn = ns.SMPs()$wtn + ns.SFPs()$wtn - 2 * ns.FSPs.wtn,
+        ns.HSPs.btn = ns.SMPs()$btn + ns.SFPs()$btn - 2 * ns.FSPs.btn
       ))
     }
   }

@@ -153,10 +153,10 @@ server <- function(input, output) {
   avg.phi.obs = reactiveVal(saved.objs$avg.phi.obs)
   ns.SPs = reactiveVal(saved.objs$ns.SPs)
   ns.POPs = reactiveVal(saved.objs$ns.POPs)
-  ns.SMPs.wtn = reactiveVal(saved.objs$ns.SMPs.wtn)
-  ns.SFPs.wtn = reactiveVal(saved.objs$ns.SFPs.wtn)
   ns.SMPs = reactiveVal(saved.objs$ns.SMPs)
   ns.SFPs = reactiveVal(saved.objs$ns.SFPs)
+  ns.SMPs.t = reactiveVal(saved.objs$ns.SMPs.t)
+  ns.SFPs.t = reactiveVal(saved.objs$ns.SFPs.t)
   ns.SibPs = reactiveVal(saved.objs$ns.SibPs)
   pns.UPs = reactiveVal(saved.objs$pns.UPs)
   # ----

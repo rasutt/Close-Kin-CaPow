@@ -142,18 +142,21 @@ find.FSPs.wtn = function(pop.atts, k) {
   })
 }
 
-# Find full-sibling and self-pairs with ages unknown, between survey-years
-find.FSSPs.btn = function(pop.atts, k) {
+# Find full-sibling pairs with ages unknown, between survey-years
+find.FSPs.btn = function(pop.atts, k) {
+  # Indices of animals alive each survey, with known parents
+  alv.KwnPs.lst = lapply(1:k, function(s.ind) {
+    which(pop.atts$alv.s.yrs[, s.ind] & !is.na(pop.atts$mum))
+  })
+  
   # List of frequency tables of mums and dads in each survey year
-  mum.lst = lapply(1:k, function(s.ind) {
-    pop.atts$mum[pop.atts$alv.s.yrs[, s.ind]]
-  })
-  dad.lst = lapply(1:k, function(s.ind) {
-    pop.atts$dad[pop.atts$alv.s.yrs[, s.ind]]
-  })
+  mum.lst = lapply(alv.KwnPs.lst, function(alv.KwnPs) pop.atts$mum[alv.KwnPs])
+  dad.lst = lapply(alv.KwnPs.lst, function(alv.KwnPs) pop.atts$dad[alv.KwnPs])
   mums = unique(unlist(mum.lst))
   dads = unique(unlist(dad.lst))
   
+  # Two-way frequency tables of mothers and fathers of animals in each survey
+  # year, including all possible parents in levels so that dimensions match
   tbl.lst = lapply(1:k, function(s.ind) {
     table(
       factor(mum.lst[[s.ind]], levels = mums), 
@@ -161,8 +164,10 @@ find.FSSPs.btn = function(pop.atts, k) {
     )
   })
   
+  # Full-sibling pairs, excluding self-pairs with known parents
   as.vector(combn(1:k, 2, function(s.inds) {
-    sum(tbl.lst[[s.inds[1]]] * tbl.lst[[s.inds[2]]], na.rm = T)
+    sum(tbl.lst[[s.inds[1]]] * tbl.lst[[s.inds[2]]]) - 
+      sum(alv.KwnPs.lst[[s.inds[1]]] %in% alv.KwnPs.lst[[s.inds[2]]])
   }))
 }
 

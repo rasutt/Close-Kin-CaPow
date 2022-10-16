@@ -92,13 +92,18 @@ FindEstNsKPsPop = function(
     }))
   
   # Full-sibling pairs between survey years
-  exp.ns.FSPs.btn = 2 * beta * (1 - p.o.l) * rcl.prb.mtr * 
+  exp.ns.FSPs.btn = 
     as.vector(combn(1:k, 2, function(s.inds) {
       t1 = srvy.yrs[s.inds[1]]
       t2 = srvy.yrs[s.inds[2]]
-      phi^(t1 + t2 + 1) * (p.o.l^(t1 + 1) - p.o.l^(t2 + 1)) / 
+      2 * exp.ns.FSPs.wtn[s.inds[1]] * phi^(t2 - t1) +
+      2 * beta * (1 - p.o.l) * rcl.prb.mtr * phi^(t1 + t2 + 1) * 
+        (p.o.l^(t1 + 1) - p.o.l^(t2 + 1)) / 
         ((phi^3 / lambda)^t1 * (1 - phi^3 / lambda) * (1 - p.o.l))
     }))
+  
+  # Half-sibling pairs between surveys
+  exp.ns.HSPs.btn = exp.ns.SMPs.btn + exp.ns.SFPs.btn - 2 * exp.ns.FSPs.btn
   
   # Return as list
   list(
@@ -110,7 +115,7 @@ FindEstNsKPsPop = function(
     btn = cbind(
       APs = exp.ns.APs.btn, POPs = exp.ns.POPs.btn, SPs = exp.ns.SPs.btn, 
       SMPs = exp.ns.SMPs.btn, SMPs.kwn.age = exp.ns.SMPs.kwn.age.btn,
-      SFPs = exp.ns.SFPs.btn, FSPs = exp.ns.FSPs.btn
+      SFPs = exp.ns.SFPs.btn, FSPs = exp.ns.FSPs.btn, HSPs = exp.ns.HSPs.btn
     )
   )
 }

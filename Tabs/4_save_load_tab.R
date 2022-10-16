@@ -42,10 +42,10 @@ output$downloadData <- downloadHandler(
       avg.phi.obs = avg.phi.obs(),
       ns.SPs = ns.SPs(),
       ns.POPs = ns.POPs(),
-      ns.SMPs.wtn = ns.SMPs.wtn(),
-      ns.SFPs.wtn = ns.SFPs.wtn(),
       ns.SMPs = ns.SMPs(),
       ns.SFPs = ns.SFPs(),
+      ns.SMPs.t = ns.SMPs.t(),
+      ns.SFPs.t = ns.SFPs.t(),
       ns.SibPs = ns.SibPs(),
       pns.UPs = pns.UPs()
     )
@@ -97,10 +97,10 @@ observeEvent(input$file, {
   avg.phi.obs(saved.objs$avg.phi.obs)
   ns.SPs(saved.objs$ns.SPs)
   ns.POPs(saved.objs$ns.POPs)
-  ns.SMPs.wtn(saved.objs$ns.SMPs.wtn)
-  ns.SFPs.wtn(saved.objs$ns.SFPs.wtn)
   ns.SMPs(saved.objs$ns.SMPs)
   ns.SFPs(saved.objs$ns.SFPs)
+  ns.SMPs.t(saved.objs$ns.SMPs.t)
+  ns.SFPs.t(saved.objs$ns.SFPs.t)
   ns.SibPs(saved.objs$ns.SibPs)
   pns.UPs(saved.objs$pns.UPs)
 })
