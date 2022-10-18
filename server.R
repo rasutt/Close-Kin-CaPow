@@ -29,19 +29,54 @@ find.bias.srvy = function(errs) {
   df
 }
 
-# Function to create module server for unknown parents modules
+# Function to create servers for unknown parents modules
 unknPrntsServer <- function(id, pns.UPs) {
-  moduleServer(
-    id,
-    function(input, output, session) {
-      output$unknPrntsWtn = renderTable(
-        find.bias.srvy(pns.UPs()$pns.UPs.wtn)
-      )
-      output$unknPrntsBtn = renderTable(
-        find.bias.srvy(pns.UPs()$pns.UPs.btn)
-      )
-    }
+  moduleServer(id, function(input, output, session) {
+    output$unknPrntsWtn = renderTable(find.bias.srvy(pns.UPs()$pns.UPs.wtn))
+    output$unknPrntsBtn = renderTable(find.bias.srvy(pns.UPs()$pns.UPs.btn))
+  })
+}
+
+# Function to plot proportional differences between simulated and predicted
+# values ----
+plot.errs = function(errs, par.name) {
+  boxplot(
+    errs, main = par.name, xlab = names(dimnames(errs))[2],
+    ylab = "Proportional errors", show.names = T
   )
+  abline(h = 0, col = 'red')
+  abline(h = mean(errs), col = 'blue')
+  legend(
+    "topleft", col = c(2, 4), lty = 1,
+    legend = c("Estimated error (zero)", "Average error"),
+  )
+}
+
+# Function to plot simulated and predicted values ----
+plot.vals = function(vals, preds, par.name) {
+  boxplot(
+    vals, main = par.name, xlab = names(dimnames(vals))[2], show.names = T
+  )
+  points(preds, col = 'red')
+  points(colMeans(vals), col = 'blue')
+  legend(
+    "topleft", col = c(2, 4), lty = 1,
+    legend = c("Predicted value", "Average value"),
+  )
+}
+
+# Function to create servers for values, biases, and errors modules
+VPE.srvr <- function(id, vals, preds, errs, types, var.name) {
+  moduleServer(id, function(input, output, session) {
+    lapply(1:length(types), function(i) {
+      output[[paste0("vals", types[i])]] = 
+        renderPlot(plot.vals(vals()[[i]], preds()[[i]], var.name))
+      output[[paste0("bs", types[i])]] = 
+        renderTable(find.bias.srvy(errs()[[i]]))
+      output[[paste0("errs", types[i])]] = 
+        renderPlot(plot.errs(errs()[[i]], kp.tp.nm))
+    })
+  })
 }
 
 # Load TMB library and likelihood functions.  Have to restart R for compile and
@@ -230,6 +265,7 @@ server <- function(input, output) {
   # simulations, and analyzing model performance
   source("Tabs/1_sim_tab.R", local = T)
   source("Tabs/2_check_tab.R", local = T)
+  source("Tabs/2_1_preds_and_errs.R", local = T)
   source("Tabs/Check_sub_tabs/1_first_study.R", local = T)
   source("Tabs/Check_sub_tabs/2_populations.R", local = T)
   source("Tabs/Check_sub_tabs/3_kin_pair_tabs.R", local = T)

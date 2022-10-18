@@ -358,18 +358,3 @@ observeEvent({
   # }
 })
 
-# Estimated numbers of kin-pairs for whole population
-est.ns.kps.pop = reactive({
-  FindEstNsKPsPop(
-    exp.N.t(), s.yr.inds(), phi(), rho(), lambda(), alpha(), srvy.yrs(), k(), 
-    n.srvy.prs()
-  )
-})
-
-# Temporally estimated numbers of kin-pairs
-est.ns.kps.t = reactive({
-  FindEstNsKPsT(
-    exp.N.fin(), phi(), lambda(), alpha(), hist.len(), exp.N.t(), n.yrs.chk.t()
-  )
-})
-

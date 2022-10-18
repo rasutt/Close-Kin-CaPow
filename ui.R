@@ -13,6 +13,21 @@ unknPrntsTbl <- function(id) {
   )
 }
 
+# Function to make outputs for values, predictions, and errors
+VPE.otpts <- function(id, title, desc, types) {
+  ns <- NS(id)
+  tagList(
+    h2(title),
+    p(desc),
+    h3("Values"),
+    lapply(paste0("vals", types), function(v.p) plotOutput(outputId = ns(v.p))),
+    h3("Biases"),
+    lapply(paste0("bs", types), function(b.t) tableOutput(outputId = ns(b.t))),
+    h3("Errors"),
+    lapply(paste0("errs", types), function(e.p) plotOutput(outputId = ns(e.p)))
+  )
+}
+
 # Define UI for app
 ui <- fluidPage(
   # App title and description
@@ -171,14 +186,10 @@ ui <- fluidPage(
         tabPanel(
           title = "All pairs",
           value = "all.pairs",
-          h2("All pairs"),
-          p("Total numbers of pairs of individuals."),
-          h3("Biases"),
-          tableOutput(outputId = "bsAPsWtnPop"),
-          tableOutput(outputId = "bsAPsBtnPop"),
-          h3("Error distributions"),
-          plotOutput(outputId = "errsAPsWtnPop"),
-          plotOutput(outputId = "errsAPsBtnPop")
+          VPE.otpts(
+            "APs", "All pairs", 
+            "Total numbers of pairs of individuals.", c("WtnPop", "BtnPop")
+          ),
         ),
         # Self-pairs ----
         tabPanel(
