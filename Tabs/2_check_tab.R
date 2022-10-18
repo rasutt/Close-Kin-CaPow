@@ -136,7 +136,7 @@ observeEvent({
     
     # Find numbers of self-pairs between survey-years in simulated populations
     if (
-      # is.null(ns.SPs()) && 
+      is.null(ns.SPs()) &&
       input$check.sub.tabs %in% 
       c("SPs.tab", "SMPs.tab", "SibPs.tab", "bias.tab")
     ) {
@@ -176,7 +176,7 @@ observeEvent({
     
     # Find numbers of same-mother pairs
     if (
-      # is.null(ns.SMPs()) && 
+      is.null(ns.SMPs()) &&
       input$check.sub.tabs %in% c("SMPs.tab", "SibPs.tab", "bias.tab")
     ) {
       # In survey-years
@@ -187,7 +187,7 @@ observeEvent({
       ))
     }
     if (
-      # is.null(ns.SMPs.t()) &&
+      is.null(ns.SMPs.t()) &&
       input$check.sub.tabs %in% c("SMPs.tab", "bias.tab")
     ) {
       # Update reactive value
@@ -209,7 +209,7 @@ observeEvent({
     
     # Find numbers of same-father pairs
     if (
-      # is.null(ns.SFPs()) && 
+      is.null(ns.SFPs()) &&
       input$check.sub.tabs %in% c("SFPs.tab", "SibPs.tab", "bias.tab")
     ) {
       # In survey-years
@@ -220,7 +220,7 @@ observeEvent({
       ))
     }
     if (
-      # is.null(ns.SFPs.t()) &&
+      is.null(ns.SFPs.t()) &&
       input$check.sub.tabs %in% c("SFPs.tab", "bias.tab") 
     ) {
       # Update reactive value
@@ -241,7 +241,7 @@ observeEvent({
     
     # Find numbers of full and half-sibling pairs
     if (
-      # is.null(ns.SibPs()) && 
+      is.null(ns.SibPs()) &&
       input$check.sub.tabs %in% c("SibPs.tab", "bias.tab")
     ) {
       # Full-sibling pairs
@@ -361,7 +361,8 @@ observeEvent({
 # Estimated numbers of kin-pairs for whole population
 est.ns.kps.pop = reactive({
   FindEstNsKPsPop(
-    exp.N.t(), s.yr.inds(), phi(), lambda(), alpha(), srvy.yrs(), k()
+    exp.N.t(), s.yr.inds(), phi(), rho(), lambda(), alpha(), srvy.yrs(), k(), 
+    n.srvy.prs()
   )
 })
 
