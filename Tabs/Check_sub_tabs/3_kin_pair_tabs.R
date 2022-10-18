@@ -30,28 +30,23 @@ show.errs(phi.errs, "Phi", "", "Survival rates")
 VPE.srvr(
   "APs", ns.APs, ns.APs.preds, ns.APs.errs, c("WtnPop", "BtnPop"), "All-pairs"
 )
-
 # Self-pairs ----
 VPE.srvr("SPs", ns.SPs, ns.SPs.preds, ns.SPs.errs, "BtnPop", "Self-pairs")
-
 # Parent-offspring pairs ----
 VPE.srvr(
-  "POPs", ns.APs, ns.POPs.preds, ns.POPs.errs, c("WtnPop", "BtnPop"), 
+  "POPs", ns.POPs, ns.POPs.preds, ns.POPs.errs, c("WtnPop", "BtnPop"), 
   "Parent-offspring pairs"
 )
-
 # Same-mother pairs ----
 VPE.srvr(
   "SMPs", ns.SMPs.t, ns.SMPs.preds, ns.SMPs.errs, 
   c("AgeKnwn", "WtnPop", "BtnPop", "BtnAgeKnwnPop"), "Same-mother pairs"
 )
-
 # Same-father pairs ----
 VPE.srvr(
   "SFPs", ns.SFPs.t, ns.SFPs.preds, ns.SFPs.errs, 
   c("AgeKnwn", "SameAge", "WtnPop", "BtnPop"), "Same-father pairs"
 )
-
 # Sibling-pairs ----
 VPE.srvr(
   "FSPs", ns.FSPs, ns.FSPs.preds, ns.FSPs.errs, 

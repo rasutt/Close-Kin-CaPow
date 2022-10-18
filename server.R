@@ -42,10 +42,10 @@ plot.vals = function(vals, preds, par.name) {
   boxplot(
     vals, main = par.name, xlab = names(dimnames(vals))[2], show.names = T
   )
-  points(preds, col = 'red')
-  points(colMeans(vals), col = 'blue')
+  points(preds, col = 'red', lwd = 2)
+  points(colMeans(vals), col = 'blue', lwd = 2)
   legend(
-    "topleft", col = c(2, 4), lty = 1,
+    "topleft", col = c(2, 4), lty = 1, lwd = 2,
     legend = c("Predicted value", "Average value"),
   )
 }
