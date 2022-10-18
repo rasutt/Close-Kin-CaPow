@@ -14,7 +14,7 @@ unknPrntsTbl <- function(id) {
 }
 
 # Function to make outputs for values, predictions, and errors
-VPE.otpts <- function(id, title, desc, types) {
+VPE.ui <- function(id, title, desc, types) {
   ns <- NS(id)
   tagList(
     h2(title),
@@ -22,7 +22,7 @@ VPE.otpts <- function(id, title, desc, types) {
     h3("Values"),
     lapply(paste0("vals", types), function(v.p) plotOutput(outputId = ns(v.p))),
     h3("Biases"),
-    lapply(paste0("bs", types), function(b.t) tableOutput(outputId = ns(b.t))),
+    lapply(paste0("bss", types), function(b.t) tableOutput(outputId = ns(b.t))),
     h3("Errors"),
     lapply(paste0("errs", types), function(e.p) plotOutput(outputId = ns(e.p)))
   )
@@ -186,7 +186,7 @@ ui <- fluidPage(
         tabPanel(
           title = "All pairs",
           value = "all.pairs",
-          VPE.otpts(
+          VPE.ui(
             "APs", "All pairs", 
             "Total numbers of pairs of individuals.", c("WtnPop", "BtnPop")
           ),
@@ -195,94 +195,69 @@ ui <- fluidPage(
         tabPanel(
           title = "Self-pairs",
           value = "SPs.tab",
-          h2("Self-pairs"),
-          p("Numbers of pairs of individuals that are the same individual in
-          different survey-years."),
-          h3("Biases"),
-          tableOutput(outputId = "bsSPsPop"),
-          h3("Error distributions"),
-          plotOutput(outputId = "errsSPsPop")
+          VPE.ui(
+            "SPs", "Self-pairs", 
+            "Numbers of pairs of individuals that are the same individual in
+            different survey-years.", "BtnPop"
+          )
         ),
         # Parent-offspring pairs ----
         tabPanel(
           title = "Parent-offspring pairs",
           value = "POPs.tab",
-          h2("Parent-offspring pairs"),
-          p("Numbers of pairs of individuals that are parent and offspring."),
           unknPrntsTbl("POPs.tab"),
-          h3("Biases"),
-          tableOutput(outputId = "bsPOPsWtnPop"),
-          tableOutput(outputId = "bsPOPsBtnPop"),
-          h3("Error distributions"),
-          plotOutput(outputId = "errsPOPsWtnPop"),
-          plotOutput(outputId = "errsPOPsBtnPop")
+          VPE.ui(
+            "POPs", "Parent-offspring pairs", 
+            "Numbers of pairs of individuals that are parent and offspring.",
+            c("WtnPop", "BtnPop")
+          )
         ),
         # Same-mother pairs ----
         tabPanel(
           title = "Same-mother pairs",
           value = "SMPs.tab",
-          h2("Same-mother pairs"),
-          p("Numbers of pairs of individuals with the same mothers."),
           unknPrntsTbl("SMPs.tab"),
-          h3("Biases"),
           p("Numbers in the final year, with one born in
             the year indicated, and one born in the final year."),
-          tableOutput(outputId = "bsSMPsAgeKnwn"),
           p("Numbers in and between survey-years, ages unknown."),
-          tableOutput(outputId = "bsSMPsWtnPop"),
-          tableOutput(outputId = "bsSMPsBtnPop"),
           p("Numbers between survey-years, one born five years before first, one
             born in last."),
-          tableOutput(outputId = "bsSMPsBtnAgeKnwnPop"),
-          h3("Error distributions"),
-          plotOutput(outputId = "errsSMPsAgeKnwn"),
-          plotOutput(outputId = "errsSMPsWtnPop"),
-          plotOutput(outputId = "errsSMPsBtnPop"),
-          plotOutput(outputId = "errsSMPsBtnAgeKnwnPop")
+          VPE.ui(
+            "SMPs", "Same-mother pairs", 
+            "Numbers of pairs of individuals with the same mothers.",
+            c("AgeKnwn", "WtnPop", "BtnPop", "BtnAgeKnwnPop")
+          )
         ),
         # Same-father pairs ----
         tabPanel(
           title = "Same-father pairs",
           value = "SFPs.tab",
-          h2("Same-father pairs"),
-          p("Numbers of pairs of individuals with the same fathers."),
           unknPrntsTbl("SFPs.tab"),
-          h3("Biases"),
           p("Numbers in the final year, with one born in
             the year indicated, and one born in the final year."),
-          tableOutput(outputId = "bsSFPsAgeKnwn"),
           p("Numbers in the final year, both born in the year indicated."),
-          tableOutput(outputId = "bsSFPsSameAge"),
           p("Numbers in and between survey-years, ages unknown."),
-          tableOutput(outputId = "bsSFPsWtnPop"),
-          tableOutput(outputId = "bsSFPsBtnPop"),
-          h3("Error distributions"),
-          plotOutput(outputId = "errsSFPsAgeKnwn"),
-          plotOutput(outputId = "errsSFPsSameAge"),
-          plotOutput(outputId = "errsSFPsWtnPop"),
-          plotOutput(outputId = "errsSFPsBtnPop")
+          VPE.ui(
+            "SFPs", "Same-father pairs", 
+            "Numbers of pairs of individuals with the same fathers.",
+            c("AgeKnwn", "SameAge", "WtnPop", "BtnPop")
+          )
         ),
         # Sibling-pairs ----
         tabPanel(
           title = "Sibling-pairs",
           value = "SibPs.tab",
-          h2("Sibling-pairs"),
-          p("Pairs of individuals that share one or two parents."),
           unknPrntsTbl("SibPs.tab"),
-          h3("Biases"),
-          h4("Full-sibling pairs"),
-          p("Pairs of individuals that share two parents."),
-          tableOutput(outputId = "bsFSPsWtnPop"),
-          tableOutput(outputId = "bsFSPsBtnPop"),
-          h4("Half-sibling pairs"),
-          p("Pairs of individuals that share one parent."),
-          tableOutput(outputId = "bsHSPsWtnPop"),
-          tableOutput(outputId = "bsHSPsBtnPop"),
-          h3("Error distributions"),
-          plotOutput(outputId = "errsFSPsWtnPop"),
-          plotOutput(outputId = "errsFSPsBtnPop"),
-          plotOutput(outputId = "errsHSPsWtnPop"),
-          plotOutput(outputId = "errsHSPsBtnPop")
+          VPE.ui(
+            "FSPs", "Full-sibling pairs",
+            "Numbers of pairs of individuals that share two parents.",
+            c("WtnPop", "BtnPop")
+          ),
+          VPE.ui(
+            "HSPs", "Half-sibling pairs",
+            "Numbers of pairs of individuals that share exactly one parent.",
+            c("WtnPop", "BtnPop")
+          )
         ),
         # Biases ----
         tabPanel(

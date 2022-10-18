@@ -42,7 +42,8 @@ ns.APs.preds = reactive({
 })
 ns.APs.errs = reactive(l.fnd.errs(ns.APs(), ns.APs.preds()))
 # Self-pairs ----
-ns.SPs.errs = reactive(list(find.errs(ns.SPs(), est.ns.kps.pop()$btn[, "SPs"])))
+ns.SPs.preds = reactive(list(est.ns.kps.pop()$btn[, "SPs"]))
+ns.SPs.errs = reactive(l.fnd.errs(ns.SPs(), ns.SPs.preds()))
 # Parent-offspring pairs ----
 ns.POPs.preds = reactive(list(
   est.ns.kps.pop()$wtn[, "POPs"], est.ns.kps.pop()$btn[, "POPs"]
@@ -61,9 +62,12 @@ ns.SFPs.preds = reactive(list(
 ))
 ns.SFPs.errs = reactive(l.fnd.errs(ns.SFPs.t(), ns.SFPs.preds()))
 # Sibling-pairs ----
-ns.SibPs.preds = reactive(list(
-  est.ns.kps.pop()$wtn[, "FSPs"], est.ns.kps.pop()$btn[, "FSPs"], 
+ns.FSPs.preds = reactive(list(
+  est.ns.kps.pop()$wtn[, "FSPs"], est.ns.kps.pop()$btn[, "FSPs"]
+))
+ns.HSPs.preds = reactive(list(
   est.ns.kps.pop()$wtn[, "HSPs"], est.ns.kps.pop()$btn[, "HSPs"]
 ))
-ns.FSPs.errs = reactive(l.fnd.errs(ns.SibPs()[1:2], ns.SibPs.preds()[1:2]))
-ns.HSPs.errs = reactive(l.fnd.errs(ns.SibPs()[3:4], ns.SibPs.preds()[3:4]))
+ns.SibPs.preds = reactive(c(ns.FSPs.preds, ns.HSPs.preds))
+ns.FSPs.errs = reactive(l.fnd.errs(ns.FSPs(), ns.FSPs.preds()))
+ns.HSPs.errs = reactive(l.fnd.errs(ns.HSPs(), ns.HSPs.preds()))

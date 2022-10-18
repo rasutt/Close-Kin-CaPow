@@ -140,7 +140,7 @@ observeEvent({
       input$check.sub.tabs %in% 
       c("SPs.tab", "SMPs.tab", "SibPs.tab", "bias.tab")
     ) {
-      ns.SPs(find.KPs.btn()(find.SPs, "self-pairs"))
+      ns.SPs(list(find.KPs.btn()(find.SPs, "self-pairs")))
     }
 
     # Find proportions of individuals with unknown parents
@@ -281,6 +281,10 @@ ns.APs = reactive(list(
     nrow = n.srvy.prs(), dimnames = list(Survey_pair = srvy.prs(), NULL)
   ))
 ))
+
+# Full and half-sibling pairs
+ns.FSPs = reactive(ns.SibPs()[1:2])
+ns.HSPs = reactive(ns.SibPs()[3:4])
 
 # Compute combined checks ----
 observeEvent({
