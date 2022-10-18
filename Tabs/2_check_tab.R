@@ -138,7 +138,7 @@ observeEvent({
     if (
       is.null(ns.SPs()) &&
       input$check.sub.tabs %in% 
-      c("SPs.tab", "SMPs.tab", "SibPs.tab", "bias.tab")
+      c("SPs.tab", "SMPs.tab", "SFPs.tab", "SibPs.tab", "bias.tab")
     ) {
       ns.SPs(list(find.KPs.btn()(find.SPs, "self-pairs")))
     }
@@ -183,7 +183,7 @@ observeEvent({
       ns.SMPs(list(
         wtn = find.KPs.wtn()(find.SMPs.wtn, "same-mother"),
         btn = find.KPs.btn()(find.SMSPs.btn, "same-mother and self-pairs") - 
-          ns.SPs()
+          ns.SPs()[[1]]
       ))
     }
     if (
@@ -216,7 +216,7 @@ observeEvent({
       ns.SFPs(list(
         wtn = find.KPs.wtn()(find.SFPs.wtn, "same-father"),
         btn = find.KPs.btn()(find.SFSPs.btn, "same-father and self-pairs") - 
-          ns.SPs()
+          ns.SPs()[[1]]
       ))
     }
     if (
