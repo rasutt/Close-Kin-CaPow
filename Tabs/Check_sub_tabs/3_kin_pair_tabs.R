@@ -12,12 +12,6 @@ show.errs = function(errs, kp.tp, kp.vrtns, kp.tp.nm) {
   })
 }
 
-# Unknown-parents module-servers ----
-unknPrntsServer("POPs.tab", pns.UPs)
-unknPrntsServer("SMPs.tab", pns.UPs)
-unknPrntsServer("SFPs.tab", pns.UPs)
-unknPrntsServer("SibPs.tab", pns.UPs)
-
 ## Output bias tables and box plots for prediction errors ----
 
 # Population sizes ----

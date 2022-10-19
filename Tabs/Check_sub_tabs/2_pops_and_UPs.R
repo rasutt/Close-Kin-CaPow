@@ -1,4 +1,4 @@
-# Outputs for populations sub-tab in checks tab
+# Outputs for populations and unknown parents sub-tabs in checks tab
 
 # Plot population sizes over time
 output$checkExpPop = renderPlot({
@@ -25,3 +25,7 @@ output$checkExpPop = renderPlot({
     lty = c(1, 1, 1, 2)
   )
 })
+
+# Print percentages of animals with unknown parents in and between survey-years
+output$UPsWtn = renderTable(find.bias.srvy(pns.UPs()$pns.UPs.wtn))
+output$UPsBtn = renderTable(find.bias.srvy(pns.UPs()$pns.UPs.btn))

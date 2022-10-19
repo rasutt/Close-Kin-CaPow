@@ -10,12 +10,6 @@ frmt.tbl = function(data, rw.nms, cl.nms) {
   df
 }
 
-## First life-histories
-output$firstLifeHists = renderTable({
-  # Not currently recording life statuses for whole simulation
-  # form.tab(head(attributes(sim.lst()$hists.lst[[1]])$alv.mat), NULL, sim.yrs())
-})
-
 ## First sample-histories
 output$firstSampHists = renderTable(head(data.frame(sim.lst()$hists.lst[[1]])))
 

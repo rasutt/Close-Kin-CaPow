@@ -1,18 +1,6 @@
 # Load shiny package
 library(shiny)
 
-# Function to make table outputs for unknown parents modules
-unknPrntsTbl <- function(id) {
-  ns <- NS(id)
-  tagList(
-    h3("Unknown parents"),
-    p("Average percentage of individuals with unknown parents, from start
-    of simulation."),
-    tableOutput(outputId = ns("unknPrntsWtn")),
-    tableOutput(outputId = ns("unknPrntsBtn"))
-  )
-}
-
 # Function to make outputs for values, predictions, and errors
 VPE.ui <- function(id, title, desc, types) {
   ns <- NS(id)
@@ -140,18 +128,13 @@ ui <- fluidPage(
           title = "First study",
           value = "first.study",
           h2("First study simulated"),
-          # h3("First life-histories"),
-          # tableOutput(outputId = "firstLifeHists"),
-          
           h3("First sample-histories"),
           tableOutput(outputId = "firstSampHists"),
-          
           h3("Numbers of kin-pairs in whole population"),
           h4("Within surveys"),
           tableOutput(outputId = "firstNsKPsWtnPop"),
           h4("Between surveys"),
           tableOutput(outputId = "firstNsKPsBtnPop"),
-          
           h3("Estimated numbers of kin-pairs in whole population"),
           h4("Within surveys"),
           tableOutput(outputId = "firstEstNsKPsWtnPop"),
@@ -182,6 +165,24 @@ ui <- fluidPage(
           h3("Error distributions"),
           plotOutput(outputId = "errsPhi"),
         ),
+        # Unknown parents ----
+        tabPanel(
+          title = "Unknown parents",
+          value = "UPs.tab",
+          h3("Unknown parents"),
+          p("Average percentages of individuals with unknown parents, from first
+            generation simulated, alive in and between survey-years."),
+          tableOutput(outputId = "UPsWtn"),
+          tableOutput(outputId = "UPsBtn"),
+          p("These individuals affect the observed numbers of
+          different kin-pairs in different ways.  Parent-offspring pairs among
+          them, and sibling pairs including at least one of them, are unknown. 
+          We can try to calculate the expected value of the difference this
+          should cause, probably using the observed numbers of pairs with one or
+          more of these individuals.  We can also limit the terms in the
+          derivations of the predicted values to only include pairs that can be
+          observed.")
+        ),
         # All pairs ----
         tabPanel(
           title = "All pairs",
@@ -205,7 +206,6 @@ ui <- fluidPage(
         tabPanel(
           title = "Parent-offspring pairs",
           value = "POPs.tab",
-          unknPrntsTbl("POPs.tab"),
           VPE.ui(
             "POPs", "Parent-offspring pairs", 
             "Numbers of pairs of individuals that are parent and offspring.",
@@ -216,7 +216,6 @@ ui <- fluidPage(
         tabPanel(
           title = "Same-mother pairs",
           value = "SMPs.tab",
-          unknPrntsTbl("SMPs.tab"),
           p("Numbers in the final year, with one born in
             the year indicated, and one born in the final year."),
           p("Numbers in and between survey-years, ages unknown."),
@@ -232,7 +231,6 @@ ui <- fluidPage(
         tabPanel(
           title = "Same-father pairs",
           value = "SFPs.tab",
-          unknPrntsTbl("SFPs.tab"),
           p("Numbers in the final year, with one born in
             the year indicated, and one born in the final year."),
           p("Numbers in the final year, both born in the year indicated."),
@@ -247,7 +245,6 @@ ui <- fluidPage(
         tabPanel(
           title = "Sibling-pairs",
           value = "SibPs.tab",
-          unknPrntsTbl("SibPs.tab"),
           VPE.ui(
             "FSPs", "Full-sibling pairs",
             "Numbers of pairs of individuals that share two parents.",
