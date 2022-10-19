@@ -21,7 +21,7 @@ FindEstNsKPsPop = function(
   
   ## Within surveys
   
-  # Approximation for expected number of pairs of animals in survey years
+  # All pairs in survey years
   exp.ns.APs.wtn = choose(exp.N.s.yrs, 2)
   
   # Parent-offspring pairs within survey years

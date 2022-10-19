@@ -276,10 +276,11 @@ ns.APs = reactive(list(
   
   # If there is only one survey-pair apply returns a vector so we have to make
   # it a matrix explicitly 
-  btn = t(matrix(
+  btn = matrix(
     apply(N.s.yrs(), 1, combn, 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]),
-    nrow = n.srvy.prs(), dimnames = list(Survey_pair = srvy.prs(), NULL)
-  ))
+    ncol = n.srvy.prs(), byrow = T,
+    dimnames = list(NULL, Survey_pair = srvy.prs())
+  )
 ))
 
 # Full and half-sibling pairs
