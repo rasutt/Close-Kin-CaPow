@@ -16,11 +16,8 @@ In a parent-offspring pair (POP) in which one animal is alive at time $t_1$ and 
 ### Offspring alive at time of first sample
 
 If the offspring is alive at $t_1$, then the pair are both alive, forming a POP at $t_1$.  Then there is a POP between $t_1$ and $t_2$ for each animal that survives to $t_2$.  The probability of each animal surviving is $\phi^{t_2 - t_1}$, where $\phi$ is the probability that an animal survives from time $t$ to time $t + 1$.  So the expected number of POPs is
-$$ 2 E(PO_{t_1}) \phi^{t_2 - t_1} = 4 E(N_{t_1}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} \phi^{t_2 - t_1} $$
-$$ = 4 E(N_{t_2}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} \left( \frac{\phi}{\lambda} \right)^{t_2 - t_1}, $$
-where $E(PO_{t_1})$ is the expected number of POPs at $t_1$ as derived on pages 38-39 of my dissertation, $N_t$ is the population size at time $t$, and
-$$ \lambda = \frac{E(N_{t + 1})}{E(N_t)}, $$
-is the population growth rate.
+$$ 2 E(PO_{t_1}) \phi^{t_2 - t_1}, $$
+where $E(PO_{t_1})$ is the expected number of POPs at $t_1$.
 
 ### Offspring born between sample-times
 
@@ -32,25 +29,38 @@ as explained in (???).
 
 The probability that the offspring survives to $t_2$ is $\phi^{t_2 - t}$.
 
-Let $\alpha$ be the age-at-maturity for the species, the minimum age at which an animal may have a calf alive in the population.  If the offspring is born between $t_1$ and $t_1 + \alpha$, so that $t_1 < t \le \alpha$, then its parents must be alive at $t_1$ because they must be mature when the offspring is born.
+Let $\alpha$ be the age-at-maturity for the species, the minimum age at which an animal may have a calf alive in the population.  If the offspring is born between $t_1$ and $t_1 + \alpha$, so that $t_1 < t \le t_1 + \alpha$, then its parents must be alive at $t_1$ because they must be mature when the offspring is born.
 
-If the offspring is born between $t_1 + \alpha$ and $t_2$, so that $t_1 + \alpha < t \le t_2$, then the probability that each of its parents is alive at $t_1$ is given by the number of animals that survive from $t_1$ to $t$, divided by the total number of mature animals at $t$, which is the number that survive from $t - \alpha$ to $t$.
+If the offspring is born between $t_1 + \alpha$ and $t_2$, so that $t_1 + \alpha < t \le t_2$, then the probability that its mother is alive at $t_1$ is given by the number of females that survive from $t_1$ to $t$, divided by the total number of mature females at $t$, which is the number that survive from $t - \alpha$ to $t$.
 
-The expected number of animals that are alive at $t_1$, and survive until $t$, is
-$$ E(N_{t_1}) \phi^{t - t_1} = \frac{E(N_{t})}{\lambda^{t - t_1}} \phi^{t - t_1} = E(N_t) \left( \frac{\phi}{\lambda} \right)^{t - t_1}. $$
-The expected number of animals that are mature at $t$ is the expected number that are alive at $t - \alpha$, and survive until $t$, that is
-$$ E(N_t) \left( \frac{\phi}{\lambda} \right)^{t - (t + \alpha)} = E(N_t) \left( \frac{\phi}{\lambda} \right)^{\alpha} $$
-
-For animals born at $t$, where $t > t_1 + \alpha$, the probability that each of their parents is alive at $t_1$ is thus 
-$$ \frac{E(N_t) \left( \frac{\phi}{\lambda} \right)^{t - t_1}}{E(N_t) \left( \frac{\phi}{\lambda} \right)^{\alpha}} $$
+The expected number of females that are alive at $t_1$, and survive until $t$, is
+$$ \frac{E(N_{t_1})}{2} \phi^{t - t_1} = \frac{E(N_{t})}{2 \lambda^{t - t_1}} \phi^{t - t_1} = \frac{E(N_{t})}{2} \left( \frac{\phi}{\lambda} \right)^{t - t_1}. $$
+The expected number of females that are mature at $t$ is the expected number that are alive at $t - \alpha$, and survive until $t$, that is
+$$ \frac{E(N_{t})}{2} \left( \frac{\phi}{\lambda} \right)^{t - (t - \alpha)} = \frac{E(N_{t})}{2} \left( \frac{\phi}{\lambda} \right)^{\alpha}. $$
+For animals born at $t$, where $t > t_1 + \alpha$, the probability that each of their parents is alive at $t_1$ is then 
+$$ \frac{\frac{E(N_{t})}{2} \left( \frac{\phi}{\lambda} \right)^{t - t_1}}{\frac{E(N_{t})}{2} \left( \frac{\phi}{\lambda} \right)^{\alpha}} $$
 $$ = \left( \frac{\phi}{\lambda} \right)^{t - (t_1 + \alpha)}. $$
+
+The probability that its father is alive at $t_1$ is given by the number of males that survive from $t_1$ to $t - 1$, divided by the total number of males at $t - 1$ which would be mature at $t$, which is the number that survive from $t - \alpha$ to $t - 1$.
+
+The expected number of males that are alive at $t_1$, and survive until $t - 1$, is
+$$ \frac{E(N_{t_1})}{2} \phi^{t - 1 - t_1} = \frac{E(N_{t - 1})}{2 \lambda^{t - 1 - t_1}} \phi^{t - 1 - t_1} = \frac{E(N_{t - 1})}{2} \left( \frac{\phi}{\lambda} \right)^{t - 1 - t_1}. $$
+The total number of males that survive from $t - \alpha$ to $t - 1$ is,
+$$ \frac{E(N_{t - 1})}{2} \left( \frac{\phi}{\lambda} \right)^{t - 1 - (t - \alpha)} = \frac{E(N_{t - 1})}{2} \left( \frac{\phi}{\lambda} \right)^{\alpha - 1}. $$
+
+The probability that its father is alive at $t_1$ is then
+$$ \frac{\frac{E(N_{t})}{2} \left( \frac{\phi}{\lambda} \right)^{t - 1 - t_1}}{\frac{E(N_{t})}{2} \left( \frac{\phi}{\lambda} \right)^{\alpha - 1}} $$
+$$ = \left( \frac{\phi}{\lambda} \right)^{t - (t_1 + \alpha)}. $$
+
 For an offspring born at $t$, such that $t_1 < t \le t_2$, the probability that each of their parents is alive at $t_1$ is then
-$$\begin{cases}
+$$
+\begin{cases}
   1, & 
   t_1 < t \le \min\{t_1 + \alpha, t_2\}, \\
    \left( \frac{\phi}{\lambda} \right)^{t - (t_1 + \alpha)}, & 
   \min\{t_1 + \alpha, t_2\} < t \le t_2,
-\end{cases}$$
+\end{cases}
+$$
 and the expected number of POPs between $t_1$ and $t_2$ is then
 $$2 \left(1 - \frac{\phi}{\lambda} \right) E(N_t) \phi^{t_2 - t} \times 
 \begin{cases}
@@ -91,23 +101,32 @@ $$ = 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \left( \frac{\phi}{\lam
   \min\{t_1 + \alpha, t_2\} < t \le t_2,
 \end{cases}$$
 $$ = 2 \left(1 - \frac{\phi}{\lambda} \right) E(N_{t_2}) \left( \frac{\phi}{\lambda} \right)^{t_2} \left\{ \sum_{t_1 < t \le \min\{t_1 + \alpha, t_2\}} \left( \frac{\phi}{\lambda} \right)^{- t} + \sum_{\min\{t_1 + \alpha, t_2\} < t \le t_2} \left( \frac{\phi}{\lambda} \right)^{-(t_1 + \alpha)} \right\},$$
-$$\sum_{t_1 < t \le \min\{t_1 + \alpha, t_2\}} \left( \frac{\phi}{\lambda} \right)^{-t} = \frac{\left( \frac{\phi}{\lambda} \right)^{-(t_1 + 1)} - \left( \frac{\phi}{\lambda} \right)^{-(\min\{t_1 + \alpha, t_2\} + 1)}} {1 - \left( \frac{\phi}{\lambda} \right)^{-1}},$$
-$$\sum_{\min\{t_1 + \alpha, t_2\} < t \le t_2} \left( \frac{\phi}{\lambda} \right)^{-(t_1 + \alpha)} = 
+$$\sum_{t_1 < t \le \min\{t_1 + \alpha, t_2\}} \left( \frac{\phi}{\lambda} \right)^{-t} = \sum_{t_1 < t \le \min\{t_1 + \alpha, t_2\}} \left( \frac{\lambda}{\phi} \right)^t,$$
+$$= \frac{\left( \frac{\lambda}{\phi} \right)^{t_1 + 1} - \left( \frac{\lambda}{\phi} \right)^{\min\{t_1 + \alpha, t_2\} + 1}} {1 - \frac{\lambda}{\phi}},$$
+
+$$\sum_{\min\{t_1 + \alpha, t_2\} < t \le t_2} \left( \frac{\phi}{\lambda} \right)^{-(t_1 + \alpha)} = \sum_{\min\{t_1 + \alpha, t_2\} < t \le t_2} \left( \frac{\lambda}{\phi} \right)^{t_1 + \alpha}$$
+$$
+\sum_{\min\{t_1 + \alpha, t_2\} < t \le t_2} \left( \frac{\phi}{\lambda} \right)^{-(t_1 + \alpha)} = 
 \begin{cases}
-  \left\{ t_2 - (t_1 + \alpha) \right\} \left( \frac{\phi}{\lambda} \right)^{-(t_1 + \alpha)}, & 
+  \left\{ t_2 - (t_1 + \alpha) \right\} \left( \frac{\lambda}{\phi} \right)^{t_1 + \alpha}, & 
   t_1 + \alpha < t_2, \\
   0, & 
   t_1 + \alpha \ge t_2.
-\end{cases}$$
+\end{cases}
+$$
+
+### Total parent-offspring pairs
 
 Adding the expected number of POPs in which the offspring is alive at $t_1$ gives the expected number of POPs between samples,
-$$ E(POP_{t_1, t_2}) = 4 E(N_{t_2}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} \left( \frac{\phi}{\lambda} \right)^{t_2 - t_1} + 2 E(N_{t_2}) \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right)^{t_2} \times$$
-$$ \left[ \frac{\left( \frac{\phi}{\lambda} \right)^{-(t_1 + 1)} - \left( \frac{\phi}{\lambda} \right)^{-(\min\{t_1 + \alpha, t_2\} + 1)}} {1 - \left( \frac{\phi}{\lambda} \right)^{-1}} + 
+$$ E(POP_{t_1, t_2}) = 2 E(PO_{t_1}) \phi^{t_2 - t_1} + 2 E(N_{t_2}) \left(1 - \frac{\phi}{\lambda} \right) \left( \frac{\phi}{\lambda} \right)^{t_2} \times$$
+$$ 
+\left[ \frac{\left( \frac{\lambda}{\phi} \right)^{t_1 + 1} - \left( \frac{\lambda}{\phi} \right)^{\min\{t_1 + \alpha, t_2\} + 1}} {1 - \frac{\lambda}{\phi}} + 
 \begin{cases}
-  \left\{ t_2 - (t_1 + \alpha) \right\} \left( \frac{\phi}{\lambda} \right)^{-(t_1 + \alpha)}, & 
+  \left\{ t_2 - (t_1 + \alpha) \right\} \left( \frac{\lambda}{\phi} \right)^{t_1 + \alpha}, & 
   t_1 + \alpha < t_2, \\
   0, & 
   t_1 + \alpha \ge t_2.
-\end{cases} \right]. $$
+\end{cases} \right]. 
+$$
 
 

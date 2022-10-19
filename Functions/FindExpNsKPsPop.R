@@ -10,8 +10,10 @@ FindEstNsKPsPop = function(
   lmb.m.ph.sq = lambda - phi^2
   # Probability not new-born (phi over lambda)
   p.o.l = phi / lambda
+  # Reciprocal of probability not new-born (phi over lambda)
+  l.o.p = lambda / phi
   # Reciprocal of probability that an animal is mature
-  rcl.prb.mtr = (lambda / phi)^alpha
+  rcl.prb.mtr = (l.o.p)^alpha
   # Birth rate among mature females
   beta = 2 * (1 - p.o.l) * rcl.prb.mtr
   
@@ -23,7 +25,7 @@ FindEstNsKPsPop = function(
   exp.ns.APs.wtn = choose(exp.N.s.yrs, 2)
   
   # Parent-offspring pairs within survey years
-  exp.ns.POPs.wtn = 2 * exp.N.s.yrs * phi * rho / lmb.m.ph.sq
+  exp.ns.POPs.wtn = exp.N.s.yrs * rho * (1 + phi) / lmb.m.ph.sq
   
   # Same-mother pairs within survey years
   exp.ns.SMPs.wtn = exp.N.s.yrs * beta * rho * phi^2 / lmb.m.ph.sq^2
@@ -64,14 +66,13 @@ FindEstNsKPsPop = function(
   
   # Parent-offspring pairs between survey years
   s.yrs.1.p.a = s.yrs.1 + alpha
-  exp.ns.POPs.btn = 
-    4 * exp.N.s.yrs.2 * phi * rho / lmb.m.ph.sq * p.o.l^s.gaps +
-    2 * (1 - p.o.l) * exp.N.s.yrs.2 * p.o.l^s.yrs.2 *
-    ((p.o.l^(-(s.yrs.1 + 1)) - p.o.l^(-(pmin(s.yrs.1.p.a, s.yrs.2) + 1))) /
-       (1 - p.o.l^(-1)) +
+  exp.ns.POPs.btn = 2 * exp.ns.POPs.wtn[s.inds.1] * phi^s.gaps +
+    2 * exp.N.s.yrs.2 * (1 - p.o.l) * p.o.l^s.yrs.2 *
+    ((l.o.p^(s.yrs.1 + 1) - l.o.p^(pmin(s.yrs.1.p.a, s.yrs.2) + 1)) /
+       (1 - l.o.p) +
        ifelse(
          s.yrs.1.p.a < s.yrs.2,
-         (s.yrs.2 - s.yrs.1.p.a) * p.o.l^(-s.yrs.1.p.a),
+         (s.yrs.2 - s.yrs.1.p.a) * l.o.p^s.yrs.1.p.a,
          0
        ))
 
