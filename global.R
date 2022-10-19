@@ -22,16 +22,17 @@ n.yrs.try.chk.t = 10
 
 # Types of kin-pairs to be analysed (not same as those in models)
 kp.tps = c(
-  "Population sizes", "All-pairs", "Self-pairs", "Parent-offspring pairs", 
+  "Population sizes", "All-pairs", "Self-pairs (all)", 
+  "Self-pairs (parents known)", "Parent-offspring pairs", 
   "Same-mother pairs", "Same-father pairs", "Full-sibling pairs", 
   "Half-sibling pairs"
 )
-kp.tps.pop.wtn = kp.tps[c(1:2, 4:8)]
-kp.tps.pop.btn = kp.tps[c(2:8)]
-kp.tps.prb.wtn = kp.tps[4:8]
-kp.tps.prb.btn = kp.tps[3:5]
-kp.tps.cap.wtn = kp.tps[c(4:5, 8)]
-kp.tps.cap.btn = kp.tps[3:4]
+kp.tps.pop.wtn = kp.tps[c(1:2, 5:9)]
+kp.tps.pop.btn = kp.tps[c(2:9)]
+kp.tps.prb.wtn = kp.tps[5:9]
+kp.tps.prb.btn = kp.tps[c(3, 5:6)]
+kp.tps.cap.wtn = kp.tps[c(5:6, 9)]
+kp.tps.cap.btn = kp.tps[c(3, 5)]
 
 kp.tps.t = c(
   "SMP{t=fnl,b1,b2=fnl}", "SFP{t=fnl,b1,b2=fnl}", "SFP{t=fnl,b}"

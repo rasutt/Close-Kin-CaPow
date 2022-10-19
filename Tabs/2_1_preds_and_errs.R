@@ -42,7 +42,7 @@ ns.APs.preds = reactive({
 })
 ns.APs.errs = reactive(l.fnd.errs(ns.APs(), ns.APs.preds()))
 # Self-pairs ----
-ns.SPs.preds = reactive(list(est.ns.kps.pop()$btn[, "SPs"]))
+ns.SPs.preds = reactive(rep(list(est.ns.kps.pop()$btn[, "SPs"]), 2))
 ns.SPs.errs = reactive(l.fnd.errs(ns.SPs(), ns.SPs.preds()))
 # Parent-offspring pairs ----
 ns.POPs.preds = reactive(list(

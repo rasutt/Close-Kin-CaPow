@@ -31,7 +31,9 @@ VPE.srvr(
   "APs", ns.APs, ns.APs.preds, ns.APs.errs, c("WtnPop", "BtnPop"), "All-pairs"
 )
 # Self-pairs ----
-VPE.srvr("SPs", ns.SPs, ns.SPs.preds, ns.SPs.errs, "BtnPop", "Self-pairs")
+VPE.srvr(
+  "SPs", ns.SPs, ns.SPs.preds, ns.SPs.errs, c("BtnPop", "PrntsKwn"), "Self-pairs"
+)
 # Parent-offspring pairs ----
 VPE.srvr(
   "POPs", ns.POPs, ns.POPs.preds, ns.POPs.errs, c("WtnPop", "BtnPop"), 

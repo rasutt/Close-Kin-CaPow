@@ -198,7 +198,7 @@ ui <- fluidPage(
           VPE.ui(
             "SPs", "Self-pairs", 
             "Numbers of pairs of individuals that are the same individual in
-            different survey-years.", "BtnPop"
+            different survey-years.", c("BtnPop", "PrntsKwn")
           )
         ),
         # Parent-offspring pairs ----

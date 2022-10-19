@@ -25,7 +25,8 @@ ns.kps.pop.wtn.errs = reactive({
 ns.kps.pop.btn.errs = reactive({
   arr = array(
     c(
-      ns.APs.errs()[[2]], ns.SPs.errs()[[1]], ns.POPs.errs()[[2]], 
+      ns.APs.errs()[[2]], ns.SPs.errs()[[1]], ns.SPs.errs()[[2]],
+      ns.POPs.errs()[[2]], 
       ns.SMPs.errs()[[3]], ns.SFPs.errs()[[4]], ns.FSPs.errs()[[2]], 
       ns.HSPs.errs()[[2]]
     ),
