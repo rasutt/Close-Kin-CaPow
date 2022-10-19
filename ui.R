@@ -181,7 +181,10 @@ ui <- fluidPage(
           should cause, probably using the observed numbers of pairs with one or
           more of these individuals.  We can also limit the terms in the
           derivations of the predicted values to only include pairs that can be
-          observed.")
+          observed.  The first one is easier and sufficient for evaluating the 
+          predictions.  The latter is not yet necessary, but predictions for
+          models where the parameters change over time may take this form later
+          on.")
         ),
         # All pairs ----
         tabPanel(
