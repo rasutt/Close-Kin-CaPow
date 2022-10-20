@@ -30,7 +30,8 @@ find.bias.srvy = function(errs) {
 # Function to plot simulated and predicted values ----
 plot.vals = function(vals, preds, par.name) {
   boxplot(
-    vals, main = par.name, xlab = names(dimnames(vals))[2], show.names = T
+    vals, main = par.name, xlab = names(dimnames(vals))[2], show.names = T,
+    ylab = "Observed values"
   )
   points(preds, col = 'red', lwd = 2)
   points(colMeans(vals), col = 'blue', lwd = 2)
@@ -44,8 +45,8 @@ plot.vals = function(vals, preds, par.name) {
 # values ----
 plot.errs = function(errs, var.name) {
   boxplot(
-    errs, main = var.name, xlab = names(dimnames(errs))[2],
-    ylab = "Proportional errors", show.names = T
+    errs, main = var.name, xlab = names(dimnames(errs))[2], show.names = T,
+    ylab = "Proportional errors"
   )
   abline(h = 0, col = 'red')
   abline(h = mean(errs), col = 'blue')

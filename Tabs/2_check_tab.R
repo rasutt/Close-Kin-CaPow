@@ -103,7 +103,7 @@ observeEvent({
   if (input$nav.tab == "check.tab") {
     # Find population sizes over time
     if (
-      input$check.sub.tabs %in% c("populations", "all.pairs", "bias.tab") && 
+      input$check.sub.tabs %in% c("N.tab", "APs.tab", "bias.tab") && 
       is.null(N.t.mat())
     ) {
       withProgress({
@@ -120,7 +120,7 @@ observeEvent({
     
     # Find observed survival rates
     if (
-      input$check.sub.tabs %in% c("demo.tab", "bias.tab") && 
+      input$check.sub.tabs %in% c("phi.tab", "bias.tab") && 
       is.null(avg.phi.obs())
     ) {
       withProgress({
@@ -131,7 +131,7 @@ observeEvent({
           # Record population curve
           attributes(hist)$avg.phi.obs
         }))
-      }, value = 0, message = "Finding population sizes")
+      }, value = 0, message = "Finding survival rates")
     }
     
     # Find numbers of self-pairs between survey-years in simulated populations
@@ -150,7 +150,7 @@ observeEvent({
     # Find proportions of individuals with unknown parents
     if (
       input$check.sub.tabs %in% 
-      c("POPs.tab", "SMPs.tab", "SFPs.tab", "SibPs.tab", "bias.tab") && 
+      c("UPs.tab", "bias.tab") && 
       is.null(pns.UPs())
     ) {
       # Update reactive value

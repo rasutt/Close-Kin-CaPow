@@ -15,39 +15,36 @@ output$firstSampHists = renderTable(head(data.frame(sim.lst()$hists.lst[[1]])))
 
 ## Numbers of kin-pairs in whole population
 # Within surveys
-output$firstNsKPsPopWtn = renderTable({
+output$firstNsKPsWtnPop = renderTable({
   pop.atts = attributes(sim.lst()$hists.lst[[1]])
-  smps = find.SMPs.wtn(pop.atts, k())
-  sfps = find.SFPs.wtn(pop.atts, k())
-  fsps = find.FSPs.wtn(pop.atts, k())
+  SMPs = find.SMPs.wtn(pop.atts, k())
+  SFPs = find.SFPs.wtn(pop.atts, k())
+  FSPs = find.FSPs.wtn(pop.atts, k())
   frmt.tbl(
-    matrix(
-      c(
-        pop.atts$N.t.vec[s.yr.inds()],
-        choose(pop.atts$N.t.vec[s.yr.inds()], 2),
-        find.POPs.wtn(pop.atts, k()),
-        smps, sfps, fsps,
-        smps + sfps - 2 * fsps
-      ), ncol = k(), byrow = T
+    rbind(
+      pop.atts$N.t.vec[s.yr.inds()],
+      choose(pop.atts$N.t.vec[s.yr.inds()], 2),
+      find.POPs.wtn(pop.atts, k()),
+      SMPs, SFPs, FSPs, SMPs + SFPs - 2 * FSPs
     ), 
     kp.tps.pop.wtn, srvy.yrs()
   )
 }, rownames = T)
 
 # Between surveys
-output$firstNsKPsPopBtn = renderTable({
+output$firstNsKPsBtnPop = renderTable({
   pop.atts = attributes(sim.lst()$hists.lst[[1]])
+  SPs.prnts.kwn = find.SPs.prnts.kwn(pop.atts, k())
+  SMPs = find.SMSPs.btn(pop.atts, k()) - SPs.prnts.kwn
+  SFPs = find.SFSPs.btn(pop.atts, k()) - SPs.prnts.kwn
+  FSPs = find.FSSPs.btn(pop.atts, k()) - SPs.prnts.kwn
   frmt.tbl(
-    matrix(
-      c(
-        combn(
-          pop.atts$N.t.vec[s.yr.inds()], 2, 
-          function(N.s.pr) N.s.pr[1] * N.s.pr[2]
-        ),
-        find.SPs(pop.atts, k()),
-        find.POPs.btn(pop.atts, k()),
-        find.SMPs.btn(pop.atts, k())
-      ), ncol = n.srvy.prs(), byrow = T
+    rbind(
+      combn(
+        pop.atts$N.t.vec[s.yr.inds()], 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]
+      ),
+      find.SPs(pop.atts, k()),  SPs.prnts.kwn, find.POPs.btn(pop.atts, k()),
+      SMPs, SFPs, FSPs, SMPs + SFPs - 2 * FSPs
     ), 
     kp.tps.pop.btn, srvy.prs()
   )
@@ -55,11 +52,11 @@ output$firstNsKPsPopBtn = renderTable({
 
 ## Estimated numbers of kin-pairs in whole population
 # Within surveys
-output$firstEstNsKPsPopWtn = renderTable({
-  frmt.tbl(t(est.ns.kps.pop.lst()$wtn), kp.tps.pop.wtn, srvy.yrs())
+output$firstEstNsKPsWtnPop = renderTable({
+  frmt.tbl(t(est.ns.kps.pop()$wtn), kp.tps.pop.wtn, srvy.yrs())
 }, rownames = T)
 
 # Between surveys
-output$firstEstNsKPsPopBtn = renderTable({
-  frmt.tbl(t(est.ns.kps.pop.lst()$btn), kp.tps.pop.btn, srvy.prs())
+output$firstEstNsKPsBtnPop = renderTable({
+  frmt.tbl(t(est.ns.kps.pop()$btn), kp.tps.pop.btn, srvy.prs())
 }, rownames = T)

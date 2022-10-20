@@ -1,25 +1,20 @@
 # Outputs for kin-pairs sub-tabs in checks tab
 
-
-# Function to display estimate errors as bias tables and box plots
-show.errs = function(errs, kp.tp, kp.vrtns, kp.tp.nm) {
-  tbls = paste0("bs", kp.tp, kp.vrtns)
-  plts = paste0("errs", kp.tp, kp.vrtns)
-
-  lapply(1:length(tbls), function(i) {
-    output[[tbls[i]]] = renderTable(find.bias.srvy(errs()[[i]]))
-    output[[plts[i]]] = renderPlot(plot.errs(errs()[[i]], kp.tp.nm))
-  })
-}
-
 ## Output bias tables and box plots for prediction errors ----
 
 # Population sizes ----
-show.errs(ns.wtn.errs, "Ns", "WtnPop", "Population sizes")
-
+VPE.srvr(
+  "N", reactive(list(N.s.yrs())), reactive(list(est.ns.kps.pop()$wtn[, 1])), 
+  ns.wtn.errs, "WtnPop", "Population sizes"
+)
 # Survival rates ----
-show.errs(phi.errs, "Phi", "", "Survival rates")
-
+VPE.srvr(
+  "phi", 
+  reactive(list(matrix(
+    avg.phi.obs(), ncol = 1, dimnames = list(NULL, "All times")
+  ))), 
+  phi, phi.errs, "All", "Survival rates"
+)
 # All-pairs ----
 VPE.srvr(
   "APs", ns.APs, ns.APs.preds, ns.APs.errs, c("WtnPop", "BtnPop"), "All-pairs"

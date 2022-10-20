@@ -122,11 +122,11 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "demo.tab",
+        selected = "fst.std.tab",
         # First study ----
         tabPanel(
           title = "First study",
-          value = "first.study",
+          value = "fst.std.tab",
           h2("First study simulated"),
           h3("First sample-histories"),
           tableOutput(outputId = "firstSampHists"),
@@ -144,56 +144,44 @@ ui <- fluidPage(
         # Populations ----
         tabPanel(
           title = "Population sizes",
-          value = "populations",
-          h2("Population sizes"),
-          p("Numbers of individuals that are alive in the population."),
+          value = "N.tab",
           plotOutput(outputId = "checkExpPop"),
-          h3("Biases"),
-          tableOutput(outputId = "bsNsWtnPop"),
-          h3("Error distributions"),
-          plotOutput(outputId = "errsNsWtnPop"),
+          VPE.ui(
+            "N", "Population sizes", 
+            "Numbers of individuals that are alive in the population.", "WtnPop"
+          )
         ),
         # Demographics ----
         tabPanel(
-          title = "Demographics",
-          value = "demo.tab",
-          h2("Demographics"),
-          p("Individual survival and population growth rates."),
-          h3("Biases"),
-          h4("Survival rate"),
-          tableOutput(outputId = "bsPhi"),
-          h3("Error distributions"),
-          plotOutput(outputId = "errsPhi"),
+          title = "Survival",
+          value = "phi.tab",
+          VPE.ui("phi", "Survival rates", "Individual survival rates.", "All")
         ),
         # Unknown parents ----
         tabPanel(
           title = "Unknown parents",
           value = "UPs.tab",
           h3("Unknown parents"),
-          p("Average percentages of individuals with unknown parents, from first
-            generation simulated, alive in and between survey-years."),
+          p("The first generation is simulated with unknown parents. 
+          These individuals affect the observed numbers of kin-pairs, as parent
+          -offspring pairs among them, and sibling-pairs including them, are 
+          both unknown. This causes the appearance of prediction error, so it
+          should be taken into account when evaluating predictor performance."),
+          p("Below are the average percentages of individuals with unknown
+          parents, alive within, and bewteen pairs of, survey-years.  The
+          observed numbers of pairs including one or more of these individuals
+          will be added soon."),
           tableOutput(outputId = "UPsWtn"),
           tableOutput(outputId = "UPsBtn"),
-          p("These individuals affect the observed numbers of
-          different kin-pairs in different ways.  Parent-offspring pairs among
-          them, and sibling pairs including at least one of them, are unknown. 
-          We can try to calculate the expected value of the difference this
-          should cause, probably using the observed numbers of pairs with one or
-          more of these individuals.  We can also limit the terms in the
-          derivations of the predicted values to only include pairs that can be
-          observed.  The first one is easier and sufficient for evaluating the 
-          predictions.  The latter is not yet necessary, but predictions for
-          models where the parameters change over time may take this form later
-          on.")
         ),
         # All pairs ----
         tabPanel(
           title = "All pairs",
-          value = "all.pairs",
+          value = "APs.tab",
           VPE.ui(
             "APs", "All pairs", 
             "Total numbers of pairs of individuals.", c("WtnPop", "BtnPop")
-          ),
+          )
         ),
         # Self-pairs ----
         tabPanel(
