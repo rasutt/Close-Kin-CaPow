@@ -1,18 +1,25 @@
 # Load shiny package
 library(shiny)
 
-# Function to make outputs for values, predictions, and errors
-VPE.ui <- function(id, title, desc, types) {
+# Function to make outputs for values, biases, and errors
+VBE.ui <- function(id, types) {
   ns <- NS(id)
   tagList(
-    h2(title),
-    p(desc),
     h3("Values"),
     lapply(paste0("vals", types), function(v.p) plotOutput(outputId = ns(v.p))),
     h3("Biases"),
     lapply(paste0("bss", types), function(b.t) tableOutput(outputId = ns(b.t))),
     h3("Errors"),
     lapply(paste0("errs", types), function(e.p) plotOutput(outputId = ns(e.p)))
+  )
+}
+
+# Function to make outputs for titles, descriptions, values, biases, and errors
+TDVBE.ui <- function(id, title, desc, types) {
+  tagList(
+    h2(title),
+    p(desc),
+    VBE.ui(id, types)
   )
 }
 
@@ -145,17 +152,17 @@ ui <- fluidPage(
         tabPanel(
           title = "Population sizes",
           value = "N.tab",
+          h2("Population sizes"),
+          p("Numbers of individuals that are alive in the population in each
+            year."),
           plotOutput(outputId = "checkExpPop"),
-          VPE.ui(
-            "N", "Population sizes", 
-            "Numbers of individuals that are alive in the population.", "WtnPop"
-          )
+          VBE.ui("N", "WtnPop")
         ),
         # Demographics ----
         tabPanel(
           title = "Survival",
           value = "phi.tab",
-          VPE.ui("phi", "Survival rates", "Individual survival rates.", "All")
+          TDVBE.ui("phi", "Survival rates", "Individual survival rates.", "All")
         ),
         # Unknown parents ----
         tabPanel(
@@ -178,7 +185,7 @@ ui <- fluidPage(
         tabPanel(
           title = "All pairs",
           value = "APs.tab",
-          VPE.ui(
+          TDVBE.ui(
             "APs", "All pairs", 
             "Total numbers of pairs of individuals.", c("WtnPop", "BtnPop")
           )
@@ -187,7 +194,7 @@ ui <- fluidPage(
         tabPanel(
           title = "Self-pairs",
           value = "SPs.tab",
-          VPE.ui(
+          TDVBE.ui(
             "SPs", "Self-pairs", 
             "Numbers of pairs of individuals that are the same individual in
             different survey-years.", c("BtnPop", "PrntsKwn")
@@ -197,7 +204,7 @@ ui <- fluidPage(
         tabPanel(
           title = "Parent-offspring pairs",
           value = "POPs.tab",
-          VPE.ui(
+          TDVBE.ui(
             "POPs", "Parent-offspring pairs", 
             "Numbers of pairs of individuals that are parent and offspring.",
             c("WtnPop", "BtnPop")
@@ -212,7 +219,7 @@ ui <- fluidPage(
           p("Numbers in and between survey-years, ages unknown."),
           p("Numbers between survey-years, one born five years before first, one
             born in last."),
-          VPE.ui(
+          TDVBE.ui(
             "SMPs", "Same-mother pairs", 
             "Numbers of pairs of individuals with the same mothers.",
             c("AgeKnwn", "WtnPop", "BtnPop", "BtnAgeKnwnPop")
@@ -226,7 +233,7 @@ ui <- fluidPage(
             the year indicated, and one born in the final year."),
           p("Numbers in the final year, both born in the year indicated."),
           p("Numbers in and between survey-years, ages unknown."),
-          VPE.ui(
+          TDVBE.ui(
             "SFPs", "Same-father pairs", 
             "Numbers of pairs of individuals with the same fathers.",
             c("AgeKnwn", "SameAge", "WtnPop", "BtnPop")
@@ -236,12 +243,12 @@ ui <- fluidPage(
         tabPanel(
           title = "Sibling-pairs",
           value = "SibPs.tab",
-          VPE.ui(
+          TDVBE.ui(
             "FSPs", "Full-sibling pairs",
             "Numbers of pairs of individuals that share two parents.",
             c("WtnPop", "BtnPop")
           ),
-          VPE.ui(
+          TDVBE.ui(
             "HSPs", "Half-sibling pairs",
             "Numbers of pairs of individuals that share exactly one parent.",
             c("WtnPop", "BtnPop")
