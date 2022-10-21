@@ -6,7 +6,7 @@ output$checkExpPop = renderPlot({
   matplot(
     sim.yrs(), t(N.t.mat()), type = 'l',
     col = rgb(0, 0, 0, alpha = 0.1), lty = 1, 
-    xlab = 'Year', ylab = 'Nt', main = "Population sizes over time"
+    xlab = 'Year', ylab = 'Population size', main = "Population sizes over time"
   )
   
   # Expected value

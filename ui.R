@@ -129,7 +129,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "fst.std.tab",
+        selected = "bias.tab",
         # First study ----
         tabPanel(
           title = "First study",
@@ -143,17 +143,18 @@ ui <- fluidPage(
           p("The data for the first few animals sampled
             in the study, by earliest birth year."),
           tableOutput(outputId = "firstSampHists"),
-          h3("Numbers of kin-pairs within survey-years (whole population)"),
-          p("Numbers of pairs of animals with given family relationships,
-            where both animals are alive in the given survey-year.  Population
+          h3("Numbers of pairs within survey-years (whole population)"),
+          p("Numbers of pairs of individuals with given relationships,
+            where both are alive in the given survey-year.  Population
             sizes are included for reference."),
           h4("Predicted"),
           tableOutput(outputId = "firstEstNsKPsWtnPop"),
           h4("Simulated"),
           tableOutput(outputId = "firstNsKPsWtnPop"),
-          h3("Numbers of kin-pairs between survey-years (whole population)"),
-          p("Numbers of pairs of animals with given family relationships,
-            where one animal is alive in each of the given survey-years."),
+          h3("Numbers of pairs between survey-years (whole population)"),
+          p("Numbers of pairs of individuals with given relationships,
+            where one individual is alive in each of the given pair of 
+            survey-years."),
           h4("Predicted"),
           tableOutput(outputId = "firstEstNsKPsBtnPop"),
           h4("Simulated"),
@@ -169,11 +170,13 @@ ui <- fluidPage(
           plotOutput(outputId = "checkExpPop"),
           VBE.ui("N", "WtnPop")
         ),
-        # Demographics ----
+        # Survival ----
         tabPanel(
           title = "Survival",
           value = "phi.tab",
-          TDVBE.ui("phi", "Survival rates", "Individual survival rates.", "All")
+          TDVBE.ui(
+            "phi", "Survival rates", "Individual annual survival rates.", "All"
+          )
         ),
         # Unknown parents ----
         tabPanel(
@@ -181,14 +184,15 @@ ui <- fluidPage(
           value = "UPs.tab",
           h3("Unknown parents"),
           p("The first generation is simulated with unknown parents. 
-          These individuals affect the observed numbers of kin-pairs, as parent
-          -offspring pairs among them, and sibling-pairs including them, are 
-          both unknown. This causes the appearance of prediction error, so it
-          should be taken into account when evaluating predictor performance."),
+          These individuals affect the observed numbers of kin-pairs, as 
+          parent-offspring pairs among them, and sibling-pairs including them,
+          are both unknown. This causes the appearance of prediction error, so
+          it should be taken into account when evaluating predictor 
+          performance."),
           p("Below are the average percentages of individuals with unknown
-          parents, alive within, and bewteen pairs of, survey-years.  The
-          observed numbers of pairs including one or more of these individuals
-          will be added soon."),
+          parents, that are alive in survey-years, and pairs of survey-years. 
+          The observed numbers of pairs of individuals, including one or more 
+          with unknown parents, will be added soon."),
           tableOutput(outputId = "UPsWtn"),
           tableOutput(outputId = "UPsBtn"),
         ),
@@ -198,7 +202,11 @@ ui <- fluidPage(
           value = "APs.tab",
           TDVBE.ui(
             "APs", "All pairs", 
-            "Total numbers of pairs of individuals.", c("WtnPop", "BtnPop")
+            "Total numbers of pairs of individuals.  The first numbers represent
+            pairs in which both individuals are alive in the same survey-year,
+            and the second represent pairs where one is alive in each of two
+            different survey-years.", 
+            c("WtnPop", "BtnPop")
           )
         ),
         # Self-pairs ----
@@ -207,8 +215,11 @@ ui <- fluidPage(
           value = "SPs.tab",
           TDVBE.ui(
             "SPs", "Self-pairs", 
-            "Numbers of pairs of individuals that are the same individual in
-            different survey-years.", c("BtnPop", "PrntsKwn")
+            "Numbers of pairs of individuals that are the same individual alive
+            in two different survey-years.  The first numbers represent all such
+            pairs, and the second represent only those with known parents, which
+            are used in counting sibling-pairs (see unknown parents tab).", 
+            c("BtnPop", "PrntsKwn")
           )
         ),
         # Parent-offspring pairs ----
@@ -217,7 +228,10 @@ ui <- fluidPage(
           value = "POPs.tab",
           TDVBE.ui(
             "POPs", "Parent-offspring pairs", 
-            "Numbers of pairs of individuals that are parent and offspring.",
+            "Numbers of pairs of individuals that are parent and offspring. 
+            The first numbers represent pairs in which both individuals are
+            alive in the same survey-year, and the second represent pairs where
+            one is alive in each of two different survey-years.",
             c("WtnPop", "BtnPop")
           )
         ),
@@ -225,43 +239,60 @@ ui <- fluidPage(
         tabPanel(
           title = "Same-mother pairs",
           value = "SMPs.tab",
-          p("Numbers in the final year, with one born in
-            the year indicated, and one born in the final year."),
-          p("Numbers in and between survey-years, ages unknown."),
-          p("Numbers between survey-years, one born five years before first, one
-            born in last."),
+          # p("Numbers in the final year, with one born in
+          #   the year indicated, and one born in the final year."),
+          # p("Numbers between survey-years, one born five years before first, 
+          # one born in last."),
           TDVBE.ui(
             "SMPs", "Same-mother pairs", 
-            "Numbers of pairs of individuals with the same mothers.",
-            c("AgeKnwn", "WtnPop", "BtnPop", "BtnAgeKnwnPop")
+            "Numbers of pairs of individuals with the same mother.  The first
+            numbers represent pairs in which both individuals are
+            alive in the same survey-year, and the second represent pairs where
+            one is alive in each of two different survey-years.",
+            # c("AgeKnwn", "WtnPop", "BtnPop", "BtnAgeKnwnPop")
+            c("WtnPop", "BtnPop")
           )
         ),
         # Same-father pairs ----
         tabPanel(
           title = "Same-father pairs",
           value = "SFPs.tab",
-          p("Numbers in the final year, with one born in
-            the year indicated, and one born in the final year."),
-          p("Numbers in the final year, both born in the year indicated."),
-          p("Numbers in and between survey-years, ages unknown."),
+          # p("Numbers in the final year, with one born in
+          #   the year indicated, and one born in the final year."),
+          # p("Numbers in the final year, both born in the year indicated."),
           TDVBE.ui(
             "SFPs", "Same-father pairs", 
-            "Numbers of pairs of individuals with the same fathers.",
-            c("AgeKnwn", "SameAge", "WtnPop", "BtnPop")
+            "Numbers of pairs of individuals with the same father.  The first
+            numbers represent pairs in which both individuals are
+            alive in the same survey-year, and the second represent pairs where
+            one is alive in each of two different survey-years.",
+            # c("AgeKnwn", "SameAge", "WtnPop", "BtnPop")
+            c("WtnPop", "BtnPop")
           )
         ),
-        # Sibling-pairs ----
+        # Full-sibling pairs ----
         tabPanel(
-          title = "Sibling-pairs",
-          value = "SibPs.tab",
+          title = "Full-sibling pairs",
+          value = "FSPs.tab",
           TDVBE.ui(
             "FSPs", "Full-sibling pairs",
-            "Numbers of pairs of individuals that share two parents.",
+            "Numbers of pairs of individuals with the same parents.  The first
+            numbers represent pairs in which both individuals are
+            alive in the same survey-year, and the second represent pairs where
+            one is alive in each of two different survey-years.",
             c("WtnPop", "BtnPop")
-          ),
+          )
+        ),
+        # Half-sibling pairs ----
+        tabPanel(
+          title = "Half-sibling pairs",
+          value = "HSPs.tab",
           TDVBE.ui(
             "HSPs", "Half-sibling pairs",
-            "Numbers of pairs of individuals that share exactly one parent.",
+            "Numbers of pairs of individuals that share exactly one parent.  The
+            first numbers represent pairs in which both individuals are
+            alive in the same survey-year, and the second represent pairs where
+            one is alive in each of two different survey-years.",
             c("WtnPop", "BtnPop")
           )
         ),
@@ -270,18 +301,29 @@ ui <- fluidPage(
           title = "Overall biases",
           value = "bias.tab",
           h2("Overall biases"),
-          p("Average estimator biases over all years."),
+          p("Average proportional differences between numbers simulated and 
+            predicted, over survey-years and pairs of survey-years.  Some of
+            these differences are affected by individuals with unknown parents
+            (see unknown parents tab), so these are also reported below.  The 
+            prediction for the total number of pairs of individuals (all pairs)
+            seems to show a consistent difference.  The number of full-sibling
+            pairs is much smaller than the others so the proportional difference
+            from the prediction seems to be more variable."),
           h3("Unknown parents"),
-          p("Average percentage of individuals with unknown parents, from start
-            of simulation, in survey-years, and pairs of survey-years."),
+          p("Average percentages of individuals with unknown parents, that are
+            alive in survey-years, and pairs of survey-years."),
           tableOutput(outputId = "percUnknPrnts"),
-          h3("Numbers in whole population"),
-          h4("Temporal estimates"),
-          textOutput("tempEstBiasNote"),
-          tableOutput(outputId = "bsNsKPsTemp"),
-          h4("Within surveys"),
+          # h4("Temporal estimates"),
+          # textOutput("tempEstBiasNote"),
+          # tableOutput(outputId = "bsNsKPsTemp"),
+          h3("Numbers of pairs within survey-years (whole population)"),
+          p("Numbers of pairs of individuals with given relationships,
+            where both are alive in the same survey-year.  Population
+            sizes are included for reference."),
           tableOutput(outputId = "bsNsKPsWtnPop"),
-          h4("Between surveys"),
+          h3("Numbers of pairs between survey-years (whole population)"),
+          p("Numbers of pairs of individuals with given relationships,
+            where one individual is alive in each of a pair of survey-years."),
           tableOutput(outputId = "bsNsKPsBtnPop"),
           
           # h3("Probabilities"),

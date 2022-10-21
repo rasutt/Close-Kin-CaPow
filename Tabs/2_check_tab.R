@@ -138,7 +138,7 @@ observeEvent({
     if (
       is.null(ns.SPs()) &&
       input$check.sub.tabs %in% 
-      c("SPs.tab", "SMPs.tab", "SFPs.tab", "SibPs.tab", "bias.tab")
+      c("SPs.tab", "SMPs.tab", "SFPs.tab", "FSPs.tab", "HSPs.tab", "bias.tab")
     ) {
       ns.SPs(list(
         all = find.KPs.btn()(find.SPs, "all self-pairs"),
@@ -181,7 +181,8 @@ observeEvent({
     # Find numbers of same-mother pairs
     if (
       is.null(ns.SMPs()) &&
-      input$check.sub.tabs %in% c("SMPs.tab", "SibPs.tab", "bias.tab")
+      input$check.sub.tabs %in% 
+      c("SMPs.tab", "FSPs.tab", "HSPs.tab", "bias.tab")
     ) {
       # In survey-years
       ns.SMPs(list(
@@ -214,7 +215,8 @@ observeEvent({
     # Find numbers of same-father pairs
     if (
       is.null(ns.SFPs()) &&
-      input$check.sub.tabs %in% c("SFPs.tab", "SibPs.tab", "bias.tab")
+      input$check.sub.tabs %in% 
+      c("SFPs.tab", "FSPs.tab", "HSPs.tab", "bias.tab")
     ) {
       # In survey-years
       ns.SFPs(list(
@@ -246,7 +248,7 @@ observeEvent({
     # Find numbers of full and half-sibling pairs
     if (
       is.null(ns.SibPs()) &&
-      input$check.sub.tabs %in% c("SibPs.tab", "bias.tab")
+      input$check.sub.tabs %in% c("FSPs.tab", "HSPs.tab", "bias.tab")
     ) {
       # Full-sibling pairs
       ns.FSPs.wtn = find.KPs.wtn()(find.FSPs.wtn, "full-sibling")

@@ -17,7 +17,7 @@ VPE.srvr(
 )
 # All-pairs ----
 VPE.srvr(
-  "APs", ns.APs, ns.APs.preds, ns.APs.errs, c("WtnPop", "BtnPop"), "All-pairs"
+  "APs", ns.APs, ns.APs.preds, ns.APs.errs, c("WtnPop", "BtnPop"), "All pairs"
 )
 # Self-pairs ----
 VPE.srvr(

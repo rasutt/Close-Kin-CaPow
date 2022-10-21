@@ -6,7 +6,7 @@ output$percUnknPrnts = renderTable({
     perc(mean(pns.UPs()$pns.UPs.wtn)),
     perc(mean(pns.UPs()$pns.UPs.btn))
   ), nrow = 1))
-  names(df) = c("Survey-years", "Survey-pairs")
+  names(df) = c("Survey-years", "Survey-year pairs")
   df
 })
 
