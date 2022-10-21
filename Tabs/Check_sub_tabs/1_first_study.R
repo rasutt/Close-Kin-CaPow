@@ -11,7 +11,9 @@ frmt.tbl = function(data, rw.nms, cl.nms) {
 }
 
 ## First sample-histories
-output$firstSampHists = renderTable(head(data.frame(sim.lst()$hists.lst[[1]])))
+output$firstSampHists = renderTable({
+  head(data.frame(sim.lst()$hists.lst[[1]]))
+})
 
 ## Numbers of kin-pairs in whole population
 # Within surveys

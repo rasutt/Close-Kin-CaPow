@@ -135,18 +135,29 @@ ui <- fluidPage(
           title = "First study",
           value = "fst.std.tab",
           h2("First study simulated"),
+          p("Some data from the first population and sampling study
+            simulated, as an example.  Note that individual simulations can be
+            quite different from each other, but the average over many
+            simulations should approach the expected values."),
           h3("First sample-histories"),
+          p("The data for the first few animals sampled
+            in the study, by earliest birth year."),
           tableOutput(outputId = "firstSampHists"),
-          h3("Numbers of kin-pairs in whole population"),
-          h4("Within surveys"),
-          tableOutput(outputId = "firstNsKPsWtnPop"),
-          h4("Between surveys"),
-          tableOutput(outputId = "firstNsKPsBtnPop"),
-          h3("Estimated numbers of kin-pairs in whole population"),
-          h4("Within surveys"),
+          h3("Numbers of kin-pairs within survey-years (whole population)"),
+          p("Numbers of pairs of animals with given family relationships,
+            where both animals are alive in the given survey-year.  Population
+            sizes are included for reference."),
+          h4("Predicted"),
           tableOutput(outputId = "firstEstNsKPsWtnPop"),
-          h4("Between surveys"),
-          tableOutput(outputId = "firstEstNsKPsBtnPop")
+          h4("Simulated"),
+          tableOutput(outputId = "firstNsKPsWtnPop"),
+          h3("Numbers of kin-pairs between survey-years (whole population)"),
+          p("Numbers of pairs of animals with given family relationships,
+            where one animal is alive in each of the given survey-years."),
+          h4("Predicted"),
+          tableOutput(outputId = "firstEstNsKPsBtnPop"),
+          h4("Simulated"),
+          tableOutput(outputId = "firstNsKPsBtnPop")
         ),
         # Populations ----
         tabPanel(

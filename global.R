@@ -22,7 +22,7 @@ n.yrs.try.chk.t = 10
 
 # Types of kin-pairs to be analysed (not same as those in models)
 kp.tps = c(
-  "Population sizes", "All-pairs", "Self-pairs (all)", 
+  "Population sizes", "All pairs", "Self-pairs (all)", 
   "Self-pairs (parents known)", "Parent-offspring pairs", 
   "Same-mother pairs", "Same-father pairs", "Full-sibling pairs", 
   "Half-sibling pairs"
