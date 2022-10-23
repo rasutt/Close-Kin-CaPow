@@ -55,19 +55,6 @@ server <- function(input, output) {
       rep(input$p, k.rct())
     )
   })
-  # Simulation options and biological scenario
-  sim.opts.bio.scen.rct = reactive({
-    df = data.frame(
-      input$n.sims, input$hist.len, input$clvng.ints, input$clvng.p, 
-      input$tmp.emgn, input$alpha
-    )
-    names(df) = c(
-      "Number of studies", "Population history length", 
-      "Female time-order breeding", "Additional calving-capture probability", 
-      "Male absense probability", "Age of sexual maturity"
-    )
-    df
-  })
   # Models to fit
   models = reactive(input$models) 
   # ----
@@ -180,7 +167,18 @@ server <- function(input, output) {
     # Estimate parameter names
     est.par.names(c("lambda", "phi", "N_final", "Ns", paste0("p", srvy.yrs())))
     # Simulation options and biological scenario
-    sim.opts.bio.scen(sim.opts.bio.scen.rct())
+    sim.opts.bio.scen({
+      df = data.frame(
+        input$n.sims, input$hist.len, input$clvng.ints, input$clvng.p, 
+        input$tmp.emgn, input$alpha
+      )
+      names(df) = c(
+        "Number of studies", "Population history length", 
+        "Female time-order breeding", "Additional calving-capture probability", 
+        "Male absense probability", "Age of sexual maturity"
+      )
+      df
+    })
   })
   # ----
   
@@ -189,6 +187,7 @@ server <- function(input, output) {
   source("Tabs/1_sim_tab.R", local = T)
   source("Tabs/2_1_check_tab.R", local = T)
   source("Tabs/2_2_preds_and_errs.R", local = T)
+  source("Tabs/Check_sub_tabs/0_sim_feats.R", local = T)
   source("Tabs/Check_sub_tabs/1_first_study.R", local = T)
   source("Tabs/Check_sub_tabs/2_pops_and_UPs.R", local = T)
   source("Tabs/Check_sub_tabs/3_kin_pair_tabs.R", local = T)

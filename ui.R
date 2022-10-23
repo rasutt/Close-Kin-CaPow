@@ -107,10 +107,8 @@ ui <- fluidPage(
         # Outputs ---- 
         mainPanel(
           h2("Next simulation"),
-          h3("Parameter values"),
+          h3("Implied parameter values"),
           tableOutput(outputId = "nextParVals"),
-          h3("Simulation options"),
-          tableOutput(outputId = "nextSimOpts"),
           plotOutput(outputId = "nextExpPop")
         ),
         # ----
@@ -122,12 +120,12 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "pars.opts.tab",
-        # Parameters and options ----
+        selected = "sim.feat.tab",
+        # Simulation features ----
         tabPanel(
-          title = "Parameters and options",
-          value = "pars.opts.tab",
-          h2("Parameters and options"),
+          title = "Simulation features",
+          value = "sim.feat.tab",
+          h2("Simulation features"),
           p("Parameter values, simulation options, and biological scenario
             selected for simulation."),
           h3("Parameter values"),
