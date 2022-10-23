@@ -41,7 +41,10 @@ output$lastParVals <- renderTable({
 }, digits = 3)
 
 # Display last simulation values
-output$lastSimOpts = renderTable(sim.opts())
+output$lastSimOpts = renderTable(sim.opts.bio.scen()[1:2])
+
+# Display last simulation values
+output$lastBioScen = renderTable(sim.opts.bio.scen()[-(1:2)])
 
 # Function to plot expected population size over time
 plt.exp.N.t = function(sim.yrs, exp.N.t, base.yr, exp.N.base, srvy.yrs) {
@@ -76,7 +79,7 @@ output$nextParVals <- renderTable({
 }, digits = 3)
 
 # Display next simulation values
-output$nextSimOpts = renderTable(sim.opts.rct())
+output$nextSimOpts = renderTable(sim.opts.bio.scen.rct())
 
 # Plot expected population size over time
 output$nextExpPop <- renderPlot({

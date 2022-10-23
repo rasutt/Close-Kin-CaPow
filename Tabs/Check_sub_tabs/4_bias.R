@@ -14,7 +14,7 @@ output$percUnknPrnts = renderTable({
 ns.kps.pop.wtn.errs = reactive({
   arr = array(
     c(
-      ns.wtn.errs()[[1]], ns.APs.errs()[[1]], ns.POPs.errs()[[1]], 
+      N.errs()[[1]], ns.APs.errs()[[1]], ns.POPs.errs()[[1]], 
       ns.SMPs.errs()[[2]], ns.SFPs.errs()[[3]], ns.FSPs.errs()[[1]], 
       ns.HSPs.errs()[[1]]
     ), 

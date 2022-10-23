@@ -106,13 +106,6 @@ ui <- fluidPage(
         ),
         # Outputs ---- 
         mainPanel(
-          h2("Last simulation"),
-          h3("Parameter values"),
-          tableOutput(outputId = "lastParVals"),
-          h3("Simulation options"),
-          tableOutput(outputId = "lastSimOpts"),
-          plotOutput(outputId = "lastExpPop"),
-          
           h2("Next simulation"),
           h3("Parameter values"),
           tableOutput(outputId = "nextParVals"),
@@ -129,7 +122,21 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "bias.tab",
+        selected = "pars.opts.tab",
+        # Parameters and options ----
+        tabPanel(
+          title = "Parameters and options",
+          value = "pars.opts.tab",
+          h2("Parameters and options"),
+          p("Parameter values, simulation options, and biological scenario
+            selected for simulation."),
+          h3("Parameter values"),
+          tableOutput(outputId = "lastParVals"),
+          h3("Simulation options"),
+          tableOutput(outputId = "lastSimOpts"),
+          h3("Biological scenario"),
+          tableOutput(outputId = "lastBioScen")
+        ),
         # First study ----
         tabPanel(
           title = "First study",
@@ -170,14 +177,14 @@ ui <- fluidPage(
           plotOutput(outputId = "checkExpPop"),
           VBE.ui("N", "WtnPop")
         ),
-        # Survival ----
-        tabPanel(
-          title = "Survival",
-          value = "phi.tab",
-          TDVBE.ui(
-            "phi", "Survival rates", "Individual annual survival rates.", "All"
-          )
-        ),
+        # # Survival ----
+        # tabPanel(
+        #   title = "Survival",
+        #   value = "phi.tab",
+        #   TDVBE.ui(
+        #     "phi", "Survival rates", "Individual annual survival rates.", "All"
+        #   )
+        # ),
         # Unknown parents ----
         tabPanel(
           title = "Unknown parents",
@@ -349,6 +356,8 @@ ui <- fluidPage(
       tableOutput(outputId = "modParVals"),
       h3("Simulation options"),
       tableOutput(outputId = "modSimOpts"),
+      h3("Biological scenario"),
+      tableOutput(outputId = "modBioScen"),
       h3("Model fitting success rates"),
       tableOutput(outputId = "modStats"),
       h3("Estimates"),

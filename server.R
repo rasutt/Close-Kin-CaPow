@@ -55,8 +55,8 @@ server <- function(input, output) {
       rep(input$p, k.rct())
     )
   })
-  # Simulation options 
-  sim.opts.rct = reactive({
+  # Simulation options and biological scenario
+  sim.opts.bio.scen.rct = reactive({
     df = data.frame(
       input$n.sims, input$hist.len, input$clvng.ints, input$clvng.p, 
       input$tmp.emgn, input$alpha
@@ -103,7 +103,7 @@ server <- function(input, output) {
   par.names = reactiveVal(saved.objs$par.names)
   par.vals = reactiveVal(saved.objs$par.vals)
   est.par.names = reactiveVal(saved.objs$est.par.names)
-  sim.opts = reactiveVal(saved.objs$sim.opts)
+  sim.opts.bio.scen = reactiveVal(saved.objs$sim.opts.bio.scen)
   sim.lst = reactiveVal(saved.objs$sim.lst)
   checks.lst = reactiveVal(saved.objs$checks.lst)
   fit.lst = reactiveVal(saved.objs$fit.lst)
@@ -179,16 +179,16 @@ server <- function(input, output) {
     par.vals(par.vals.rct())
     # Estimate parameter names
     est.par.names(c("lambda", "phi", "N_final", "Ns", paste0("p", srvy.yrs())))
-    # Simulation options 
-    sim.opts(sim.opts.rct())
+    # Simulation options and biological scenario
+    sim.opts.bio.scen(sim.opts.bio.scen.rct())
   })
   # ----
   
   # Load functions, and outputs for simulating studies, checking
   # simulations, and analyzing model performance
   source("Tabs/1_sim_tab.R", local = T)
-  source("Tabs/2_check_tab.R", local = T)
-  source("Tabs/2_1_preds_and_errs.R", local = T)
+  source("Tabs/2_1_check_tab.R", local = T)
+  source("Tabs/2_2_preds_and_errs.R", local = T)
   source("Tabs/Check_sub_tabs/1_first_study.R", local = T)
   source("Tabs/Check_sub_tabs/2_pops_and_UPs.R", local = T)
   source("Tabs/Check_sub_tabs/3_kin_pair_tabs.R", local = T)

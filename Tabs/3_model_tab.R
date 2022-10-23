@@ -10,8 +10,11 @@ output$modParVals <- renderTable({
   par.vals.df(par.vals(), par.names())
 }, digits = 3)
 
-# Display simulation values
-output$modSimOpts = renderTable(sim.opts())
+# Display simulation options
+output$modSimOpts = renderTable(sim.opts.bio.scen()[1:2])
+
+# Display biological scenario
+output$modBioScen = renderTable(sim.opts.bio.scen()[-(1:2)])
 
 # Fit close-kin model
 fit.ck = reactive(if (input$close.kin) {
@@ -135,7 +138,8 @@ observeEvent(
     fit.lst(list(
       ests = list(popan = fit.ppn()$ests, close.kin = fit.ck()$ests)[mod.bool],
       ses = list(popan = fit.ppn()$ses, close.kin = fit.ck()$ses)[mod.bool],
-      cnvgs = list(popan = fit.ppn()$cnvgs, close.kin = fit.ck()$cnvgs)[mod.bool]
+      cnvgs = 
+        list(popan = fit.ppn()$cnvgs, close.kin = fit.ck()$cnvgs)[mod.bool]
     ))
   })
 

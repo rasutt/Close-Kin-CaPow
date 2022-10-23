@@ -34,7 +34,7 @@ output$downloadData <- downloadHandler(
       par.names = par.names(),
       par.vals = par.vals(),
       est.par.names = est.par.names(),
-      sim.opts= sim.opts(),
+      sim.opts.bio.scen = sim.opts.bio.scen(),
       sim.lst = sim.lst(),
       checks.lst = checks.lst(),
       fit.lst = fit.lst(),
@@ -89,7 +89,7 @@ observeEvent(input$file, {
   par.names(saved.objs$par.names)
   par.vals(saved.objs$par.vals)
   est.par.names(saved.objs$est.par.names)
-  sim.opts(saved.objs$sim.opts)
+  sim.opts.bio.scen(saved.objs$sim.opts.bio.scen)
   sim.lst(saved.objs$sim.lst)
   checks.lst(saved.objs$checks.lst)
   fit.lst(saved.objs$fit.lst)
