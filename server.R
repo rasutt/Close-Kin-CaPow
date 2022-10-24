@@ -57,15 +57,14 @@ server <- function(input, output) {
   })
   # Models to fit
   models = reactive(input$models) 
-  # ----
-  
+
   # Load saved objects ----
   load("Datasets/ckc_saved_objs.Rdata")
   phi = reactiveVal(saved.objs$phi)
   rho = reactiveVal(saved.objs$rho)
   lambda = reactiveVal(saved.objs$lambda)
-  base.yr = reactiveVal(saved.objs$base.yr)
   exp.N.base = reactiveVal(saved.objs$exp.N.base)
+  base.yr = reactiveVal(saved.objs$base.yr)
   srvy.yrs = reactiveVal(saved.objs$srvy.yrs)
   p = reactiveVal(saved.objs$p)
   clvng.ints = reactiveVal(saved.objs$clvng.ints)
@@ -114,10 +113,10 @@ server <- function(input, output) {
     rho(input$rho)
     # Population growth rate
     lambda(lambda.rct())
-    # Base year for expected population size
-    base.yr(input$base.yr)
     # Expected population size in base year
     exp.N.base(input$exp.N.base)
+    # Base year for expected population size
+    base.yr(input$base.yr)
     # Survey years
     srvy.yrs(srvy.yrs.rct())
     # Capture probability

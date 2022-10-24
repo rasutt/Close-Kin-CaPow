@@ -31,7 +31,7 @@ ui <- fluidPage(
   navbarPage(
     "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "sim.tab",
+    selected = "check.tab",
     # Sim tab ----
     tabPanel(
       title = "Simulate studies",
@@ -107,12 +107,12 @@ ui <- fluidPage(
         # Outputs ---- 
         mainPanel(
           h2("Next simulation features"),
-          p("Features of next simulation implied by currently selected 
-            inputs."),
+          p("Expected population size and parameter values of next simulation
+          implied by currently selected inputs."),
           h3("Expected population size"),
           plotOutput(outputId = "nextExpPop"),
           h3("Implied parameter values"),
-          tableOutput(outputId = "nextParVals")
+          tableOutput(outputId = "nextParsImpld")
         ),
         # ----
       )
@@ -128,11 +128,12 @@ ui <- fluidPage(
         tabPanel(
           title = "Simulation features",
           value = "sim.feat.tab",
-          h2("Simulation features"),
-          p("Parameter values, simulation options, and biological scenario
-            selected for simulation."),
-          h3("Parameter values"),
-          tableOutput(outputId = "lastParVals"),
+          h2("Last simulation features"),
+          p("Features of last simulation selected and implied."),
+          h3("Selected parameter values"),
+          tableOutput(outputId = "lastParsSltd"),
+          h3("Implied parameter values"),
+          tableOutput(outputId = "lastParsImpld"),
           h3("Simulation options"),
           tableOutput(outputId = "lastSimOpts"),
           h3("Biological scenario"),

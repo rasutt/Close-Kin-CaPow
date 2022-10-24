@@ -8,6 +8,15 @@ par.vals.df = function(par.vals, par.names, lng.nmbr.inds = 3:4) {
   par.df
 }
 
+# Function to format parameters implied by inputs for output
+frmt.pars.impld = function(lambda, exp.N.lst, exp.Ns) {
+  par.vals.df(
+    c(lambda, exp.N.lst, exp.Ns),
+    c("Population growth rate", "Expected final population size", 
+      "Expected superpopulation size"), 2:3
+  )
+}
+
 # Function to prepare proportion to print as percentage with 1 D.P.
 perc = function(prpn) paste0(round(prpn * 100, 1), "%")
 

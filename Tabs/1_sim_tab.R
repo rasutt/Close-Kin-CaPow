@@ -33,13 +33,10 @@ bindEvent(observe({
 }), input$simulate)
 
 # Display implied parameter values
-output$nextParVals <- renderTable({
-  par.vals.df(
-    c(lambda.rct(), exp.N.t.rct()[input$hist.len], exp.Ns.rct()),
-    c("Population growth rate", "Expected final population size", 
-      "Expected superpopulation size"), 2:3
-  )
-}, digits = 3)
+output$nextParsImpld <- renderTable(
+  frmt.pars.impld(lambda.rct(), exp.N.t.rct()[input$hist.len], exp.Ns.rct()), 
+  digits = 3
+)
 
 # Plot expected population size over time
 output$nextExpPop <- renderPlot({
