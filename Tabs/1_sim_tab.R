@@ -32,42 +32,30 @@ bindEvent(observe({
   sim.lst(list(hists.lst = hists.lst, N.fin.vec = N.fin.vec, Ns.vec = Ns.vec))
 }), input$simulate)
 
-# Function to plot expected population size over time
-plt.exp.N.t = function(sim.yrs, exp.N.t, base.yr, exp.N.base, srvy.yrs) {
+# Display implied parameter values
+output$nextParVals <- renderTable({
+  par.vals.df(
+    c(lambda.rct(), exp.N.t.rct()[input$hist.len], exp.Ns.rct()),
+    c("Population growth rate", "Expected final population size", 
+      "Expected superpopulation size"), 2:3
+  )
+}, digits = 3)
+
+# Plot expected population size over time
+output$nextExpPop <- renderPlot({
   plot(
-    sim.yrs, exp.N.t, 
+    sim.yrs.rct(), exp.N.t.rct(), 
     col = 'red', lwd = 2, type = 'l',
     xlab = 'Year', ylab = 'Population size', 
     main = "Expected population size over time"
   )
   # Base year
-  abline(v = base.yr, h = exp.N.base, col = 2)
+  abline(v = input$base.yr, h = input$exp.N.base, col = 2)
   # Surveys
-  abline(v = srvy.yrs, lty = 2)
+  abline(v = srvy.yrs.rct(), lty = 2)
   # Add legend
   legend(
     "topleft", legend = c("Over time", "In base year", "Survey years"),
     col = c(2, 2, 1), lwd = c(2, 1, 1), lty = c(1, 1, 2)
-  )
-}
-
-# Plot expected population size over time
-output$lastExpPop <- renderPlot({
-  plt.exp.N.t(sim.yrs(), exp.N.t(), base.yr(), exp.N.base(), srvy.yrs())
-})
-
-## Next simulation
-
-# Display selected parameter values
-output$nextParVals <- renderTable({
-  # Make data frame for display
-  par.vals.df(par.vals.rct(), par.names.rct())
-}, digits = 3)
-
-# Plot expected population size over time
-output$nextExpPop <- renderPlot({
-  plt.exp.N.t(
-    sim.yrs.rct(), exp.N.t.rct(), input$base.yr, input$exp.N.base, 
-    srvy.yrs.rct()
   )
 })

@@ -1,10 +1,10 @@
 # Functions for app outputs
 
 # Function to make data frame of parameter values for display
-par.vals.df = function(par.vals, par.names) {
+par.vals.df = function(par.vals, par.names, lg.nm.inds = 3:4) {
   par.df = data.frame(matrix(par.vals, nrow = 1))
   names(par.df) = par.names
-  par.df[, 3:4] = as.integer(par.df[, 3:4])
+  par.df[, lg.nm.inds] = as.integer(par.df[, lg.nm.inds])
   par.df
 }
 

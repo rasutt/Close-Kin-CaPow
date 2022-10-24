@@ -31,7 +31,7 @@ ui <- fluidPage(
   navbarPage(
     "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "check.tab",
+    selected = "sim.tab",
     # Sim tab ----
     tabPanel(
       title = "Simulate studies",
@@ -44,7 +44,7 @@ ui <- fluidPage(
             min_phi, max_phi, value = 0.95, step = step_phi
           ),
           sliderInput(
-            inputId = "rho", label = HTML("Birth rate (&rho;):"),
+            inputId = "rho", label = HTML("Per capita birth rate (&rho;):"),
             min_rho, max_rho, value = 0.08, step = step_rho
           ),
           sliderInput(
@@ -106,10 +106,13 @@ ui <- fluidPage(
         ),
         # Outputs ---- 
         mainPanel(
-          h2("Next simulation"),
+          h2("Next simulation features"),
+          p("Features of next simulation implied by currently selected 
+            inputs."),
+          h3("Expected population size"),
+          plotOutput(outputId = "nextExpPop"),
           h3("Implied parameter values"),
-          tableOutput(outputId = "nextParVals"),
-          plotOutput(outputId = "nextExpPop")
+          tableOutput(outputId = "nextParVals")
         ),
         # ----
       )
