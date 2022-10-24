@@ -1,14 +1,14 @@
 # Functions for app outputs
 
 # Function to make data frame of parameter values for display
-par.vals.df = function(par.vals, par.names, lg.nm.inds = 3:4) {
+par.vals.df = function(par.vals, par.names, lng.nmbr.inds = 3:4) {
   par.df = data.frame(matrix(par.vals, nrow = 1))
   names(par.df) = par.names
-  par.df[, lg.nm.inds] = as.integer(par.df[, lg.nm.inds])
+  par.df[, lng.nmbr.inds] = as.integer(par.df[, lng.nmbr.inds])
   par.df
 }
 
-# Function to prepare proportion to print as percentage
+# Function to prepare proportion to print as percentage with 1 D.P.
 perc = function(prpn) paste0(round(prpn * 100, 1), "%")
 
 # Function to find biases over all surveys from array of proportional errors for
