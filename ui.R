@@ -2,24 +2,31 @@
 library(shiny)
 
 # Function to make outputs for values, biases, and errors
-VBE.ui <- function(id, types) {
+VBE.ui <- function(id, types, descs) {
   ns <- NS(id)
   tagList(
-    h3("Values"),
-    lapply(paste0("vals", types), function(v.p) plotOutput(outputId = ns(v.p))),
-    h3("Biases"),
-    lapply(paste0("bss", types), function(b.t) tableOutput(outputId = ns(b.t))),
-    h3("Errors"),
-    lapply(paste0("errs", types), function(e.p) plotOutput(outputId = ns(e.p)))
+    lapply(1:length(types), function(i) {
+      type = types[i]
+      list(
+        h3(type),
+        p(descs[i]),
+        h4("Values"),
+        plotOutput(outputId = ns(paste0("vals", type))),
+        h4("Biases"),
+        tableOutput(outputId = ns(paste0("bss", type))),
+        h4("Errors"),
+        plotOutput(outputId = ns(paste0("errs", type)))
+      )
+    })
   )
 }
 
 # Function to make outputs for titles, descriptions, values, biases, and errors
-TDVBE.ui <- function(id, title, desc, types) {
+TDVBE.ui <- function(id, title, descs, types) {
   tagList(
     h2(title),
-    p(desc),
-    VBE.ui(id, types)
+    p(descs[1]),
+    VBE.ui(id, types, descs[-1])
   )
 }
 
@@ -111,7 +118,7 @@ ui <- fluidPage(
           implied by currently selected inputs."),
           h3("Expected population size"),
           plotOutput(outputId = "nextExpPop"),
-          h3("Implied parameter values"),
+          h3("Implied parameters"),
           tableOutput(outputId = "nextParsImpld")
         ),
         # ----
@@ -123,16 +130,16 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "sim.feat.tab",
+        selected = "N.tab",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
           value = "sim.feat.tab",
           h2("Last simulation features"),
           p("Features of last simulation selected and implied."),
-          h3("Selected parameter values"),
+          h3("Selected parameters"),
           tableOutput(outputId = "lastParsSltd"),
-          h3("Implied parameter values"),
+          h3("Implied parameters"),
           tableOutput(outputId = "lastParsImpld"),
           h3("Simulation options"),
           tableOutput(outputId = "lastSimOpts"),
@@ -174,10 +181,10 @@ ui <- fluidPage(
           title = "Population sizes",
           value = "N.tab",
           h2("Population sizes"),
-          p("Numbers of individuals that are alive in the population in each
-            year."),
+          p("Numbers of individuals that are alive in the population."),
+          h3("Whole simulation"),
           plotOutput(outputId = "checkExpPop"),
-          VBE.ui("N", "WtnPop")
+          VBE.ui("N", "In survey-years", "")
         ),
         # # Survival ----
         # tabPanel(
@@ -211,11 +218,14 @@ ui <- fluidPage(
           value = "APs.tab",
           TDVBE.ui(
             "APs", "All pairs", 
-            "Total numbers of pairs of individuals.  The first numbers represent
-            pairs in which both individuals are alive in the same survey-year,
-            and the second represent pairs where one is alive in each of two
-            different survey-years.", 
-            c("WtnPop", "BtnPop")
+            c(
+              "Total numbers of pairs of individuals.", 
+              "Pairs in which both individuals are alive in the same 
+              survey-year.", 
+              "Pairs in which one individual is alive in each of two different
+              survey-years."
+            ), 
+            c("Within survey-years", "Between two survey-years")
           )
         ),
         # Self-pairs ----

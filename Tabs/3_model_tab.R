@@ -6,9 +6,8 @@ mod.names = reactive(mod.choices[c(input$popan, input$close.kin)])
 n.mods = reactive(input$popan + input$close.kin)
 
 # Display parameter values
-output$modParVals <- renderTable({
-  par.vals.df(par.vals(), par.names())
-}, digits = 3)
+output$modParVals = 
+  renderTable(par.vals.df(par.vals(), par.names()), digits = 3)
 
 # Display simulation options
 output$modSimOpts = renderTable(sim.opts.bio.scen()[1:2])

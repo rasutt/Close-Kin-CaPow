@@ -5,17 +5,18 @@
 
 VPE.srvr(
   "N", reactive(list(N.s.yrs())), reactive(list(est.ns.kps.pop()$wtn[, 1])), 
-  N.errs, "WtnPop", "Population sizes"
+  N.errs, "In survey-years", "Population sizes"
 )
+# VPE.srvr(
+#   "phi", 
+#   reactive(list(matrix(
+#     avg.phi.obs(), ncol = 1, dimnames = list(NULL, "All times")
+#   ))), 
+#   phi, phi.errs, "All", "Survival rates"
+# )
 VPE.srvr(
-  "phi", 
-  reactive(list(matrix(
-    avg.phi.obs(), ncol = 1, dimnames = list(NULL, "All times")
-  ))), 
-  phi, phi.errs, "All", "Survival rates"
-)
-VPE.srvr(
-  "APs", ns.APs, ns.APs.preds, ns.APs.errs, c("WtnPop", "BtnPop"), "All pairs"
+  "APs", ns.APs, ns.APs.preds, ns.APs.errs, 
+  c("Within survey-years", "Between two survey-years"), "All pairs"
 )
 VPE.srvr(
   "SPs", ns.SPs, ns.SPs.preds, ns.SPs.errs, c("BtnPop", "PrntsKwn"), 
