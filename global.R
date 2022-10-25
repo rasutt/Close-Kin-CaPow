@@ -49,3 +49,8 @@ n.kp.tps.prb.wtn = length(kp.tps.prb.wtn)
 n.kp.tps.prb.btn = length(kp.tps.prb.btn)
 n.kp.tps.t = length(kp.tps.t)
 
+wtn_btn_descs = c(
+  "Pairs in which both individuals are alive in the same survey-year.", 
+  "Pairs in which one individual is alive in each of two different survey-years."
+)
+wtn_btn_headings = c("Within survey-years", "Between two survey-years")

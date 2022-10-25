@@ -22,11 +22,13 @@ VBE.ui <- function(id, types, descs) {
 }
 
 # Function to make outputs for titles, descriptions, values, biases, and errors
-TDVBE.ui <- function(id, title, descs, types) {
+TDVBE.ui <- function(
+  id, title, ttl_dsc, types = wtn_btn_headings, typ_dscs = wtn_btn_descs
+) {
   tagList(
     h2(title),
-    p(descs[1]),
-    VBE.ui(id, types, descs[-1])
+    p(ttl_dsc),
+    VBE.ui(id, types, typ_dscs)
   )
 }
 
@@ -216,17 +218,7 @@ ui <- fluidPage(
         tabPanel(
           title = "All pairs",
           value = "APs.tab",
-          TDVBE.ui(
-            "APs", "All pairs", 
-            c(
-              "Total numbers of pairs of individuals.", 
-              "Pairs in which both individuals are alive in the same 
-              survey-year.", 
-              "Pairs in which one individual is alive in each of two different
-              survey-years."
-            ), 
-            c("Within survey-years", "Between two survey-years")
-          )
+          TDVBE.ui("APs", "All pairs", "Total numbers of pairs of individuals.")
         ),
         # Self-pairs ----
         tabPanel(
@@ -234,11 +226,15 @@ ui <- fluidPage(
           value = "SPs.tab",
           TDVBE.ui(
             "SPs", "Self-pairs", 
-            "Numbers of pairs of individuals that are the same individual alive
-            in two different survey-years.  The first numbers represent all such
-            pairs, and the second represent only those with known parents, which
-            are used in counting sibling-pairs (see unknown parents tab).", 
-            c("BtnPop", "PrntsKwn")
+            "Numbers of pairs of individuals that are the same individual
+              alive in two different survey-years.",
+            c("All self-pairs", "Self-pairs with known parents"),
+            c(
+              "These include individuals with unknown parents (see unknown
+              parents tab)",
+              "These are excluded when counting sibling-pairs from different
+              survey-years (see unknown parents tab)."
+            )
           )
         ),
         # Parent-offspring pairs ----
@@ -247,11 +243,7 @@ ui <- fluidPage(
           value = "POPs.tab",
           TDVBE.ui(
             "POPs", "Parent-offspring pairs", 
-            "Numbers of pairs of individuals that are parent and offspring. 
-            The first numbers represent pairs in which both individuals are
-            alive in the same survey-year, and the second represent pairs where
-            one is alive in each of two different survey-years.",
-            c("WtnPop", "BtnPop")
+            "Numbers of pairs of individuals that are parent and offspring."
           )
         ),
         # Same-mother pairs ----
@@ -264,12 +256,8 @@ ui <- fluidPage(
           # one born in last."),
           TDVBE.ui(
             "SMPs", "Same-mother pairs", 
-            "Numbers of pairs of individuals with the same mother.  The first
-            numbers represent pairs in which both individuals are
-            alive in the same survey-year, and the second represent pairs where
-            one is alive in each of two different survey-years.",
+            "Numbers of pairs of individuals with the same mother."
             # c("AgeKnwn", "WtnPop", "BtnPop", "BtnAgeKnwnPop")
-            c("WtnPop", "BtnPop")
           )
         ),
         # Same-father pairs ----
@@ -281,12 +269,8 @@ ui <- fluidPage(
           # p("Numbers in the final year, both born in the year indicated."),
           TDVBE.ui(
             "SFPs", "Same-father pairs", 
-            "Numbers of pairs of individuals with the same father.  The first
-            numbers represent pairs in which both individuals are
-            alive in the same survey-year, and the second represent pairs where
-            one is alive in each of two different survey-years.",
+            "Numbers of pairs of individuals with the same father."
             # c("AgeKnwn", "SameAge", "WtnPop", "BtnPop")
-            c("WtnPop", "BtnPop")
           )
         ),
         # Full-sibling pairs ----
@@ -295,11 +279,7 @@ ui <- fluidPage(
           value = "FSPs.tab",
           TDVBE.ui(
             "FSPs", "Full-sibling pairs",
-            "Numbers of pairs of individuals with the same parents.  The first
-            numbers represent pairs in which both individuals are
-            alive in the same survey-year, and the second represent pairs where
-            one is alive in each of two different survey-years.",
-            c("WtnPop", "BtnPop")
+            "Numbers of pairs of individuals with the same parents."
           )
         ),
         # Half-sibling pairs ----
@@ -308,11 +288,7 @@ ui <- fluidPage(
           value = "HSPs.tab",
           TDVBE.ui(
             "HSPs", "Half-sibling pairs",
-            "Numbers of pairs of individuals that share exactly one parent.  The
-            first numbers represent pairs in which both individuals are
-            alive in the same survey-year, and the second represent pairs where
-            one is alive in each of two different survey-years.",
-            c("WtnPop", "BtnPop")
+            "Numbers of pairs of individuals that share exactly one parent."
           )
         ),
         # Biases ----
