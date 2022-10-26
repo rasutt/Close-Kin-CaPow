@@ -36,11 +36,11 @@ ns.POPs.preds = reactive(list(
   est.ns.kps.pop()$wtn[, "POPs"], est.ns.kps.pop()$btn[, "POPs"]
 ))
 ns.SMPs.preds = reactive(list(
-  est.ns.kps.t()[, "SMPs.kwn.age"],  est.ns.kps.pop()$wtn[, "SMPs"], 
-  est.ns.kps.pop()$btn[, "SMPs"], est.ns.kps.pop()$btn[, "SMPs.kwn.age"]
+  # est.ns.kps.t()[, "SMPs.kwn.age"], est.ns.kps.pop()$btn[, "SMPs.kwn.age"],  
+  est.ns.kps.pop()$wtn[, "SMPs"], est.ns.kps.pop()$btn[, "SMPs"]
 ))
 ns.SFPs.preds = reactive(list(
-  est.ns.kps.t()[, "SFPs.kwn.age"],  est.ns.kps.t()[, "SFPs.sm.age"], 
+  # est.ns.kps.t()[, "SFPs.kwn.age"],  est.ns.kps.t()[, "SFPs.sm.age"], 
   est.ns.kps.pop()$wtn[, "SFPs"], est.ns.kps.pop()$btn[, "SFPs"]
 ))
 ns.FSPs.preds = reactive(list(
@@ -62,7 +62,7 @@ phi.errs = reactive({
 ns.APs.errs = reactive(l.fnd.errs(ns.APs(), ns.APs.preds()))
 ns.SPs.errs = reactive(l.fnd.errs(ns.SPs(), ns.SPs.preds()))
 ns.POPs.errs = reactive(l.fnd.errs(ns.POPs(), ns.POPs.preds()))
-ns.SMPs.errs = reactive(l.fnd.errs(ns.SMPs.t(), ns.SMPs.preds()))
-ns.SFPs.errs = reactive(l.fnd.errs(ns.SFPs.t(), ns.SFPs.preds()))
+ns.SMPs.errs = reactive(l.fnd.errs(ns.SMPs(), ns.SMPs.preds()))
+ns.SFPs.errs = reactive(l.fnd.errs(ns.SFPs(), ns.SFPs.preds()))
 ns.FSPs.errs = reactive(l.fnd.errs(ns.FSPs(), ns.FSPs.preds()))
 ns.HSPs.errs = reactive(l.fnd.errs(ns.HSPs(), ns.HSPs.preds()))

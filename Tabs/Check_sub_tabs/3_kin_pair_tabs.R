@@ -1,11 +1,11 @@
 # Outputs for kin-pairs sub-tabs in checks tab
 
-## Output bias tables and box plots for values and prediction errors, can't be
-## done with lists as want to keep reactives separate
-
+# Bias tables and box plots for values and proportional errors, can't be done
+# with lists as want to keep reactives separate
 VPE.srvr(
-  "N", reactive(list(N.s.yrs())), reactive(list(est.ns.kps.pop()$wtn[, 1])), 
-  N.errs, "In survey-years", "Population sizes"
+  "N", "Population sizes", reactive(list(N.s.yrs())), 
+  reactive(list(est.ns.kps.pop()$wtn[, 1])), 
+  N.errs, "In survey-years"
 )
 # VPE.srvr(
 #   "phi", 
@@ -14,35 +14,14 @@ VPE.srvr(
 #   ))), 
 #   phi, phi.errs, "All", "Survival rates"
 # )
+VPE.srvr("APs", "All pairs", ns.APs, ns.APs.preds, ns.APs.errs)
 VPE.srvr(
-  "APs", ns.APs, ns.APs.preds, ns.APs.errs, wtn_btn_headings, "All pairs"
+  "SPs", "Self-pairs", ns.SPs, ns.SPs.preds, ns.SPs.errs, 
+  c("All self-pairs", "Self-pairs with known parents")
 )
-VPE.srvr(
-  "SPs", ns.SPs, ns.SPs.preds, ns.SPs.errs, 
-  c("All self-pairs", "Self-pairs with known parents"), "Self-pairs"
-)
-VPE.srvr(
-  "POPs", ns.POPs, ns.POPs.preds, ns.POPs.errs, wtn_btn_headings, 
-  "Parent-offspring pairs"
-)
-VPE.srvr(
-  "SMPs", ns.SMPs.t[2:3], ns.SMPs.preds[2:3], ns.SMPs.errs[2:3], 
-  wtn_btn_headings,
-  # c("AgeKnwn", "WtnPop", "BtnPop", "BtnAgeKnwnPop"), 
-  "Same-mother pairs"
-)
-VPE.srvr(
-  "SFPs", ns.SFPs.t[2:3], ns.SFPs.preds[2:3], ns.SFPs.errs[2:3], 
-  wtn_btn_headings,
-  # c("AgeKnwn", "SameAge", "WtnPop", "BtnPop"), 
-  "Same-father pairs"
-)
-VPE.srvr(
-  "FSPs", ns.FSPs, ns.FSPs.preds, ns.FSPs.errs, wtn_btn_headings, 
-  "Full-sibling pairs"
-)
-VPE.srvr(
-  "HSPs", ns.HSPs, ns.HSPs.preds, ns.HSPs.errs, wtn_btn_headings, 
-  "Half-sibling pairs"
-)
+VPE.srvr("POPs", "Parent-offspring pairs", ns.POPs, ns.POPs.preds, ns.POPs.errs)
+VPE.srvr("SMPs", "Same-mother pairs", ns.SMPs, ns.SMPs.preds, ns.SMPs.errs)
+VPE.srvr("SFPs", "Same-father pairs", ns.SFPs, ns.SFPs.preds, ns.SFPs.errs)
+VPE.srvr("FSPs", "Full-sibling pairs", ns.FSPs, ns.FSPs.preds, ns.FSPs.errs)
+VPE.srvr("HSPs", "Half-sibling pairs", ns.HSPs, ns.HSPs.preds, ns.HSPs.errs)
 

@@ -192,8 +192,9 @@ observeEvent({
       ))
     }
     if (
-      is.null(ns.SMPs.t()) &&
-      input$check.sub.tabs %in% c("SMPs.tab", "bias.tab")
+      # is.null(ns.SMPs.t()) &&
+      # input$check.sub.tabs %in% c("SMPs.tab", "bias.tab")
+      F
     ) {
       # Update reactive value
       ns.SMPs.t(list(
@@ -226,8 +227,9 @@ observeEvent({
       ))
     }
     if (
-      is.null(ns.SFPs.t()) &&
-      input$check.sub.tabs %in% c("SFPs.tab", "bias.tab") 
+      # is.null(ns.SFPs.t()) &&
+      # input$check.sub.tabs %in% c("SFPs.tab", "bias.tab") 
+      F
     ) {
       # Update reactive value
       ns.SFPs.t(list(

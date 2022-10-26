@@ -66,15 +66,15 @@ plot.errs = function(errs, var.name) {
 }
 
 # Function to create servers for values, biases, and errors modules
-VPE.srvr <- function(id, vals, preds, errs, types, var.name) {
+VPE.srvr <- function(id, title, vals, preds, errs, types = wtn_btn_headings) {
   moduleServer(id, function(input, output, session) {
     lapply(1:length(types), function(i) {
       output[[paste0("vals", types[i])]] = 
-        renderPlot(plot.vals(vals()[[i]], preds()[[i]], var.name))
+        renderPlot(plot.vals(vals()[[i]], preds()[[i]], title))
       output[[paste0("bss", types[i])]] = 
         renderTable(find.bias.srvy(errs()[[i]]))
       output[[paste0("errs", types[i])]] = 
-        renderPlot(plot.errs(errs()[[i]], var.name))
+        renderPlot(plot.errs(errs()[[i]], title))
     })
   })
 }
