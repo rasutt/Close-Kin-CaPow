@@ -49,8 +49,28 @@ n.kp.tps.prb.wtn = length(kp.tps.prb.wtn)
 n.kp.tps.prb.btn = length(kp.tps.prb.btn)
 n.kp.tps.t = length(kp.tps.t)
 
+# Descriptions and headings for kin-pairs within and between survey-years
 wtn_btn_descs = c(
   "Pairs in which both individuals are alive in the same survey-year.", 
   "Pairs in which one individual is alive in each of two different survey-years."
 )
 wtn_btn_headings = c("Within survey-years", "Between two survey-years")
+
+# Kin-pair names and descriptions
+kp.nms = c(
+  "Population sizes", "All pairs", "Self-pairs", "Parent-offspring pairs", 
+  "Same-mother pairs", "Same-father pairs", "Full-sibling pairs", 
+  "Half-sibling pairs"
+)
+names(kp.nms) = c("N", "APs", "SPs", "POPs", "SMPs", "SFPs", "FSPs", "HSPs")
+rglr.kp.dscs = c(
+  APs = "Total numbers of pairs of individuals.",
+  POPs = "Numbers of pairs of individuals that are parent and offspring.",
+  SMPs = "Numbers of pairs of individuals with the same mother.",
+  SFPs = "Numbers of pairs of individuals with the same father.",
+  FSPs = "Numbers of pairs of individuals with the same parents.",
+  HSPs = "Numbers of pairs of individuals that share exactly one parent."
+)
+
+# IDs for regular kin-pairs, those existing both within and between survey-years
+rglr.kp.ids = c("APs", "POPs", "SMPs", "SFPs", "FSPs", "HSPs")

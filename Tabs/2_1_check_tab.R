@@ -280,17 +280,19 @@ N.s.yrs = reactive({
 })
 
 # Total numbers of pairs within and between survey-years
-ns.APs = reactive(list(
-  wtn = choose(N.s.yrs(), 2),
-  
-  # If there is only one survey-pair apply returns a vector so we have to make
-  # it a matrix explicitly 
-  btn = matrix(
-    apply(N.s.yrs(), 1, combn, 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]),
-    ncol = n.srvy.prs(), byrow = T,
-    dimnames = list(NULL, Survey_pair = srvy.prs())
+ns.APs = reactive({
+  list(
+    wtn = choose(N.s.yrs(), 2),
+    
+    # If there is only one survey-pair apply returns a vector so we have to make
+    # it a matrix explicitly 
+    btn = matrix(
+      apply(N.s.yrs(), 1, combn, 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]),
+      ncol = n.srvy.prs(), byrow = T,
+      dimnames = list(NULL, Survey_pair = srvy.prs())
+    )
   )
-))
+})
 
 # Full and half-sibling pairs
 ns.FSPs = reactive(ns.SibPs()[1:2])

@@ -2,10 +2,10 @@
 
 # Show percentage of animals sampled for which the parents are unknown
 output$percUnknPrnts = renderTable({
-  df = data.frame(matrix(c(
-    perc(mean(pns.UPs()$pns.UPs.wtn)),
-    perc(mean(pns.UPs()$pns.UPs.btn))
-  ), nrow = 1))
+  df = data.frame(matrix(
+    c(perc(mean(pns.UPs()$pns.UPs.wtn)), perc(mean(pns.UPs()$pns.UPs.btn))), 
+    nrow = 1
+  ))
   names(df) = c("Survey-years", "Survey-year pairs")
   df
 })

@@ -4,31 +4,34 @@ library(shiny)
 # Function to make outputs for values, biases, and errors
 VBE.ui <- function(id, types, descs) {
   ns <- NS(id)
-  tagList(
-    lapply(1:length(types), function(i) {
-      type = types[i]
-      list(
-        h3(type),
-        p(descs[i]),
-        h4("Values"),
-        plotOutput(outputId = ns(paste0("vals", type))),
-        h4("Biases"),
-        tableOutput(outputId = ns(paste0("bss", type))),
-        h4("Errors"),
-        plotOutput(outputId = ns(paste0("errs", type)))
-      )
-    })
-  )
+  tagList(lapply(1:length(types), function(i) {
+    type = types[i]
+    list(
+      h3(type),
+      p(descs[i]),
+      h4("Values"),
+      plotOutput(outputId = ns(paste0("vals", type))),
+      h4("Biases"),
+      tableOutput(outputId = ns(paste0("bss", type))),
+      h4("Errors"),
+      plotOutput(outputId = ns(paste0("errs", type)))
+    )
+  }))
 }
 
 # Function to make outputs for titles, descriptions, values, biases, and errors
 TDVBE.ui <- function(
-  id, title, ttl_dsc, types = wtn_btn_headings, typ_dscs = wtn_btn_descs
+  id, ttl_dsc, types = wtn_btn_headings, typ_dscs = wtn_btn_descs
 ) {
-  tagList(
-    h2(title),
-    p(ttl_dsc),
-    VBE.ui(id, types, typ_dscs)
+  tagList(h2(kp.nms[id]), p(ttl_dsc), VBE.ui(id, types, typ_dscs))
+}
+
+# Function to make kin-pair tab-panel
+KP.tab.ui = function(id) {
+  tabPanel(
+    title = kp.nms[id],
+    value = paste0(id, ".tab"),
+    TDVBE.ui(id, rglr.kp.dscs[id])
   )
 }
 
@@ -188,14 +191,6 @@ ui <- fluidPage(
           plotOutput(outputId = "checkExpPop"),
           VBE.ui("N", "In survey-years", "")
         ),
-        # # Survival ----
-        # tabPanel(
-        #   title = "Survival",
-        #   value = "phi.tab",
-        #   TDVBE.ui(
-        #     "phi", "Survival rates", "Individual annual survival rates.", "All"
-        #   )
-        # ),
         # Unknown parents ----
         tabPanel(
           title = "Unknown parents",
@@ -215,17 +210,13 @@ ui <- fluidPage(
           tableOutput(outputId = "UPsBtn"),
         ),
         # All pairs ----
-        tabPanel(
-          title = "All pairs",
-          value = "APs.tab",
-          TDVBE.ui("APs", "All pairs", "Total numbers of pairs of individuals.")
-        ),
+        KP.tab.ui("APs"),
         # Self-pairs ----
         tabPanel(
           title = "Self-pairs",
           value = "SPs.tab",
           TDVBE.ui(
-            "SPs", "Self-pairs", 
+            "SPs", 
             "Numbers of pairs of individuals that are the same individual
               alive in two different survey-years.",
             c("All self-pairs", "Self-pairs with known parents"),
@@ -238,59 +229,15 @@ ui <- fluidPage(
           )
         ),
         # Parent-offspring pairs ----
-        tabPanel(
-          title = "Parent-offspring pairs",
-          value = "POPs.tab",
-          TDVBE.ui(
-            "POPs", "Parent-offspring pairs", 
-            "Numbers of pairs of individuals that are parent and offspring."
-          )
-        ),
+        KP.tab.ui("POPs"),
         # Same-mother pairs ----
-        tabPanel(
-          title = "Same-mother pairs",
-          value = "SMPs.tab",
-          # p("Numbers in the final year, with one born in
-          #   the year indicated, and one born in the final year."),
-          # p("Numbers between survey-years, one born five years before first, 
-          # one born in last."),
-          TDVBE.ui(
-            "SMPs", "Same-mother pairs", 
-            "Numbers of pairs of individuals with the same mother."
-            # c("AgeKnwn", "WtnPop", "BtnPop", "BtnAgeKnwnPop")
-          )
-        ),
+        KP.tab.ui("SMPs"),
         # Same-father pairs ----
-        tabPanel(
-          title = "Same-father pairs",
-          value = "SFPs.tab",
-          # p("Numbers in the final year, with one born in
-          #   the year indicated, and one born in the final year."),
-          # p("Numbers in the final year, both born in the year indicated."),
-          TDVBE.ui(
-            "SFPs", "Same-father pairs", 
-            "Numbers of pairs of individuals with the same father."
-            # c("AgeKnwn", "SameAge", "WtnPop", "BtnPop")
-          )
-        ),
+        KP.tab.ui("SFPs"),
         # Full-sibling pairs ----
-        tabPanel(
-          title = "Full-sibling pairs",
-          value = "FSPs.tab",
-          TDVBE.ui(
-            "FSPs", "Full-sibling pairs",
-            "Numbers of pairs of individuals with the same parents."
-          )
-        ),
+        KP.tab.ui("FSPs"),
         # Half-sibling pairs ----
-        tabPanel(
-          title = "Half-sibling pairs",
-          value = "HSPs.tab",
-          TDVBE.ui(
-            "HSPs", "Half-sibling pairs",
-            "Numbers of pairs of individuals that share exactly one parent."
-          )
-        ),
+        KP.tab.ui("HSPs"),
         # Biases ----
         tabPanel(
           title = "Overall biases",

@@ -27,28 +27,27 @@ l.fnd.errs = function(ns, preds) {
   lapply(1:length(ns), function(i) find.errs(ns[[i]], preds[[i]]))
 }
 
+# Function to combine predictions within and between survey-years
+comb.preds = function(id) {
+  reactive(list(est.ns.kps.pop()$wtn[, id], est.ns.kps.pop()$btn[, id]))
+}
+
 # Predictions, can't be done with lists as want to keep reactives separate
-ns.APs.preds = reactive({
-  list(est.ns.kps.pop()$wtn[, "APs"], est.ns.kps.pop()$btn[, "APs"])
-})
 ns.SPs.preds = reactive(rep(list(est.ns.kps.pop()$btn[, "SPs"]), 2))
-ns.POPs.preds = reactive(list(
-  est.ns.kps.pop()$wtn[, "POPs"], est.ns.kps.pop()$btn[, "POPs"]
-))
-ns.SMPs.preds = reactive(list(
-  # est.ns.kps.t()[, "SMPs.kwn.age"], est.ns.kps.pop()$btn[, "SMPs.kwn.age"],  
-  est.ns.kps.pop()$wtn[, "SMPs"], est.ns.kps.pop()$btn[, "SMPs"]
-))
-ns.SFPs.preds = reactive(list(
-  # est.ns.kps.t()[, "SFPs.kwn.age"],  est.ns.kps.t()[, "SFPs.sm.age"], 
-  est.ns.kps.pop()$wtn[, "SFPs"], est.ns.kps.pop()$btn[, "SFPs"]
-))
-ns.FSPs.preds = reactive(list(
-  est.ns.kps.pop()$wtn[, "FSPs"], est.ns.kps.pop()$btn[, "FSPs"]
-))
-ns.HSPs.preds = reactive(list(
-  est.ns.kps.pop()$wtn[, "HSPs"], est.ns.kps.pop()$btn[, "HSPs"]
-))
+preds.lst = reactive({
+  lst = lapply(rglr.kp.ids, function(kp.id) {
+    list(est.ns.kps.pop()$wtn[, kp.id], est.ns.kps.pop()$btn[, kp.id])
+  })
+  names(lst) = rglr.kp.ids
+  lst
+})
+# ns.APs.preds = comb.preds("APs")
+ns.APs.preds = reactive(preds.lst()[["APs"]])
+ns.POPs.preds = comb.preds("POPs")
+ns.SMPs.preds = comb.preds("SMPs")
+ns.SFPs.preds = comb.preds("SFPs")
+ns.FSPs.preds = comb.preds("FSPs")
+ns.HSPs.preds = comb.preds("HSPs")
 ns.SibPs.preds = reactive(c(ns.FSPs.preds, ns.HSPs.preds))
 
 # Errors, can't be done with lists as want to keep reactives separate
@@ -59,7 +58,7 @@ phi.errs = reactive({
     dimnames = list(NULL, "All times")
   ))
 })
-ns.APs.errs = reactive(l.fnd.errs(ns.APs(), ns.APs.preds()))
+ns.APs.errs = reactive(l.fnd.errs(ns.APs(), preds.lst()[["APs"]]))
 ns.SPs.errs = reactive(l.fnd.errs(ns.SPs(), ns.SPs.preds()))
 ns.POPs.errs = reactive(l.fnd.errs(ns.POPs(), ns.POPs.preds()))
 ns.SMPs.errs = reactive(l.fnd.errs(ns.SMPs(), ns.SMPs.preds()))
