@@ -10,14 +10,16 @@ output$percUnknPrnts = renderTable({
   df
 })
 
+# List of errors for all regular predictions
+rglr.errs.lst = reactive(list(
+  ns.APs.errs, ns.POPs.errs, ns.SMPs.errs, ns.SFPs.errs, ns.FSPs.errs, 
+  ns.HSPs.errs
+))
+
 # Combine/find errors for estimates in sets
 ns.kps.pop.wtn.errs = reactive({
   arr = array(
-    c(
-      N.errs()[[1]], ns.APs.errs()[[1]], ns.POPs.errs()[[1]], 
-      ns.SMPs.errs()[[1]], ns.SFPs.errs()[[1]], ns.FSPs.errs()[[1]], 
-      ns.HSPs.errs()[[1]]
-    ), 
+    c(N.errs()[[1]], sapply(rglr.errs.lst(), function(errs) errs()[[1]])), 
     dim = c(n.sims(), k(), n.kp.tps.pop.wtn),
     dimnames = list(NULL, Survey = srvy.yrs(), kp.type = kp.tps.pop.wtn)
   )
@@ -25,10 +27,8 @@ ns.kps.pop.wtn.errs = reactive({
 ns.kps.pop.btn.errs = reactive({
   arr = array(
     c(
-      ns.APs.errs()[[2]], ns.SPs.errs()[[1]], ns.SPs.errs()[[2]],
-      ns.POPs.errs()[[2]], 
-      ns.SMPs.errs()[[2]], ns.SFPs.errs()[[2]], ns.FSPs.errs()[[2]], 
-      ns.HSPs.errs()[[2]]
+      ns.SPs.errs()[[1]], ns.SPs.errs()[[2]],
+      sapply(rglr.errs.lst(), function(errs) errs()[[2]])
     ),
     dim = c(n.sims(), n.srvy.prs(), n.kp.tps.pop.btn),
     dimnames = list(NULL, Survey_pair = srvy.prs(), kp.type = kp.tps.pop.btn)

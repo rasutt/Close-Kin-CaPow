@@ -32,7 +32,7 @@ comb.preds = function(id) {
   reactive(list(est.ns.kps.pop()$wtn[, id], est.ns.kps.pop()$btn[, id]))
 }
 
-# Predictions, can't be done with lists as want to keep reactives separate
+# Predictions
 ns.SPs.preds = reactive(rep(list(est.ns.kps.pop()$btn[, "SPs"]), 2))
 preds.lst = reactive({
   lst = lapply(rglr.kp.ids, function(kp.id) {
@@ -41,14 +41,7 @@ preds.lst = reactive({
   names(lst) = rglr.kp.ids
   lst
 })
-# ns.APs.preds = comb.preds("APs")
-ns.APs.preds = reactive(preds.lst()[["APs"]])
-ns.POPs.preds = comb.preds("POPs")
-ns.SMPs.preds = comb.preds("SMPs")
-ns.SFPs.preds = comb.preds("SFPs")
-ns.FSPs.preds = comb.preds("FSPs")
-ns.HSPs.preds = comb.preds("HSPs")
-ns.SibPs.preds = reactive(c(ns.FSPs.preds, ns.HSPs.preds))
+ns.SibPs.preds = reactive(c(preds.lst()[["FSPs"]], preds.lst()[["HSPs"]]))
 
 # Errors, can't be done with lists as want to keep reactives separate
 N.errs = reactive(list(find.errs(N.s.yrs(), est.ns.kps.pop()$wtn[, 1])))
@@ -60,8 +53,8 @@ phi.errs = reactive({
 })
 ns.APs.errs = reactive(l.fnd.errs(ns.APs(), preds.lst()[["APs"]]))
 ns.SPs.errs = reactive(l.fnd.errs(ns.SPs(), ns.SPs.preds()))
-ns.POPs.errs = reactive(l.fnd.errs(ns.POPs(), ns.POPs.preds()))
-ns.SMPs.errs = reactive(l.fnd.errs(ns.SMPs(), ns.SMPs.preds()))
-ns.SFPs.errs = reactive(l.fnd.errs(ns.SFPs(), ns.SFPs.preds()))
-ns.FSPs.errs = reactive(l.fnd.errs(ns.FSPs(), ns.FSPs.preds()))
-ns.HSPs.errs = reactive(l.fnd.errs(ns.HSPs(), ns.HSPs.preds()))
+ns.POPs.errs = reactive(l.fnd.errs(ns.POPs(), preds.lst()[["POPs"]]))
+ns.SMPs.errs = reactive(l.fnd.errs(ns.SMPs(), preds.lst()[["SMPs"]]))
+ns.SFPs.errs = reactive(l.fnd.errs(ns.SFPs(), preds.lst()[["SFPs"]]))
+ns.FSPs.errs = reactive(l.fnd.errs(ns.FSPs(), preds.lst()[["FSPs"]]))
+ns.HSPs.errs = reactive(l.fnd.errs(ns.HSPs(), preds.lst()[["HSPs"]]))

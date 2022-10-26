@@ -65,7 +65,8 @@ plot.errs = function(errs, var.name) {
   )
 }
 
-# Function to create servers for values, biases, and errors modules
+# Functions to create servers for values, biases, and errors modules, in general
+# case, and for regular estimates within and between survey-years
 VPE.srvr <- function(id, vals, preds, errs, types = wtn_btn_headings) {
   moduleServer(id, function(input, output, session) {
     lapply(1:length(types), function(i) {
@@ -77,5 +78,8 @@ VPE.srvr <- function(id, vals, preds, errs, types = wtn_btn_headings) {
         renderPlot(plot.errs(errs()[[i]], kp.nms[id]))
     })
   })
+}
+VPE.srvr.rglr <- function(id, vals, preds.lst, errs, types = wtn_btn_headings) {
+  VPE.srvr(id, vals, reactive(preds.lst()[[id]]), errs, types)
 }
 
