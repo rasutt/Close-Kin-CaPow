@@ -140,16 +140,16 @@ ui <- fluidPage(
         tabPanel(
           title = "Simulation features",
           value = "sim.feat.tab",
-          h2("Last simulation features"),
-          p("Features of last simulation selected and implied."),
+          h2("Current simulation features"),
+          p("Features of current simulation, selected and implied."),
           h3("Selected parameters"),
-          tableOutput(outputId = "lastParsSltd"),
+          tableOutput(outputId = "currParsSltd"),
           h3("Implied parameters"),
-          tableOutput(outputId = "lastParsImpld"),
+          tableOutput(outputId = "currParsImpld"),
           h3("Simulation options"),
-          tableOutput(outputId = "lastSimOpts"),
+          tableOutput(outputId = "currSimOpts"),
           h3("Biological scenario"),
-          tableOutput(outputId = "lastBioScen")
+          tableOutput(outputId = "currBioScen")
         ),
         # First study ----
         tabPanel(
@@ -287,12 +287,6 @@ ui <- fluidPage(
       title = "Analyze model performance",
       value = "model.tab",
       h2("Analyze model performance"),
-      h3("Parameter values"),
-      tableOutput(outputId = "modParVals"),
-      h3("Simulation options"),
-      tableOutput(outputId = "modSimOpts"),
-      h3("Biological scenario"),
-      tableOutput(outputId = "modBioScen"),
       h3("Model fitting success rates"),
       tableOutput(outputId = "modStats"),
       h3("Estimates"),

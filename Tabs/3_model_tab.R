@@ -5,16 +5,6 @@ mod.names = reactive(mod.choices[c(input$popan, input$close.kin)])
 # Number of models requested
 n.mods = reactive(input$popan + input$close.kin)
 
-# Display parameter values
-output$modParVals = 
-  renderTable(par.vals.df(par.vals(), par.names()), digits = 3)
-
-# Display simulation options
-output$modSimOpts = renderTable(sim.opts.bio.scen()[1:2])
-
-# Display biological scenario
-output$modBioScen = renderTable(sim.opts.bio.scen()[-(1:2)])
-
 # Fit close-kin model
 fit.ck = reactive(if (input$close.kin) {
   # Create general optimizer starting-values and bounds, NAs filled in below

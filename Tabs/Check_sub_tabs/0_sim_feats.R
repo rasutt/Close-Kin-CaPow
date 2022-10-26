@@ -1,7 +1,7 @@
 # Outputs for simulation features sub-tab of check-tab
 
-# Display simulation parameter values
-output$lastParsSltd <- renderTable({
+# Display current simulation parameter values
+output$currParsSltd <- renderTable({
   # Make data frame for display
   par.vals.df(
     c(phi(), rho(), exp.N.base(), base.yr(), paste(srvy.yrs(), collapse = ", "), 
@@ -13,14 +13,14 @@ output$lastParsSltd <- renderTable({
   )
 }, digits = 3)
 
-# Display implied parameter values
-output$lastParsImpld <- renderTable(
+# Display current implied parameter values
+output$currParsImpld <- renderTable(
   frmt.pars.impld(lambda(), exp.N.t()[hist.len()], exp.Ns()), digits = 3
 )
 
-# Display last simulation values
-output$lastSimOpts = renderTable(sim.opts.bio.scen()[1:2])
+# Display current simulation values
+output$currSimOpts = renderTable(sim.opts.bio.scen()[1:2])
 
-# Display last simulation values
-output$lastBioScen = renderTable(sim.opts.bio.scen()[-(1:2)])
+# Display current simulation values
+output$currBioScen = renderTable(sim.opts.bio.scen()[-(1:2)])
 
