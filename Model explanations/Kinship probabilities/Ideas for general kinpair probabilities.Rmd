@@ -1,0 +1,203 @@
+---
+title: "Ideas for general kinpair probabilities"
+author: "Robin Aldridge-Sutton"
+date: "23/11/2019"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+```
+
+## Preliminaries
+
+It is easier to work in terms of birthyears, which are known from the ages of the animals at the times when they are sampled.  The kinpair probabilities that I derived this year avoided conditioning on age by partitioning over birthyears.  One nice consequence of not having to do this is that the expressions are the same regardless of whether or not the animals were sampled at the same time.
+
+Let:
+
+- $i$ and $j$, where $i \le j$, be the birthyears of two animals whose kinpair probabilities we want to derive,
+- $N_t$ be the population size at year $t$,
+- $\lambda = N_{t + 1} / N_{t}$ be the population growth rate, assumed to be constant for simplicity (depending on how the stochasticity is modelled this can be defined in terms of expected population sizes, but for simplicity I will leave it this way for now), and,
+- $\phi$ be the annual survival probability, assumed to be constant for simplicity.
+
+The population size at year $t - s$ is:
+
+$$ N_{t - s} = N_t / \lambda^s. $$
+
+## Self-pairs
+
+The animals can only be a self-pair if they have the same birthyear $i = j$. In that case the probability that one is the same as the other is one out of the number born in year $i$.
+
+The expected number of animals born in year $t$ is the number that were alive the year before multiplied by the population growth rate minus the annual survival probability:
+
+$$ E(B_t) = N_{t - 1} (\lambda - \phi) $$
+
+$$ = \frac{N_t}{\lambda} (\lambda - \phi). $$
+
+So the probability that the animals are a self-pair is:
+
+$$ SP_{i, j} = 
+  \begin{cases} 
+    0, & i \ne j, \\
+    \frac{1}{E(B_i)}, & i = j
+  \end{cases} $$
+
+$$ = 
+  \begin{cases} 
+    0, & i \ne j, \\
+    \frac{\lambda}{N_i (\lambda - \phi)} , & i = j.
+  \end{cases} $$
+
+
+## Parent-offspring pairs
+
+Two animals can only be a parent-offspring pair if one is already mature at the year before the other is born, so that $j - i > \alpha$, where $\alpha$ is the age of maturity for this species.  
+
+Then the probability that the older animal is a parent of the younger is the probability that it is the father plus the probability that it is the mother.  Each is the probability that it survives until the year the younger animal is conceived, divided by the number of mature animals of that gender at that year.  For simplicity I will ignore for now that the mother must also survive until the offspring is born, as I have in the simulation so far.  
+
+The probability of being female is 1/2.  
+
+The probability that an animal survives from year $t$ until year $s$ is:
+
+$$ P(S_{t, s}) = \phi^{s - t}. $$
+
+The expected number of mature animals at a year $t$ is the number that were alive at year $t - \alpha$ and survived until year $t$:
+
+$$ E(M_t) = N_{t - \alpha} P(S_{t - \alpha, t}) $$
+
+$$ = N_t \left( \frac{\phi}{\lambda} \right)^\alpha . $$
+
+Thus:
+
+$$ P(PO_{i, j}) = 
+\begin{cases}
+  0, & j - i \le \alpha, \\
+  2 \left\{ \frac{1}{2} P(S_{i, j - 1}) \frac{1}{E(M_{j - 1}) / 2} \right\}, & j - i > \alpha
+\end{cases} $$
+
+$$  = 
+\begin{cases}
+  0, & j - i \le \alpha, \\
+  2 \frac{\lambda \phi^{j - i - 1}}{N_j} \left( \frac{\lambda}{\phi} \right)^\alpha, &  j - i > \alpha.
+\end{cases} $$
+
+For simplicity I am also ignoring the regularity of breeding intervals for females for now.  
+
+
+## Half-sibling pairs
+
+For the animals to be a half-sibling pair one of the parents of the older animal must survive and be the corresponding parent the younger animal. When females only have one baby per year the probability is:
+
+$$ P(HSP_{i, j}) = 
+\begin{cases}
+  \frac{\lambda}{N_j / 2} \left( \frac{\lambda}{\phi} \right)^\alpha, & i = j, \\
+  2 \frac{\lambda \phi^{j - i}}{N_j / 2} \left( \frac{\lambda}{\phi} \right)^\alpha - \left\{ \frac{\lambda \phi^{j - i}}{N_j / 2} \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2, &  i \ne j
+\end{cases} $$
+
+$$ = 
+\begin{cases}
+  2 \frac{\lambda}{N_j} \left( \frac{\lambda}{\phi} \right)^\alpha, & i = j, \\
+  4 \frac{\lambda \phi^{j - i}}{N_j} \left( \frac{\lambda}{\phi} \right)^\alpha - 4 \left\{ \frac{\lambda \phi^{j - i}}{N_j} \left( \frac{\lambda}{\phi} \right)^\alpha \right\}^2, &  i \ne j.
+\end{cases} $$
+
+We add the probabilities for fathers and mothers and subtract the intersection, corresponding to full-sibling pairs, which we will treat as a case of multiple kinships in a later section.  We are assuming here that there is no preference towards monogamy for this species, which would increase the probability of full-sibling pairs.
+
+
+## Grand-pairs
+
+For two animals to be a grand-pair an offspring of the older must be a parent of the younger.  We can partition over the possible years, $k$, in which the intermediary may be born.  The possible years are...
+
+
+The probability of each is the proportion of the which are animals born over all of them which are born in each:
+
+$$ P(k) = \frac{E(B_k)}{\sum_l E(B_l)}. $$
+
+The probability is then:
+
+$$ P(GP_{i, j}) = \sum_{k; i + \alpha < k < j - \alpha} P(k) P(PO_{i, k}) P(PO_{k, j}). $$
+
+
+## Thiatic-pairs
+
+For two animals to be a thiatic pair a half-sibling of one must be the parent of the other.  Again we can partition over the possible years, $k$, in which the intermediary may be born, remembering that the relationship may go in either direction.  The possible years are...
+
+
+
+The probability is then:
+
+$$ P(TP_{i, j}) = \sum_{k; k < j - \alpha} P(k) P(HSP_{i, k}) P(PO_{k, j}) + 
+\sum_{k; k < i - \alpha} P(k) P(HSP_{j, k}) P(PO_{k, i}). $$
+
+
+## First-cousin-pairs
+
+For two animals to be first-cousins a parent of one must a half-sibling of a parent of the other.  It is tempting to construct this more simply in terms of a shared grandparent, but that would require determining that it is not through a shared parent, which we define instead as half-sibling-ship, and which seems more complicated.
+
+We have to partition over the possible years, $k$ and $l$, in which the relevant parents may be born.
+
+The probability is then:
+
+$$ P(FCP_{i, j}) = \sum_{k; k < i - \alpha} \left[ P(k) P(PO_{k, i}) \bigg\{ \sum_{k; l < j - \alpha} P(l) P(PO_{l, j}) P(HSP_{k, l}) \bigg\} \right]. $$
+
+
+## Expressions for all kinpairs
+
+We can describe kinships in terms of the numbers of "up" and "down" connections as in the following diagram:
+
+```{r, fig.align='center'}
+plot.new()
+plot.window(xlim = c(-6.75, 0.5), ylim = c(0, 3))
+grid(ny = 0)
+lines(-2:0, rep(0:1, len = 3), lty = 2, col = 'grey')
+lines(-4:-1, c(0:2, 1), lty = 2, col = 'grey')
+lines(-6:-2, c(0, 1, 2, 3, 2), lty = 2, col = 'grey')
+text(0, 0, "SP (0, 0)")
+text(-1, 1, "PO (1, 0)")
+text(-2, 0, "HSP (1, 1)")
+text(-2, 2, "GP (2, 0)")
+text(-3, 1, "TP (2, 1)")
+text(-3, 3, "GGP (3, 0)")
+text(-4, 0, "FCP (2, 2)")
+text(-4, 2, "GTP (3, 1)")
+text(-5, 1, "GFCP (3, 2)")
+text(-6, 0, "2CP (3, 3)")
+```
+
+
+
+
+For $n \ge 1$ and $G^nGP$ referring to the kinship with "great" prefixed $n$ times to "grand-pair":
+
+$$ P(G^n GP_{i, j}) = \sum_{k; i + \alpha < k < j - (n + 1) \alpha - n} P(k) P(PO_{i, k}) P(G^{n - 1}GP_{k, j}). $$
+
+$$ P(TP_{i, j}) = \sum_{k; k < j - \alpha} P(k) P(HSP_{i, k}) P(PO_{k, j}) + 
+\sum_{k; k < i - \alpha} P(k) P(HSP_{j, k}) P(PO_{k, i}). $$
+
+
+
+The diagram below shows that the same techniques can be used to derive expressions for great-grand-pairs in terms of grand and parent-offspring pairs, great-thiatic-pairs in terms of half-sibling and grand-pairs, great-first-cousin-pairs in terms of first-cousin and parent-offspring pairs, and second cousin pairs in terms of great-grand-pairs.
+
+In the same way probabilities for all other kinpairs can be derived.  We can either write a program that computes and stores the relevant probabilities in order from closer to more distant kinships, or try to derive closed form expressions (possibly utilising Wolfram-Alpha) which may then be faster to compute, especially when they involve open-ended series such as for thiatic and first-cousin pairs.
+
+
+
+
+
+
+## Multiple-kinship pairs
+
+The probability that a pair is related in more than one way depends on the particular kinships as well as the life history traits of the species of the animals.  For example self-pairs cannot be parent-offspring pairs.
+
+
+## Probabilies at equilibrium
+
+I want to try to recreate Hans's probability that your mother is alive being 1/2.  I don't think it follows from the expressions below, but maybe I can get it anyway.  Mainly I wanted to use it to verify them, but if I can recreate it sometime that would be cool too.
+
+$$ E(PO_{t_s}) = 2 E(N_{t_s}) \frac{\phi (\lambda - \phi)}{\lambda - \phi^2} $$
+
+$$ P\{PO_{t_s}(i, j) | \theta\} = \frac{4}{\big(E(N_{t_s}) - 1 \big)} \frac{\phi (\lambda - \phi)}{\lambda - \phi^2}. $$
+
+
+
