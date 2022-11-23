@@ -62,3 +62,16 @@ output$firstEstNsKPsWtnPop = renderTable({
 output$firstEstNsKPsBtnPop = renderTable({
   frmt.tbl(t(est.ns.kps.pop()$btn), kp.tps.pop.btn, srvy.prs())
 }, rownames = T)
+
+# Table of last genotype simulated and parents
+output$lastGT = renderTable({
+  hist = sim.lst()$hists.lst[[1]]
+  ID = length(attributes(hist)$ID)
+  mum = attributes(hist)$mum[ID]
+  dad = attributes(hist)$dad[ID]
+  frmt.tbl(
+    attributes(hist)$gt[, , c(ID, mum, dad)],
+    # attributes(hist)$gt[, , 1], 
+    paste0(c("m", "p"), "aternal allele"), paste0("L", 1:L())
+  )
+}, rownames = T)

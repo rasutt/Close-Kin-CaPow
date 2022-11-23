@@ -17,7 +17,7 @@ bindEvent(observe({
       # time
       hists.lst[[hist.ind]] <- SimPopStud(
         phi(), lambda(), N.init, hist.len(), srvy.yrs(), k(), fnl.year(), p(),
-        clvng.p(), tmp.emgn(), alpha(), clvng.ints()
+        L(), clvng.p(), tmp.emgn(), alpha(), clvng.ints()
       )
       # Collect final and super-population sizes
       N.fin.vec[hist.ind] <- tail(attributes(hists.lst[[hist.ind]])$N.t.vec, 1)

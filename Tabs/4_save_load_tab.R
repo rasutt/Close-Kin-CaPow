@@ -12,6 +12,7 @@ output$downloadData <- downloadHandler(
       exp.N.base = exp.N.base(),
       srvy.yrs = srvy.yrs(),
       p = p(),
+      L = L(),
       clvng.ints = clvng.ints(),
       clvng.p = clvng.p(),
       tmp.emgn = tmp.emgn(),
@@ -67,6 +68,7 @@ observeEvent(input$file, {
   exp.N.base(saved.objs$exp.N.base)
   srvy.yrs(saved.objs$srvy.yrs)
   p(saved.objs$p)
+  L(saved.objs$L)
   clvng.ints(saved.objs$clvng.ints)
   clvng.p(saved.objs$clvng.p)
   tmp.emgn(saved.objs$tmp.emgn)
