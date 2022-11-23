@@ -76,8 +76,45 @@ output$firstGTs = renderTable({
   df
 })
 
+first.plods = 
+  reactive(FindPlods(attributes(sim.lst()$hists.lst[[1]])$cap.gt, L()))
+
 # HSP vs UP PLODs for pairs of individuals captured
 output$firstPLODs = renderPlot({
-  FindPlods(attributes(sim.lst()$hists.lst[[1]])$cap.gt, L())
+  # Plot plods
+  hist(
+    first.plods()$plods, 
+    main = "HSP vs UP PLODs for all samples",
+    sub = paste(L(), "loci"),
+    xlab = "PLOD",
+    breaks = 200,
+  )
+  
+  # Plot expected values
+  abline(v = first.plods()$ev.up, col = 2)
+  
+  # Add legend
+  legend(
+    "topright", col = 1:7, lty = c(0, rep(1, 6)), cex = 0.75,
+    legend = c(
+      "Expected value given kinship", "Unrelated", "First cousin",
+      "Avuncular", "Half-sibling", "Parent-offspring", "Self"
+    )
+  )
+})
+
+# HSP vs UP PLODs for pairs of individuals captured - Rare values
+output$firstPLODsRare = renderPlot({
+  # Plot uncommon values
+  hist(
+    first.plods()$plods, 
+    main = "Uncommon values suggest likely close-kin",
+    xlab = "PLOD",
+    breaks = 200, 
+    ylim = c(0, 100)
+  )
+  
+  # Plot expected values
+  abline(v = first.plods()$evs, col = 2:7)
 })
 

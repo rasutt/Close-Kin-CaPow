@@ -192,7 +192,8 @@ ui <- fluidPage(
           h3("First few individuals captured"),
           tableOutput(outputId = "firstGTs"),
           h3("HSP vs UP PLODs for pairs of individuals captured"),
-          plotOutput(outputId = "firstPLODs")
+          plotOutput(outputId = "firstPLODs"),
+          plotOutput(outputId = "firstPLODsRare")
         ),
         # Populations ----
         tabPanel(

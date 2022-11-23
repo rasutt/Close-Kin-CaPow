@@ -4,13 +4,6 @@ FindPlods = function(cap.gt, L) {
   ale.freqs = apply(cap.gt, 2, mean)
   ale.freqs.mat = rbind(1 - ale.freqs, ale.freqs)
   
-  # # Transform to match genind object format
-  # cap.gt.cs = colSums(cap.gt)
-  # cap.gt.genind = matrix(nrow(cap.gt.cs), 2 * L)
-  # cap.gt.genind[, seq(1, L, 2)] = 2 - cap.gt.cs
-  # cap.gt.genind[, seq(2, L, 2)] = cap.gt.cs
-  # AF.mat.new = colMeans(cap.gt.genind) / 2
-  
   # Find possible genotypes at each locus
   gts = cbind(c(1, 1), 1:2, c(2, 2))
   n.gts = 3
@@ -176,39 +169,5 @@ FindPlods = function(cap.gt, L) {
   cat("Done \n")
   cat("Time taken:", proc.time()[3] - s.time, "seconds \n")
   
-  # Set two plots per page
-  par(mfrow = 1:2)
-  
-  # Plot plods
-  hist(
-    hsp.up.plods, 
-    main = "HSP vs UP PLODs for all samples",
-    sub = paste(L, "loci"),
-    xlab = "PLOD",
-    breaks = 200,
-  )
-  
-  # Plot expected values
-  abline(v = ev.up, col = 2)
-  
-  # Add legend
-  legend(
-    "topright", col = 1:7, lty = c(0, rep(1, 6)), cex = 0.75,
-    legend = c(
-      "Expected value given kinship", "Unrelated", "First cousin",
-      "Avuncular", "Half-sibling", "Parent-offspring", "Self"
-    )
-  )
-  
-  # Plot uncommon values
-  hist(
-    hsp.up.plods, 
-    main = "Uncommon values suggest likely close-kin",
-    xlab = "PLOD",
-    breaks = 200, 
-    ylim = c(0, 100)
-  )
-  
-  # Plot expected values
-  abline(v = evs, col = 2:7)
+  list(plods = hsp.up.plods, ev.up = ev.up, evs = evs)
 }
