@@ -66,12 +66,16 @@ output$firstEstNsKPsBtnPop = renderTable({
 # Table of last genotype simulated and parents
 output$lastGT = renderTable({
   hist = sim.lst()$hists.lst[[1]]
-  ID = length(attributes(hist)$ID)
-  mum = attributes(hist)$mum[ID]
-  dad = attributes(hist)$dad[ID]
+  offspring = length(attributes(hist)$ID)
+  mum = attributes(hist)$mum[offspring]
+  dad = attributes(hist)$dad[offspring]
+  gt = attributes(hist)$gt
   frmt.tbl(
-    attributes(hist)$gt[, , c(ID, mum, dad)],
-    # attributes(hist)$gt[, , 1], 
-    paste0(c("m", "p"), "aternal allele"), paste0("L", 1:L())
+    rbind(gt[, , offspring], gt[, , mum], gt[, , dad]),
+    paste0(
+      rep(c("Offspring", "Mother", "Father"), each = 2), c("_m", "_p"), 
+      "aternal allele"
+    ), 
+    paste0("L", 1:L())
   )
 }, rownames = T)

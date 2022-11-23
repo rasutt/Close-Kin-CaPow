@@ -30,7 +30,7 @@ SimPopStud <- function(
   alive <- rep(T, N.init)
   
   # Set initial genotypes
-  gt = array(runif(2 * L * N.init) > 0.5, c(2, L, N.init))
+  gt = array(as.integer(runif(2 * L * N.init) > 0.5), c(2, L, N.init))
   
   # Create vectors for population size and observed survival rates and enter
   # first value
@@ -121,21 +121,28 @@ SimPopStud <- function(
       t.lst.clf <- c(t.lst.clf, rep(NA, n.calves))
       alive <- c(alive, rep(T, n.calves))
       
-      # Add genotypes for calves
-      gt.clvs = array(F, c(2, L, n.calves))
+      # Add genotypes for calves. Arithmetic seems to be a tiny bit faster. Keep
+      # both versions to help with trying in pytorch. If change should also
+      # change type of initial genotypes.
       gt.slct = array(runif(2 * L * n.calves) > 0.5, c(2, L, n.calves))
-      gt.clvs[rbind(
-        (gt.slct[1, , ] & gt[1, , mums.new]) |
-          (!gt.slct[1, , ] & gt[2, , mums.new]),
-        (gt.slct[2, , ] * gt[1, , dads.new]) |
-          (!gt.slct[2, , ] * gt[2, , dads.new])
-      )] = T
-      # gt.clvs = rbind( 
-      #   gt.slct[1, , ] * gt[1, , mums.new] + 
-      #     !gt.slct[1, , ] * gt[2, , mums.new], 
-      #   gt.slct[2, , ] * gt[1, , dads.new] + 
-      #     !gt.slct[2, , ] * gt[2, , dads.new]
-      # )
+      # gt.clvs = array(F, c(2, L, n.calves))
+      # gt.clvs[aperm(array(
+      #   c(
+      #     (gt.slct[1, , ] & gt[1, , mums.new]) |
+      #       (!gt.slct[1, , ] & gt[2, , mums.new]),
+      #     (gt.slct[2, , ] & gt[1, , dads.new]) |
+      #       (!gt.slct[2, , ] & gt[2, , dads.new])
+      #   ), c(L, n.calves, 2)
+      # ), c(3, 1, 2))] = T
+      gt.clvs = aperm(array(
+        c(
+          gt.slct[1, , ] * gt[1, , mums.new] +
+            (!gt.slct[1, , ]) * gt[2, , mums.new],
+          gt.slct[2, , ] * gt[1, , dads.new] +
+            (!gt.slct[2, , ]) * gt[2, , dads.new]
+        ), c(L, n.calves, 2)
+      ), c(3, 1, 2))
+      
       gt = array(c(gt, gt.clvs), c(2, L, length(alive)))
       
     } # End of if there are calves

@@ -80,7 +80,7 @@ ui <- fluidPage(
           ),
           sliderInput(
             inputId = "L", label = "Number of SNP loci:",
-            0, 1000, value = 2, step = 1
+            0, 1000, value = 10, step = 10
           ),
           checkboxInput(
             inputId = "clvng.ints", 
