@@ -224,7 +224,7 @@ SimPopStud <- function(
   attributes(pop.hist)$mum <- mum
   attributes(pop.hist)$dad <- dad
   attributes(pop.hist)$ID <- ID
-  attributes(pop.hist)$gt <- gt
+  attributes(pop.hist)$cap.gt <- gt[, , rowSums(cap.hists) > 0]
   
   # Display runtime
   # cat("Final population size:", tail(N.t.vec, 1), "\n")

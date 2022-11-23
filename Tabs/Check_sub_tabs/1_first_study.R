@@ -63,19 +63,16 @@ output$firstEstNsKPsBtnPop = renderTable({
   frmt.tbl(t(est.ns.kps.pop()$btn), kp.tps.pop.btn, srvy.prs())
 }, rownames = T)
 
-# Table of last genotype simulated and parents
+# Table of genotypes of first few individuals captured (can show kin-pairs
+# later)
 output$lastGT = renderTable({
   hist = sim.lst()$hists.lst[[1]]
-  offspring = length(attributes(hist)$ID)
-  mum = attributes(hist)$mum[offspring]
-  dad = attributes(hist)$dad[offspring]
-  gt = attributes(hist)$gt
-  frmt.tbl(
-    rbind(gt[, , offspring], gt[, , mum], gt[, , dad]),
-    paste0(
-      rep(c("Offspring", "Mother", "Father"), each = 2), c("_m", "_p"), 
-      "aternal allele"
-    ), 
-    paste0("L", 1:L())
-  )
-}, rownames = T)
+  gt = attributes(hist)$cap.gt
+  df = data.frame(cbind(
+    rep(hist$ID[1:3], each = 2), 
+    rep(paste0(c("m", "p"), "aternal"), 3),
+    rbind(gt[, , 1], gt[, , 2], gt[, , 3])
+  ))
+  names(df) = c("ID", "Allele", paste0("L", 1:L()))
+  df
+})

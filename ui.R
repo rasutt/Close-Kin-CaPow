@@ -188,7 +188,7 @@ ui <- fluidPage(
           h4("Simulated"),
           tableOutput(outputId = "firstNsKPsBtnPop"),
           
-          h3("Last genotype from initial population, and its parents"),
+          h3("Genotypes of first few individuals captured"),
           tableOutput(outputId = "lastGT")
         ),
         # Populations ----
