@@ -188,8 +188,11 @@ ui <- fluidPage(
           h4("Simulated"),
           tableOutput(outputId = "firstNsKPsBtnPop"),
           
-          h3("Genotypes of first few individuals captured"),
-          tableOutput(outputId = "lastGT")
+          h3("Genotypes"),
+          h3("First few individuals captured"),
+          tableOutput(outputId = "firstGTs"),
+          h3("HSP vs UP PLODs for pairs of individuals captured"),
+          plotOutput(outputId = "firstPLODs")
         ),
         # Populations ----
         tabPanel(

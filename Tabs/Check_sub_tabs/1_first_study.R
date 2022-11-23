@@ -65,14 +65,19 @@ output$firstEstNsKPsBtnPop = renderTable({
 
 # Table of genotypes of first few individuals captured (can show kin-pairs
 # later)
-output$lastGT = renderTable({
-  hist = sim.lst()$hists.lst[[1]]
-  gt = attributes(hist)$cap.gt
+output$firstGTs = renderTable({
+  gt = attributes(sim.lst()$hists.lst[[1]])$cap.gt
   df = data.frame(cbind(
-    rep(hist$ID[1:3], each = 2), 
+    rep(sim.lst()$hists.lst[[1]]$ID[1:3], each = 2), 
     rep(paste0(c("m", "p"), "aternal"), 3),
     rbind(gt[, , 1], gt[, , 2], gt[, , 3])
   ))
   names(df) = c("ID", "Allele", paste0("L", 1:L()))
   df
 })
+
+# HSP vs UP PLODs for pairs of individuals captured
+output$firstPLODs = renderPlot({
+  FindPlods(attributes(sim.lst()$hists.lst[[1]])$cap.gt, L())
+})
+
