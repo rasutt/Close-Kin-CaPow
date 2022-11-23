@@ -1,5 +1,5 @@
 ---
-title: "Kinship probability for mother-offspring from close-kin mark-recapture (2016)"
+title: "Notes on mother-offspring probability from close-kin mark-recapture (2016)"
 output:
   bookdown::html_document2:
     toc: true
