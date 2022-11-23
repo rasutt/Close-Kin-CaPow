@@ -78,6 +78,10 @@ ui <- fluidPage(
             inputId = "p", label = "Base level capture probability:",
             0, 0.2, value = 0.1, step = 0.01
           ),
+          sliderInput(
+            inputId = "L", label = "Number of SNP loci:",
+            0, 1000, value = 2, step = 1
+          ),
           checkboxInput(
             inputId = "clvng.ints", 
             label = "Females breed in order of time since last breeding", 
@@ -135,7 +139,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "N.tab",
+        selected = "fst.tab",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
@@ -154,16 +158,18 @@ ui <- fluidPage(
         # First study ----
         tabPanel(
           title = "First study",
-          value = "fst.std.tab",
+          value = "fst.tab",
           h2("First study simulated"),
           p("Some data from the first population and sampling study
             simulated, as an example.  Note that individual simulations can be
             quite different from each other, but the average over many
             simulations should approach the expected values."),
+          
           h3("First sample-histories"),
           p("The data for the first few animals sampled
             in the study, by earliest birth year."),
           tableOutput(outputId = "firstSampHists"),
+          
           h3("Numbers of pairs within survey-years (whole population)"),
           p("Numbers of pairs of individuals with given relationships,
             where both are alive in the given survey-year.  Population
@@ -172,6 +178,7 @@ ui <- fluidPage(
           tableOutput(outputId = "firstEstNsKPsWtnPop"),
           h4("Simulated"),
           tableOutput(outputId = "firstNsKPsWtnPop"),
+          
           h3("Numbers of pairs between survey-years (whole population)"),
           p("Numbers of pairs of individuals with given relationships,
             where one individual is alive in each of the given pair of 
@@ -179,7 +186,10 @@ ui <- fluidPage(
           h4("Predicted"),
           tableOutput(outputId = "firstEstNsKPsBtnPop"),
           h4("Simulated"),
-          tableOutput(outputId = "firstNsKPsBtnPop")
+          tableOutput(outputId = "firstNsKPsBtnPop"),
+          
+          h3("Last genotype from initial population, and its parents"),
+          tableOutput(outputId = "lastGT")
         ),
         # Populations ----
         tabPanel(
@@ -190,6 +200,13 @@ ui <- fluidPage(
           h3("Whole simulation"),
           plotOutput(outputId = "checkExpPop"),
           VBE.ui("N", "In survey-years", "")
+        ),
+        # Genotypes ----
+        tabPanel(
+          title = "Genotypes",
+          value = "gt.tab",
+          h2("Genotypes"),
+          p("Genotypes simulated.")
         ),
         # Unknown parents ----
         tabPanel(

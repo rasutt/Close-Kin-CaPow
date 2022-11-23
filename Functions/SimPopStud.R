@@ -5,7 +5,7 @@
 # capture histories for captured animals, with parameters, implied birthrate
 # beta, and population trajectory N.t.vec attached.
 SimPopStud <- function(
-  phi, lambda, N.init, hist.len, srvy.yrs, k, f.year, p, clvng.p, tmp.emgn,
+  phi, lambda, N.init, hist.len, srvy.yrs, k, f.year, p, L, clvng.p, tmp.emgn,
   alpha, clvng.ints
 ) {
   # Record start-time
@@ -28,6 +28,9 @@ SimPopStud <- function(
   female <- rbinom(N.init, 1, 0.5)
   t.lst.clf <- rep(NA, N.init)
   alive <- rep(T, N.init)
+  
+  # Set initial genotypes
+  gt = array(runif(2 * L * N.init) > 0.5, c(2, L, N.init))
   
   # Create vectors for population size and observed survival rates and enter
   # first value
@@ -108,14 +111,32 @@ SimPopStud <- function(
       
       # If more than one possible father then choose randomly for each calf
       if (length(dads.poss) > 1) 
-        dad <- c(dad, sample(dads.poss, n.calves, replace = T))
-      else dad <- c(dad, rep(dads.poss, n.calves))
+        dads.new <- sample(dads.poss, n.calves, replace = T)
+      else dads.new <- rep(dads.poss, n.calves)
+      dad <- c(dad, dads.new)
       
       # Add data for calves
       b.year <- c(b.year, rep(t, n.calves))
       female <- c(female, rbinom(n.calves, 1, 0.5))
       t.lst.clf <- c(t.lst.clf, rep(NA, n.calves))
       alive <- c(alive, rep(T, n.calves))
+      
+      # Add genotypes for calves
+      gt.clvs = array(F, c(2, L, n.calves))
+      gt.slct = array(runif(2 * L * n.calves) > 0.5, c(2, L, n.calves))
+      gt.clvs[rbind(
+        (gt.slct[1, , ] & gt[1, , mums.new]) |
+          (!gt.slct[1, , ] & gt[2, , mums.new]),
+        (gt.slct[2, , ] * gt[1, , dads.new]) |
+          (!gt.slct[2, , ] * gt[2, , dads.new])
+      )] = T
+      # gt.clvs = rbind( 
+      #   gt.slct[1, , ] * gt[1, , mums.new] + 
+      #     !gt.slct[1, , ] * gt[2, , mums.new], 
+      #   gt.slct[2, , ] * gt[1, , dads.new] + 
+      #     !gt.slct[2, , ] * gt[2, , dads.new]
+      # )
+      gt = array(c(gt, gt.clvs), c(2, L, length(alive)))
       
     } # End of if there are calves
     
@@ -196,7 +217,8 @@ SimPopStud <- function(
   attributes(pop.hist)$mum <- mum
   attributes(pop.hist)$dad <- dad
   attributes(pop.hist)$ID <- ID
-
+  attributes(pop.hist)$gt <- gt
+  
   # Display runtime
   # cat("Final population size:", tail(N.t.vec, 1), "\n")
   # cat("Sim took", (proc.time() - s.time)["user.self"], "seconds \n")

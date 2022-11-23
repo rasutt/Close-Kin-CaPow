@@ -67,6 +67,7 @@ server <- function(input, output) {
   base.yr = reactiveVal(saved.objs$base.yr)
   srvy.yrs = reactiveVal(saved.objs$srvy.yrs)
   p = reactiveVal(saved.objs$p)
+  L = reactiveVal(saved.objs$L)
   clvng.ints = reactiveVal(saved.objs$clvng.ints)
   clvng.p = reactiveVal(saved.objs$clvng.p)
   tmp.emgn = reactiveVal(saved.objs$tmp.emgn)
@@ -121,6 +122,8 @@ server <- function(input, output) {
     srvy.yrs(srvy.yrs.rct())
     # Capture probability
     p(input$p)
+    # Number of SNP loci
+    L(input$L)
     # Calving intervals
     clvng.ints(input$clvng.ints)
     # Additional capture probability when calving
@@ -188,7 +191,7 @@ server <- function(input, output) {
   source("Tabs/2_2_preds_and_errs.R", local = T)
   source("Tabs/Check_sub_tabs/0_sim_feats.R", local = T)
   source("Tabs/Check_sub_tabs/1_first_study.R", local = T)
-  source("Tabs/Check_sub_tabs/2_pops_and_UPs.R", local = T)
+  source("Tabs/Check_sub_tabs/2_pops_gts_and_UPs.R", local = T)
   source("Tabs/Check_sub_tabs/3_kin_pair_tabs.R", local = T)
   source("Tabs/Check_sub_tabs/4_bias.R", local = T)
   source("Tabs/3_model_tab.R", local = T)
