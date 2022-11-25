@@ -96,9 +96,16 @@ smp.gts = reactive({
   ]
 })
 
-# Find allele frequencies over all samples
+# Find allele frequencies from genotypes in 2 x L x n_samples arrays,
+# representing two binary SNPs at each locus for each sample.  Frequencies are
+# returned as 2 x L matrices representing the frequencies of 0 and 1-coded SNP
+# alleles at each locus
 ale.frqs = reactive({
+  # Frequencies of 1-coded SNP alleles are means over both alleles at each locus
+  # for each sample
   ale.frqs.1 = apply(smp.gts(), 2, mean)
+  
+  # Combine with frequencies for 0-coded alleles
   rbind(1 - ale.frqs.1, ale.frqs.1)
 })
 
