@@ -1,22 +1,5 @@
 # Function to find PLODS for SNP genotypes.  Simplified from PLOD code for Emma.
-FindPlods = function(smp.gts, ale.frqs, L) {
-  # Find possible genotypes at each locus, representing 0 and 1-coded SNP
-  # alleles as 1 and 2 respectively, to index corresponding allele frequencies
-  pss.gts = cbind(c(1, 1), 1:2, c(2, 2))
-  n.pss.gts = 3
-  ales.1.inds = pss.gts[1, ]
-  ales.2.inds = pss.gts[2, ]
-  
-  # Find the three possible genotype probabilities at each locus as 3 x L
-  # matrix, by indexing 2 x L allele frequencies matrix for each allele of each
-  # possible genotype, and multiplying by 2 possible cases for heterozygous
-  # genotypes
-  pss.gt.prbs = matrix(
-    ale.frqs[ales.1.inds, ] * ale.frqs[ales.2.inds, ] * 
-      (1 + (ales.1.inds != ales.2.inds)), 
-    nrow = n.pss.gts, ncol = L
-  )
-  
+FindPlods = function(smp.gts, ale.frqs, pss.gt.prbs, L) {
   # Repeat possible genotype probabilities to form 3 x 3 x L array representing
   # possible second genotypes as columns in possible genopairs at each locus
   pss.gt.2.prbs = array(

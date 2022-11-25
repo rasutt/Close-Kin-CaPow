@@ -109,8 +109,20 @@ ale.frqs = reactive({
   rbind(1 - ale.frqs.1, ale.frqs.1)
 })
 
+# Find the three possible genotype probabilities at each locus as 3 x L matrix,
+# by indexing 2 x L allele frequencies matrix for each allele of each possible
+# genotype (globally defined for SNP genotypes), and multiplying by 2 possible
+# cases for heterozygous genotypes
+pss.gt.prbs = reactive({
+  matrix(
+    ale.frqs()[ales.1.inds, ] * ale.frqs()[ales.2.inds, ] * 
+      (1 + (ales.1.inds != ales.2.inds)), 
+    nrow = n.pss.gts, ncol = L()
+  )
+})
+
 # Find PLODs
-first.plods = reactive(FindPlods(smp.gts(), ale.frqs(), L()))
+first.plods = reactive(FindPlods(smp.gts(), ale.frqs(), pss.gt.prbs(), L()))
 
 # Plot PLODs
 output$firstPLODs = renderPlot({

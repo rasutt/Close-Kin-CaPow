@@ -74,3 +74,10 @@ rglr.kp.dscs = c(
 
 # IDs for regular kin-pairs, those existing both within and between survey-years
 rglr.kp.ids = c("APs", "POPs", "SMPs", "SFPs", "FSPs", "HSPs")
+
+# Set possible genotypes at each locus, representing 0 and 1-coded SNP
+# alleles as 1 and 2 respectively, to index corresponding allele frequencies
+pss.gts = cbind(c(1, 1), 1:2, c(2, 2))
+n.pss.gts = 3
+ales.1.inds = pss.gts[1, ]
+ales.2.inds = pss.gts[2, ]
