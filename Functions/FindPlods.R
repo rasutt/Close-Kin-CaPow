@@ -1,38 +1,45 @@
 # Function to find PLODS for SNP genotypes.  Simplified from PLOD code for Emma.
 FindPlods = function(smp.gts, ale.frqs, L) {
-  # Find possible genotypes at each locus
-  gts = cbind(c(1, 1), 1:2, c(2, 2))
-  n.gts = 3
-  ales.1 = gts[1, ]
-  ales.2 = gts[2, ]
+  # Find possible genotypes at each locus, representing 0 and 1-coded SNP
+  # alleles as 1 and 2 respectively, to index corresponding allele frequencies
+  pss.gts = cbind(c(1, 1), 1:2, c(2, 2))
+  n.pss.gts = 3
+  ales.1.inds = pss.gts[1, ]
+  ales.2.inds = pss.gts[2, ]
   
-  # Find possible genotype probabilities
-  gt.prbs.mat = matrix(
-    ale.frqs[ales.1, ] * ale.frqs[ales.2, ] * 
-      (1 + (ales.1 != ales.2)), 
-    nrow = n.gts, ncol = L
+  # Find the three possible genotype probabilities at each locus as 3 x L
+  # matrix, by indexing 2 x L allele frequencies matrix for each allele of each
+  # possible genotype, and multiplying by 2 possible cases for heterozygous
+  # genotypes
+  pss.gt.prbs = matrix(
+    ale.frqs[ales.1.inds, ] * ale.frqs[ales.2.inds, ] * 
+      (1 + (ales.1.inds != ales.2.inds)), 
+    nrow = n.pss.gts, ncol = L
   )
   
-  # Create array for half-sibling versus unrelated pair plods and add possible
-  # second genotype probabilities
-  gt.2.prbs.mat = array(
-    rep(gt.prbs.mat, each = n.gts), dim = c(n.gts, n.gts, L)
+  # Repeat possible genotype probabilities to form 3 x 3 x L array representing
+  # possible second genotypes as columns in possible genopairs at each locus
+  pss.gt.2.prbs = array(
+    rep(pss.gt.prbs, each = n.pss.gts), dim = c(n.pss.gts, n.pss.gts, L)
   )
-  hsp.up.plods.ary = gt.2.prbs.mat
+  
+  # Create array for possible half-sibling versus unrelated pair plods and add
+  # possible second genotype probabilities
+  hsp.up.plods.ary = pss.gt.2.prbs
   
   # Find possible genopairs
-  gts.1 = gts[, rep(1:n.gts, n.gts)]
-  gts.2 = gts[, rep(1:n.gts, each = n.gts)]
+  gts.1 = pss.gts[, rep(1:n.pss.gts, n.pss.gts)]
+  gts.2 = pss.gts[, rep(1:n.pss.gts, each = n.pss.gts)]
   
   # Find allele equalities among possible genopairs
   cis.eqs = gts.1 == gts.2
-  cis.eqs.1.mat = matrix(cis.eqs[1, ], nrow = n.gts)
-  cis.eqs.2.mat = matrix(cis.eqs[2, ], nrow = n.gts)
+  cis.eqs.1.mat = matrix(cis.eqs[1, ], nrow = n.pss.gts)
+  cis.eqs.2.mat = matrix(cis.eqs[2, ], nrow = n.pss.gts)
   
   trans.eqs.gts.2.htro = gts.1 == gts.2[c(2, 1), ] & 
     rep(gts.2[1, ] != gts.2[2, ], each = 2)
-  trans.eqs.gts.2.htro.1.mat = matrix(trans.eqs.gts.2.htro[1, ], nrow = n.gts)
-  trans.eqs.gts.2.htro.2.mat = matrix(trans.eqs.gts.2.htro[2, ], nrow = n.gts)
+  trans.eqs.gts.2.htro.1.mat = matrix(trans.eqs.gts.2.htro[1, ], nrow = n.pss.gts)
+  trans.eqs.gts.2.htro.2.mat = matrix(trans.eqs.gts.2.htro[2, ], nrow = n.pss.gts)
   
   # Add conditional probabilities of possible second genotypes, given
   # parent-offspring with first, to PLODs, when alleles shared
@@ -67,24 +74,24 @@ FindPlods = function(smp.gts, ale.frqs, L) {
   
   # Find conditional second genotype probabilities given parent-offspring with
   # first
-  cnd.gt.2.prbs.pop.ary = hsp.up.plods.ary - gt.2.prbs.mat
+  cnd.gt.2.prbs.pop.ary = hsp.up.plods.ary - pss.gt.2.prbs
   
   # Take logs of HSP vs UP pseudo likelihood ratios but skip dividing by 2 for
   # now
   hsp.up.plods.ary = log(hsp.up.plods.ary) - 
-    rep(log(gt.prbs.mat), each = n.gts)
+    rep(log(pss.gt.prbs), each = n.pss.gts)
   
   # Make array of first genotype probabilities
-  gt.1.prbs.mat = array(gt.prbs.mat[, rep(1:L, each = n.gts)], 
-                         dim = c(n.gts, n.gts, L))
+  gt.1.prbs.mat = array(pss.gt.prbs[, rep(1:L, each = n.pss.gts)], 
+                         dim = c(n.pss.gts, n.pss.gts, L))
   
   # Find expected values and combine in list
   ev.sp = sum(hsp.up.plods.ary[cbind(
-    rep(1:n.gts, L), rep(1:n.gts, L), rep(1:L, each = n.gts)
-  )] * gt.prbs.mat) / L - log(2)
+    rep(1:n.pss.gts, L), rep(1:n.pss.gts, L), rep(1:L, each = n.pss.gts)
+  )] * pss.gt.prbs) / L - log(2)
   ev.pop = 
     sum(gt.1.prbs.mat * cnd.gt.2.prbs.pop.ary * hsp.up.plods.ary) / L - log(2)
-  ev.up = sum(gt.1.prbs.mat * gt.2.prbs.mat * hsp.up.plods.ary) / L - log(2)
+  ev.up = sum(gt.1.prbs.mat * pss.gt.2.prbs * hsp.up.plods.ary) / L - log(2)
   ev.hsgpop = (ev.pop + ev.up) / 2
   ev.tcggpop = (ev.pop + 3 * ev.up) / 4
   ev.fcgtcgggpop = (ev.pop + 7 * ev.up) / 8
