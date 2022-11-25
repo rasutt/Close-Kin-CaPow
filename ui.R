@@ -37,17 +37,25 @@ KP.tab.ui = function(id) {
 
 # Define UI for app
 ui <- fluidPage(
-  # App title and description
-  includeMarkdown("README.md"),
+  # Padding so that navigation bar doesn't cover title
+  tags$style(type="text/css", "body {padding-top: 60px;}"),
   
+  # Navigation bar with tabs
   navbarPage(
-    "Close-kin CaPow!",
+    title = "Close-kin CaPow!",
     id = "nav.tab",
     selected = "check.tab",
+    position = "fixed-top",
+    
     # Sim tab ----
     tabPanel(
       title = "Simulate studies",
       value = "sim.tab",
+      
+      # App title and description
+      includeMarkdown("README.md"),
+      
+      # Side-bar layout separating inputs and outputs
       sidebarLayout(
         # Inputs ----
         sidebarPanel(
@@ -107,7 +115,7 @@ ui <- fluidPage(
           ),
           sliderInput(
             inputId = "n.sims", label = "Number of studies to simulate:",
-            0, 1000, value = 10, step = 10
+            1, 1000, value = 1
           ),
           actionButton(
             inputId = "simulate", label = "Simulate studies"

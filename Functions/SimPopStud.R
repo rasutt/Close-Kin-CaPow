@@ -30,7 +30,7 @@ SimPopStud <- function(
   alive <- rep(T, N.init)
   
   # Set initial genotypes
-  gt = array(as.integer(runif(2 * L * N.init) > 0.5), c(2, L, N.init))
+  gts = array(as.integer(runif(2 * L * N.init) > 0.5), c(2, L, N.init))
   
   # Create vectors for population size and observed survival rates and enter
   # first value
@@ -136,14 +136,14 @@ SimPopStud <- function(
       # ), c(3, 1, 2))] = T
       gt.clvs = aperm(array(
         c(
-          gt.slct[1, , ] * gt[1, , mums.new] +
-            (!gt.slct[1, , ]) * gt[2, , mums.new],
-          gt.slct[2, , ] * gt[1, , dads.new] +
-            (!gt.slct[2, , ]) * gt[2, , dads.new]
+          gt.slct[1, , ] * gts[1, , mums.new] +
+            (!gt.slct[1, , ]) * gts[2, , mums.new],
+          gt.slct[2, , ] * gts[1, , dads.new] +
+            (!gt.slct[2, , ]) * gts[2, , dads.new]
         ), c(L, n.calves, 2)
       ), c(3, 1, 2))
       
-      gt = array(c(gt, gt.clvs), c(2, L, length(alive)))
+      gts = array(c(gts, gt.clvs), c(2, L, length(alive)))
       
     } # End of if there are calves
     
@@ -224,7 +224,7 @@ SimPopStud <- function(
   attributes(pop.hist)$mum <- mum
   attributes(pop.hist)$dad <- dad
   attributes(pop.hist)$ID <- ID
-  attributes(pop.hist)$cap.gt <- gt[, , rowSums(cap.hists) > 0]
+  attributes(pop.hist)$unq.smp.gts <- gts[, , rowSums(cap.hists) > 0]
   
   # Display runtime
   # cat("Final population size:", tail(N.t.vec, 1), "\n")
