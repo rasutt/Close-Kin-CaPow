@@ -10,31 +10,32 @@ FindPlods = function(smp.gts, ale.frqs, pss.gt.prbs, L) {
   # possible second genotype probabilities
   hsp.up.plods.ary = pss.gt.2.prbs
   
-  # Find possible genopairs
-  gts.1 = pss.gts[, rep(1:n.pss.gts, n.pss.gts)]
-  gts.2 = pss.gts[, rep(1:n.pss.gts, each = n.pss.gts)]
-  
-  # Find allele equalities among possible genopairs
-  cis.eqs = gts.1 == gts.2
+  # Find allele equalities among possible genopairs as 3 x 3 matrices
+  # representing first alleles being equal, second alleles being equal, first
+  # alleles being equal to second alleles and second genotypes being
+  # heterozygous, and vice versa.
+  cis.eqs = pss.gts.1 == pss.gts.2
   cis.eqs.1.mat = matrix(cis.eqs[1, ], nrow = n.pss.gts)
   cis.eqs.2.mat = matrix(cis.eqs[2, ], nrow = n.pss.gts)
   
-  trans.eqs.gts.2.htro = gts.1 == gts.2[c(2, 1), ] & 
-    rep(gts.2[1, ] != gts.2[2, ], each = 2)
-  trans.eqs.gts.2.htro.1.mat = matrix(trans.eqs.gts.2.htro[1, ], nrow = n.pss.gts)
-  trans.eqs.gts.2.htro.2.mat = matrix(trans.eqs.gts.2.htro[2, ], nrow = n.pss.gts)
+  trans.eqs.gts.2.htro = pss.gts.1 == pss.gts.2[c(2, 1), ] & 
+    rep(pss.gts.2[1, ] != pss.gts.2[2, ], each = 2)
+  trans.eqs.gts.2.htro.1.mat = 
+    matrix(trans.eqs.gts.2.htro[1, ], nrow = n.pss.gts)
+  trans.eqs.gts.2.htro.2.mat = 
+    matrix(trans.eqs.gts.2.htro[2, ], nrow = n.pss.gts)
   
   # Add conditional probabilities of possible second genotypes, given
   # parent-offspring with first, to PLODs, when alleles shared
   hsp.up.plods.ary[rep(cis.eqs.1.mat, L)] = 
     hsp.up.plods.ary[rep(cis.eqs.1.mat, L)] + 0.5 *
     ale.frqs[
-      cbind(gts.2[2, cis.eqs[1, ]], rep(1:L, each = sum(cis.eqs.1.mat)))
+      cbind(pss.gts.2[2, cis.eqs[1, ]], rep(1:L, each = sum(cis.eqs.1.mat)))
     ]
   hsp.up.plods.ary[rep(cis.eqs.2.mat, L)] = 
     hsp.up.plods.ary[rep(cis.eqs.2.mat, L)] + 0.5 *
     ale.frqs[
-      cbind(gts.2[1, cis.eqs[2, ]], rep(1:L, each = sum(cis.eqs.2.mat)))
+      cbind(pss.gts.2[1, cis.eqs[2, ]], rep(1:L, each = sum(cis.eqs.2.mat)))
     ]
   
   # Don't add twice when second genotype homozygous
@@ -42,7 +43,7 @@ FindPlods = function(smp.gts, ale.frqs, pss.gt.prbs, L) {
     hsp.up.plods.ary[rep(trans.eqs.gts.2.htro.1.mat, L)] + 0.5 *
     ale.frqs[
       cbind(
-        gts.2[1, trans.eqs.gts.2.htro[1, ]], 
+        pss.gts.2[1, trans.eqs.gts.2.htro[1, ]], 
         rep(1:L, each = sum(trans.eqs.gts.2.htro.1.mat))
       )
     ]
@@ -50,7 +51,7 @@ FindPlods = function(smp.gts, ale.frqs, pss.gt.prbs, L) {
     hsp.up.plods.ary[rep(trans.eqs.gts.2.htro.2.mat, L)] + 0.5 *
     ale.frqs[
       cbind(
-        gts.2[2, trans.eqs.gts.2.htro[2, ]],
+        pss.gts.2[2, trans.eqs.gts.2.htro[2, ]],
         rep(1:L, each = sum(trans.eqs.gts.2.htro.2.mat))
       )
     ]
