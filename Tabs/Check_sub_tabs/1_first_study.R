@@ -121,8 +121,65 @@ pss.gt.prbs = reactive({
   )
 })
 
+# Find the possible probabilities for the first genotype in a genopair at each
+# locus as a 3 x 3 x L array, where rows represent the first genotypes, and
+# columns the second, ordered as 00, 01, and 11, for binary SNPs.  They are
+# found by indexing the 2 x L allele frequencies matrix for each allele of each
+# possible genotype (globally defined for SNP genotypes), and multiplying by 2
+# possible cases for heterozygous genotypes.  They are filled into a 3 x 1 x L
+# array which is indexed 3 times to fill the three columns.
+pss.gt.1.prbs = reactive({
+  array(
+    ale.frqs()[ales.1.inds, ] * ale.frqs()[ales.2.inds, ] * 
+      (1 + (ales.1.inds != ales.2.inds)), 
+    c(n.pss.gts, 1, L())
+  )[, rep(1, 3), ]
+})
+
+# Find the possible genopair probabilities at each locus, given that the pair
+# are unrelated, as a 3 x 3 x L array, for possible first and second genotypes
+# at each locus, ordered at 00, 01, and 11, for binary SNPs.  The probabilities
+# are just the products of the genotype probabilities.
+pss.gp.prbs.UP = reactive({
+  pss.gt.1.prbs() * aperm(pss.gt.1.prbs(), c(2, 1, 3))
+})
+
+# Find the possible conditional probabilities of the second genotype in a
+# genopair at each locus, given that the pair are parent and offspring
+# (unordered), as a 3 x 3 x L array, for possible first and second genotypes at
+# each locus, ordered at 00, 01, and 11, for binary SNPs.  The probabilities are
+# 0.5 for each allele in the first genotype being inherited, multiplied by the
+# probability of the second genotype in each case, as in table 3, pg. 269,
+# Bravingtion et al. (2016) Close-Kin Mark-Recapture. They are filled into an L x 3 x 3 array which is permuted to the more intuitive dimensions. 
+pss.cnd.gt.2.prbs.POP = reactive({
+  aperm(
+    array(
+      c(ale.frqs()[1, ], 0.5 * ale.frqs()[1, ], rep(0, L()), 
+        ale.frqs()[2, ], 0.5 * colSums(ale.frqs()), ale.frqs()[1, ],
+        rep(0, L()), 0.5 * ale.frqs()[2, ], ale.frqs()[2, ]),
+      c(L(), n.pss.gts, n.pss.gts)
+    ), 
+    c(2, 3, 1)
+  )
+})
+
+# Find the possible genopair probabilities at each locus, given that the pair
+# are parent and offspring (unordered), as a 3 x 3 x L array, for possible first
+# and second genotypes at each locus, ordered at 00, 01, and 11, for binary
+# SNPs.  The probabilities are the products of the first genotype probabilities
+# and the conditional probabilities of the second genotypes given that the pair
+# are parent and offspring.
+pss.gp.prbs.POP = reactive({
+  pss.gt.1.prbs() * pss.cnd.gt.2.prbs.POP()
+})
+
 # Find PLODs
-first.plods = reactive(FindPlods(smp.gts(), ale.frqs(), pss.gt.prbs(), L()))
+first.plods = reactive({
+  FindPlods(
+    smp.gts(), ale.frqs(), pss.gt.prbs(), L(), pss.gp.prbs.UP(),
+    pss.gp.prbs.POP()
+  )
+})
 
 # Plot PLODs
 output$firstPLODs = renderPlot({

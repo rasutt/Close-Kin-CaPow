@@ -1,5 +1,7 @@
 # Function to find PLODS for SNP genotypes.  Simplified from PLOD code for Emma.
-FindPlods = function(smp.gts, ale.frqs, pss.gt.prbs, L) {
+FindPlods = function(
+    smp.gts, ale.frqs, pss.gt.prbs, L, pss.gp.prbs.UP, pss.gp.prbs.POP
+) {
   # Repeat possible genotype probabilities to form 3 x 3 x L array representing
   # possible second genotypes as columns in possible genopairs at each locus
   pss.gt.2.prbs = array(
@@ -62,20 +64,27 @@ FindPlods = function(smp.gts, ale.frqs, pss.gt.prbs, L) {
   
   # Take logs of HSP vs UP pseudo likelihood ratios but skip dividing by 2 for
   # now
-  hsp.up.plods.ary = log(hsp.up.plods.ary) - 
-    rep(log(pss.gt.prbs), each = n.pss.gts)
+  # hsp.up.plods.ary = log(hsp.up.plods.ary) - 
+  #   rep(log(pss.gt.prbs), each = n.pss.gts)
+  # print("PLODs match?")
+  # print(
+  #   all(hsp.up.plods.ary - log(1 + pss.gp.prbs.POP / pss.gp.prbs.UP) < 1e-10)
+  # )
+  hsp.up.plods.ary = log(1 + pss.gp.prbs.POP / pss.gp.prbs.UP)
   
   # Make array of first genotype probabilities
-  gt.1.prbs.mat = array(pss.gt.prbs[, rep(1:L, each = n.pss.gts)], 
+  gt.1.prbs.ary = array(pss.gt.prbs[, rep(1:L, each = n.pss.gts)], 
                          dim = c(n.pss.gts, n.pss.gts, L))
+  print("GP probs given POPs match?")
+  print(all(gt.1.prbs.ary * cnd.gt.2.prbs.pop.ary - pss.gp.prbs.POP < 1e-10))
   
   # Find expected values and combine in list
   ev.sp = sum(hsp.up.plods.ary[cbind(
     rep(1:n.pss.gts, L), rep(1:n.pss.gts, L), rep(1:L, each = n.pss.gts)
   )] * pss.gt.prbs) / L - log(2)
   ev.pop = 
-    sum(gt.1.prbs.mat * cnd.gt.2.prbs.pop.ary * hsp.up.plods.ary) / L - log(2)
-  ev.up = sum(gt.1.prbs.mat * pss.gt.2.prbs * hsp.up.plods.ary) / L - log(2)
+    sum(gt.1.prbs.ary * cnd.gt.2.prbs.pop.ary * hsp.up.plods.ary) / L - log(2)
+  ev.up = sum(gt.1.prbs.ary * pss.gt.2.prbs * hsp.up.plods.ary) / L - log(2)
   ev.hsgpop = (ev.pop + ev.up) / 2
   ev.tcggpop = (ev.pop + 3 * ev.up) / 4
   ev.fcgtcgggpop = (ev.pop + 7 * ev.up) / 8
