@@ -2,7 +2,7 @@
 # one of a set of possible kinpairs.  Computes over batches of loci to limit
 # memory usage to ~1Gb.
 FindLogGPProbsKP = function(
-    smp.gts, L, pss.gp.prbs.POP, pss.gp.prbs.UP, pss.gp.prbs.SP
+    smp.gts, L, pss.gp.prbs.POP, pss.gp.prbs.UP, pss.gp.prbs.SP, wtn.bool
 ) {
   # Combine genopair probabilities as list
   pss.gp.prbs.KP = list(
@@ -16,9 +16,11 @@ FindLogGPProbsKP = function(
   # Find number of samples
   n.samps = dim(smp.gts)[3]
   
-  # Find all pairs of sample indices, and number of pairs of samples
-  samp.prs.inds = combn(n.samps, 2)
-  n.pairs = choose(n.samps, 2)
+  # Find all pairs of sample indices, and number of pairs of samples - only
+  # within-survey pairs for now
+  samp.prs.inds = combn(n.samps, 2)[, wtn.bool]
+  # n.pairs = choose(n.samps, 2)
+  n.pairs = sum(wtn.bool)
   
   # Transform smp.gts to genotype indices
   smp.gts.new = colSums(smp.gts) + 1

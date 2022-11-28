@@ -7,7 +7,8 @@ Type objective_function<Type>::operator() ()
 {
   // Declare data inputs
   DATA_MATRIX(gpprobs);
-  DATA_IVECTOR(sampyrinds);
+  DATA_IMATRIX(sampyrinds);
+  DATA_INTEGER(npairs);
   DATA_INTEGER(k);
   DATA_IVECTOR(srvygaps);
   DATA_INTEGER(fyear);
@@ -83,12 +84,12 @@ Type objective_function<Type>::operator() ()
   }
   
   // Loop over genopairs
-  for(int gpind = 0; gpind < gpprobs.size(); gpind++) {
+  for(int gpind = 0; gpind < npairs; gpind++) {
     // Add negative log likelihood from genopair probabilities given kinships
     // and kinship probabilities in terms of parameters.
     nll = nll - log(
-      prbPOPswtnvec(sampyrinds(gpind)) * gpprobs(gpind, 0) +
-        (Type(1.0) - prbPOPswtnvec(sampyrinds(gpind))) * gpprobs(gpind, 2)
+      prbPOPswtnvec(sampyrinds(gpind, 0)) * gpprobs(gpind, 0) +
+        (Type(1.0) - prbPOPswtnvec(sampyrinds(gpind, 0))) * gpprobs(gpind, 2)
     );
   }
   

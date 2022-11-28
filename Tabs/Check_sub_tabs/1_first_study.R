@@ -204,8 +204,15 @@ exp.plod.KP = reactive({
 # Find log genopair probabilities as n.pairs x n.kp.tps matrix with rows for
 # pairs of individuals, and columns for types of kinships considered
 lg.gp.prbs.KP = reactive({
+  # Indices of survey-years for each sample, starting at zero for C++ template
+  t.smp.hist = t(fst.std()[, 4:(3 + k())])
+  smp.yr.inds = row(t.smp.hist)[as.logical(t.smp.hist)] - 1
+  smp.yr.ind.prs = t(combn(smp.yr.inds, 2))
+  wtn.bool = smp.yr.ind.prs[, 1] == smp.yr.ind.prs[, 2]
+  
   FindLogGPProbsKP(
-    smp.gts(), L(), pss.gp.prbs.POP(), pss.gp.prbs.UP(), pss.gp.prbs.SP()
+    smp.gts(), L(), pss.gp.prbs.POP(), pss.gp.prbs.UP(), pss.gp.prbs.SP(),
+    wtn.bool
   )
 })
 
@@ -252,16 +259,17 @@ output$firstGPEsts = renderTable({
   # Indices of survey-years for each sample, starting at zero for C++ template
   t.smp.hist = t(fst.std()[, 4:(3 + k())])
   smp.yr.inds = row(t.smp.hist)[as.logical(t.smp.hist)] - 1
-  print(str(smp.yr.inds))
-  
+  smp.yr.ind.prs = t(combn(smp.yr.inds, 2))
+  wtn.bool = smp.yr.ind.prs[, 1] == smp.yr.ind.prs[, 2]
+
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), attributes(fst.std())$N.t.vec[hist.len()])
   ck.lwr <- c(0, 0.75, attributes(fst.std())$ns.caps[k()])
   ck.upr <- c(0.35, 1, Inf)
   
   gp.tmb = TryGenopairTMB(
-    exp(lg.gp.prbs.KP()), smp.yr.inds, k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-    ck.start, ck.lwr, ck.upr, alpha()
+    exp(lg.gp.prbs.KP()), smp.yr.ind.prs[wtn.bool, ], k(), 
+    srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr, alpha()
   )
   
   gp.tmb$est.se.df
