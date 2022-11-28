@@ -177,19 +177,26 @@ pss.gp.prbs.SP = reactive({
 
 # HSP vs UP pseudo log-likelihood ratios at each locus, calculated as on pg. 29
 # of Aldridge-Sutton (2019) New Methods ..., but subtracting log(2) later, after
-# summation, rather than now for each term separately
+# summation, rather than now for each term separately. 
 pss.plods.pls.lg.2 = reactive({
   log(1 + pss.gp.prbs.POP() / pss.gp.prbs.UP())
 })
 
-# Find expected values and combine in list
+# Expected values of PLODs given kinships
 exp.plod.KP = reactive({
+  # Unrelated, parent-offspring, and self-pairs
   exp.plod.base = sapply(
     list(pss.gp.prbs.UP(), pss.gp.prbs.POP(), pss.gp.prbs.SP()),
     function(gp.prbs) sum(gp.prbs * pss.plods.pls.lg.2()) / L()
   )
+  
+  # First-cousin, avuncular, and half-sibling pairs
   exp.plod.extd = 
     (c(7, 3, 1) * exp.plod.base[1] + exp.plod.base[2]) / c(8, 4, 2)
+  
+  # Combine in order from furthest to closest kinship, add names, and return.
+  # P(gts|HSP) = (P(gts|UP) + P(gts|POP)) / 2 at each locus, so subtracting
+  # log(2) * n.loci divided by n.loci.
   vec = c(exp.plod.base[1], exp.plod.extd, exp.plod.base[2:3]) - log(2)
   names(vec) = c(
     "Unrelated", "First cousin", "Avuncular", "Half-sibling",
@@ -198,18 +205,24 @@ exp.plod.KP = reactive({
   vec
 })
 
-# Find PLODs
-first.plods = reactive({
-  FindPlods(
-    smp.gts(), L(), pss.plods.pls.lg.2()
+# Find log genopair probabilities as n.pairs x n.kp.tps matrix with rows for
+# pairs of individuals, and columns for types of kinships considered
+lg.gp.prbs.KP = reactive({
+  FindLogGPProbsKP(
+    smp.gts(), L(), pss.gp.prbs.POP(), pss.gp.prbs.UP(), pss.gp.prbs.SP()
   )
+})
+
+# Find half-sibling vs unrelated pairs PLODs from log genopair probabilities
+first.plods = reactive({
+  (lg.gp.prbs.KP()[, 2] - lg.gp.prbs.KP()[, 1]) / L()
 })
 
 # Plot PLODs
 output$firstPLODs = renderPlot({
   # Plot plods
   hist(
-    first.plods()$plods, main = "HSP vs UP PLODs for all samples",
+    first.plods(), main = "HSP vs UP PLODs for all samples",
     sub = paste(L(), "loci"), xlab = "PLOD", breaks = 200,
   )
   
@@ -226,15 +239,12 @@ output$firstPLODs = renderPlot({
   )
 })
 
-# Plot rare values of PLODs
+# Plot PLODs and zoom in on rare values representing likely close-kin
 output$firstPLODsRare = renderPlot({
   # Plot uncommon values
   hist(
-    first.plods()$plods, 
-    main = "Uncommon values suggest likely close-kin",
-    xlab = "PLOD",
-    breaks = 200, 
-    ylim = c(0, 100)
+    first.plods(), main = "Uncommon values suggest likely close-kin",
+    xlab = "PLOD", breaks = 200, ylim = c(0, 100)
   )
   
   # Plot expected values
