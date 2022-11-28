@@ -109,25 +109,14 @@ ale.frqs = reactive({
   rbind(1 - ale.frqs.1, ale.frqs.1)
 })
 
-# Find the three possible genotype probabilities at each locus as 3 x L matrix,
-# by indexing 2 x L allele frequencies matrix for each allele of each possible
-# genotype (globally defined for SNP genotypes), and multiplying by 2 possible
-# cases for heterozygous genotypes
-pss.gt.prbs = reactive({
-  matrix(
-    ale.frqs()[ales.1.inds, ] * ale.frqs()[ales.2.inds, ] * 
-      (1 + (ales.1.inds != ales.2.inds)), 
-    nrow = n.pss.gts, ncol = L()
-  )
-})
+# Probabilities of possible genopairs at each locus as 3 x 3 x L arrays, where
+# rows represent the first genotypes, and columns the second, ordered as 00, 01,
+# and 11, for binary SNPs.
 
-# Find the possible probabilities for the first genotype in a genopair at each
-# locus as a 3 x 3 x L array, where rows represent the first genotypes, and
-# columns the second, ordered as 00, 01, and 11, for binary SNPs.  They are
-# found by indexing the 2 x L allele frequencies matrix for each allele of each
-# possible genotype (globally defined for SNP genotypes), and multiplying by 2
-# possible cases for heterozygous genotypes.  They are filled into a 3 x 1 x L
-# array which is indexed 3 times to fill the three columns.
+# First genotypes, found by indexing the 2 x L allele frequencies matrix for
+# each allele of each possible genotype (globally defined for SNP genotypes),
+# and multiplying by 2 possible cases for heterozygous genotypes.  Filled into a
+# 3 x 1 x L array which is indexed 3 times to fill the three columns.
 pss.gt.1.prbs = reactive({
   array(
     ale.frqs()[ales.1.inds, ] * ale.frqs()[ales.2.inds, ] * 
@@ -136,48 +125,83 @@ pss.gt.1.prbs = reactive({
   )[, rep(1, 3), ]
 })
 
-# Find the possible genopair probabilities at each locus, given that the pair
-# are unrelated, as a 3 x 3 x L array, for possible first and second genotypes
-# at each locus, ordered at 00, 01, and 11, for binary SNPs.  The probabilities
-# are just the products of the genotype probabilities.
+# Conditional probabilities given that the pair are unrelated, the products of
+# the respective genotype probabilities, the second found by permuting the array
+# containing the first.
 pss.gp.prbs.UP = reactive({
   pss.gt.1.prbs() * aperm(pss.gt.1.prbs(), c(2, 1, 3))
 })
 
-# Find the possible conditional probabilities of the second genotype in a
-# genopair at each locus, given that the pair are parent and offspring
-# (unordered), as a 3 x 3 x L array, for possible first and second genotypes at
-# each locus, ordered at 00, 01, and 11, for binary SNPs.  The probabilities are
-# 0.5 for each allele in the first genotype being inherited, multiplied by the
-# probability of the second genotype in each case, as in table 3, pg. 269,
-# Bravingtion et al. (2016) Close-Kin Mark-Recapture. They are filled into an L x 3 x 3 array which is permuted to the more intuitive dimensions. 
+# Conditional probabilities of second genotype given that the pair are parent
+# and offspring (unordered).  0.5 for each allele in first genotype being
+# inherited, multiplied by the probability of the second genotype in each case,
+# as in table 3, pg. 269, Bravingtion et al. (2016) Close-Kin Mark-Recapture.
+# Filled into an L x 3 x 3 array which is permuted to the standard dimensions.
 pss.cnd.gt.2.prbs.POP = reactive({
   aperm(
     array(
-      c(ale.frqs()[1, ], 0.5 * ale.frqs()[1, ], rep(0, L()), 
+      c(
+        ale.frqs()[1, ], 0.5 * ale.frqs()[1, ], rep(0, L()), 
         ale.frqs()[2, ], 0.5 * colSums(ale.frqs()), ale.frqs()[1, ],
-        rep(0, L()), 0.5 * ale.frqs()[2, ], ale.frqs()[2, ]),
+        rep(0, L()), 0.5 * ale.frqs()[2, ], ale.frqs()[2, ]
+      ),
       c(L(), n.pss.gts, n.pss.gts)
     ), 
     c(2, 3, 1)
   )
 })
 
-# Find the possible genopair probabilities at each locus, given that the pair
-# are parent and offspring (unordered), as a 3 x 3 x L array, for possible first
-# and second genotypes at each locus, ordered at 00, 01, and 11, for binary
-# SNPs.  The probabilities are the products of the first genotype probabilities
-# and the conditional probabilities of the second genotypes given that the pair
-# are parent and offspring.
+# Conditional probabilities given that the pair are parent and offspring
+# (unordered). Products of the first genotype probabilities and the conditional
+# probabilities of the second genotypes given that the pair are parent and
+# offspring.
 pss.gp.prbs.POP = reactive({
   pss.gt.1.prbs() * pss.cnd.gt.2.prbs.POP()
+})
+
+# Conditional probabilities given that the pair are the same individual sampled
+# twice. Genotype probabilities when the genotypes are the same, and zero
+# otherwise.
+pss.gp.prbs.SP = reactive({
+  aperm(
+    array(
+      cbind(
+        pss.gt.1.prbs()[1, 1, ], 0, 0, 0, pss.gt.1.prbs()[2, 2, ], 0, 0, 0, 
+        pss.gt.1.prbs()[3, 3, ]
+      ), 
+      c(L(), n.pss.gts, n.pss.gts)
+    ),
+    c(2, 3, 1)
+  )
+})
+
+# HSP vs UP pseudo log-likelihood ratios at each locus, calculated as on pg. 29
+# of Aldridge-Sutton (2019) New Methods ..., but subtracting log(2) later, after
+# summation, rather than now for each term separately
+pss.plods.pls.lg.2 = reactive({
+  log(1 + pss.gp.prbs.POP() / pss.gp.prbs.UP())
+})
+
+# Find expected values and combine in list
+exp.plod.KP = reactive({
+  exp.plod.base = sapply(
+    list(pss.gp.prbs.UP(), pss.gp.prbs.POP(), pss.gp.prbs.SP()),
+    function(gp.prbs) sum(gp.prbs * pss.plods.pls.lg.2()) / L()
+  )
+  exp.plod.extd = 
+    (c(7, 3, 1) * exp.plod.base[1] + exp.plod.base[2]) / c(8, 4, 2)
+  vec = c(exp.plod.base[1], exp.plod.extd, exp.plod.base[2:3]) - log(2)
+  names(vec) = c(
+    "Unrelated", "First cousin", "Avuncular", "Half-sibling",
+    "Parent-offspring", "Self"
+  )
+  vec
 })
 
 # Find PLODs
 first.plods = reactive({
   FindPlods(
-    smp.gts(), ale.frqs(), pss.gt.prbs(), L(), pss.gp.prbs.UP(),
-    pss.gp.prbs.POP()
+    smp.gts(), L(), pss.plods.pls.lg.2()
   )
 })
 
@@ -185,15 +209,12 @@ first.plods = reactive({
 output$firstPLODs = renderPlot({
   # Plot plods
   hist(
-    first.plods()$plods, 
-    main = "HSP vs UP PLODs for all samples",
-    sub = paste(L(), "loci"),
-    xlab = "PLOD",
-    breaks = 200,
+    first.plods()$plods, main = "HSP vs UP PLODs for all samples",
+    sub = paste(L(), "loci"), xlab = "PLOD", breaks = 200,
   )
   
   # Plot expected values
-  abline(v = first.plods()$ev.up, col = 2, lwd = 2)
+  abline(v = exp.plod.KP()[1], col = 2, lwd = 2)
   
   # Add legend
   legend(
@@ -217,6 +238,6 @@ output$firstPLODsRare = renderPlot({
   )
   
   # Plot expected values
-  abline(v = first.plods()$evs, col = 2:7, lwd = 2)
+  abline(v = exp.plod.KP(), col = 2:7, lwd = 2)
 })
 

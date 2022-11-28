@@ -1,97 +1,7 @@
 # Function to find PLODS for SNP genotypes.  Simplified from PLOD code for Emma.
 FindPlods = function(
-    smp.gts, ale.frqs, pss.gt.prbs, L, pss.gp.prbs.UP, pss.gp.prbs.POP
+    smp.gts, L, pss.plods.pls.lg.2
 ) {
-  # Repeat possible genotype probabilities to form 3 x 3 x L array representing
-  # possible second genotypes as columns in possible genopairs at each locus
-  pss.gt.2.prbs = array(
-    rep(pss.gt.prbs, each = n.pss.gts), dim = c(n.pss.gts, n.pss.gts, L)
-  )
-  
-  # Create array for possible half-sibling versus unrelated pair plods and add
-  # possible second genotype probabilities
-  hsp.up.plods.ary = pss.gt.2.prbs
-  
-  # Find allele equalities among possible genopairs as 3 x 3 matrices
-  # representing first alleles being equal, second alleles being equal, first
-  # alleles being equal to second alleles and second genotypes being
-  # heterozygous, and vice versa.
-  cis.eqs = pss.gts.1 == pss.gts.2
-  cis.eqs.1.mat = matrix(cis.eqs[1, ], nrow = n.pss.gts)
-  cis.eqs.2.mat = matrix(cis.eqs[2, ], nrow = n.pss.gts)
-  
-  trans.eqs.gts.2.htro = pss.gts.1 == pss.gts.2[c(2, 1), ] & 
-    rep(pss.gts.2[1, ] != pss.gts.2[2, ], each = 2)
-  trans.eqs.gts.2.htro.1.mat = 
-    matrix(trans.eqs.gts.2.htro[1, ], nrow = n.pss.gts)
-  trans.eqs.gts.2.htro.2.mat = 
-    matrix(trans.eqs.gts.2.htro[2, ], nrow = n.pss.gts)
-  
-  # Add conditional probabilities of possible second genotypes, given
-  # parent-offspring with first, to PLODs, when alleles shared
-  hsp.up.plods.ary[rep(cis.eqs.1.mat, L)] = 
-    hsp.up.plods.ary[rep(cis.eqs.1.mat, L)] + 0.5 *
-    ale.frqs[
-      cbind(pss.gts.2[2, cis.eqs[1, ]], rep(1:L, each = sum(cis.eqs.1.mat)))
-    ]
-  hsp.up.plods.ary[rep(cis.eqs.2.mat, L)] = 
-    hsp.up.plods.ary[rep(cis.eqs.2.mat, L)] + 0.5 *
-    ale.frqs[
-      cbind(pss.gts.2[1, cis.eqs[2, ]], rep(1:L, each = sum(cis.eqs.2.mat)))
-    ]
-  
-  # Don't add twice when second genotype homozygous
-  hsp.up.plods.ary[rep(trans.eqs.gts.2.htro.1.mat, L)] = 
-    hsp.up.plods.ary[rep(trans.eqs.gts.2.htro.1.mat, L)] + 0.5 *
-    ale.frqs[
-      cbind(
-        pss.gts.2[1, trans.eqs.gts.2.htro[1, ]], 
-        rep(1:L, each = sum(trans.eqs.gts.2.htro.1.mat))
-      )
-    ]
-  hsp.up.plods.ary[rep(trans.eqs.gts.2.htro.2.mat, L)] = 
-    hsp.up.plods.ary[rep(trans.eqs.gts.2.htro.2.mat, L)] + 0.5 *
-    ale.frqs[
-      cbind(
-        pss.gts.2[2, trans.eqs.gts.2.htro[2, ]],
-        rep(1:L, each = sum(trans.eqs.gts.2.htro.2.mat))
-      )
-    ]
-  
-  # Find conditional second genotype probabilities given parent-offspring with
-  # first
-  cnd.gt.2.prbs.pop.ary = hsp.up.plods.ary - pss.gt.2.prbs
-  
-  # Take logs of HSP vs UP pseudo likelihood ratios but skip dividing by 2 for
-  # now
-  # hsp.up.plods.ary = log(hsp.up.plods.ary) - 
-  #   rep(log(pss.gt.prbs), each = n.pss.gts)
-  # print("PLODs match?")
-  # print(
-  #   all(hsp.up.plods.ary - log(1 + pss.gp.prbs.POP / pss.gp.prbs.UP) < 1e-10)
-  # )
-  hsp.up.plods.ary = log(1 + pss.gp.prbs.POP / pss.gp.prbs.UP)
-  
-  # Make array of first genotype probabilities
-  gt.1.prbs.ary = array(pss.gt.prbs[, rep(1:L, each = n.pss.gts)], 
-                         dim = c(n.pss.gts, n.pss.gts, L))
-  print("GP probs given POPs match?")
-  print(all(gt.1.prbs.ary * cnd.gt.2.prbs.pop.ary - pss.gp.prbs.POP < 1e-10))
-  
-  # Find expected values and combine in list
-  ev.sp = sum(hsp.up.plods.ary[cbind(
-    rep(1:n.pss.gts, L), rep(1:n.pss.gts, L), rep(1:L, each = n.pss.gts)
-  )] * pss.gt.prbs) / L - log(2)
-  ev.pop = 
-    sum(gt.1.prbs.ary * cnd.gt.2.prbs.pop.ary * hsp.up.plods.ary) / L - log(2)
-  ev.up = sum(gt.1.prbs.ary * pss.gt.2.prbs * hsp.up.plods.ary) / L - log(2)
-  ev.hsgpop = (ev.pop + ev.up) / 2
-  ev.tcggpop = (ev.pop + 3 * ev.up) / 4
-  ev.fcgtcgggpop = (ev.pop + 7 * ev.up) / 8
-  evs = c(ev.up, ev.fcgtcgggpop, ev.tcggpop, ev.hsgpop, ev.pop, ev.sp)
-  names(evs) = c("Unrelated", "First cousin", "Avuncular", "Half-sibling",
-                  "Parent-offspring", "Self")
-  
   # Find number of samples
   n.samps = dim(smp.gts)[3]
   
@@ -139,7 +49,7 @@ FindPlods = function(
       
       # Lookup plods
       hsp.up.plods.obs.mat = matrix(
-        hsp.up.plods.ary[
+        pss.plods.pls.lg.2[
           cbind(
             as.vector(smp.gts.new[loci.inds, samp.inds.1]), 
             as.vector(smp.gts.new[loci.inds, samp.inds.2]), 
@@ -170,5 +80,5 @@ FindPlods = function(
   cat("Done \n")
   cat("Time taken:", proc.time()[3] - s.time, "seconds \n")
   
-  list(plods = hsp.up.plods, ev.up = ev.up, evs = evs)
+  list(plods = hsp.up.plods)
 }
