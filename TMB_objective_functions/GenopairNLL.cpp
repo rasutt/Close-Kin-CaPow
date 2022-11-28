@@ -82,6 +82,7 @@ Type objective_function<Type>::operator() ()
     //   Type(4.0) * rho * pow(lambda / phi, alpha) * 
     //   pow(phi, 2) * lambda / pow(lambda - pow(phi, 3), 2));
   }
+  ADREPORT(prbPOPswtnvec);
   
   // Loop over genopairs
   for(int gpind = 0; gpind < npairs; gpind++) {
@@ -89,7 +90,7 @@ Type objective_function<Type>::operator() ()
     // and kinship probabilities in terms of parameters.
     nll = nll - log(
       prbPOPswtnvec(sampyrinds(gpind, 0)) * gpprobs(gpind, 0) +
-        (Type(1.0) - prbPOPswtnvec(sampyrinds(gpind, 0))) * gpprobs(gpind, 2)
+        (Type(1.0) - prbPOPswtnvec(sampyrinds(gpind, 0))) * gpprobs(gpind, 1)
     );
   }
   

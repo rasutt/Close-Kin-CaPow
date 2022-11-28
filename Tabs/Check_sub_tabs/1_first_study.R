@@ -261,14 +261,37 @@ output$firstGPEsts = renderTable({
   smp.yr.inds = row(t.smp.hist)[as.logical(t.smp.hist)] - 1
   smp.yr.ind.prs = t(combn(smp.yr.inds, 2))
   wtn.bool = smp.yr.ind.prs[, 1] == smp.yr.ind.prs[, 2]
-
+  
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), attributes(fst.std())$N.t.vec[hist.len()])
   ck.lwr <- c(0, 0.75, attributes(fst.std())$ns.caps[k()])
   ck.upr <- c(0.35, 1, Inf)
   
+  lg.gpp.slct = lg.gp.prbs.KP()[, c(1, 3)]
+  gpp.slct = exp(lg.gpp.slct)
+  
+  print(summary(lg.gpp.slct))
+  print(summary(gpp.slct))
+  print("Proportion of pairs for which P = 0 given both unrelated and PO")
+  both_zero = rowSums(gpp.slct) == 0
+  print(mean(both_zero))
+  
+  if (any(both_zero)) {
+    larger = pmax(lg.gpp.slct[both_zero, 1], lg.gpp.slct[both_zero, 2])
+    min.larger = min(larger)
+    adj = mean(c(min.larger, max(lg.gpp.slct)))
+    lg.gpp.adj = lg.gpp.slct - adj
+    gpp.adj = exp(lg.gpp.adj)
+    
+    print(summary(lg.gpp.adj))
+    print(summary(gpp.adj))
+    print("Proportion of pairs for which P = 0 given both unrelated and PO")
+    both_zero = rowSums(gpp.adj) == 0
+    print(mean(both_zero))
+  }
+
   gp.tmb = TryGenopairTMB(
-    exp(lg.gp.prbs.KP()), smp.yr.ind.prs[wtn.bool, ], k(), 
+    gpp.adj, smp.yr.ind.prs[wtn.bool, ], k(), 
     srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr, alpha()
   )
   
