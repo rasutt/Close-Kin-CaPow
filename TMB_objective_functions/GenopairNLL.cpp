@@ -7,12 +7,12 @@ Type objective_function<Type>::operator() ()
 {
   // Declare data inputs
   DATA_MATRIX(gpprobs);
-  DATA_IVECTOR(sampyrs);
+  DATA_IVECTOR(sampyrinds);
   DATA_INTEGER(k);
   DATA_IVECTOR(srvygaps);
   DATA_INTEGER(fyear);
   DATA_IVECTOR(srvyyrs);
-  DATA_INTEGER(alpha);
+  // DATA_INTEGER(alpha);
   
   // Declare parameter input
   PARAMETER_VECTOR(pars);
@@ -61,9 +61,7 @@ Type objective_function<Type>::operator() ()
   Type expNsurvyr, prbPOPswtn;
   // Type prbHSPswtn;
   vector<Type> prbPOPswtnvec(k);
-  // int nonPOPsHSPswtn;
-  int nonPOPswtn;
-  
+
   // Loop over surveys
   for(int srvyind = 0; srvyind < k; srvyind++) {
     // Find the expected number alive at the sample year
@@ -89,8 +87,8 @@ Type objective_function<Type>::operator() ()
     // Add negative log likelihood from genopair probabilities given kinships
     // and kinship probabilities in terms of parameters.
     nll = nll - log(
-      prbPOPswtnvec(sampyrs(gpind)) * gpprobs(gpind, 0) +
-        (Type(1.0) - prbPOPswtnvec(sampyrs(gpind))) * gpprobs(gpind, 2)
+      prbPOPswtnvec(sampyrinds(gpind)) * gpprobs(gpind, 0) +
+        (Type(1.0) - prbPOPswtnvec(sampyrinds(gpind))) * gpprobs(gpind, 2)
     );
   }
   

@@ -247,3 +247,22 @@ output$firstPLODsRare = renderPlot({
   abline(v = exp.plod.KP(), col = 2:7, lwd = 2)
 })
 
+# Table of estimates from first study optimising genopair likelihood
+output$firstGPEsts = renderTable({
+  # Indices of survey-years for each sample, starting at zero for C++ template
+  t.smp.hist = t(fst.std()[, 4:(3 + k())])
+  smp.yr.inds = row(t.smp.hist)[as.logical(t.smp.hist)] - 1
+  print(str(smp.yr.inds))
+  
+  # Create general optimizer starting-values and bounds, NAs filled in below
+  ck.start <- c(rho(), phi(), attributes(fst.std())$N.t.vec[hist.len()])
+  ck.lwr <- c(0, 0.75, attributes(fst.std())$ns.caps[k()])
+  ck.upr <- c(0.35, 1, Inf)
+  
+  gp.tmb = TryGenopairTMB(
+    exp(lg.gp.prbs.KP()), smp.yr.inds, k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
+    ck.start, ck.lwr, ck.upr, alpha()
+  )
+  
+  gp.tmb$est.se.df
+})

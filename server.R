@@ -11,6 +11,8 @@ compile("TMB_objective_functions/POPANNLL.cpp")
 dyn.load(dynlib("TMB_objective_functions/POPANNLL"))
 compile("TMB_objective_functions/CloseKinNLL.cpp")
 dyn.load(dynlib("TMB_objective_functions/CloseKinNLL"))
+compile("TMB_objective_functions/GenopairNLL.cpp")
+dyn.load(dynlib("TMB_objective_functions/GenopairNLL"))
 
 # Define server logic for app
 server <- function(input, output) {
