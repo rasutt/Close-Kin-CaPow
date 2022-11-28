@@ -120,8 +120,7 @@ ale.frqs = reactive({
 pss.gt.1.prbs = reactive({
   array(
     ale.frqs()[ales.1.inds, ] * ale.frqs()[ales.2.inds, ] * 
-      (1 + (ales.1.inds != ales.2.inds)), 
-    c(n.pss.gts, 1, L())
+      (1 + (ales.1.inds != ales.2.inds)), c(n.pss.gts, 1, L())
   )[, rep(1, 3), ]
 })
 
@@ -140,14 +139,13 @@ pss.gp.prbs.UP = reactive({
 pss.cnd.gt.2.prbs.POP = reactive({
   aperm(
     array(
+      # Note: order data enters array is down columns, not across rows
       c(
         ale.frqs()[1, ], 0.5 * ale.frqs()[1, ], rep(0, L()), 
         ale.frqs()[2, ], 0.5 * colSums(ale.frqs()), ale.frqs()[1, ],
         rep(0, L()), 0.5 * ale.frqs()[2, ], ale.frqs()[2, ]
-      ),
-      c(L(), n.pss.gts, n.pss.gts)
-    ), 
-    c(2, 3, 1)
+      ), c(L(), n.pss.gts, n.pss.gts)
+    ), c(2, 3, 1)
   )
 })
 
@@ -168,10 +166,8 @@ pss.gp.prbs.SP = reactive({
       cbind(
         pss.gt.1.prbs()[1, 1, ], 0, 0, 0, pss.gt.1.prbs()[2, 2, ], 0, 0, 0, 
         pss.gt.1.prbs()[3, 3, ]
-      ), 
-      c(L(), n.pss.gts, n.pss.gts)
-    ),
-    c(2, 3, 1)
+      ), c(L(), n.pss.gts, n.pss.gts)
+    ), c(2, 3, 1)
   )
 })
 
