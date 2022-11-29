@@ -66,7 +66,7 @@ FindEstNsKPsPop = function(
   
   # Parent-offspring pairs between survey years
   s.yrs.1.p.a = s.yrs.1 + alpha
-  exp.ns.POPs.btn = 2 * exp.ns.POPs.wtn[s.inds.1] * phi^s.gaps +
+  exp.ns.POPs.btn = 2 * exp.ns.POPs.wtn[s.inds.1] * p.t.s.gs +
     2 * exp.N.s.yrs.2 * (1 - p.o.l) * p.o.l^s.yrs.2 *
     ((l.o.p^(s.yrs.1 + 1) - l.o.p^(pmin(s.yrs.1.p.a, s.yrs.2) + 1)) /
        (1 - l.o.p) +

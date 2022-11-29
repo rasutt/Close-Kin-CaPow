@@ -81,19 +81,30 @@ output$firstGTs = renderTable({
 
 ## HSP vs UP PLODs for pairs of individuals captured
 
+# Indices of survey-years for each sample, including repeats, starting at zero
+# for C++ template
+smp.yr.inds = reactive({
+  t.smp.hist = t(fst.std()[, 4:(3 + k())])
+  row(t.smp.hist)[as.logical(t.smp.hist)] - 1
+})
+
 # Add genotypes for repeated samples. Unique sampled genotypes are 2 x L x
 # n_animals arrays, representing two binary SNPs at each locus for each
 # individual sampled at least once. They are expanded to 2 x L x n_samples
-# arrays by repeating genotypes by numbers of samples per individual.
+# arrays by repeating genotypes by numbers of samples per individual. Also order
+# by survey-year for easy look up of kinship probabilities in TMB later.
 smp.gts = reactive({
   # Numbers of samples per individual are sums of rows of binary sample-history
   # matrix
   ns.smps.pr.ind = rowSums(fst.std()[, 4:(3 + k())])
   
   # Index unique genotype array repeatedly for re-sampled individuals
-  attributes(fst.std())$unq.smp.gts[
+  smp.gts.unordrd = attributes(fst.std())$unq.smp.gts[
     , , rep(1:length(ns.smps.pr.ind), times = ns.smps.pr.ind)
   ]
+  
+  # Order by sample-years and return
+  smp.gts.unordrd[, , order(smp.yr.inds())]
 })
 
 # Find allele frequencies from genotypes in 2 x L x n_samples arrays,
@@ -201,18 +212,23 @@ exp.plod.KP = reactive({
   vec
 })
 
+# Indices of survey-years for each sample in each pair, starting at zero for
+# C++ template, and ordered by survey-year of first sample
+smp.yr.ind.prs = reactive({
+  t(combn(smp.yr.inds()[ord(smp.yr.inds())], 2))
+})
+
+# Indices of within-survey pairs
+wtn.prs.inds = reactive({
+  smp.yr.ind.prs()[, 1] == smp.yr.ind.prs[, 2]()
+})
+
 # Find log genopair probabilities as n.pairs x n.kp.tps matrix with rows for
 # pairs of individuals, and columns for types of kinships considered
 lg.gp.prbs.KP = reactive({
-  # Indices of survey-years for each sample, starting at zero for C++ template
-  t.smp.hist = t(fst.std()[, 4:(3 + k())])
-  smp.yr.inds = row(t.smp.hist)[as.logical(t.smp.hist)] - 1
-  smp.yr.ind.prs = t(combn(smp.yr.inds, 2))
-  wtn.bool = smp.yr.ind.prs[, 1] == smp.yr.ind.prs[, 2]
-  
   FindLogGPProbsKP(
-    smp.gts(), L(), pss.gp.prbs.POP(), pss.gp.prbs.UP(), pss.gp.prbs.SP(),
-    wtn.bool
+    smp.gts(), L(), pss.gp.prbs.UP(), pss.gp.prbs.POP(), pss.gp.prbs.SP(),
+    wtn.prs.inds
   )
 })
 
@@ -256,43 +272,44 @@ output$firstPLODsRare = renderPlot({
 
 # Table of estimates from first study optimising genopair likelihood
 output$firstGPEsts = renderTable({
-  # Indices of survey-years for each sample, starting at zero for C++ template
-  t.smp.hist = t(fst.std()[, 4:(3 + k())])
-  smp.yr.inds = row(t.smp.hist)[as.logical(t.smp.hist)] - 1
-  smp.yr.ind.prs = t(combn(smp.yr.inds, 2))
-  wtn.bool = smp.yr.ind.prs[, 1] == smp.yr.ind.prs[, 2]
-  
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), attributes(fst.std())$N.t.vec[hist.len()])
   ck.lwr <- c(0, 0.75, attributes(fst.std())$ns.caps[k()])
   ck.upr <- c(0.35, 1, Inf)
   
-  lg.gpp.slct = lg.gp.prbs.KP()[, c(1, 3)]
+  # Get genopair probabilities (by excluding probabilities giveb half-sibs for
+  # now) and check for pairs where all probabilities underflow to zero
+  lg.gpp.slct = lg.gp.prbs.KP()[, -2]
   gpp.slct = exp(lg.gpp.slct)
+  all_undrflw = rowSums(gpp.slct) == 0
   
-  print(summary(lg.gpp.slct))
-  print(summary(gpp.slct))
-  print("Proportion of pairs for which P = 0 given both unrelated and PO")
-  both_zero = rowSums(gpp.slct) == 0
-  print(mean(both_zero))
-  
-  if (any(both_zero)) {
-    larger = pmax(lg.gpp.slct[both_zero, 1], lg.gpp.slct[both_zero, 2])
-    min.larger = min(larger)
-    adj = mean(c(min.larger, max(lg.gpp.slct)))
+  # If there is underflow adjust log-probabilities by factor giving equal
+  # weight to smallest and largest values to avoid both under and overflow
+  if (any(all_undrflw)) {
+    cat("Proportion of pairs for which probabilities given all kinships 
+        underflow to zero:", mean(all_undrflw))
+    
+    # Want smallest maximum kinship probability and largest probability to be
+    # equally far from one
+    adj = mean(c(min(apply(lg.gpp.slct, 1, max)), max(lg.gpp.slct)))
     lg.gpp.adj = lg.gpp.slct - adj
     gpp.adj = exp(lg.gpp.adj)
     
+    # Show adjustment and results
+    cat("Probabilities adjusted by factor of", exp(adj))
+    print("Adjusted log-probabilities and probabilities of genopairs:")
     print(summary(lg.gpp.adj))
     print(summary(gpp.adj))
-    print("Proportion of pairs for which P = 0 given both unrelated and PO")
-    both_zero = rowSums(gpp.adj) == 0
-    print(mean(both_zero))
+    cat("Proportion of pairs for which adjusted probabilities given all 
+        kinships underflow to zero:", mean(rowSums(gpp.adj) == 0))
   }
 
+  # Try to git genopair likelihood model
   gp.tmb = TryGenopairTMB(
-    gpp.adj, smp.yr.ind.prs[wtn.bool, ], k(), 
-    srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr, alpha()
+    if (any(all_undrflw)) gpp.adj else gpp.slct, 
+    smp.yr.ind.prs(),
+    # smp.yr.ind.prs()[wtn.prs.inds, ], 
+    k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr, alpha()
   )
   
   gp.tmb$est.se.df
