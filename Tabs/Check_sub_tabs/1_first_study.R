@@ -215,7 +215,7 @@ exp.plod.KP = reactive({
 # Indices of survey-years for each sample in each pair, starting at zero for
 # C++ template, and ordered by survey-year of first sample
 smp.yr.ind.prs = reactive({
-  t(combn(smp.yr.inds()[ord(smp.yr.inds())], 2))
+  t(combn(smp.yr.inds()[order(smp.yr.inds())], 2))
 })
 
 # Indices of within-survey pairs
@@ -303,7 +303,7 @@ output$firstGPEsts = renderTable({
     cat("Proportion of pairs for which adjusted probabilities given all 
         kinships underflow to zero:", mean(rowSums(gpp.adj) == 0))
   }
-
+  
   # Try to git genopair likelihood model
   gp.tmb = TryGenopairTMB(
     if (any(all_undrflw)) gpp.adj else gpp.slct, 

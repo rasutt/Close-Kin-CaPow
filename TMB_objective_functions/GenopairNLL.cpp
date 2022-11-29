@@ -84,7 +84,7 @@ Type objective_function<Type>::operator() ()
 
   // Declare variables for loop
   Type expNsurvyr1, expNsurvyr2, prbPOPsbrnbtn;
-  matrix<Type> prbSPsmat(k - 1, k);
+  matrix<Type> prbSPsmat(k, k);
   prbSPsmat.setZero();
   int srvyyr1, srvyyr2, srvygap;
 
@@ -127,18 +127,22 @@ Type objective_function<Type>::operator() ()
   ADREPORT(prbPOPsmat);
   ADREPORT(prbSPsmat);
   
+  int inds1, inds2;
+  Type prbPOP, prbSP;
+  
   // Loop over genopairs
   for(int gpind = 0; gpind < npairs; gpind++) {
+    // Get sample-year indices and kinship probabilities
+    inds1 = sampyrinds(gpind, 0);
+    inds2 = sampyrinds(gpind, 1);
+    prbPOP = prbPOPsmat(inds1, inds2);
+    prbSP = prbSPsmat(inds1, inds2);
+    
     // Add negative log likelihood from genopair probabilities given kinships
     // and kinship probabilities in terms of parameters.
     nll = nll - log(
-      (Type(1.0) - prbPOPsmat(sampyrinds(gpind, 0), sampyrinds(gpind, 1)) - 
-        prbSPsmat(sampyrinds(gpind, 0), sampyrinds(gpind, 1))) * 
-        gpprobs(gpind, 0) +
-        prbPOPsmat(sampyrinds(gpind, 0), sampyrinds(gpind, 1)) * 
-        gpprobs(gpind, 1) +
-        prbSPsmat(sampyrinds(gpind, 0), sampyrinds(gpind, 1)) * 
-        gpprobs(gpind, 2)
+      (Type(1.0) - prbPOP - prbSP) * gpprobs(gpind, 0) +
+        prbPOP * gpprobs(gpind, 1) + prbSP * gpprobs(gpind, 2)
     );
   }
   
