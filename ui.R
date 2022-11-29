@@ -44,7 +44,7 @@ ui <- fluidPage(
   navbarPage(
     title = "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "sim.tab",
+    selected = "check.tab",
     position = "fixed-top",
     
     # Sim tab ----
@@ -147,7 +147,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "fst.tab",
+        selected = "frst.gts.tb",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
@@ -163,20 +163,16 @@ ui <- fluidPage(
           h3("Biological scenario"),
           tableOutput(outputId = "currBioScen")
         ),
-        # First study ----
+        # First study kin-pairs ----
         tabPanel(
-          title = "First study",
-          value = "fst.tab",
-          h2("First study simulated"),
-          p("Some data from the first population and sampling study
-            simulated, as an example.  Note that individual simulations can be
-            quite different from each other, but the average over many
-            simulations should approach the expected values."),
-          
-          h3("First sample-histories"),
-          p("The data for the first few animals sampled
-            in the study, by earliest birth year."),
-          tableOutput(outputId = "firstSampHists"),
+          title = "First study kin-pairs",
+          value = "frst.KPs.tb",
+          h2("First study kin-pairs"),
+          p("Numbers of kin-pairs predicted versus simulated in the first
+            population and sampling study simulated, as an example.  Note that
+            individual simulations can be quite different from each other, but 
+            the average over many simulations should approach the expected 
+            values."),
           
           h3("Numbers of pairs within survey-years (whole population)"),
           p("Numbers of pairs of individuals with given relationships,
@@ -195,16 +191,49 @@ ui <- fluidPage(
           tableOutput(outputId = "firstEstNsKPsBtnPop"),
           h4("Simulated"),
           tableOutput(outputId = "firstNsKPsBtnPop"),
+        ),
+        # First study genetics ----
+        tabPanel(
+          title = "First study genetics",
+          value = "frst.gts.tb",
+          h2("First study genetics"),
+          p("Genetic analysis of samples from first population and study 
+            simulated."),
+          
+          h3("First sample-histories"),
+          p("The data for the first few animals sampled
+            in the study, by earliest birth year."),
+          tableOutput(outputId = "firstSampHists"),
           
           h3("Genotypes"),
-          h3("First few individuals captured"),
+          h4("First few individuals captured"),
           tableOutput(outputId = "firstGTs"),
-          h3("HSP vs UP PLODs for pairs of individuals captured"),
+          h4("Allele frequencies for first study"),
+          tableOutput(outputId = "firstAFs"),
+          
+          h4("Possible conditional genopair probabilities at first locus given
+             kinship"),
+          fluidRow(
+            column(2, h4("Unrelated"), tableOutput(outputId = "firstGPPsUP")),
+            column(
+              2, h4("Half-siblings"), tableOutput(outputId = "firstGPPsHSP"),
+            ),
+            column(
+              2, h4("Parent-offspring"), tableOutput(outputId = "firstGPPsPOP")
+            ),
+            column(
+              2, h4("Self-resample"), tableOutput(outputId = "firstGPPsSP")
+            )
+          ),
+          
+          h4("HSP vs UP PLODs for pairs of individuals captured"),
           plotOutput(outputId = "firstPLODs"),
           plotOutput(outputId = "firstPLODsRare"),
           h3("Try to optimise likelihood"),
           tableOutput(outputId = "firstGPEsts")
         ),
+        
+        
         # Populations ----
         tabPanel(
           title = "Population sizes",

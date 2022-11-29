@@ -182,6 +182,47 @@ pss.gp.prbs.SP = reactive({
   )
 })
 
+# Conditional probabilities given that the pair are half-siblings.  Average of
+# probabilities for unrelated and parent-offspring pairs.
+pss.gp.prbs.HSP = reactive({
+  (pss.gp.prbs.UP() + pss.gp.prbs.POP()) / 2
+})
+
+# Table showing allele frequencies
+output$firstAFs = renderTable({
+  df = data.frame(ale.frqs())
+  names(df) = paste0("L", 1:L())
+  row.names(df) = 0:1
+  df
+}, rownames = T)
+
+# Function to format genopair probabilities for display
+frmt.gpps = function(gpps) {
+  df = data.frame(gpps()[, , 1])
+  names(df) = row.names(df) = c("00", "01", "11")
+  df
+}
+
+# Table showing GPPs given unrelated
+output$firstGPPsUP = renderTable({
+  frmt.gpps(pss.gp.prbs.UP)
+}, rownames = T)
+
+# Table showing GPPs given half-siblings
+output$firstGPPsHSP = renderTable({
+  frmt.gpps(pss.gp.prbs.HSP)
+}, rownames = T)
+
+# Table showing GPPs given parent-offspring
+output$firstGPPsPOP = renderTable({
+  frmt.gpps(pss.gp.prbs.POP)
+}, rownames = T)
+
+# Table showing GPPs given self-resample
+output$firstGPPsSP = renderTable({
+  frmt.gpps(pss.gp.prbs.SP)
+}, rownames = T)
+
 # HSP vs UP pseudo log-likelihood ratios at each locus, calculated as on pg. 29
 # of Aldridge-Sutton (2019) New Methods ..., but subtracting log(2) later, after
 # summation, rather than now for each term separately. 
@@ -231,6 +272,8 @@ lg.gp.prbs.KP = reactive({
     wtn.prs.inds
   )
 })
+
+# 
 
 # Find half-sibling vs unrelated pairs PLODs from log genopair probabilities
 first.plods = reactive({
@@ -287,7 +330,7 @@ output$firstGPEsts = renderTable({
   # weight to smallest and largest values to avoid both under and overflow
   if (any(all_undrflw)) {
     cat("Proportion of pairs for which probabilities given all kinships 
-        underflow to zero:", mean(all_undrflw))
+        underflow to zero:", mean(all_undrflw), "\n")
     
     # Want smallest maximum kinship probability and largest probability to be
     # equally far from one
@@ -296,12 +339,12 @@ output$firstGPEsts = renderTable({
     gpp.adj = exp(lg.gpp.adj)
     
     # Show adjustment and results
-    cat("Probabilities adjusted by factor of", exp(adj))
+    cat("Probabilities adjusted by factor of exp(", adj, ")\n", sep = "")
     print("Adjusted log-probabilities and probabilities of genopairs:")
     print(summary(lg.gpp.adj))
     print(summary(gpp.adj))
     cat("Proportion of pairs for which adjusted probabilities given all 
-        kinships underflow to zero:", mean(rowSums(gpp.adj) == 0))
+        kinships underflow to zero:", mean(rowSums(gpp.adj) == 0), "\n")
   }
   
   # Try to git genopair likelihood model

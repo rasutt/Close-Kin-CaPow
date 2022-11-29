@@ -62,6 +62,7 @@ Type objective_function<Type>::operator() ()
   Type expNsurvyr;
   // Type prbHSPswtn;
   matrix<Type> prbPOPsmat(k, k);
+  prbPOPsmat.setZero();
 
   // Loop over surveys
   for(int srvyind = 0; srvyind < k; srvyind++) {
