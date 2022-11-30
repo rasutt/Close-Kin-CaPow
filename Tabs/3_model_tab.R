@@ -72,8 +72,9 @@ fit.ppn = reactive(if (input$popan) {
   ppn.tmb.cnvg <- numeric(n.sims())
   
   # Create matrices for estimates and standard errors
-  ppn.tmb.ests <- ppn.tmb.ses <- 
-    matrix(nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names()))
+  ppn.tmb.ests <- ppn.tmb.ses <- matrix(
+    nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
+  )
   
   # Loop over histories
   withProgress({

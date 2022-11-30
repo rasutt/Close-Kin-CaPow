@@ -106,6 +106,7 @@ server <- function(input, output) {
   ns.SFPs.t = reactiveVal(saved.objs$ns.SFPs.t)
   ns.SibPs = reactiveVal(saved.objs$ns.SibPs)
   pns.UPs = reactiveVal(saved.objs$pns.UPs)
+  lg.gp.prbs.KP = reactiveVal(saved.objs$lg.gp.prbs.KP)
   # ----
 
   # Variables bound to simulate button (for last simulation) ----

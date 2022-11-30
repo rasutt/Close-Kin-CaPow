@@ -214,17 +214,22 @@ ui <- fluidPage(
           h4("Possible conditional genopair probabilities at first locus given
              kinship"),
           fluidRow(
-            column(2, h4("Unrelated"), tableOutput(outputId = "firstGPPsUP")),
+            column(3, h4("Unrelated"), tableOutput(outputId = "firstGPPsUP")),
             column(
-              2, h4("Half-siblings"), tableOutput(outputId = "firstGPPsHSP"),
+              3, h4("Half-siblings"), tableOutput(outputId = "firstGPPsHSP")
             ),
             column(
-              2, h4("Parent-offspring"), tableOutput(outputId = "firstGPPsPOP")
+              3, h4("Parent-offspring"), tableOutput(outputId = "firstGPPsPOP")
             ),
             column(
-              2, h4("Self-resample"), tableOutput(outputId = "firstGPPsSP")
+              3, h4("Self-resample"), tableOutput(outputId = "firstGPPsSP")
             )
           ),
+          
+          h4("Observed genopair log-probabilities given basic kinships"),
+          plotOutput(outputId = "firstObsGPPsUPPOP"),
+          # plotOutput(outputId = "firstObsGPPs"),
+          # plotOutput(outputId = "firstObsLGPPs"),
           
           h4("HSP vs UP PLODs for pairs of individuals captured"),
           plotOutput(outputId = "firstPLODs"),

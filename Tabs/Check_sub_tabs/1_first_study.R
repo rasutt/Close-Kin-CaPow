@@ -264,21 +264,104 @@ wtn.prs.inds = reactive({
   smp.yr.ind.prs()[, 1] == smp.yr.ind.prs[, 2]()
 })
 
-# Find log genopair probabilities as n.pairs x n.kp.tps matrix with rows for
+# Nullify genopair log-probabilities when new datasets simulated
+observeEvent(input$simulate, lg.gp.prbs.KP(NULL))
+
+# Find genopair log-probabilities as n.pairs x n.kp.tps matrix with rows for
 # pairs of individuals, and columns for types of kinships considered
-lg.gp.prbs.KP = reactive({
-  FindLogGPProbsKP(
-    smp.gts(), L(), pss.gp.prbs.UP(), pss.gp.prbs.POP(), pss.gp.prbs.SP(),
-    wtn.prs.inds
-  )
+observeEvent({
+  input$nav.tab
+  input$check.sub.tabs
+}, {
+  if (
+    input$nav.tab == "check.tab" && input$check.sub.tabs == "frst.gts.tb" &&
+    is.null(lg.gp.prbs.KP())
+  ) {
+    lg.gp.prbs.KP(FindLogGPProbsKP(
+      smp.gts(), L(), pss.gp.prbs.UP(), pss.gp.prbs.POP(), pss.gp.prbs.SP(),
+      wtn.prs.inds
+    ))
+  }
 })
 
-# 
+gp.prbs.KP = reactive(exp(lg.gp.prbs.KP()))
 
 # Find half-sibling vs unrelated pairs PLODs from log genopair probabilities
 first.plods = reactive({
   (lg.gp.prbs.KP()[, 2] - lg.gp.prbs.KP()[, 1]) / L()
 })
+
+output$firstObsGPPsUPPOP = renderPlot({
+  par(mfrow = c(1, 3))
+  plot(
+    lg.gp.prbs.KP()[, "UP"], lg.gp.prbs.KP()[, "POP"],
+    main = "Unrelated vs Parent-offspring",
+    xlab = "Unrelated", ylab = "Parent-offspring"
+  )
+  plot(
+    lg.gp.prbs.KP()[, "POP"], lg.gp.prbs.KP()[, "SP"],
+    main = "Parent-offspring vs Self-resample",
+    xlab = "Parent-offspring", ylab = "Self-resample"
+  )
+  plot(
+    lg.gp.prbs.KP()[, "SP"], lg.gp.prbs.KP()[, "UP"],
+    main = "Self-resample vs Unrelated",
+    xlab = "Self-resample", ylab = "Unrelated"
+  )
+})
+
+# Plot GPPs
+# output$firstObsGPPs = renderPlot({
+#   lims = apply(gp.prbs.KP(), 2, max)
+#   x = seq(0, lims[1], len = 10)
+#   y = seq(0, lims[2], len = 10)
+#   z = outer(x, y, function(x, y) pmin(pmax(1 - x - y, 0), lims[4]))
+#   
+#   # Plot GPPs
+#   res = persp(
+#     x, y, z, main = "Genopair probabilities for all samples",
+#     xlab = "Unrelated", ylab = "Parent-offspring", zlab = "Self",
+#     xlim = c(0, lims[1]), ylim = c(0, lims[2]), zlim = c(0, lims[4]),
+#     tick = "detailed"
+#   )
+#   points(
+#     trans3d(
+#       gp.prbs.KP()[, 1], gp.prbs.KP()[, 3], gp.prbs.KP()[, 4], res
+#     ), col = rgb(1, 0, 0, 0.1)
+#   )  
+#   # # Plot expected values
+#   # abline(v = exp.plod.KP()[1], col = 2, lwd = 2)
+#   
+#   # # Add legend
+#   # legend(
+#   #   "topright", col = 1:7, lty = c(0, rep(1, 6)), cex = 1, lwd = 2,
+#   #   legend = c(
+#   #     "Expected value given kinship", "Unrelated", "First cousin",
+#   #     "Avuncular", "Half-sibling", "Parent-offspring", "Self"
+#   #   )
+#   # )
+# })
+
+# # Plot log GPPs
+# output$firstObsLGPPs = renderPlot({
+#   lims = apply(lg.gp.prbs.KP()[is.finite(lg.gp.prbs.KP())], 2, min)
+#   x = seq(lims[1], 1, len = 10)
+#   y = seq(lims[2], 1, len = 10)
+#   z = 
+#     outer(x, y, function(x, y) pmax(log(pmax(1 - x - y, 0)), lims[3]))
+# 
+#   # Plot GPPs
+#   res = persp(
+#     x, y, z, main = "Log genopair probabilities for all samples",
+#     xlab = "Unrelated", ylab = "Parent-offspring", zlab = "Self",
+#     xlim = c(lims[1], 1), ylim = c(lims[2], 1), zlim = c(lims[3], 1)
+#   )
+#   points(
+#     trans3d(
+#       lg.gp.prbs.KP()[, 1], lg.gp.prbs.KP()[, 3], lg.gp.prbs.KP()[, 4], res
+#     ), col = rgb(1, 0, 0, 0.1)
+#   )  
+# })
 
 # Plot PLODs
 output$firstPLODs = renderPlot({

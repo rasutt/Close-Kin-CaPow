@@ -4,15 +4,6 @@
 FindLogGPProbsKP = function(
     smp.gts, L, pss.gp.prbs.UP, pss.gp.prbs.POP, pss.gp.prbs.SP, wtn.prs.inds
 ) {
-  # Combine genopair probabilities as list
-  pss.gp.prbs.KP = list(
-    pss.gp.prbs.UP, 
-    pss.gp.prbs.UP + pss.gp.prbs.POP,
-    pss.gp.prbs.POP,
-    pss.gp.prbs.SP
-  )
-  n.KP.tps = length(pss.gp.prbs.KP)
-  
   # Find number of samples
   n.samps = dim(smp.gts)[3]
   
@@ -23,6 +14,23 @@ FindLogGPProbsKP = function(
   n.pairs = choose(n.samps, 2)
   # n.pairs = sum(wtn.prs.inds)
   
+  # Combine genopair probabilities as list and add half-sibling pair
+  # probabilities
+  pss.gp.prbs.KP = list(
+    pss.gp.prbs.UP, 
+    pss.gp.prbs.UP + pss.gp.prbs.POP,
+    pss.gp.prbs.POP,
+    pss.gp.prbs.SP
+  )
+  n.KP.tps = length(pss.gp.prbs.KP)
+  
+  # Make matrix for genopair probabilities with columns for each kinship
+  # considered
+  lg.gp.prbs.KP = matrix(
+    0, nrow = n.pairs, ncol = n.KP.tps, 
+    dimnames = list(Locus = NULL, Kinship = c("UP", "HSP", "POP", "SP"))
+  )
+  
   # Transform smp.gts to genotype indices
   smp.gts.new = colSums(smp.gts) + 1
   
@@ -32,10 +40,6 @@ FindLogGPProbsKP = function(
   
   # Find numbers of batches
   n.btchs = ceiling(L / btch.sz)
-  
-  # Make matrix for genopair probabilities with columns for each kinship
-  # considered
-  lg.gp.prbs.KP = matrix(0, nrow = n.pairs, ncol = n.KP.tps)
   
   # Set batch counter to zero
   btch.cnt = 0
@@ -82,7 +86,7 @@ FindLogGPProbsKP = function(
       # Show progress on progress-bar
       incProgress(amount = 1 / n.btchs)
     }
-  }, value = 0, message = "Finding HSP vs UP PLODs")
+  }, value = 0, message = "Finding genopair log-probabilities")
 
   # Divide half-sibling pair log-probability by two at each locus
   lg.gp.prbs.KP[, 2] = lg.gp.prbs.KP[, 2] - L * log(2)
