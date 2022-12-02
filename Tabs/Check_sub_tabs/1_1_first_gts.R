@@ -178,7 +178,7 @@ observeEvent({
   }
 })
 
-# gp.prbs.KP = reactive(exp(lg.gp.prbs.KP()))
+gp.prbs.KP = reactive(exp(lg.gp.prbs.KP()))
 
 # Table of genopair probabilities of first few pairs captured (can show
 # kin-pairs later)
@@ -187,12 +187,12 @@ output$firstGPPs = renderTable({
     fst.std()[smp.ind.prs()[1:3, 1], 1],
     fst.std()[smp.ind.prs()[1:3, 2], 1],
     smp.yr.ind.prs()[1:3, ],
-    # gp.prbs.KP()[1:3, ],
+    gp.prbs.KP()[1:3, ],
     lg.gp.prbs.KP()[1:3, ]
   ))
   names(df) = c(
     "ID1", "ID2", "Survey index 1", "Survey index 2",
-    # paste0("P_", colnames(gp.prbs.KP())), 
+    paste0("P_", colnames(gp.prbs.KP())),
     paste0("Log_P_", colnames(lg.gp.prbs.KP()))
   )
   df
@@ -252,18 +252,17 @@ output$firstObsGPPs = renderPlot({
 
 # Possible values of HSP vs UP PLODs
 pss.plods = reactive({
-  pss.gp.prbs.KP()[, , , 2] / pss.gp.prbs.KP()[, , , 1] / L()
+  log(pss.gp.prbs.KP()[, , , 2] / pss.gp.prbs.KP()[, , , 1])
 })
 
 # Expected values of HSP vs UP PLODs given kinships
 exp.plod.KP = reactive({
   # Unrelated, parent-offspring, and self-pairs
-  exp.plod.base = apply(pss.gp.prbs.KP(), 4, function(pss.gpp.prbs) {
-    sum(pss.gpp.prbs * pss.plods())
-  })
+  exp.plod.base = 
+    colSums(pss.gp.prbs.KP() * rep(pss.plods(), 4), dims = 3) / L()
   
   # First-cousin, avuncular, and half-sibling pairs
-  exp.plod.extd = (c(7, 3) * exp.plod.base[1] + exp.plod.base[2]) / c(8, 4)
+  exp.plod.extd = (c(7, 3) * exp.plod.base[1] + exp.plod.base[3]) / c(8, 4)
   
   # Combine in order from furthest to closest kinship, add names, and return.
   # P(gts|HSP) = (P(gts|UP) + P(gts|POP)) / 2 at each locus, so subtracting
