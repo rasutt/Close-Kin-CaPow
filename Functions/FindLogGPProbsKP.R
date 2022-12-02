@@ -74,14 +74,9 @@ FindLogGPProbsKP = function(
       
       # Look up genopair probabilities for this batch of loci and add to totals
       lg.gp.prbs.KP = lg.gp.prbs.KP + 
-        sapply(
-          pss.gp.prbs.KP,
-          function(pss.gp.prbs) {
-            rowSums(
-              matrix(log(pss.gp.prbs)[ind.mat], nrow = n.pairs, byrow = T)
-            )
-          }
-        )
+        sapply(pss.gp.prbs.KP, function(pss.gp.prbs) {
+          rowSums(matrix(log(pss.gp.prbs)[ind.mat], nrow = n.pairs, byrow = T))
+        })
       
       # Show progress on progress-bar
       incProgress(amount = 1 / n.btchs)

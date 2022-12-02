@@ -11,40 +11,15 @@ output$firstGTs = renderTable({
   df
 })
 
-# Indices of survey-years for each sample, including repeats, starting at zero
-# for C++ template
-smp.yr.inds = reactive({
-  t.smp.hist = t(fst.std()[, 4:(3 + k())])
-  row(t.smp.hist)[as.logical(t.smp.hist)] - 1
-})
-
-# Add genotypes for repeated samples. Unique sampled genotypes are 2 x L x
-# n_animals arrays, representing two binary SNPs at each locus for each
-# individual sampled at least once. They are expanded to 2 x L x n_samples
-# arrays by repeating genotypes by numbers of samples per individual. Also order
-# by survey-year for easy look up of kinship probabilities in TMB later.
-smp.gts = reactive({
-  # Numbers of samples per individual are sums of rows of binary sample-history
-  # matrix
-  ns.smps.pr.ind = rowSums(fst.std()[, 4:(3 + k())])
-  
-  # Index unique genotype array repeatedly for re-sampled individuals
-  smp.gts.unordrd = attributes(fst.std())$unq.smp.gts[
-    , , rep(1:length(ns.smps.pr.ind), times = ns.smps.pr.ind)
-  ]
-  
-  # Order by sample-years and return
-  smp.gts.unordrd[, , order(smp.yr.inds())]
-})
-
-# Find allele frequencies from genotypes in 2 x L x n_samples arrays,
-# representing two binary SNPs at each locus for each sample.  Frequencies are
+# Find allele frequencies from genotypes in 2 x L x n_individuals arrays,
+# representing two binary SNPs at each locus for each individual, excluding
+# repeated samples of the same individual in different surveys.  Frequencies are
 # returned as 2 x L matrices representing the frequencies of 0 and 1-coded SNP
 # alleles at each locus
 ale.frqs = reactive({
   # Frequencies of 1-coded SNP alleles are means over both alleles at each locus
   # for each sample
-  ale.frqs.1 = apply(smp.gts(), 2, mean)
+  ale.frqs.1 = apply(attributes(fst.std())$unq.smp.gts, 2, mean)
   
   # Combine with frequencies for 0-coded alleles
   rbind(1 - ale.frqs.1, ale.frqs.1)
@@ -183,10 +158,29 @@ exp.plod.KP = reactive({
   vec
 })
 
+fst.smp.hst = reactive({
+  as.matrix(fst.std()[, 4:(3 + k())])
+})
+smp.inds = reactive({
+  row(fst.smp.hst())[as.logical(fst.smp.hst())]
+})
+smp.ind.prs = reactive({
+  t(combn(smp.inds(), 2))
+})
+
+# Add genotypes for repeated samples. Unique sampled genotypes are 2 x L x
+# n_animals arrays, representing two binary SNPs at each locus for each
+# individual sampled at least once. They are expanded to 2 x L x n_samples
+# arrays by repeating genotypes by numbers of samples per individual. Also order
+# by survey-year for easy look up of kinship probabilities in TMB later.
+smp.gts = reactive({
+  attributes(fst.std())$unq.smp.gts[, , smp.inds()]
+})
+
 # Indices of survey-years for each sample in each pair, starting at zero for
 # C++ template, and ordered by survey-year of first sample
 smp.yr.ind.prs = reactive({
-  t(combn(smp.yr.inds()[order(smp.yr.inds())], 2))
+  t(combn(col(fst.smp.hst())[as.logical(fst.smp.hst())] - 1, 2))
 })
 
 # Indices of within-survey pairs
@@ -221,14 +215,21 @@ first.plods = reactive({
   (lg.gp.prbs.KP()[, 2] - lg.gp.prbs.KP()[, 1]) / L()
 })
 
-# Table of genotypes of first few individuals captured (can show kin-pairs
-# later)
+# Table of genopair probabilities of first few pairs captured (can show
+# kin-pairs later)
 output$firstGPPs = renderTable({
   df = data.frame(cbind(
+    fst.std()[smp.ind.prs()[1:3, 1], 1],
+    fst.std()[smp.ind.prs()[1:3, 2], 1],
+    smp.yr.ind.prs()[1:3, ],
     gp.prbs.KP()[1:3, ],
     lg.gp.prbs.KP()[1:3, ]
   ))
-  # names(df) = c("ID", "Allele", paste0("L", 1:L()))
+  names(df) = c(
+    "ID1", "ID2", "Survey index 1", "Survey index 2",
+    paste0("P_", colnames(gp.prbs.KP())), 
+    paste0("Log_P_", colnames(gp.prbs.KP()))
+  )
   df
 })
 

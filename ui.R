@@ -210,7 +210,8 @@ ui <- fluidPage(
           tableOutput(outputId = "firstGTs"),
 
           h3("Allele frequencies"),
-          h4("Relative frequencies over all samples (I should remove repeats)"),
+          h4("Relative frequencies, excluding samples from same animals in
+             different surveys"),
           tableOutput(outputId = "firstAFs"),
           
           h3("Conditional genopair probabilities given kinship"),
