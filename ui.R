@@ -208,11 +208,13 @@ ui <- fluidPage(
           h3("Genotypes"),
           h4("First few individuals captured"),
           tableOutput(outputId = "firstGTs"),
-          h4("Allele frequencies for first study"),
+
+          h3("Allele frequencies"),
+          h4("Relative frequencies over all samples (I should remove repeats)"),
           tableOutput(outputId = "firstAFs"),
           
-          h4("Possible conditional genopair probabilities at first locus given
-             kinship"),
+          h3("Conditional genopair probabilities given kinship"),
+          h4("Possible values at first locus"),
           fluidRow(
             column(3, h4("Unrelated"), tableOutput(outputId = "firstGPPsUP")),
             column(
@@ -225,12 +227,12 @@ ui <- fluidPage(
               3, h4("Self-resample"), tableOutput(outputId = "firstGPPsSP")
             )
           ),
-          
-          h4("Observed genopair log-probabilities given basic kinships"),
-          plotOutput(outputId = "firstObsGPPsUPPOP"),
+          h4("Observed values for first few samples, over all loci"),
+          tableOutput(outputId = "firstGPPs"),
+          h4("Observed values for all samples, over all loci"),
+          plotOutput(outputId = "firstObsGPPs"),
           # plotOutput(outputId = "firstObsGPPs"),
-          # plotOutput(outputId = "firstObsLGPPs"),
-          
+
           h4("HSP vs UP PLODs for pairs of individuals captured"),
           plotOutput(outputId = "firstPLODs"),
           plotOutput(outputId = "firstPLODsRare"),
