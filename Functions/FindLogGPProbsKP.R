@@ -1,9 +1,7 @@
 # Function to find log-genopair probabilities given that the individuals form
 # one of a set of possible kinpairs.  Computes over batches of loci to limit
 # memory usage to ~1Gb.
-FindLogGPProbsKP = function(
-    smp.gts, L, pss.gp.prbs.UP, pss.gp.prbs.POP, pss.gp.prbs.SP, wtn.prs.inds
-) {
+FindLogGPProbsKP = function(smp.gts, L, pss.gp.prbs.KP, wtn.prs.inds) {
   # Find number of samples
   n.samps = dim(smp.gts)[3]
   
@@ -14,15 +12,7 @@ FindLogGPProbsKP = function(
   n.pairs = choose(n.samps, 2)
   # n.pairs = sum(wtn.prs.inds)
   
-  # Combine genopair probabilities as list and add half-sibling pair
-  # probabilities
-  pss.gp.prbs.KP = list(
-    pss.gp.prbs.UP, 
-    pss.gp.prbs.UP + pss.gp.prbs.POP,
-    pss.gp.prbs.POP,
-    pss.gp.prbs.SP
-  )
-  n.KP.tps = length(pss.gp.prbs.KP)
+  n.KP.tps = dim(pss.gp.prbs.KP[4])
   
   # Make matrix for genopair probabilities with columns for each kinship
   # considered
@@ -74,7 +64,7 @@ FindLogGPProbsKP = function(
       
       # Look up genopair probabilities for this batch of loci and add to totals
       lg.gp.prbs.KP = lg.gp.prbs.KP + 
-        sapply(pss.gp.prbs.KP, function(pss.gp.prbs) {
+        apply(pss.gp.prbs.KP, 4, function(pss.gp.prbs) {
           rowSums(matrix(log(pss.gp.prbs)[ind.mat], nrow = n.pairs, byrow = T))
         })
       
@@ -83,9 +73,6 @@ FindLogGPProbsKP = function(
     }
   }, value = 0, message = "Finding genopair log-probabilities")
 
-  # Divide half-sibling pair log-probability by two at each locus
-  lg.gp.prbs.KP[, 2] = lg.gp.prbs.KP[, 2] - L * log(2)
-  
   # Display progress
   cat("Done \n")
   cat("Time taken:", proc.time()[3] - s.time, "seconds \n")

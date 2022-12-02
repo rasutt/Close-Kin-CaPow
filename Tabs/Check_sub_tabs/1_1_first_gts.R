@@ -1,3 +1,8 @@
+## First sample-histories
+output$firstSampHists = renderTable({
+  head(data.frame(fst.std()))
+})
+
 # Table of genotypes of first few individuals captured (can show kin-pairs
 # later)
 output$firstGTs = renderTable({
@@ -29,31 +34,28 @@ ale.frqs = reactive({
 # rows represent the first genotypes, and columns the second, ordered as 00, 01,
 # and 11, for binary SNPs.
 
-# First genotypes, found by indexing the 2 x L allele frequencies matrix for
-# each allele of each possible genotype (globally defined for SNP genotypes),
-# and multiplying by 2 possible cases for heterozygous genotypes.  Filled into a
-# 3 x 1 x L array which is indexed 3 times to fill the three columns.
-pss.gt.1.prbs = reactive({
-  array(
+pss.gp.prbs.KP = reactive({
+  # First genotypes, found by indexing the 2 x L allele frequencies matrix for
+  # each allele of each possible genotype (globally defined for SNP genotypes),
+  # and multiplying by 2 possible cases for heterozygous genotypes.  Filled into
+  # a 3 x 1 x L array which is indexed 3 times to fill the three columns.
+  pss.gt.1.prbs = array(
     ale.frqs()[ales.1.inds, ] * ale.frqs()[ales.2.inds, ] * 
       (1 + (ales.1.inds != ales.2.inds)), c(n.pss.gts, 1, L())
   )[, rep(1, 3), ]
-})
-
-# Conditional probabilities given that the pair are unrelated, the products of
-# the respective genotype probabilities, the second found by permuting the array
-# containing the first.
-pss.gp.prbs.UP = reactive({
-  pss.gt.1.prbs() * aperm(pss.gt.1.prbs(), c(2, 1, 3))
-})
-
-# Conditional probabilities of second genotype given that the pair are parent
-# and offspring (unordered).  0.5 for each allele in first genotype being
-# inherited, multiplied by the probability of the second genotype in each case,
-# as in table 3, pg. 269, Bravingtion et al. (2016) Close-Kin Mark-Recapture.
-# Filled into an L x 3 x 3 array which is permuted to the standard dimensions.
-pss.cnd.gt.2.prbs.POP = reactive({
-  aperm(
+  
+  # Conditional probabilities given that the pair are unrelated, the products of
+  # the respective genotype probabilities, the second found by permuting the
+  # array containing the first.
+  pss.gp.prbs.UP = pss.gt.1.prbs * aperm(pss.gt.1.prbs, c(2, 1, 3))
+  
+  # Conditional probabilities of second genotype given that the pair are parent
+  # and offspring (unordered).  0.5 for each allele in first genotype being
+  # inherited, multiplied by the probability of the second genotype in each
+  # case, as in table 3, pg. 269, Bravingtion et al. (2016) Close-Kin
+  # Mark-Recapture. Filled into an L x 3 x 3 array which is permuted to the
+  # standard dimensions.
+  pss.cnd.gt.2.prbs.POP = aperm(
     array(
       # Note: order data enters array is down columns, not across rows
       c(
@@ -63,34 +65,33 @@ pss.cnd.gt.2.prbs.POP = reactive({
       ), c(L(), n.pss.gts, n.pss.gts)
     ), c(2, 3, 1)
   )
-})
-
-# Conditional probabilities given that the pair are parent and offspring
-# (unordered). Products of the first genotype probabilities and the conditional
-# probabilities of the second genotypes given that the pair are parent and
-# offspring.
-pss.gp.prbs.POP = reactive({
-  pss.gt.1.prbs() * pss.cnd.gt.2.prbs.POP()
-})
-
-# Conditional probabilities given that the pair are the same individual sampled
-# twice. Genotype probabilities when the genotypes are the same, and zero
-# otherwise.
-pss.gp.prbs.SP = reactive({
-  aperm(
+  
+  # Conditional probabilities given that the pair are parent and offspring
+  # (unordered). Products of the first genotype probabilities and the
+  # conditional probabilities of the second genotypes given that the pair are
+  # parent and offspring.
+  pss.gp.prbs.POP = pss.gt.1.prbs * pss.cnd.gt.2.prbs.POP
+  
+  # Conditional probabilities given that the pair are the same individual
+  # sampled twice. Genotype probabilities when the genotypes are the same, and
+  # zero otherwise.
+  pss.gp.prbs.SP = aperm(
     array(
       cbind(
-        pss.gt.1.prbs()[1, 1, ], 0, 0, 0, pss.gt.1.prbs()[2, 2, ], 0, 0, 0, 
-        pss.gt.1.prbs()[3, 3, ]
+        pss.gt.1.prbs[1, 1, ], 0, 0, 0, pss.gt.1.prbs[2, 2, ], 0, 0, 0, 
+        pss.gt.1.prbs[3, 3, ]
       ), c(L(), n.pss.gts, n.pss.gts)
     ), c(2, 3, 1)
   )
-})
+  
+  # Conditional probabilities given that the pair are half-siblings.  Average of
+  # probabilities for unrelated and parent-offspring pairs.
+  pss.gp.prbs.HSP = (pss.gp.prbs.UP + pss.gp.prbs.POP) / 2
 
-# Conditional probabilities given that the pair are half-siblings.  Average of
-# probabilities for unrelated and parent-offspring pairs.
-pss.gp.prbs.HSP = reactive({
-  (pss.gp.prbs.UP() + pss.gp.prbs.POP()) / 2
+  array(
+    c(pss.gp.prbs.UP, pss.gp.prbs.HSP, pss.gp.prbs.POP, pss.gp.prbs.SP),
+    c(n.pss.gts, n.pss.gts, L(), 4)
+  )
 })
 
 # Table showing allele frequencies
@@ -103,60 +104,30 @@ output$firstAFs = renderTable({
 
 # Function to format genopair probabilities for display
 frmt.gpps = function(gpps) {
-  df = data.frame(gpps()[, , 1])
+  df = data.frame(gpps)
   names(df) = row.names(df) = c("00", "01", "11")
   df
 }
 
 # Table showing GPPs given unrelated
 output$firstGPPsUP = renderTable({
-  frmt.gpps(pss.gp.prbs.UP)
+  frmt.gpps(pss.gp.prbs.KP()[, , 1, 1])
 }, rownames = T)
 
 # Table showing GPPs given half-siblings
 output$firstGPPsHSP = renderTable({
-  frmt.gpps(pss.gp.prbs.HSP)
+  frmt.gpps(pss.gp.prbs.KP()[, , 1, 2])
 }, rownames = T)
 
 # Table showing GPPs given parent-offspring
 output$firstGPPsPOP = renderTable({
-  frmt.gpps(pss.gp.prbs.POP)
+  frmt.gpps(pss.gp.prbs.KP()[, , 1, 3])
 }, rownames = T)
 
 # Table showing GPPs given self-resample
 output$firstGPPsSP = renderTable({
-  frmt.gpps(pss.gp.prbs.SP)
+  frmt.gpps(pss.gp.prbs.KP()[, , 1, 4])
 }, rownames = T)
-
-# HSP vs UP pseudo log-likelihood ratios at each locus, calculated as on pg. 29
-# of Aldridge-Sutton (2019) New Methods ..., but subtracting log(2) later, after
-# summation, rather than now for each term separately. 
-pss.plods.pls.lg.2 = reactive({
-  log(1 + pss.gp.prbs.POP() / pss.gp.prbs.UP())
-})
-
-# Expected values of PLODs given kinships
-exp.plod.KP = reactive({
-  # Unrelated, parent-offspring, and self-pairs
-  exp.plod.base = sapply(
-    list(pss.gp.prbs.UP(), pss.gp.prbs.POP(), pss.gp.prbs.SP()),
-    function(gp.prbs) sum(gp.prbs * pss.plods.pls.lg.2()) / L()
-  )
-  
-  # First-cousin, avuncular, and half-sibling pairs
-  exp.plod.extd = 
-    (c(7, 3, 1) * exp.plod.base[1] + exp.plod.base[2]) / c(8, 4, 2)
-  
-  # Combine in order from furthest to closest kinship, add names, and return.
-  # P(gts|HSP) = (P(gts|UP) + P(gts|POP)) / 2 at each locus, so subtracting
-  # log(2) * n.loci divided by n.loci.
-  vec = c(exp.plod.base[1], exp.plod.extd, exp.plod.base[2:3]) - log(2)
-  names(vec) = c(
-    "Unrelated", "First cousin", "Avuncular", "Half-sibling",
-    "Parent-offspring", "Self"
-  )
-  vec
-})
 
 fst.smp.hst = reactive({
   as.matrix(fst.std()[, 4:(3 + k())])
@@ -202,18 +173,12 @@ observeEvent({
     is.null(lg.gp.prbs.KP())
   ) {
     lg.gp.prbs.KP(FindLogGPProbsKP(
-      smp.gts(), L(), pss.gp.prbs.UP(), pss.gp.prbs.POP(), pss.gp.prbs.SP(),
-      wtn.prs.inds
+      smp.gts(), L(), pss.gp.prbs.KP(), wtn.prs.inds
     ))
   }
 })
 
-gp.prbs.KP = reactive(exp(lg.gp.prbs.KP()))
-
-# Find half-sibling vs unrelated pairs PLODs from log genopair probabilities
-first.plods = reactive({
-  (lg.gp.prbs.KP()[, 2] - lg.gp.prbs.KP()[, 1]) / L()
-})
+# gp.prbs.KP = reactive(exp(lg.gp.prbs.KP()))
 
 # Table of genopair probabilities of first few pairs captured (can show
 # kin-pairs later)
@@ -222,13 +187,13 @@ output$firstGPPs = renderTable({
     fst.std()[smp.ind.prs()[1:3, 1], 1],
     fst.std()[smp.ind.prs()[1:3, 2], 1],
     smp.yr.ind.prs()[1:3, ],
-    gp.prbs.KP()[1:3, ],
+    # gp.prbs.KP()[1:3, ],
     lg.gp.prbs.KP()[1:3, ]
   ))
   names(df) = c(
     "ID1", "ID2", "Survey index 1", "Survey index 2",
-    paste0("P_", colnames(gp.prbs.KP())), 
-    paste0("Log_P_", colnames(gp.prbs.KP()))
+    # paste0("P_", colnames(gp.prbs.KP())), 
+    paste0("Log_P_", colnames(lg.gp.prbs.KP()))
   )
   df
 })
@@ -284,6 +249,37 @@ output$firstObsGPPs = renderPlot({
 #   #   )
 #   # )
 # })
+
+# Possible values of HSP vs UP PLODs
+pss.plods = reactive({
+  pss.gp.prbs.KP()[, , , 2] / pss.gp.prbs.KP()[, , , 1] / L()
+})
+
+# Expected values of HSP vs UP PLODs given kinships
+exp.plod.KP = reactive({
+  # Unrelated, parent-offspring, and self-pairs
+  exp.plod.base = apply(pss.gp.prbs.KP(), 4, function(pss.gpp.prbs) {
+    sum(pss.gpp.prbs * pss.plods())
+  })
+  
+  # First-cousin, avuncular, and half-sibling pairs
+  exp.plod.extd = (c(7, 3) * exp.plod.base[1] + exp.plod.base[2]) / c(8, 4)
+  
+  # Combine in order from furthest to closest kinship, add names, and return.
+  # P(gts|HSP) = (P(gts|UP) + P(gts|POP)) / 2 at each locus, so subtracting
+  # log(2) * n.loci divided by n.loci.
+  vec = c(exp.plod.base[1], exp.plod.extd, exp.plod.base[2:4])
+  names(vec) = c(
+    "Unrelated", "First cousin", "Avuncular", "Half-sibling",
+    "Parent-offspring", "Self"
+  )
+  vec
+})
+
+# Find half-sibling vs unrelated pairs PLODs from log genopair probabilities
+first.plods = reactive({
+  (lg.gp.prbs.KP()[, 2] - lg.gp.prbs.KP()[, 1]) / L()
+})
 
 # Plot PLODs
 output$firstPLODs = renderPlot({
