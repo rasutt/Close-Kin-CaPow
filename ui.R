@@ -205,38 +205,41 @@ ui <- fluidPage(
             in the study, by earliest birth year."),
           tableOutput(outputId = "firstSampHists"),
           
-          h3("Genotypes"),
+          h3("First sample genotypes"),
           h4("First few individuals captured"),
           tableOutput(outputId = "firstGTs"),
 
           h3("Allele frequencies"),
-          h4("Relative frequencies, excluding samples from same animals in
+          p("Relative frequencies, excluding samples from same animals in
              different surveys"),
           tableOutput(outputId = "firstAFs"),
           
           h3("Conditional genopair probabilities given kinship"),
           h4("Possible values at first locus"),
           fluidRow(
-            column(3, h4("Unrelated"), tableOutput(outputId = "firstGPPsUP")),
+            column(3, h5("Unrelated"), tableOutput(outputId = "firstGPPsUP")),
             column(
-              3, h4("Half-siblings"), tableOutput(outputId = "firstGPPsHSP")
+              3, h5("Half-siblings"), tableOutput(outputId = "firstGPPsHSP")
             ),
             column(
-              3, h4("Parent-offspring"), tableOutput(outputId = "firstGPPsPOP")
+              3, h5("Parent-offspring"), tableOutput(outputId = "firstGPPsPOP")
             ),
             column(
-              3, h4("Self-resample"), tableOutput(outputId = "firstGPPsSP")
+              3, h5("Self-resample"), tableOutput(outputId = "firstGPPsSP")
             )
           ),
-          h4("Observed values for first few samples, over all loci"),
+          h4("Observed values for first few sample-pairs, over all loci"),
           tableOutput(outputId = "firstGPPs"),
-          h4("Observed values for all samples, over all loci"),
+          h4("Observed values for all sample-pairs, over all loci"),
           plotOutput(outputId = "firstObsGPPs"),
           # plotOutput(outputId = "firstObsGPPs"),
 
-          h4("HSP vs UP PLODs for pairs of individuals captured"),
-          plotOutput(outputId = "firstPLODs"),
-          plotOutput(outputId = "firstPLODsRare"),
+          h3("Half-sibling vs unrelated pair PLODs for all sample-pairs"),
+          fluidRow(
+            column(6, plotOutput(outputId = "firstPLODs")),
+            column(6, plotOutput(outputId = "firstPLODsRare"))
+          ),
+          
           h3("Try to optimise likelihood"),
           tableOutput(outputId = "firstGPEsts")
         ),

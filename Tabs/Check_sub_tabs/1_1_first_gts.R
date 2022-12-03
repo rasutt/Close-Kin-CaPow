@@ -1,21 +1,3 @@
-## First sample-histories
-output$firstSampHists = renderTable({
-  head(data.frame(fst.std()))
-})
-
-# Table of genotypes of first few individuals captured (can show kin-pairs
-# later)
-output$firstGTs = renderTable({
-  gt = attributes(fst.std())$unq.smp.gts
-  df = data.frame(cbind(
-    rep(fst.std()$ID[1:3], each = 2), 
-    rep(paste0(c("m", "p"), "aternal"), 3),
-    rbind(gt[, , 1], gt[, , 2], gt[, , 3])
-  ))
-  names(df) = c("ID", "Allele", paste0("L", 1:L()))
-  df
-})
-
 # Find allele frequencies from genotypes in 2 x L x n_individuals arrays,
 # representing two binary SNPs at each locus for each individual, excluding
 # repeated samples of the same individual in different surveys.  Frequencies are
@@ -33,7 +15,6 @@ ale.frqs = reactive({
 # Probabilities of possible genopairs at each locus as 3 x 3 x L arrays, where
 # rows represent the first genotypes, and columns the second, ordered as 00, 01,
 # and 11, for binary SNPs.
-
 pss.gp.prbs.KP = reactive({
   # First genotypes, found by indexing the 2 x L allele frequencies matrix for
   # each allele of each possible genotype (globally defined for SNP genotypes),
@@ -94,6 +75,69 @@ pss.gp.prbs.KP = reactive({
   )
 })
 
+# Sample histories from first study, (n_animals x n_surveys)
+fst.smp.hsts = reactive(as.matrix(fst.std()[, 4:(3 + k())]))
+
+# Indices of samples from first study, (n_samples)
+smp.inds = reactive(row(fst.smp.hsts())[as.logical(fst.smp.hsts())])
+
+# Sample genotypes, (2 x L x n_samples), indexed from unique sampled genotypes,
+# (2 x L x n_animals), representing two binary SNPs at each locus for
+# each individual sampled at least once. They are expanded to arrays by indexing
+# sample genotypes.
+smp.gts = reactive(attributes(fst.std())$unq.smp.gts[, , smp.inds()])
+
+# Indices of pairs of samples from first study, (n_samples x 2)
+smp.ind.prs = reactive(t(combn(smp.inds(), 2)))
+
+# Indices of survey-years for each sample in each pair, starting at zero for
+# C++ template, and ordered by survey-year of first sample
+smp.yr.ind.prs = reactive({
+  t(combn(col(fst.smp.hsts())[as.logical(fst.smp.hsts())] - 1, 2))
+})
+
+# Indices of within-survey pairs to reduce search space later
+wtn.prs.inds = reactive(which(smp.yr.ind.prs()[, 1] == smp.yr.ind.prs[, 2]()))
+
+# Nullify genopair log-probabilities when new datasets simulated
+observeEvent(input$simulate, lg.gp.prbs.KP(NULL))
+
+# Find genopair log-probabilities as n.pairs x n.kp.tps matrix with rows for
+# pairs of individuals, and columns for types of kinships considered
+observeEvent(
+  {
+    input$nav.tab
+    input$check.sub.tabs
+  }, 
+  {
+    if (
+      input$nav.tab == "check.tab" && input$check.sub.tabs == "frst.gts.tb" &&
+      is.null(lg.gp.prbs.KP())
+    ) {
+      lg.gp.prbs.KP(
+        FindLogGPProbsKP(smp.gts(), L(), pss.gp.prbs.KP(), wtn.prs.inds)
+      )
+    }
+  }
+)
+
+gp.prbs.KP = reactive(exp(lg.gp.prbs.KP()))
+
+# First sample-histories
+output$firstSampHists = renderTable(head(data.frame(fst.std())))
+
+# Table of genotypes of first few individuals captured (can show kin-pairs
+# later)
+output$firstGTs = renderTable({
+  df = data.frame(cbind(
+    rep(fst.std()$ID[smp.inds()[1:3]], each = 2), 
+    rep(paste0(c("m", "p"), "aternal"), 3),
+    matrix(smp.gts()[, , 1:3], nrow = 6)
+  ))
+  names(df) = c("ID", "Allele", paste0("L", 1:L()))
+  df
+})
+
 # Table showing allele frequencies
 output$firstAFs = renderTable({
   df = data.frame(ale.frqs())
@@ -129,57 +173,6 @@ output$firstGPPsSP = renderTable({
   frmt.gpps(pss.gp.prbs.KP()[, , 1, 4])
 }, rownames = T)
 
-fst.smp.hst = reactive({
-  as.matrix(fst.std()[, 4:(3 + k())])
-})
-smp.inds = reactive({
-  row(fst.smp.hst())[as.logical(fst.smp.hst())]
-})
-smp.ind.prs = reactive({
-  t(combn(smp.inds(), 2))
-})
-
-# Add genotypes for repeated samples. Unique sampled genotypes are 2 x L x
-# n_animals arrays, representing two binary SNPs at each locus for each
-# individual sampled at least once. They are expanded to 2 x L x n_samples
-# arrays by repeating genotypes by numbers of samples per individual. Also order
-# by survey-year for easy look up of kinship probabilities in TMB later.
-smp.gts = reactive({
-  attributes(fst.std())$unq.smp.gts[, , smp.inds()]
-})
-
-# Indices of survey-years for each sample in each pair, starting at zero for
-# C++ template, and ordered by survey-year of first sample
-smp.yr.ind.prs = reactive({
-  t(combn(col(fst.smp.hst())[as.logical(fst.smp.hst())] - 1, 2))
-})
-
-# Indices of within-survey pairs
-wtn.prs.inds = reactive({
-  smp.yr.ind.prs()[, 1] == smp.yr.ind.prs[, 2]()
-})
-
-# Nullify genopair log-probabilities when new datasets simulated
-observeEvent(input$simulate, lg.gp.prbs.KP(NULL))
-
-# Find genopair log-probabilities as n.pairs x n.kp.tps matrix with rows for
-# pairs of individuals, and columns for types of kinships considered
-observeEvent({
-  input$nav.tab
-  input$check.sub.tabs
-}, {
-  if (
-    input$nav.tab == "check.tab" && input$check.sub.tabs == "frst.gts.tb" &&
-    is.null(lg.gp.prbs.KP())
-  ) {
-    lg.gp.prbs.KP(FindLogGPProbsKP(
-      smp.gts(), L(), pss.gp.prbs.KP(), wtn.prs.inds
-    ))
-  }
-})
-
-gp.prbs.KP = reactive(exp(lg.gp.prbs.KP()))
-
 # Table of genopair probabilities of first few pairs captured (can show
 # kin-pairs later)
 output$firstGPPs = renderTable({
@@ -198,6 +191,7 @@ output$firstGPPs = renderTable({
   df
 })
 
+# Histograms of genopair log-probabilities given basic kinships
 output$firstObsGPPs = renderPlot({
   par(mfrow = c(1, 4))
   br = 50
@@ -214,52 +208,14 @@ output$firstObsGPPs = renderPlot({
   )
 })
 
-# Plot GPPs - This is hard, but I do think it may be worthwhile as gives a
-# feeling for what's happening in multiple dimensions. The log-probabilities are
-# no good because most go to negative infinity for PO and SPs, but the GPPs
-# should still be worth a shot.
-
-# output$firstObsGPPs = renderPlot({
-#   lims = apply(gp.prbs.KP(), 2, max)
-#   x = seq(0, lims[1], len = 10)
-#   y = seq(0, lims[2], len = 10)
-#   z = outer(x, y, function(x, y) pmin(pmax(1 - x - y, 0), lims[4]))
-#   
-#   # Plot GPPs
-#   res = persp(
-#     x, y, z, main = "Genopair probabilities for all samples",
-#     xlab = "Unrelated", ylab = "Parent-offspring", zlab = "Self",
-#     xlim = c(0, lims[1]), ylim = c(0, lims[2]), zlim = c(0, lims[4]),
-#     tick = "detailed"
-#   )
-#   points(
-#     trans3d(
-#       gp.prbs.KP()[, 1], gp.prbs.KP()[, 3], gp.prbs.KP()[, 4], res
-#     ), col = rgb(1, 0, 0, 0.1)
-#   )  
-#   # # Plot expected values
-#   # abline(v = exp.plod.KP()[1], col = 2, lwd = 2)
-#   
-#   # # Add legend
-#   # legend(
-#   #   "topright", col = 1:7, lty = c(0, rep(1, 6)), cex = 1, lwd = 2,
-#   #   legend = c(
-#   #     "Expected value given kinship", "Unrelated", "First cousin",
-#   #     "Avuncular", "Half-sibling", "Parent-offspring", "Self"
-#   #   )
-#   # )
-# })
-
-# Possible values of HSP vs UP PLODs
-pss.plods = reactive({
-  log(pss.gp.prbs.KP()[, , , 2] / pss.gp.prbs.KP()[, , , 1])
-})
-
 # Expected values of HSP vs UP PLODs given kinships
 exp.plod.KP = reactive({
+  # Possible values of HSP vs UP PLODs
+  pss.plods = log(pss.gp.prbs.KP()[, , , 2] / pss.gp.prbs.KP()[, , , 1])
+  
   # Unrelated, parent-offspring, and self-pairs
   exp.plod.base = 
-    colSums(pss.gp.prbs.KP() * rep(pss.plods(), 4), dims = 3) / L()
+    colSums(pss.gp.prbs.KP() * rep(pss.plods, 4), dims = 3) / L()
   
   # First-cousin, avuncular, and half-sibling pairs
   exp.plod.extd = (c(7, 3) * exp.plod.base[1] + exp.plod.base[3]) / c(8, 4)
@@ -276,9 +232,7 @@ exp.plod.KP = reactive({
 })
 
 # Find half-sibling vs unrelated pairs PLODs from log genopair probabilities
-first.plods = reactive({
-  (lg.gp.prbs.KP()[, 2] - lg.gp.prbs.KP()[, 1]) / L()
-})
+first.plods = reactive((lg.gp.prbs.KP()[, 2] - lg.gp.prbs.KP()[, 1]) / L())
 
 # Plot PLODs
 output$firstPLODs = renderPlot({
@@ -357,3 +311,39 @@ output$firstGPEsts = renderTable({
   
   gp.tmb$est.se.df
 })
+
+# Plot GPPs - This is hard, but I do think it may be worthwhile as gives a
+# feeling for what's happening in multiple dimensions. The log-probabilities are
+# no good because most go to negative infinity for PO and SPs, but the GPPs
+# should still be worth a shot.
+
+# output$firstObsGPPs = renderPlot({
+#   lims = apply(gp.prbs.KP(), 2, max)
+#   x = seq(0, lims[1], len = 10)
+#   y = seq(0, lims[2], len = 10)
+#   z = outer(x, y, function(x, y) pmin(pmax(1 - x - y, 0), lims[4]))
+#   
+#   # Plot GPPs
+#   res = persp(
+#     x, y, z, main = "Genopair probabilities for all samples",
+#     xlab = "Unrelated", ylab = "Parent-offspring", zlab = "Self",
+#     xlim = c(0, lims[1]), ylim = c(0, lims[2]), zlim = c(0, lims[4]),
+#     tick = "detailed"
+#   )
+#   points(
+#     trans3d(
+#       gp.prbs.KP()[, 1], gp.prbs.KP()[, 3], gp.prbs.KP()[, 4], res
+#     ), col = rgb(1, 0, 0, 0.1)
+#   )  
+#   # # Plot expected values
+#   # abline(v = exp.plod.KP()[1], col = 2, lwd = 2)
+#   
+#   # # Add legend
+#   # legend(
+#   #   "topright", col = 1:7, lty = c(0, rep(1, 6)), cex = 1, lwd = 2,
+#   #   legend = c(
+#   #     "Expected value given kinship", "Unrelated", "First cousin",
+#   #     "Avuncular", "Half-sibling", "Parent-offspring", "Self"
+#   #   )
+#   # )
+# })
