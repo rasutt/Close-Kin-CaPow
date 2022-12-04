@@ -22,7 +22,7 @@ TryGenopairTMB <- function(
   )
   
   print(ck.opt)
-  print(summary(sdreport(obj)))
+  # print(summary(sdreport(obj)))
   
   # If optimiser hit error
   if (inherits(ck.opt, "try-error")) {

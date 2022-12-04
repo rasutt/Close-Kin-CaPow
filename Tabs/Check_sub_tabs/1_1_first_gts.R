@@ -258,9 +258,15 @@ output$firstPLODs = renderPlot({
 # Plot PLODs and zoom in on rare values representing likely close-kin
 output$firstPLODsRare = renderPlot({
   # Plot uncommon values
-  hist(
-    first.plods(), main = "Uncommon values suggest likely close-kin",
-    xlab = "PLOD", breaks = 200, ylim = c(0, 100)
+  # hist(
+  #   first.plods(), main = "Uncommon values suggest likely close-kin",
+  #   xlab = "PLOD", breaks = 200, ylim = c(0, 100)
+  # )
+  hst.data = hist(first.plods(), breaks = 200, plot = F) 
+  hst.data$counts = log(hst.data$counts + 1)
+  plot(
+    hst.data, main = "Frequency on log scale",
+    xlab = "PLOD", ylab = "Log (frequency + 1)"
   )
   
   # Plot expected values
