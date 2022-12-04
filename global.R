@@ -79,9 +79,13 @@ rglr.kp.ids = c("APs", "POPs", "SMPs", "SFPs", "FSPs", "HSPs")
 # alleles as 1 and 2 respectively, to index corresponding allele frequencies
 pss.gts = cbind(c(1, 1), 1:2, c(2, 2))
 n.pss.gts = 3
-ales.1.inds = pss.gts[1, ]
-ales.2.inds = pss.gts[2, ]
 
 # Find possible genopairs by indexing possible genotypes to get all combinations
 pss.gts.1 = pss.gts[, rep(1:n.pss.gts, n.pss.gts)]
 pss.gts.2 = pss.gts[, rep(1:n.pss.gts, each = n.pss.gts)]
+
+gp.prb.KP.tps = c(
+  "Unrelated", "Half-sibling", "Parent-offspring", "Self-resample"
+)
+
+

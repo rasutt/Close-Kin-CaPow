@@ -206,16 +206,16 @@ ui <- fluidPage(
           tableOutput(outputId = "firstSampHists"),
           
           h3("First sample genotypes"),
-          h4("First few individuals captured"),
+          p("First few individuals captured."),
           tableOutput(outputId = "firstGTs"),
 
           h3("Allele frequencies"),
           p("Relative frequencies, excluding samples from same animals in
-             different surveys"),
+             different surveys."),
           tableOutput(outputId = "firstAFs"),
           
           h3("Conditional genopair probabilities given kinship"),
-          h4("Possible values at first locus"),
+          p("Possible values at first locus."),
           fluidRow(
             column(3, h5("Unrelated"), tableOutput(outputId = "firstGPPsUP")),
             column(
@@ -228,10 +228,12 @@ ui <- fluidPage(
               3, h5("Self-resample"), tableOutput(outputId = "firstGPPsSP")
             )
           ),
-          h4("Observed values for first few sample-pairs, over all loci"),
-          tableOutput(outputId = "firstGPPs"),
-          h4("Observed values for all sample-pairs, over all loci"),
-          plotOutput(outputId = "firstObsGPPs"),
+          
+          h3("Conditional genopair log-probabilities given kinship"),
+          p("Observed values for first few sample-pairs, over all loci."),
+          tableOutput(outputId = "firstFewLGPPs"),
+          p("Observed values for all sample-pairs, over all loci."),
+          plotOutput(outputId = "firstLGPPs"),
           # plotOutput(outputId = "firstObsGPPs"),
 
           h3("Half-sibling vs unrelated pair PLODs for all sample-pairs"),

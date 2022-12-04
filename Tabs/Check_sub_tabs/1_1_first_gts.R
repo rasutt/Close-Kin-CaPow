@@ -16,19 +16,28 @@ ale.frqs = reactive({
 # rows represent the first genotypes, and columns the second, ordered as 00, 01,
 # and 11, for binary SNPs.
 pss.gp.prbs.KP = reactive({
+  ales.1.inds = pss.gts[1, ]
+  ales.2.inds = pss.gts[2, ]
+  
   # First genotypes, found by indexing the 2 x L allele frequencies matrix for
   # each allele of each possible genotype (globally defined for SNP genotypes),
   # and multiplying by 2 possible cases for heterozygous genotypes.  Filled into
   # a 3 x 1 x L array which is indexed 3 times to fill the three columns.
-  pss.gt.1.prbs = array(
+  pss.gt.prbs = matrix(
     ale.frqs()[ales.1.inds, ] * ale.frqs()[ales.2.inds, ] * 
-      (1 + (ales.1.inds != ales.2.inds)), c(n.pss.gts, 1, L())
-  )[, rep(1, 3), ]
+      (1 + (ales.1.inds != ales.2.inds)), 
+    nrow = 3
+  )
+  pss.gt.2.prbs = array(
+    rep(pss.gt.prbs, each = 3), 
+    c(n.pss.gts, n.pss.gts, L())
+  )
+  pss.gt.1.prbs = aperm(pss.gt.2.prbs, c(2, 1, 3))
   
   # Conditional probabilities given that the pair are unrelated, the products of
   # the respective genotype probabilities, the second found by permuting the
   # array containing the first.
-  pss.gp.prbs.UP = pss.gt.1.prbs * aperm(pss.gt.1.prbs, c(2, 1, 3))
+  pss.gp.prbs.UP = pss.gt.1.prbs * pss.gt.2.prbs
   
   # Conditional probabilities of second genotype given that the pair are parent
   # and offspring (unordered).  0.5 for each allele in first genotype being
@@ -121,8 +130,6 @@ observeEvent(
   }
 )
 
-gp.prbs.KP = reactive(exp(lg.gp.prbs.KP()))
-
 # First sample-histories
 output$firstSampHists = renderTable(head(data.frame(fst.std())))
 
@@ -175,54 +182,40 @@ output$firstGPPsSP = renderTable({
 
 # Table of genopair probabilities of first few pairs captured (can show
 # kin-pairs later)
-output$firstGPPs = renderTable({
+output$firstFewLGPPs = renderTable({
   df = data.frame(cbind(
     fst.std()[smp.ind.prs()[1:3, 1], 1],
     fst.std()[smp.ind.prs()[1:3, 2], 1],
     smp.yr.ind.prs()[1:3, ],
-    gp.prbs.KP()[1:3, ],
     lg.gp.prbs.KP()[1:3, ]
   ))
-  names(df) = c(
-    "ID1", "ID2", "Survey index 1", "Survey index 2",
-    paste0("P_", colnames(gp.prbs.KP())),
-    paste0("Log_P_", colnames(lg.gp.prbs.KP()))
-  )
+  names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
   df
 })
 
 # Histograms of genopair log-probabilities given basic kinships
-output$firstObsGPPs = renderPlot({
+output$firstLGPPs = renderPlot({
   par(mfrow = c(1, 4))
   br = 50
   xlab = "Log-probability"
-  hist(lg.gp.prbs.KP()[, "UP"], main = "Unrelated", xlab = xlab, br = br)
-  hist(
-    lg.gp.prbs.KP()[, "HSP"], main = "Half-sibling", xlab = xlab, br = br
-  )
-  hist(
-    lg.gp.prbs.KP()[, "POP"], main = "Parent-offspring", xlab = xlab, br = br
-  )
-  hist(
-    lg.gp.prbs.KP()[, "SP"], main = "Self-resample", xlab = xlab, br = br
-  )
+  lapply(1:4, function(i) {
+    hist(lg.gp.prbs.KP()[, i], main = gp.prb.KP.tps[i], xlab = xlab, br = br)
+  })
 })
 
 # Expected values of HSP vs UP PLODs given kinships
 exp.plod.KP = reactive({
-  # Possible values of HSP vs UP PLODs
+  # Possible values of HSP vs UP PLODs, leaving division by number of loci to
+  # next step after summation
   pss.plods = log(pss.gp.prbs.KP()[, , , 2] / pss.gp.prbs.KP()[, , , 1])
   
   # Unrelated, parent-offspring, and self-pairs
-  exp.plod.base = 
-    colSums(pss.gp.prbs.KP() * rep(pss.plods, 4), dims = 3) / L()
+  exp.plod.base = colSums(pss.gp.prbs.KP() * rep(pss.plods, 4), dims = 3) / L()
   
   # First-cousin, avuncular, and half-sibling pairs
   exp.plod.extd = (c(7, 3) * exp.plod.base[1] + exp.plod.base[3]) / c(8, 4)
   
   # Combine in order from furthest to closest kinship, add names, and return.
-  # P(gts|HSP) = (P(gts|UP) + P(gts|POP)) / 2 at each locus, so subtracting
-  # log(2) * n.loci divided by n.loci.
   vec = c(exp.plod.base[1], exp.plod.extd, exp.plod.base[2:4])
   names(vec) = c(
     "Unrelated", "First cousin", "Avuncular", "Half-sibling",
@@ -258,10 +251,6 @@ output$firstPLODs = renderPlot({
 # Plot PLODs and zoom in on rare values representing likely close-kin
 output$firstPLODsRare = renderPlot({
   # Plot uncommon values
-  # hist(
-  #   first.plods(), main = "Uncommon values suggest likely close-kin",
-  #   xlab = "PLOD", breaks = 200, ylim = c(0, 100)
-  # )
   hst.data = hist(first.plods(), breaks = 200, plot = F) 
   hst.data$counts = log(hst.data$counts + 1)
   plot(
