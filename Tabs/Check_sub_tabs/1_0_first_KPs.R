@@ -21,12 +21,6 @@ frmt.tbl = function(data, rw.nms, cl.nms) {
 # Population sizes
 FS.Nts.wtn = reactive(FS.atts()$N.t.vec[s.yr.inds()])
 
-# Total numbers of pairs
-FS.APs.wtn = reactive(choose(FS.atts()$N.t.vec[s.yr.inds()], 2))
-
-# Numbers of parent-offspring pairs
-FS.POPs.wtn = reactive(find.POPs.wtn(FS.atts(), k()))
-
 # Show table
 output$firstNsKPsWtnPop = renderTable({
   SMPs = find.SMPs.wtn(FS.atts(), k())
@@ -34,25 +28,15 @@ output$firstNsKPsWtnPop = renderTable({
   FSPs = find.FSPs.wtn(FS.atts(), k())
   frmt.tbl(
     rbind(
-      FS.Nts.wtn(), FS.APs.wtn(), FS.POPs.wtn(), SMPs, SFPs, FSPs, 
-      SMPs + SFPs - 2 * FSPs
+      FS.Nts.wtn(), reactive(choose(FS.Nts.wtn(), 2)), 
+      find.POPs.wtn(FS.atts(), k()), 
+      SMPs, SFPs, FSPs, SMPs + SFPs - 2 * FSPs
     ), 
     kp.tps.pop.wtn, srvy.yrs()
   )
 }, rownames = T)
 
 ## Between surveys
-
-# Total numbers of pairs
-FS.APs.btn = reactive({
-  combn(FS.Nts.wtn(), 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2])
-})
-
-# Numbers of self-pairs
-FS.SPs.btn = reactive(find.SPs(FS.atts(), k()))
-
-# Numbers of parent-offspring pairs
-FS.POPs.btn = reactive(find.POPs.btn(FS.atts(), k()))
 
 # Show table
 output$firstNsKPsBtnPop = renderTable({
@@ -62,7 +46,14 @@ output$firstNsKPsBtnPop = renderTable({
   FSPs = find.FSSPs.btn(FS.atts(), k()) - SPs.prnts.kwn
   frmt.tbl(
     rbind(
-      FS.APs.btn(), FS.SPs.btn(), SPs.prnts.kwn, FS.POPs.btn(),
+      # Total numbers of pairs
+      combn(FS.Nts.wtn(), 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]), 
+      
+      # Self-pairs with parents unknown and known
+      find.SPs(FS.atts(), k()), SPs.prnts.kwn, 
+      
+      # Other kin-pairs
+      find.POPs.btn(FS.atts(), k()),
       SMPs, SFPs, FSPs, SMPs + SFPs - 2 * FSPs
     ), 
     kp.tps.pop.btn, srvy.prs()
