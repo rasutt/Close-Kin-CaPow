@@ -1,8 +1,8 @@
 ## Predictions and proportional errors
 
-# Estimated numbers of kin-pairs for whole population
-est.ns.kps.pop = reactive({
-  FindEstNsKPsPop(
+# Predicted numbers of kin-pairs for whole population
+pred.ns.kps.pop = reactive({
+  FindPredNsKPsPop(
     exp.N.t(), s.yr.inds(), phi(), rho(), lambda(), alpha(), srvy.yrs(), k()
   )
 })
@@ -29,14 +29,14 @@ l.fnd.errs = function(ns, preds) {
 
 # Function to combine predictions within and between survey-years
 comb.preds = function(id) {
-  reactive(list(est.ns.kps.pop()$wtn[, id], est.ns.kps.pop()$btn[, id]))
+  reactive(list(pred.ns.kps.pop()$wtn[, id], pred.ns.kps.pop()$btn[, id]))
 }
 
 # Predictions
-ns.SPs.preds = reactive(rep(list(est.ns.kps.pop()$btn[, "SPs"]), 2))
+ns.SPs.preds = reactive(rep(list(pred.ns.kps.pop()$btn[, "SPs"]), 2))
 preds.lst = reactive({
   lst = lapply(rglr.kp.ids, function(kp.id) {
-    list(est.ns.kps.pop()$wtn[, kp.id], est.ns.kps.pop()$btn[, kp.id])
+    list(pred.ns.kps.pop()$wtn[, kp.id], pred.ns.kps.pop()$btn[, kp.id])
   })
   names(lst) = rglr.kp.ids
   lst
@@ -44,7 +44,7 @@ preds.lst = reactive({
 ns.SibPs.preds = reactive(c(preds.lst()[["FSPs"]], preds.lst()[["HSPs"]]))
 
 # Errors, can't be done with lists as want to keep reactives separate
-N.errs = reactive(list(find.errs(N.s.yrs(), est.ns.kps.pop()$wtn[, 1])))
+N.errs = reactive(list(find.errs(N.s.yrs(), pred.ns.kps.pop()$wtn[, 1])))
 phi.errs = reactive({
   list(matrix(
     find.errs(avg.phi.obs(), phi()), n.sims(), 

@@ -60,7 +60,6 @@ Type objective_function<Type>::operator() ()
   
   // Declare variables for loop
   Type expNsurvyr;
-  // Type prbHSPswtn;
   matrix<Type> prbPOPsmat(k, k);
   prbPOPsmat.setZero();
 
@@ -72,13 +71,6 @@ Type objective_function<Type>::operator() ()
     // Probability of POPs within sample
     prbPOPsmat(srvyind, srvyind) = Type(2.0) / (expNsurvyr - Type(1.0)) * rho * 
       (Type(1.0) + phi) / (lambda - pow(phi, 2));
-
-    // // Probability of HSPs within sample - expression not matching sim
-    // prbHSPswtn = Type(4.0) * rho / (expNsurvyr - Type(1.0)) * 
-    //   (Type(1.0) - phi / lambda) * pow(lambda / phi, alpha) * 
-    //   (lambda * (phi + lambda) / pow(lambda - pow(phi, 2), 2) -
-    //   Type(4.0) * rho * pow(lambda / phi, alpha) * 
-    //   pow(phi, 2) * lambda / pow(lambda - pow(phi, 3), 2));
   }
   
   // Self and parent-offspring pairs between samples

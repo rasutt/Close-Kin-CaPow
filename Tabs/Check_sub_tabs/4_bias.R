@@ -27,8 +27,8 @@ ns.kps.pop.wtn.errs = reactive({
 ns.kps.pop.btn.errs = reactive({
   arr = array(
     c(
-      ns.SPs.errs()[[1]], ns.SPs.errs()[[2]],
-      sapply(rglr.errs.lst(), function(errs) errs()[[2]])
+      ns.APs.errs()[[2]], ns.SPs.errs()[[1]], ns.SPs.errs()[[2]],
+      sapply(rglr.errs.lst()[-1], function(errs) errs()[[2]])
     ),
     dim = c(n.sims(), n.srvy.prs(), n.kp.tps.pop.btn),
     dimnames = list(NULL, Survey_pair = srvy.prs(), kp.type = kp.tps.pop.btn)

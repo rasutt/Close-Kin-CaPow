@@ -1,5 +1,5 @@
 # Function to find expected numbers of kin-pairs in whole population
-FindEstNsKPsPop = function(
+FindPredNsKPsPop = function(
     exp.N.t, s.yr.inds, phi, rho, lambda, alpha, srvy.yrs, k
 ) {
   ## Intermediate results
@@ -107,7 +107,7 @@ FindEstNsKPsPop = function(
       HSPs = exp.ns.HSPs.wtn
     ),
     btn = cbind(
-      APs = exp.ns.APs.btn, POPs = exp.ns.POPs.btn, SPs = exp.ns.SPs.btn, 
+      APs = exp.ns.APs.btn, SPs = exp.ns.SPs.btn, POPs = exp.ns.POPs.btn, 
       SMPs = exp.ns.SMPs.btn, SMPs.kwn.age = exp.ns.SMPs.kwn.age.btn,
       SFPs = exp.ns.SFPs.btn, FSPs = exp.ns.FSPs.btn, HSPs = exp.ns.HSPs.btn
     )

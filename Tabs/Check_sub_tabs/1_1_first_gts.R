@@ -296,7 +296,9 @@ output$firstGPEsts = renderTable({
         kinships underflow to zero:", mean(rowSums(gpp.adj) == 0), "\n")
   }
   
-  # Try to git genopair likelihood model
+  # Try to fit genopair likelihood model
+  print(table(smp.yr.ind.prs()[, 1], smp.yr.ind.prs()[, 2]))
+  print(str(gpp.slct))
   gp.tmb = TryGenopairTMB(
     if (any(all_undrflw)) gpp.adj else gpp.slct, 
     smp.yr.ind.prs(),
