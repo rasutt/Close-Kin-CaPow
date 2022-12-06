@@ -130,6 +130,30 @@ observeEvent(
   }
 )
 
+# Expected values of HSP vs UP PLODs given kinships
+exp.plod.KP = reactive({
+  # Possible values of HSP vs UP PLODs, leaving division by number of loci to
+  # next step after summation
+  pss.plods = log(pss.gp.prbs.KP()[, , , 2] / pss.gp.prbs.KP()[, , , 1])
+  
+  # Unrelated, parent-offspring, and self-pairs
+  exp.plod.base = colSums(pss.gp.prbs.KP() * rep(pss.plods, 4), dims = 3) / L()
+  
+  # First-cousin, avuncular, and half-sibling pairs
+  exp.plod.extd = (c(7, 3) * exp.plod.base[1] + exp.plod.base[3]) / c(8, 4)
+  
+  # Combine in order from furthest to closest kinship, add names, and return.
+  vec = c(exp.plod.base[1], exp.plod.extd, exp.plod.base[2:4])
+  names(vec) = c(
+    "Unrelated", "First cousin", "Avuncular", "Half-sibling",
+    "Parent-offspring", "Self"
+  )
+  vec
+})
+
+# Find half-sibling vs unrelated pairs PLODs from log genopair probabilities
+first.plods = reactive((lg.gp.prbs.KP()[, 2] - lg.gp.prbs.KP()[, 1]) / L())
+
 # First sample-histories
 output$firstSampHists = renderTable(head(data.frame(fst.std())))
 
@@ -202,30 +226,6 @@ output$firstLGPPs = renderPlot({
     hist(lg.gp.prbs.KP()[, i], main = gp.prb.KP.tps[i], xlab = xlab, br = br)
   })
 })
-
-# Expected values of HSP vs UP PLODs given kinships
-exp.plod.KP = reactive({
-  # Possible values of HSP vs UP PLODs, leaving division by number of loci to
-  # next step after summation
-  pss.plods = log(pss.gp.prbs.KP()[, , , 2] / pss.gp.prbs.KP()[, , , 1])
-  
-  # Unrelated, parent-offspring, and self-pairs
-  exp.plod.base = colSums(pss.gp.prbs.KP() * rep(pss.plods, 4), dims = 3) / L()
-  
-  # First-cousin, avuncular, and half-sibling pairs
-  exp.plod.extd = (c(7, 3) * exp.plod.base[1] + exp.plod.base[3]) / c(8, 4)
-  
-  # Combine in order from furthest to closest kinship, add names, and return.
-  vec = c(exp.plod.base[1], exp.plod.extd, exp.plod.base[2:4])
-  names(vec) = c(
-    "Unrelated", "First cousin", "Avuncular", "Half-sibling",
-    "Parent-offspring", "Self"
-  )
-  vec
-})
-
-# Find half-sibling vs unrelated pairs PLODs from log genopair probabilities
-first.plods = reactive((lg.gp.prbs.KP()[, 2] - lg.gp.prbs.KP()[, 1]) / L())
 
 # Plot PLODs
 output$firstPLODs = renderPlot({
@@ -305,6 +305,15 @@ output$firstGPEsts = renderTable({
     # smp.yr.ind.prs()[wtn.prs.inds, ], 
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr, alpha()
   )
+  
+  gp.r = TryGenopair(
+    if (any(all_undrflw)) gpp.adj else gpp.slct, 
+    smp.yr.ind.prs() + 1,
+    # smp.yr.ind.prs()[wtn.prs.inds, ], 
+    k(), fnl.year(), srvy.yrs(), alpha(), 
+    ck.start, ck.lwr, ck.upr
+  )
+  print(gp.r)
   
   gp.tmb$est.se.df
 })

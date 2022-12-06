@@ -1,13 +1,17 @@
 # Try to fit genopair model in R
-TryGenopair <- function() {
+TryGenopair <- function(
+    gpps, smp.yr.ind.prs, k, f.year, srvy.yrs, alpha, ck.start, ck.lwr, ck.upr
+) {
   # Run optimiser starting from true values
   ck.opt <- nlminb(
     start = ck.start,
-    obj = GenopairNLL,
+    objective = GenopairNLLR, 
+    gradient = NULL, hessian = NULL,
+    k, f.year, srvy.yrs, alpha, gpps, smp.yr.ind.prs,
     # scale = c(0.1, 1, 1000, rep(0.1, k)),
     control = list(eval.max = 400, iter.max = 1000),
     lower = ck.lwr, 
-    upper = ck.upr,
+    upper = ck.upr
   )
   
   # lambda = rho + phi

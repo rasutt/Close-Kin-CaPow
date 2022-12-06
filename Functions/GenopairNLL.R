@@ -1,7 +1,7 @@
 # Find genopair model negative log likelihood
-GenopairNLL <- function(params, k, f.year, srvy.yrs, ns.kps.lst, ns.caps) {
-  # print(params)
-  
+GenopairNLLR <- function(
+    params, k, f.year, srvy.yrs, alpha, gpps, smp.yr.ind.prs
+) {
   # Unpack parameters
   rho <- params[1]
   phi <- params[2]
@@ -12,66 +12,67 @@ GenopairNLL <- function(params, k, f.year, srvy.yrs, ns.kps.lst, ns.caps) {
   # to hold, otherwise nlminb gives warnings
   if (rho == 0) return(Inf)
   
-  # Set negative log likelihood to zero
-  nll <- 0
+  # Lambda minus phi-squared
+  lmb.m.ph.sq = lambda - phi^2
+  # Probability not new-born (phi over lambda)
+  p.o.l = phi / lambda
+  # Reciprocal of probability not new-born (phi over lambda)
+  l.o.p = lambda / phi
   
-  # Parent-offspring pairs within samples
+  # Find the expected number alive at the survey year
+  exp.N.s.yrs <- N.fin / lambda^(f.year - srvy.yrs)
+
+  # All pairs in survey years
+  exp.ns.APs.wtn = choose(exp.N.s.yrs, 2)
   
-  # Create vector for probability of POPs and SPs over survey-pairs
+  # Parent-offspring pairs within survey years
+  exp.ns.POPs.wtn = exp.N.s.yrs * rho * (1 + phi) / lmb.m.ph.sq
+  
+  # Survey-pair indices
+  s.pr.inds = combn(k, 2)
+  s.inds.1 = s.pr.inds[1, ]
+  s.inds.2 = s.pr.inds[2, ]
+  exp.N.s.yrs.1 = exp.N.s.yrs[s.inds.1]
+  exp.N.s.yrs.2 = exp.N.s.yrs[s.inds.2]
+  s.yrs.1 = srvy.yrs[s.inds.1]
+  s.yrs.2 = srvy.yrs[s.inds.2]
+  s.gaps = s.yrs.2 - s.yrs.1
+  p.t.s.gs = phi^s.gaps
+  
+  # All pairs between pairs of surveys
+  exp.ns.APs.btn = exp.N.s.yrs.1 * exp.N.s.yrs.2
+  
+  # Self-pairs between pairs of survey years
+  exp.ns.SPs.btn = p.t.s.gs * exp.N.s.yrs.1
+  
+  # Parent-offspring pairs between survey years
+  s.yrs.1.p.a = s.yrs.1 + alpha
+  exp.ns.POPs.btn = 2 * exp.ns.POPs.wtn[s.inds.1] * p.t.s.gs +
+    2 * exp.N.s.yrs.2 * (1 - p.o.l) * p.o.l^s.yrs.2 *
+    ((l.o.p^(s.yrs.1 + 1) - l.o.p^(pmin(s.yrs.1.p.a, s.yrs.2) + 1)) /
+       (1 - l.o.p) +
+       ifelse(
+         s.yrs.1.p.a < s.yrs.2,
+         (s.yrs.2 - s.yrs.1.p.a) * l.o.p^s.yrs.1.p.a,
+         0
+       ))
+
+  # Create matrices for probabilities of POPs and SPs over survey-pairs
   prb.POPs.mat <- prb.SPs.mat <- matrix(0, k, k)
+  diag(prb.POPs.mat) = exp.ns.POPs.wtn / exp.ns.APs.wtn
+  prb.POPs.mat[upper.tri(prb.POPs.mat)] = exp.ns.POPs.btn / exp.ns.APs.btn
+  prb.SPs.mat[upper.tri(prb.SPs.mat)] = exp.ns.SPs.btn / exp.ns.APs.btn
+  prb.UPs.mat = 1 - prb.POPs.mat - prb.SPs.mat
   
-  # Loop over number of surveys
-  for (srvy.ind in 1:k) {
-    # Find the expected number alive at the survey year
-    exp.N.srvy.yr <- N.fin / lambda^(f.year - srvy.yrs[srvy.ind])
-    
-    # If exp.N.srvy.yr < 5 some of the kin pair probabilities can be greater
-    # than one, or less than zero, producing tonnes of warnings in nlminb
-    if (exp.N.srvy.yr < 5) return(Inf)
-    
-    # Probability of POPs within sample
-    prb.POPs.mat[srvy.ind, srvy.ind] <- 
-      2 / (exp.N.srvy.yr - 1) * rho * (1 + phi) / (lambda - phi^2)
-  } 
-  
-  # Self and parent-offspring pairs between samples
-  
-  # Loop over all but last survey
-  for (srvy.ind.1 in 1:(k - 1)) {
-    # Find first survey year
-    srvy.yr.1 <- srvy.yrs[srvy.ind.1]
-    
-    # Loop over surveys with greater indices than first
-    for (srvy.ind.2 in (srvy.ind.1 + 1):k) {
-      # Find second survey year
-      srvy.yr.2 <- srvy.yrs[srvy.ind.2]
-      
-      # Find gap between surveys.  Remember not necessarily consecutive
-      srvy.gap <- srvy.yr.2 - srvy.yr.1
-      
-      # Find the expected numbers alive in survey years
-      exp.N.srvy.yr.1 <- N.fin / lambda^(f.year - srvy.yr.1)
-      exp.N.srvy.yr.2 <- N.fin / lambda^(f.year - srvy.yr.2)
-      
-      # Probability of SPs between samples
-      prb.SPs.mat[srvy.ind.1, srvy.ind.2] <- phi^srvy.gap / exp.N.srvy.yr.2
-      
-      # Probability of POPs between samples
-      s.yrs.1.p.a = s.yrs.1 + alpha
-      
-      prb.POPs.mat[srvy.ind.1, srvy.ind.2] <- 
-        2 * exp.ns.POPs.wtn[srvy.ind.1] * p.t.s.gs +
-        2 * exp.N.s.yrs.2 * (1 - p.o.l) * p.o.l^s.yrs.2 *
-        ((l.o.p^(s.yrs.1 + 1) - l.o.p^(pmin(s.yrs.1.p.a, s.yrs.2) + 1)) /
-           (1 - l.o.p) +
-           ifelse(
-             s.yrs.1.p.a < s.yrs.2,
-             (s.yrs.2 - s.yrs.1.p.a) * l.o.p^s.yrs.1.p.a,
-             0
-           ))
-      
-    }
-  }
+  # Find negative log-likelihood from genopair probabilities given kinships,
+  # n_pairs x n_kinships (UP, POP, SP), survey-year index-pairs, n_pairs x 2,
+  # and kinship probabilities given parameters, k x k for each kinship
+  nll = -sum(log(
+    gpps[, 1] * prb.UPs.mat[smp.yr.ind.prs] +
+      gpps[, 2] * prb.POPs.mat[smp.yr.ind.prs] +
+      gpps[, 3] * prb.SPs.mat[smp.yr.ind.prs]
+  ))
+  print(nll, digits = 20)
   
   # Return negative log likelihood
   nll
