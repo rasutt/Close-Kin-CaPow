@@ -72,7 +72,7 @@ GenopairNLLR <- function(
       gpps[, 2] * prb.POPs.mat[smp.yr.ind.prs] +
       gpps[, 3] * prb.SPs.mat[smp.yr.ind.prs]
   ))
-  print(nll, digits = 20)
+  print(nll, digits = 15)
   
   # Return negative log likelihood
   nll

@@ -306,50 +306,15 @@ output$firstGPEsts = renderTable({
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr, alpha()
   )
   
-  gp.r = TryGenopair(
-    if (any(all_undrflw)) gpp.adj else gpp.slct, 
-    smp.yr.ind.prs() + 1,
-    # smp.yr.ind.prs()[wtn.prs.inds, ], 
-    k(), fnl.year(), srvy.yrs(), alpha(), 
-    ck.start, ck.lwr, ck.upr
-  )
-  print(gp.r)
+  # # Checked that it give the same results in R
+  # gp.r = TryGenopair(
+  #   if (any(all_undrflw)) gpp.adj else gpp.slct, 
+  #   smp.yr.ind.prs() + 1,
+  #   k(), fnl.year(), srvy.yrs(), alpha(), 
+  #   ck.start, ck.lwr, ck.upr
+  # )
+  # print(gp.r)
   
   gp.tmb$est.se.df
 })
 
-# Plot GPPs - This is hard, but I do think it may be worthwhile as gives a
-# feeling for what's happening in multiple dimensions. The log-probabilities are
-# no good because most go to negative infinity for PO and SPs, but the GPPs
-# should still be worth a shot.
-
-# output$firstObsGPPs = renderPlot({
-#   lims = apply(gp.prbs.KP(), 2, max)
-#   x = seq(0, lims[1], len = 10)
-#   y = seq(0, lims[2], len = 10)
-#   z = outer(x, y, function(x, y) pmin(pmax(1 - x - y, 0), lims[4]))
-#   
-#   # Plot GPPs
-#   res = persp(
-#     x, y, z, main = "Genopair probabilities for all samples",
-#     xlab = "Unrelated", ylab = "Parent-offspring", zlab = "Self",
-#     xlim = c(0, lims[1]), ylim = c(0, lims[2]), zlim = c(0, lims[4]),
-#     tick = "detailed"
-#   )
-#   points(
-#     trans3d(
-#       gp.prbs.KP()[, 1], gp.prbs.KP()[, 3], gp.prbs.KP()[, 4], res
-#     ), col = rgb(1, 0, 0, 0.1)
-#   )  
-#   # # Plot expected values
-#   # abline(v = exp.plod.KP()[1], col = 2, lwd = 2)
-#   
-#   # # Add legend
-#   # legend(
-#   #   "topright", col = 1:7, lty = c(0, rep(1, 6)), cex = 1, lwd = 2,
-#   #   legend = c(
-#   #     "Expected value given kinship", "Unrelated", "First cousin",
-#   #     "Avuncular", "Half-sibling", "Parent-offspring", "Self"
-#   #   )
-#   # )
-# })

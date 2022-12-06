@@ -73,9 +73,9 @@ Type objective_function<Type>::operator() ()
     expNsurvyr = Nfinal / pow(lambda, fyear - srvyyrs(srvyind));
 
     // Probability of POPs within sample
-    prbPOPswtn = Type(4.0) / (expNsurvyr - Type(1.0)) * phi * rho /
-      (lambda - pow(phi, 2));
-
+    prbPOPswtn = Type(2.0) / (expNsurvyr - Type(1.0)) * rho * 
+      (Type(1.0) + phi) / (lambda - pow(phi, 2));
+    
     // Store probability of POPs between samples
     prbPOPswtnvec(srvyind) = prbPOPswtn;
     
@@ -130,38 +130,28 @@ Type objective_function<Type>::operator() ()
       // Probability of SPs between samples
       prbSPsbtn = pow(phi, srvygap) / expNsurvyr2;
 
-      // Set probability factor term to zero
-      prbPOPsbrnbtnfctr = Type(0.0);
-
-      // Loop over years between surveys
-      for(int gapyrind = 0; gapyrind < srvygap; gapyrind++) {
-        // Find which factor term to add, not sure of the biological
-        // significance lol
-        if(gapyrind > srvygap - alpha - 1) {
-          // Add to probability factor term
-          prbPOPsbrnbtnfctr = prbPOPsbrnbtnfctr +
-            pow(phi / lambda, gapyrind);
-        } else {
-          // Add to probability factor term
-          prbPOPsbrnbtnfctr = prbPOPsbrnbtnfctr +
-            pow(phi / lambda, srvygap - alpha - 1);
-        }
+      // Probability of POPs between samples
+      if(srvyyr1 + alpha < srvyyr2) {
+        prbPOPsbrnbtn = (srvyyr2 - (srvyyr1 + alpha)) * 
+          pow(lambda / phi, srvyyr1 + alpha);
+      } else {
+        prbPOPsbrnbtn = Type(0.0);
       }
-
-      // Probability of POPs where one born between samples
-      prbPOPsbrnbtn = Type(2.0) * rho / lambda / expNsurvyr1 *
-        prbPOPsbrnbtnfctr;
-
-      // Add modified probability from POPS that existed in the first survey.
-      // Strangely simplified with self-pair probability lol
-      prbPOPsbtn = prbPOPsbrnbtn + prbPOPswtnvec(srvyind1) * prbSPsbtn *
-        (expNsurvyr1 - 1);
+      prbPOPsbtn = prbPOPswtnvec(srvyind1) * 
+        (expNsurvyr1 - 1) / expNsurvyr2 * pow(phi, srvygap) + 
+        Type(2.0) / expNsurvyr1 * (Type(1.0) - phi / lambda) * 
+        pow(phi / lambda, srvyyr2) *
+        ((pow(lambda / phi, srvyyr1 + Type(1.0)) - 
+        pow(lambda / phi, std::min(srvyyr1 + alpha, srvyyr2) + Type(1.0))) / 
+        (Type(1.0) - lambda / phi) + prbPOPsbrnbtn);
 
       // Find number of non-POP-non-SPs within sample
       nonPOPsSPsbtn = nscaps(srvyind1) * nscaps(srvyind2) -
         nsSPsbtn(prcnt) - nsPOPsbtn(prcnt);
 
-      // Add negative log likelihood from numbers of SPs and POPs observed
+      // Add negative log likelihood from numbers of SPs and POPs observed.
+      // Omitting multinomial coefficient as only adds a constant w.r.t. the
+      // parameters.
       nll = nll -
         nsSPsbtn(prcnt) * log(prbSPsbtn) -
         nsPOPsbtn(prcnt) * log(prbPOPsbtn) -

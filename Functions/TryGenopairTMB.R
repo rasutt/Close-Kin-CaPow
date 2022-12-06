@@ -10,7 +10,7 @@ TryGenopairTMB <- function(
     alpha = alpha
   )
   obj <- MakeADFun(data, list(pars = ck.start), DLL = "GenopairNLL", silent = T)
-  print(obj$fn(obj$par), digits = 20)
+  print(obj$fn(obj$par), digits = 15)
   
   # Run optimiser starting from true values
   ck.opt <- try(

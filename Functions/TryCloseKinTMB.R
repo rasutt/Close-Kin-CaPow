@@ -17,7 +17,7 @@ TryCloseKinTMB <- function(
     nlminb(
       start = obj$par, obj = obj$fn, grad = obj$gr, hess = obj$he,
       # scale = c(0.1, 1, 1000),
-      control = list(iter.max = 400), lower = ck.lwr, upper = ck.upr,
+      control = list(iter.max = 400), lower = ck.lwr, upper = ck.upr
     )
   )
   
