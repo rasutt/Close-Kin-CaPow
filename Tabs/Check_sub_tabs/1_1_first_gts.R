@@ -40,14 +40,28 @@ frst.smp.gts = reactive(attributes(fst.std())$unq.smp.gts[, , frst.smp.inds()])
 # Indices of pairs of samples from first study, (n_samples x 2)
 frst.smp.ind.prs = reactive(t(combn(frst.smp.inds(), 2)))
 
+# 2 x n_pairs matrix of indices of samples in each pair to include in
+# likelihood, possibly all pairs or just consecutive pairs
+frst.smp.pr.inds = reactive({
+  n.smps = length(frst.smp.inds())
+  
+  # combn(n.smps, 2)
+  rbind(1:n.smps, c(2:n.smps, 1))
+})
+
 # Indices of survey-years for each sample in each pair, starting at zero for
 # C++ template, and ordered by survey-year of first sample
 frst.smp.yr.ind.prs = reactive({
-  t(combn(col(frst.smp.hsts())[as.logical(frst.smp.hsts())] - 1, 2))
+  # Indices of survey-years for each sample
+  smp.yr.inds = col(frst.smp.hsts())[as.logical(frst.smp.hsts())] - 1
+  # n_pairs x 2 matrix of survey-years for each sample in each pair
+  matrix(smp.yr.inds[as.vector(t(frst.smp.pr.inds()))], ncol = 2)
 })
 
 # Indices of within-survey pairs to reduce search space later
-frst.wtn.prs.inds = reactive(which(frst.smp.yr.ind.prs()[, 1] == frst.smp.yr.ind.prs[, 2]()))
+frst.wtn.prs.inds = reactive({
+  which(frst.smp.yr.ind.prs()[, 1] == frst.smp.yr.ind.prs[, 2]())
+})
 
 # Nullify genopair log-probabilities when new datasets simulated
 observeEvent(input$simulate, frst.lg.gp.prbs.KP(NULL))
@@ -64,9 +78,9 @@ observeEvent(
       input$nav.tab == "check.tab" && input$check.sub.tabs == "frst.gts.tb" &&
       is.null(frst.lg.gp.prbs.KP())
     ) {
-      frst.lg.gp.prbs.KP(
-        FindLogGPProbsKP(frst.smp.gts(), L(), frst.pss.gp.prbs.KPs(), frst.wtn.prs.inds)
-      )
+      frst.lg.gp.prbs.KP(FindLogGPProbsKP(
+        frst.smp.gts(), frst.smp.pr.inds(), L(), frst.pss.gp.prbs.KPs()
+      ))
     }
   }
 )

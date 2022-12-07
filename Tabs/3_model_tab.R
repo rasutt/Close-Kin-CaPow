@@ -42,16 +42,25 @@ fit.gp = reactive(if (input$close.kin) {
       smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
       smp.inds = row(smp.hsts)[as.logical(smp.hsts)]
       smp.gts = attributes(pop.cap.hist)$unq.smp.gts[, , smp.inds]
+      n.smps = length(smp.inds)
+      
+      # 2 x n_pairs matrix of indices of samples in each pair to include in
+      # likelihood, possibly all pairs or just consecutive pairs
+      # smp.pr.inds = combn(n.smps, 2)
+      smp.pr.inds = rbind(1:n.smps, c(2:n.smps, 1))
       
       # Frequencies of 1-coded SNP alleles are means over both alleles at each
       # locus for each sample
       ale.frqs.1 = apply(attributes(pop.cap.hist)$unq.smp.gts, 2, mean)
       # Combine with frequencies for 0-coded alleles
       ale.frqs = rbind(1 - ale.frqs.1, ale.frqs.1)
-      pss.gp.prbs.KPs = 
-        find.pss.gp.prbs.KPs(pss.gts, n.pss.gts, ale.frqs, L())
+      # Possible genopair probabilities at each locus given each kinship
+      pss.gp.prbs.KPs = find.pss.gp.prbs.KPs(pss.gts, n.pss.gts, ale.frqs, L())
+      # Genopair log-probabilities over all loci given each kinship, for each
+      # pair to include in likelihood
       lg.gp.prbs.KPs = 
-        FindLogGPProbsKP(smp.gts, L(), pss.gp.prbs.KPs)
+        FindLogGPProbsKP(smp.gts, smp.pr.inds, L(), pss.gp.prbs.KPs)
+      
       # Get genopair probabilities (by excluding probabilities given half-sibs
       # for now) and check for pairs where all probabilities underflow to zero
       lg.gpp.slct = lg.gp.prbs.KPs[, -2]
@@ -79,7 +88,10 @@ fit.gp = reactive(if (input$close.kin) {
         kinships underflow to zero:", mean(rowSums(gpp.adj) == 0), "\n")
       }
       
-      smp.yr.ind.prs = t(combn(col(smp.hsts)[as.logical(smp.hsts)] - 1, 2))
+      # Indices of survey-years for each sample
+      smp.yr.inds = col(smp.hsts)[as.logical(smp.hsts)] - 1
+      # n_pairs x 2 matrix of survey-years for each sample in each pair
+      smp.yr.ind.prs = matrix(smp.yr.inds[as.vector(t(smp.pr.inds))], ncol = 2)
       
       # Try to fit genopair likelihood model
       gp.tmb.res = TryGenopairTMB(
