@@ -103,7 +103,7 @@ Type objective_function<Type>::operator() ()
   // Self and parent-offspring pairs between samples
 
   // Declare variables for loop
-  Type expNsurvyr1, expNsurvyr2, prbPOPsbrnbtn, prbPOPsbrnbtnfctr;
+  Type expNsurvyr1, expNsurvyr2, prbPOPsbrnbtn;
   Type prbPOPsbtn, prbSPsbtn;
   int srvyyr1, srvyyr2, srvygap, nonPOPsSPsbtn;
 

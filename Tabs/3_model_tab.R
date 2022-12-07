@@ -1,9 +1,104 @@
 # Number of parameters
 n.pars = reactive(length(est.par.names()))
 # Names of models requested
-mod.names = reactive(mod.choices[c(input$popan, input$close.kin)])
+mod.names = reactive({
+  mod.choices[c(input$popan, input$close.kin, input$genopair)]
+})
 # Number of models requested
-n.mods = reactive(input$popan + input$close.kin)
+n.mods = reactive(input$popan + input$close.kin + input$genopair)
+
+# Fit close-kin model
+fit.gp = reactive(if (input$close.kin) {
+  # Create general optimizer starting-values and bounds, NAs filled in below
+  ck.start <- c(rho(), phi(), NA)
+  ck.lwr <- c(0, 0.75, NA)
+  ck.upr <- c(0.35, 1, Inf)
+  
+  # Create vector for model convergences
+  gp.tmb.cnvg <- numeric(n.sims())
+  
+  # Create matrices for estimates and standard errors
+  gp.tmb.ests <- gp.tmb.ses <- matrix(
+    nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
+  )
+  
+  # Loop over histories
+  withProgress({
+    for (hist.ind in 1:n.sims()) {
+      # Display progress
+      cat("History:", hist.ind, "\n")
+      
+      # Get simulated family and capture histories of population of animals
+      # over time
+      pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
+      
+      # Get numbers of animals captured in each survey
+      ns.caps <- attributes(pop.cap.hist)$ns.caps
+      
+      # Update optimiser starting-values and bounds
+      ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
+      ck.lwr[3] <- ns.caps[k()]
+      
+      smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
+      smp.inds = row(smp.hsts)[as.logical(smp.hsts)]
+      smp.gts = attributes(pop.cap.hist)$unq.smp.gts[, , smp.inds]
+      
+      # Frequencies of 1-coded SNP alleles are means over both alleles at each
+      # locus for each sample
+      ale.frqs.1 = apply(attributes(pop.cap.hist)$unq.smp.gts, 2, mean)
+      # Combine with frequencies for 0-coded alleles
+      ale.frqs = rbind(1 - ale.frqs.1, ale.frqs.1)
+      pss.gp.prbs.KPs = 
+        find.pss.gp.prbs.KPs(pss.gts, n.pss.gts, ale.frqs, L())
+      lg.gp.prbs.KPs = 
+        FindLogGPProbsKP(smp.gts, L(), pss.gp.prbs.KPs)
+      # Get genopair probabilities (by excluding probabilities given half-sibs
+      # for now) and check for pairs where all probabilities underflow to zero
+      lg.gpp.slct = lg.gp.prbs.KPs[, -2]
+      gpp.slct = exp(lg.gpp.slct)
+      all_undrflw = rowSums(gpp.slct) == 0
+      
+      # If there is underflow adjust log-probabilities by factor giving equal
+      # weight to smallest and largest values to avoid both under and overflow
+      if (any(all_undrflw)) {
+        cat("Proportion of pairs for which probabilities given all kinships 
+        underflow to zero:", mean(all_undrflw), "\n")
+        
+        # Want smallest maximum kinship probability and largest probability to
+        # be equally far from one
+        adj = mean(c(min(apply(lg.gpp.slct, 1, max)), max(lg.gpp.slct)))
+        lg.gpp.adj = lg.gpp.slct - adj
+        gpp.adj = exp(lg.gpp.adj)
+        
+        # Show adjustment and results
+        cat("Probabilities adjusted by factor of exp(", adj, ")\n", sep = "")
+        print("Adjusted log-probabilities and probabilities of genopairs:")
+        print(summary(lg.gpp.adj))
+        print(summary(gpp.adj))
+        cat("Proportion of pairs for which adjusted probabilities given all 
+        kinships underflow to zero:", mean(rowSums(gpp.adj) == 0), "\n")
+      }
+      
+      smp.yr.ind.prs = t(combn(col(smp.hsts)[as.logical(smp.hsts)] - 1, 2))
+      
+      # Try to fit genopair likelihood model
+      gp.tmb.res = TryGenopairTMB(
+        if (any(all_undrflw)) gpp.adj else gpp.slct, smp.yr.ind.prs, 
+        k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr,
+        alpha()
+      )
+      gp.tmb.ests[hist.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 1]
+      gp.tmb.ses[hist.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 2]
+      gp.tmb.cnvg[hist.ind] = gp.tmb.res$cnvg
+      
+      incProgress(1/n.sims())
+    }
+  }, value = 0, message = "Fitting genopair model")
+  
+  # Combine model estimates, standard errors, and convergences, and return as
+  # lists
+  list(ests = gp.tmb.ests, ses = gp.tmb.ses, cnvgs = !gp.tmb.cnvg)
+})
 
 # Fit close-kin model
 fit.ck = reactive(if (input$close.kin) {
@@ -123,13 +218,21 @@ observeEvent(
   input$nav.tab, 
   if (input$nav.tab == "model.tab" && is.null(fit.lst())) {
     # Boolean for models requested 
-    mod.bool = c(input$popan, input$close.kin)
+    mod.bool = c(input$popan, input$close.kin, input$genopair)
     
     fit.lst(list(
-      ests = list(popan = fit.ppn()$ests, close.kin = fit.ck()$ests)[mod.bool],
-      ses = list(popan = fit.ppn()$ses, close.kin = fit.ck()$ses)[mod.bool],
-      cnvgs = 
-        list(popan = fit.ppn()$cnvgs, close.kin = fit.ck()$cnvgs)[mod.bool]
+      ests = list(
+        popan = fit.ppn()$ests, close.kin = fit.ck()$ests,
+        genopair = fit.gp()$ests
+      )[mod.bool],
+      ses = list(
+        popan = fit.ppn()$ses, close.kin = fit.ck()$ses,
+        genopair = fit.gp()$ses
+      )[mod.bool],
+      cnvgs = list(
+        popan = fit.ppn()$cnvgs, close.kin = fit.ck()$cnvgs,
+        genopair = fit.gp()$cnvgs
+      )[mod.bool]
     ))
   })
 
@@ -294,7 +397,7 @@ output$CIPlot = renderPlot({
           rep(par.vals()[p], n.sims()), 
           main = mod.names()[m], ylab = est.par.names()[p], xlab = "", 
           type = 'n'
-          )
+        )
       } 
       # Otherwise plot CIs
       else {

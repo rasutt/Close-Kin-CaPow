@@ -1,6 +1,9 @@
 # Load shiny package
 library(shiny)
 
+# Load high-precision numbers package
+library(Rmpfr)
+
 # Function to make outputs for values, biases, and errors
 VBE.ui <- function(id, types, descs) {
   ns <- NS(id)
@@ -126,6 +129,9 @@ ui <- fluidPage(
           ),
           checkboxInput(
             inputId = "close.kin", label = "Close-kin model", value = T
+          ),
+          checkboxInput(
+            inputId = "genopair", label = "Genopair model", value = T
           )
         ),
         # Outputs ---- 

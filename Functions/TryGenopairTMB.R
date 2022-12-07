@@ -22,9 +22,6 @@ TryGenopairTMB <- function(
     )
   )
   
-  print(ck.opt)
-  # print(summary(sdreport(obj)))
-  
   # If optimiser hit error
   if (inherits(ck.opt, "try-error")) {
     cat("Optimiser reports error for close kin model using TMB \n")
