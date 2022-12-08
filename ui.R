@@ -368,6 +368,7 @@ ui <- fluidPage(
       value = "model.tab",
       h2("Analyze model performance"),
       h3("Model fitting success rates"),
+      tableOutput(outputId = "nDatasets"),
       tableOutput(outputId = "modStats"),
       h3("Estimates"),
       plotOutput(outputId = "modComp"),

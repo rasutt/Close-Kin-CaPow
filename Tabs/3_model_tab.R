@@ -318,6 +318,13 @@ check.ests = reactive({
   )
 })
 
+# Show number of datasets models fit to
+output$nDatasets = renderTable({
+  df = data.frame(n.sims())
+  names(df) = "Number of datasets"
+  df
+})
+
 # Show convergence, standard error acceptance, and confidence interval
 # acceptance rates for all models requested
 output$modStats = renderTable({
