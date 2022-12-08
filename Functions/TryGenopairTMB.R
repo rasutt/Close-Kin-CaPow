@@ -24,7 +24,7 @@ TryGenopairTMB <- function(
   
   # If optimiser hit error
   if (inherits(ck.opt, "try-error")) {
-    cat("Optimiser reports error for close kin model using TMB \n")
+    cat("Optimiser reports error for genopair model using TMB \n")
     return(NA)
   }
   

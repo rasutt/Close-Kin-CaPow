@@ -1,16 +1,13 @@
 # Function to find log-genopair probabilities given that the individuals form
 # one of a set of possible kinpairs.  Computes over batches of loci to limit
 # memory usage to ~1Gb.
-FindLogGPProbsKP = function(
-    smp.gts, smp.pr.inds, L, pss.gp.prbs.KP
-) {
+FindLogGPProbsKP = function(smp.gts, smp.pr.inds, L, pss.gp.prbs.KP) {
   # Indices of first and second samples in each pair
   smp.1.inds = smp.pr.inds[1, ]
   smp.2.inds = smp.pr.inds[2, ]
   
-  n.pairs = choose(length(smp.1.inds), 2)
-  # n.pairs = sum(wtn.prs.inds)
-  
+  n.pairs = length(smp.1.inds)
+
   n.KP.tps = dim(pss.gp.prbs.KP)[4]
   
   lg.pss.gp.prbs.KP = log(pss.gp.prbs.KP)

@@ -2,7 +2,7 @@
 library(shiny)
 
 # Load high-precision numbers package
-library(Rmpfr)
+# library(Rmpfr)
 
 # Function to make outputs for values, biases, and errors
 VBE.ui <- function(id, types, descs) {
@@ -47,7 +47,7 @@ ui <- fluidPage(
   navbarPage(
     title = "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "check.tab",
+    selected = "model.tab",
     position = "fixed-top",
     
     # Sim tab ----
@@ -118,17 +118,17 @@ ui <- fluidPage(
           ),
           sliderInput(
             inputId = "n.sims", label = "Number of studies to simulate:",
-            1, 1000, value = 1
+            1, 1000, value = 10
           ),
           actionButton(
             inputId = "simulate", label = "Simulate studies"
           ),
           # helpText("~3 seconds per 100 populations"),
           checkboxInput(
-            inputId = "popan", label = "Popan model", value = T
+            inputId = "popan", label = "Popan model", value = F
           ),
           checkboxInput(
-            inputId = "close.kin", label = "Close-kin model", value = T
+            inputId = "close.kin", label = "Close-kin model", value = F
           ),
           checkboxInput(
             inputId = "genopair", label = "Genopair model", value = T

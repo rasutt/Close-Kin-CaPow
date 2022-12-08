@@ -108,7 +108,10 @@ exp.plod.KP = reactive({
 })
 
 # Find half-sibling vs unrelated pairs PLODs from log genopair probabilities
-first.plods = reactive((frst.lg.gp.prbs.KP()[, 2] - frst.lg.gp.prbs.KP()[, 1]) / L())
+first.plods = reactive({
+  print(str(frst.lg.gp.prbs.KP()))
+  (frst.lg.gp.prbs.KP()[, 2] - frst.lg.gp.prbs.KP()[, 1]) / L()
+})
 
 ## Outputs
 
@@ -138,8 +141,8 @@ output$firstAFs = renderTable({
 
 # Function to format genopair probabilities for display
 frmt.gpps = function(gpps) {
-  # df = data.frame(gpps)
-  df = data.frame(asNumeric(gpps))
+  df = data.frame(gpps)
+  # df = data.frame(asNumeric(gpps))
   names(df) = row.names(df) = c("00", "01", "11")
   df
 }
@@ -183,7 +186,12 @@ output$firstLGPPs = renderPlot({
   br = 50
   xlab = "Log-probability"
   lapply(1:4, function(i) {
-    hist(frst.lg.gp.prbs.KP()[, i], main = gp.prb.KP.tps[i], xlab = xlab, br = br)
+    # Plotting may fail if all log-probabilities negative infinity
+    if(any(is.finite(frst.lg.gp.prbs.KP()[, i]))) {
+      hist(
+        frst.lg.gp.prbs.KP()[, i], main = gp.prb.KP.tps[i], xlab = xlab, br = br
+      )
+    } else plot.new()
   })
 })
 

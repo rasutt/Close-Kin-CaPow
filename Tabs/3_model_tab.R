@@ -8,7 +8,7 @@ mod.names = reactive({
 n.mods = reactive(input$popan + input$close.kin + input$genopair)
 
 # Fit close-kin model
-fit.gp = reactive(if (input$close.kin) {
+fit.gp = reactive(if (input$genopair) {
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), NA)
   ck.lwr <- c(0, 0.75, NA)
@@ -47,7 +47,8 @@ fit.gp = reactive(if (input$close.kin) {
       # 2 x n_pairs matrix of indices of samples in each pair to include in
       # likelihood, possibly all pairs or just consecutive pairs
       # smp.pr.inds = combn(n.smps, 2)
-      smp.pr.inds = rbind(1:n.smps, c(2:n.smps, 1))
+      # smp.pr.inds = rbind(1:n.smps, c(2:n.smps, 1))
+      smp.pr.inds = rbind(1:(n.smps - 1), 2:n.smps)
       
       # Frequencies of 1-coded SNP alleles are means over both alleles at each
       # locus for each sample
@@ -93,15 +94,22 @@ fit.gp = reactive(if (input$close.kin) {
       # n_pairs x 2 matrix of survey-years for each sample in each pair
       smp.yr.ind.prs = matrix(smp.yr.inds[as.vector(t(smp.pr.inds))], ncol = 2)
       
+      print(table(smp.yr.ind.prs[, 1], smp.yr.ind.prs[, 2]))
+      print(str(gpp.slct))
+      
       # Try to fit genopair likelihood model
       gp.tmb.res = TryGenopairTMB(
         if (any(all_undrflw)) gpp.adj else gpp.slct, smp.yr.ind.prs, 
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr,
         alpha()
       )
-      gp.tmb.ests[hist.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 1]
-      gp.tmb.ses[hist.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 2]
-      gp.tmb.cnvg[hist.ind] = gp.tmb.res$cnvg
+      
+      # If optimiser did not give error
+      if(!all(is.na(gp.tmb.res))) {
+        gp.tmb.ests[hist.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 1]
+        gp.tmb.ses[hist.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 2]
+        gp.tmb.cnvg[hist.ind] = gp.tmb.res$cnvg
+      }
       
       incProgress(1/n.sims())
     }
@@ -226,8 +234,7 @@ observeEvent(input$simulate, {
 })
 
 # Combine model estimates and update in fit.lst reactive value
-observeEvent(
-  input$nav.tab, 
+observeEvent(input$nav.tab, {
   if (input$nav.tab == "model.tab" && is.null(fit.lst())) {
     # Boolean for models requested 
     mod.bool = c(input$popan, input$close.kin, input$genopair)
@@ -246,7 +253,8 @@ observeEvent(
         genopair = fit.gp()$cnvgs
       )[mod.bool]
     ))
-  })
+  }
+})
 
 # Check when optimizer converged and standard errors calculable
 check.ests = reactive({
@@ -334,21 +342,24 @@ output$modComp <- renderPlot({
   # Set four plots per figure
   par(mfrow = c(2, 2))
   
-  # Plot estimates from all models side-by-side
-  ComparisonPlot(
-    lapply(check.ests()$ests, function(ests.mat) ests.mat[, 1]), 
-    "Population growth rate", lambda()
-  )
-  ComparisonPlot(
-    lapply(check.ests()$ests, function(ests.mat) ests.mat[, 2]),
-    "Survival rate", phi()
-  )
-  ComparisonPlot(
-    check.ests()$N.fin.errs, "Final population size proportional errors", 0
-  )
-  ComparisonPlot(
-    check.ests()$Ns.errs, "Super-population size proportional errors", 0
-  )
+  # If any estimates OK
+  if(check.ests()$prpn.cis.ok > 0) {
+    # Plot estimates from all models side-by-side
+    ComparisonPlot(
+      lapply(check.ests()$ests, function(ests.mat) ests.mat[, 1]), 
+      "Population growth rate", lambda()
+    )
+    ComparisonPlot(
+      lapply(check.ests()$ests, function(ests.mat) ests.mat[, 2]),
+      "Survival rate", phi()
+    )
+    ComparisonPlot(
+      check.ests()$N.fin.errs, "Final population size proportional errors", 0
+    )
+    ComparisonPlot(
+      check.ests()$Ns.errs, "Super-population size proportional errors", 0
+    )
+  }
 })
 
 # Print CI coverage
