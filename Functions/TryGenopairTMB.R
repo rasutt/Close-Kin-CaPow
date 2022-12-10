@@ -1,7 +1,5 @@
-# Try to fit genopair model with TMB
-TryGenopairTMB <- function(
-    gp.prbs, smp.yr.inds, k, srvy.gaps, f.year, srvy.yrs, ck.start, 
-    ck.lwr, ck.upr, alpha
+MakeGPObj <- function(
+    gp.prbs, smp.yr.inds, k, srvy.gaps, f.year, srvy.yrs, alpha, ck.start
 ) {
   # Create TMB function
   data <- list(
@@ -9,7 +7,17 @@ TryGenopairTMB <- function(
     k = k, srvygaps = srvy.gaps, fyear = f.year, srvyyrs = srvy.yrs, 
     alpha = alpha
   )
-  obj <- MakeADFun(data, list(pars = ck.start), DLL = "GenopairNLL", silent = T)
+  MakeADFun(data, list(pars = ck.start), DLL = "GenopairNLL", silent = T)
+}
+
+# Try to fit genopair model with TMB
+TryGenopairTMB <- function(
+    gp.prbs, smp.yr.inds, k, srvy.gaps, f.year, srvy.yrs, ck.start, 
+    ck.lwr, ck.upr, alpha
+) {
+  obj = MakeGPObj(
+    gp.prbs, smp.yr.inds, k, srvy.gaps, f.year, srvy.yrs, alpha, ck.start
+  )
   print(obj$fn(obj$par), digits = 15)
   
   # Run optimiser starting from true values

@@ -256,27 +256,10 @@ ui <- fluidPage(
           h2("First study estimates"),
           p("Parameter estimates for first simulated study"),
 
-          # h3("Genopair probabilities given kinship"),
-          # p("Possible values at first locus."),
-          # fluidRow(
-          #   column(3, h5("Unrelated"), tableOutput(outputId = "firstGPPsUP")),
-          #   column(
-          #     3, h5("Half-siblings"), tableOutput(outputId = "firstGPPsHSP")
-          #   ),
-          #   column(
-          #     3, h5("Parent-offspring"), tableOutput(outputId = "firstGPPsPOP")
-          #   ),
-          #   column(
-          #     3, h5("Self-resample"), tableOutput(outputId = "firstGPPsSP")
-          #   )
-          # ),
-          # 
-          # h3("Genopair log-probabilities given kinship"),
-          # p("Observed values for first few sample-pairs, over all loci."),
-          # tableOutput(outputId = "firstFewLGPPs"),
-          # p("Observed values for all sample-pairs, over all loci."),
-          # plotOutput(outputId = "firstLGPPs"),
-          # # plotOutput(outputId = "firstObsGPPs"),
+          h3("Likelihood surface near true parameter values"),
+          p("Negative log-likelihood over each parameter while others held at 
+            true values."),
+          plotOutput(outputId = "firstNLLSurfs"),
           
           h3("Try to optimise likelihood"),
           tableOutput(outputId = "firstGPEsts")

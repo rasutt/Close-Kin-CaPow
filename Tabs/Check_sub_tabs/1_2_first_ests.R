@@ -1,12 +1,7 @@
 # Code and outputs for first study estimates sub-tab of check-tab
 
-# Table of estimates from first study optimising genopair likelihood
-output$firstGPEsts = renderTable({
-  # Create general optimizer starting-values and bounds, NAs filled in below
-  ck.start <- c(rho(), phi(), attributes(fst.std())$N.t.vec[hist.len()])
-  ck.lwr <- c(0, 0.75, attributes(fst.std())$ns.caps[k()])
-  ck.upr <- c(0.35, 1, Inf)
-  
+# Genopair probabilities for optimisation
+gpp.opt = reactive({
   # Get genopair probabilities (by excluding probabilities giveb half-sibs for
   # now) and check for pairs where all probabilities underflow to zero
   lg.gpp.slct = frst.lg.gp.prbs.KP()[, -2]
@@ -32,15 +27,67 @@ output$firstGPEsts = renderTable({
     print(summary(gpp.adj))
     cat("Proportion of pairs for which adjusted probabilities given all 
         kinships underflow to zero:", mean(rowSums(gpp.adj) == 0), "\n")
+    
+    return(gpp.adj)
+  } else {
+    return(gpp.slct)
   }
+})
+
+# Genopair likelihood TMB objective function
+obj = reactive({
+  ck.start <- c(rho(), phi(), attributes(fst.std())$N.t.vec[hist.len()])
+  
+  MakeGPObj(
+    gpp.opt(), frst.smp.yr.ind.prs(),
+    k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), ck.start
+  )
+})
+
+# Negative log-likelihood surfaces for each parameter with others held at true
+# values
+output$firstNLLSurfs = renderPlot({
+  par(mfrow = c(1, 3))
+  
+  N.fnl = attributes(fst.std())$N.t.vec[hist.len()]
+  
+  # Create general optimizer starting-values and bounds, NAs filled in below
+  ck.start <- c(rho(), phi(), N.fnl)
+  ck.lwr <- c(0, 0.75, attributes(fst.std())$ns.caps[k()])
+  ck.upr <- c(0.35, 1, 1e4)
+  p.nms = c("Rho", "Phi", "N.final")
+  n.pts = 200
+  
+  for (p in 1:3) {
+    p.strt = ck.start
+    par.vec = seq(ck.lwr[p], ck.upr[p], len = n.pts)
+    obj.par = numeric(n.pts)
+    
+    for (i in 1:n.pts) {
+      p.strt[p] = par.vec[i]
+      obj.par[i] = obj()$fn(p.strt)
+    }
+    
+    plot(
+      par.vec, obj.par, main = p.nms[p], xlab = p.nms[p], ylab = "NLL",
+      type = 'l'
+    )
+    abline(v = ck.start[p], col = 'red')
+  }
+})
+
+# Table of estimates from first study optimising genopair likelihood
+output$firstGPEsts = renderTable({
+  # Create general optimizer starting-values and bounds, NAs filled in below
+  ck.start <- c(rho(), phi(), attributes(fst.std())$N.t.vec[hist.len()])
+  ck.lwr <- c(0, 0.75, attributes(fst.std())$ns.caps[k()])
+  ck.upr <- c(0.35, 1, Inf)
   
   # Try to fit genopair likelihood model
   print(table(frst.smp.yr.ind.prs()[, 1], frst.smp.yr.ind.prs()[, 2]))
-  print(str(gpp.slct))
+  print(str(gpp.opt()))
   gp.tmb = TryGenopairTMB(
-    if (any(all_undrflw)) gpp.adj else gpp.slct, 
-    frst.smp.yr.ind.prs(),
-    # smp.yr.ind.prs()[wtn.prs.inds, ], 
+    gpp.opt(), frst.smp.yr.ind.prs(),
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr, alpha()
   )
   
@@ -55,3 +102,5 @@ output$firstGPEsts = renderTable({
   
   gp.tmb$est.se.df
 })
+
+
