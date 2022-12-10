@@ -47,7 +47,7 @@ ui <- fluidPage(
   navbarPage(
     title = "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "model.tab",
+    selected = "check.tab",
     position = "fixed-top",
     
     # Sim tab ----
@@ -153,7 +153,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "frst.gts.tb",
+        selected = "frst.ests.tb",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
@@ -214,7 +214,7 @@ ui <- fluidPage(
           h3("First sample genotypes"),
           p("First few individuals captured."),
           tableOutput(outputId = "firstGTs"),
-
+          
           h3("Allele frequencies"),
           p("Relative frequencies, excluding samples from same animals in
              different surveys."),
@@ -234,26 +234,53 @@ ui <- fluidPage(
               3, h5("Self-resample"), tableOutput(outputId = "firstGPPsSP")
             )
           ),
-
+          
           h3("Genopair log-probabilities given kinship"),
           p("Observed values for first few sample-pairs, over all loci."),
           tableOutput(outputId = "firstFewLGPPs"),
           p("Observed values for all sample-pairs, over all loci."),
           plotOutput(outputId = "firstLGPPs"),
           # plotOutput(outputId = "firstObsGPPs"),
-
+          
           h3("Half-sibling vs unrelated pair PLODs"),
           p("Observed values for all sample-pairs, over all loci."),
           fluidRow(
             column(6, plotOutput(outputId = "firstPLODs")),
             column(6, plotOutput(outputId = "firstPLODsRare"))
-          ),
+          )
+        ),
+        # First study estimates ----
+        tabPanel(
+          title = "First study estimates",
+          value = "frst.ests.tb",
+          h2("First study estimates"),
+          p("Parameter estimates for first simulated study"),
+
+          # h3("Genopair probabilities given kinship"),
+          # p("Possible values at first locus."),
+          # fluidRow(
+          #   column(3, h5("Unrelated"), tableOutput(outputId = "firstGPPsUP")),
+          #   column(
+          #     3, h5("Half-siblings"), tableOutput(outputId = "firstGPPsHSP")
+          #   ),
+          #   column(
+          #     3, h5("Parent-offspring"), tableOutput(outputId = "firstGPPsPOP")
+          #   ),
+          #   column(
+          #     3, h5("Self-resample"), tableOutput(outputId = "firstGPPsSP")
+          #   )
+          # ),
+          # 
+          # h3("Genopair log-probabilities given kinship"),
+          # p("Observed values for first few sample-pairs, over all loci."),
+          # tableOutput(outputId = "firstFewLGPPs"),
+          # p("Observed values for all sample-pairs, over all loci."),
+          # plotOutput(outputId = "firstLGPPs"),
+          # # plotOutput(outputId = "firstObsGPPs"),
           
           h3("Try to optimise likelihood"),
           tableOutput(outputId = "firstGPEsts")
         ),
-        
-        
         # Populations ----
         tabPanel(
           title = "Population sizes",
