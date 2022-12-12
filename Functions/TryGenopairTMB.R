@@ -24,10 +24,8 @@ TryGenopairTMB <- function(
   # Run optimiser starting from true values
   ck.opt <- try(
     nlminb(
-      start = obj$par, obj = obj$fn, grad = obj$gr, 
-      # hess = obj$he,
-      hess = NULL,
-      # scale = c(0.1, 1, 1000),
+      start = obj$par, obj = obj$fn, grad = obj$gr, hess = obj$he, 
+      scale = 1 / obj$par,
       control = list(iter.max = 400), 
       lower = ck.lwr, upper = ck.upr,
     )

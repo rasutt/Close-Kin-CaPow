@@ -40,28 +40,24 @@ frst.smp.gts = reactive(FS.atts()$unq.smp.gts[, , frst.smp.inds()])
 # Indices of pairs of samples from first study, (n_samples x 2)
 frst.smp.ind.prs = reactive(t(combn(frst.smp.inds(), 2)))
 
+# Number of samples in first study
+frst.n.smps = reactive(length(frst.smp.inds()))
+
 # 2 x n_pairs matrix of indices of samples in each pair to include in
 # likelihood, possibly all pairs or just consecutive pairs
-frst.offst.smp.pr.inds = reactive({
-  n.smps = length(frst.smp.inds())
-  rbind(1:n.smps, c(2:n.smps, 1))
-})
-frst.full.smp.pr.inds = reactive({
-  n.smps = length(frst.smp.inds())
-  combn(n.smps, 2)
-})
-frst.smp.pr.inds = reactive({
-  # frst.offst.smp.pr.inds()
-  frst.full.smp.pr.inds()
+frst.smp.pr.inds.fll = reactive(combn(frst.n.smps(), 2))
+frst.smp.pr.inds.offst = reactive({
+  rbind(1:frst.n.smps(), c(2:frst.n.smps(), 1))
 })
 
 # Indices of survey-years for each sample in each pair, starting at zero for
 # C++ template, and ordered by survey-year of first sample
-frst.smp.yr.ind.prs = reactive({
+frst.smp.yr.ind.prs.fll = reactive({
   # Indices of survey-years for each sample
   smp.yr.inds = col(frst.smp.hsts())[as.logical(frst.smp.hsts())] - 1
+  
   # n_pairs x 2 matrix of survey-years for each sample in each pair
-  matrix(smp.yr.inds[as.vector(t(frst.smp.pr.inds()))], ncol = 2)
+  matrix(smp.yr.inds[as.vector(t(frst.smp.pr.inds.fll()))], ncol = 2)
 })
 
 # Nullify genopair log-probabilities when new datasets simulated
@@ -74,16 +70,14 @@ observeEvent(
     input$nav.tab
     input$check.sub.tabs
   }, 
-  {
-    if (
-      input$nav.tab == "check.tab" && 
-      input$check.sub.tabs %in% c("frst.gts.tb", "frst.ests.tb") &&
-      is.null(frst.lg.gp.prbs.KP())
-    ) {
-      frst.lg.gp.prbs.KP(FindLogGPProbsKP(
-        frst.smp.gts(), frst.smp.pr.inds(), L(), frst.pss.gp.prbs.KPs()
-      ))
-    }
+  if (
+    input$nav.tab == "check.tab" && 
+    input$check.sub.tabs %in% c("frst.gts.tb", "frst.ests.tb") &&
+    is.null(frst.lg.gp.prbs.KP())
+  ) {
+    frst.lg.gp.prbs.KP(FindLogGPProbsKP(
+      frst.smp.gts(), frst.smp.pr.inds.fll(), L(), frst.pss.gp.prbs.KPs()
+    ))
   }
 )
 
@@ -176,7 +170,7 @@ output$firstFewLGPPs = renderTable({
   df = data.frame(cbind(
     fst.std()[frst.smp.ind.prs()[1:3, 1], 1],
     fst.std()[frst.smp.ind.prs()[1:3, 2], 1],
-    frst.smp.yr.ind.prs()[1:3, ],
+    frst.smp.yr.ind.prs.fll()[1:3, ],
     frst.lg.gp.prbs.KP()[1:3, ]
   ))
   names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)

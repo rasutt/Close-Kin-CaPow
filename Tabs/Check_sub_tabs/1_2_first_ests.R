@@ -40,7 +40,7 @@ gpp.obj = reactive({
   ck.start <- c(rho(), phi(), FS.atts()$N.t.vec[hist.len()])
   
   MakeGPObj(
-    gpp.opt(), frst.smp.yr.ind.prs(),
+    gpp.opt(), frst.smp.yr.ind.prs.fll(),
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), ck.start
   )
 })
@@ -65,73 +65,87 @@ ck.obj = reactive({
   obj <- MakeADFun(data, list(pars = ck.start), DLL = "CloseKinNLL", silent = T)
 })
 
+# Create general optimizer starting-values and bounds, NAs filled in below
 ck.start = reactive({
-  N.fnl = FS.atts()$N.t.vec[hist.len()]
-  
-  # Create general optimizer starting-values and bounds, NAs filled in below
-  c(rho(), phi(), N.fnl)
+  c(rho(), phi(), FS.atts()$N.t.vec[hist.len()])
 })
 
 n.pts = 200
 
-par.vec = reactive(function(p) {
+# Matrix of values to plot NLL at for each parameter, n_points x 3
+par.mat = reactive({
   ck.lwr <- c(0, 0.75, FS.atts()$ns.caps[k()])
   ck.upr <- c(0.35, 1, 1e4)
-  par.vec = seq(ck.lwr[p], ck.upr[p], len = n.pts)
+  sapply(1:3, function(p) {
+    seq(ck.lwr[p], ck.upr[p], len = n.pts)
+  })
 })
 
+# Negative log-likelihood surfaces for first study, n_points x n_pars x n_models
 frst.nll.srfcs = reactive({
-  obj.par = array(0, c(n.pts, 2, 3))
+  obj.par = array(
+    0, c(n.pts, 3, 2), 
+    dimnames = list(NULL, NULL, c("Full genopair", "True kinship"))
+  )
+  
+  # Loop over parameters
   for (p in 1:3) {
-    p.strt = ck.start()
+    # Reset all parameter values
+    par.vals = ck.start()
     
+    # Loop over points for plotting
     for (i in 1:n.pts) {
-      p.strt[p] = par.vec()(p)[i]
-      obj.par[i, 1, p] = gpp.obj()$fn(p.strt)
-      obj.par[i, 2, p] = ck.obj()$fn(p.strt)
+      # Set value of current parameter
+      par.vals[p] = par.mat()[i, p]
+      
+      # Find NLL values at current parameter values
+      obj.par[i, p, 1] = gpp.obj()$fn(par.vals)
+      obj.par[i, p, 2] = ck.obj()$fn(par.vals)
     }
   }
+  
   obj.par
 })
 
-plot.nll = function(mdl.ind) {
+# Function to plot NLL over each parameter while holding others at true values,
+# for one model
+plot.nll = function(mdl.nm) {
   par(mfrow = c(1, 3))
   p.nms = c("Rho", "Phi", "N.final")
+  
+  # Loop over parameters
   for (p in 1:3) {
     plot(
-      par.vec()(p), frst.nll.srfcs()[, mdl.ind, p], main = p.nms[p], 
-      xlab = p.nms[p], 
-      ylab = "NLL", type = 'l', col = 1:2
+      par.mat()[, p], frst.nll.srfcs()[, p, mdl.nm], main = p.nms[p], 
+      xlab = p.nms[p], ylab = "NLL", type = 'l', col = 1
     )
-    abline(v = ck.start()[p], col = 3)
-    if (p == 3) {
-      legend(
-        "topright", legend = c("Likelihood", "True value"), col = 1:2
-      )
-    }
+    abline(v = ck.start()[p], col = 2)
+    legend(
+      "topright", legend = c("Likelihood", "True value"), col = 1:2, lty = 1
+    )
   }
 }
 
-# Negative log-likelihood surfaces for each parameter with others held at true
-# values
-output$firstGPNLLSurfs = renderPlot({
-  plot.nll(1)
-})
-output$firstCKNLLSurfs = renderPlot({
-  plot.nll(2)
-})
+# Plot NLL surfaces for each parameter with others held at true values, for each
+# model
+output$firstGPNLLSurfs = renderPlot(plot.nll("Full genopair"))
+output$firstCKNLLSurfs = renderPlot(plot.nll("True kinship"))
 
+# Find estimates for full genopair model for first study - The estimates for the
+# final population size don't seem to follow the likelihood surface like they do
+# for the true kinships model... Specifying the hessian and parameter scale in
+# nlminb seems to help somewhat
 first.gp.ests = reactive({
-  # Create general optimizer starting-values and bounds, NAs filled in below
+  # Create general optimizer starting-values and bounds
   ck.start <- c(rho(), phi(), FS.atts()$N.t.vec[hist.len()])
   ck.lwr <- c(0, 0.75, FS.atts()$ns.caps[k()])
   ck.upr <- c(0.35, 1, Inf)
   
   # Try to fit genopair likelihood model
-  print(table(frst.smp.yr.ind.prs()[, 1], frst.smp.yr.ind.prs()[, 2]))
+  print(table(frst.smp.yr.ind.prs.fll()[, 1], frst.smp.yr.ind.prs.fll()[, 2]))
   print(str(gpp.opt()))
   gp.tmb = TryGenopairTMB(
-    gpp.opt(), frst.smp.yr.ind.prs(),
+    gpp.opt(), frst.smp.yr.ind.prs.fll(),
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr, alpha()
   )
   
@@ -144,9 +158,11 @@ first.gp.ests = reactive({
   # )
   # print(gp.r)
   
+  # Combine with missing values for capture probabilities
   rbind(gp.tmb$est.se.df, matrix(NA, k(), 2))
 })
 
+# Find estimates for full genopair model for first study
 first.ck.ests = reactive({
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), FS.atts()$N.t.vec[hist.len()])
@@ -175,20 +191,18 @@ output$firstResults <- renderTable({
   res.mat[1, 3:4] = c(sim.lst()$N.fin.vec[1], sim.lst()$Ns.vec[1])
   colnames(res.mat) = est.par.names()
 
+  # Add results
   res.mat = rbind(
     res.mat, 
     t(first.gp.ests()[, 1]),
     t(first.ck.ests()[, 1])
   )
 
+  # Add model names
   res.df = data.frame(
-    model = c("True values", "Genopairs", "True kinships"), 
-    res.mat  
+    model = c("True values", "Genopairs", "True kinships"), res.mat
   )
 
-  # Formatting
-  res.df[, 5] = as.integer(res.df[, 5])
-  res.df[, 6] = as.integer(res.df[, 6])
   res.df
 }, digits = 3)
 
