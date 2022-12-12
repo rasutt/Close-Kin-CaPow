@@ -254,15 +254,18 @@ ui <- fluidPage(
           title = "First study estimates",
           value = "frst.ests.tb",
           h2("First study estimates"),
-          p("Parameter estimates for first simulated study"),
+          p("Parameter estimates for first simulated study."),
 
           h3("Likelihood surface near true parameter values"),
           p("Negative log-likelihood over each parameter while others held at 
             true values."),
-          plotOutput(outputId = "firstNLLSurfs"),
+          h4("Genopair likelihood"),
+          plotOutput(outputId = "firstGPNLLSurfs"),
+          h4("True kinships likelihood"),
+          plotOutput(outputId = "firstCKNLLSurfs"),
           
-          h3("Try to optimise likelihood"),
-          tableOutput(outputId = "firstGPEsts")
+          h3("Results for first study"),
+          tableOutput(outputId = "firstResults")
         ),
         # Populations ----
         tabPanel(
@@ -384,8 +387,6 @@ ui <- fluidPage(
       plotOutput(outputId = "modComp"),
       h3("95% confidence interval coverage"),
       tableOutput(outputId = "CICov"),
-      h3("Results for first study"),
-      tableOutput(outputId = "firstResults"),
       h3("95% confidence intervals for lambda"),
       plotOutput(outputId = "CIPlot")
     ),

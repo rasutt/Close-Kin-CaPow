@@ -19,11 +19,14 @@ TryGenopairTMB <- function(
     gp.prbs, smp.yr.inds, k, srvy.gaps, f.year, srvy.yrs, alpha, ck.start
   )
   print(obj$fn(obj$par), digits = 15)
+  print(obj$he(obj$par), digits = 15)
   
   # Run optimiser starting from true values
   ck.opt <- try(
     nlminb(
-      start = obj$par, obj = obj$fn, grad = obj$gr, hess = obj$he,
+      start = obj$par, obj = obj$fn, grad = obj$gr, 
+      # hess = obj$he,
+      hess = NULL,
       # scale = c(0.1, 1, 1000),
       control = list(iter.max = 400), 
       lower = ck.lwr, upper = ck.upr,

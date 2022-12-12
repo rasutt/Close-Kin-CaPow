@@ -46,9 +46,8 @@ fit.gp = reactive(if (input$genopair) {
       
       # 2 x n_pairs matrix of indices of samples in each pair to include in
       # likelihood, possibly all pairs or just consecutive pairs
-      # smp.pr.inds = combn(n.smps, 2)
-      # smp.pr.inds = rbind(1:n.smps, c(2:n.smps, 1))
-      smp.pr.inds = rbind(1:(n.smps - 1), 2:n.smps)
+      smp.pr.inds = combn(n.smps, 2)
+      # smp.pr.inds = rbind(1:(n.smps - 1), 2:n.smps)
       
       # Frequencies of 1-coded SNP alleles are means over both alleles at each
       # locus for each sample
@@ -346,11 +345,11 @@ output$modStats = renderTable({
 
 # Plot estimates using model comparison plot function
 output$modComp <- renderPlot({
-  # Set four plots per figure
-  par(mfrow = c(2, 2))
-  
   # If any estimates OK
   if(check.ests()$prpn.cis.ok > 0) {
+    # Set four plots per figure
+    par(mfrow = c(2, 2))
+    
     # Plot estimates from all models side-by-side
     ComparisonPlot(
       lapply(check.ests()$ests, function(ests.mat) ests.mat[, 1]), 
@@ -377,39 +376,6 @@ output$CICov = renderTable({
   names(df) = c("Model", est.par.names())
   df
 })
-
-# Print results for first study
-output$firstResults <- renderTable({
-  # True parameter values
-  res.mat = matrix(par.vals(), nrow = 1)
-  res.mat[1, 3:4] = c(sim.lst()$N.fin.vec[1], sim.lst()$Ns.vec[1])
-  colnames(res.mat) = est.par.names()
-  
-  # Model estimates
-  for (i in 1:n.mods()) {
-    res.mat = rbind(
-      res.mat, 
-      fit.lst()$ests[[i]][1, ], fit.lst()$ses[[i]][1, ],
-      check.ests()$lcbs[[i]][1, ], check.ests()$ucbs[[i]][1, ]
-    )
-  }
-  
-  # Result and model labels
-  res.vals = c(
-    "estimate", "standard_error", "lower_confidence_bound",
-    "upper_confidence_bound"
-  )
-  res.df = data.frame(
-    model = c("true_values", rep(mod.names(), each = 4)), 
-    value = c("true_values", rep(res.vals, n.mods())),
-    res.mat  
-  )
-  
-  # Formatting
-  res.df[, 5] = as.integer(res.df[, 5])
-  res.df[, 6] = as.integer(res.df[, 6])
-  res.df
-}, digits = 3)
 
 # Plot confidence intervals for lambda
 output$CIPlot = renderPlot({

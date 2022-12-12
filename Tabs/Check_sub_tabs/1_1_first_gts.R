@@ -6,11 +6,11 @@
 frst.ale.frqs = reactive({
   # Frequencies of 1-coded SNP alleles are means over both alleles at each locus
   # for each sample
-  ale.frqs.1 = apply(attributes(fst.std())$unq.smp.gts, 2, mean)
+  ale.frqs.1 = apply(FS.atts()$unq.smp.gts, 2, mean)
   # ale.frqs.1 = apply(
   #   mpfrArray(
-  #     attributes(fst.std())$unq.smp.gts, 10, 
-  #     dim(attributes(fst.std())$unq.smp.gts)
+  #     FS.atts()$unq.smp.gts, 10, 
+  #     dim(FS.atts()$unq.smp.gts)
   #   ), 2, mean
   # )
   
@@ -35,18 +35,24 @@ frst.smp.inds = reactive(row(frst.smp.hsts())[as.logical(frst.smp.hsts())])
 # (2 x L x n_animals), representing two binary SNPs at each locus for
 # each individual sampled at least once. They are expanded to arrays by indexing
 # sample genotypes.
-frst.smp.gts = reactive(attributes(fst.std())$unq.smp.gts[, , frst.smp.inds()])
+frst.smp.gts = reactive(FS.atts()$unq.smp.gts[, , frst.smp.inds()])
 
 # Indices of pairs of samples from first study, (n_samples x 2)
 frst.smp.ind.prs = reactive(t(combn(frst.smp.inds(), 2)))
 
 # 2 x n_pairs matrix of indices of samples in each pair to include in
 # likelihood, possibly all pairs or just consecutive pairs
-frst.smp.pr.inds = reactive({
+frst.offst.smp.pr.inds = reactive({
   n.smps = length(frst.smp.inds())
-  
-  # combn(n.smps, 2)
   rbind(1:n.smps, c(2:n.smps, 1))
+})
+frst.full.smp.pr.inds = reactive({
+  n.smps = length(frst.smp.inds())
+  combn(n.smps, 2)
+})
+frst.smp.pr.inds = reactive({
+  # frst.offst.smp.pr.inds()
+  frst.full.smp.pr.inds()
 })
 
 # Indices of survey-years for each sample in each pair, starting at zero for
@@ -56,11 +62,6 @@ frst.smp.yr.ind.prs = reactive({
   smp.yr.inds = col(frst.smp.hsts())[as.logical(frst.smp.hsts())] - 1
   # n_pairs x 2 matrix of survey-years for each sample in each pair
   matrix(smp.yr.inds[as.vector(t(frst.smp.pr.inds()))], ncol = 2)
-})
-
-# Indices of within-survey pairs to reduce search space later
-frst.wtn.prs.inds = reactive({
-  which(frst.smp.yr.ind.prs()[, 1] == frst.smp.yr.ind.prs[, 2]())
 })
 
 # Nullify genopair log-probabilities when new datasets simulated
