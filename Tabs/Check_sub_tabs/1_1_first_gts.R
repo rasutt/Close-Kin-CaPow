@@ -40,28 +40,68 @@ frst.smp.gts = reactive(FS.atts()$unq.smp.gts[, , frst.smp.inds()])
 # Indices of pairs of samples from first study, (n_samples x 2)
 frst.smp.ind.prs = reactive(t(combn(frst.smp.inds(), 2)))
 
+# Indices of survey-years for each sample, starting from zero, as used in TMB
+# C++ objective function
+smp.yr.inds = reactive(col(frst.smp.hsts())[as.logical(frst.smp.hsts())] - 1)
+
 # Number of samples in first study
 frst.n.smps = reactive(length(frst.smp.inds()))
 
-# 2 x n_pairs matrix of indices of samples in each pair to include in
-# likelihood, possibly all pairs or just consecutive pairs
-frst.smp.pr.inds.fll = reactive(combn(frst.n.smps(), 2))
-frst.smp.pr.inds.offst = reactive({
-  rbind(1:frst.n.smps(), c(2:frst.n.smps(), 1))
+# Sample index pairs, 2 x n_pairs matrix of indices of samples in each pair to
+# include in likelihood, possibly all pairs or just consecutive pairs
+frst.SIPs.fll = reactive(combn(frst.n.smps(), 2))
+frst.SIPs.offst = reactive({
+  # Empty matrix to add sample index pairs to, 2 x 0
+  smp.ind.prs = matrix(0, 2, 0)
+  
+  # Possible survey-year indices
+  pss.s.yr.inds = 0:(k() - 1)
+  
+  # Loop over first survey-year indices
+  for (i in pss.s.yr.inds) {
+    # Get indices for samples in this year 
+    smp.inds.yr.1 = which(smp.yr.inds() == i)
+    
+    # Check at least one sample
+    if (length(smp.inds.yr.1) > 0) {
+      # Add offset index pairs for samples in this year
+      smp.ind.prs = cbind(
+        smp.ind.prs, 
+        rbind(smp.inds.yr.1, c(smp.inds.yr.1[-1], smp.inds.yr.1[1]))
+      )
+      
+      # Loop over second survey-year indices
+      for (j in pss.s.yr.inds[pss.s.yr.inds > i]) {
+        # Get indices for samples in this year 
+        smp.inds.yr.2 = which(smp.yr.inds() == j)
+        
+        # Check at least one sample
+        if (length(smp.inds.yr.2) > 0) {
+          # Add offset index pairs for samples from these years, shorter index
+          # set recycled with warning
+          smp.ind.prs = suppressWarnings(
+            cbind(smp.ind.prs, rbind(smp.inds.yr.1, smp.inds.yr.2))
+          )
+        }
+      }
+    }
+  }
+  
+  smp.ind.prs
+})
+
+FindSYIPs = reactive(function(smp.ind.prs) {
+  # n_pairs x 2 matrix of survey-years for each sample in each pair
+  matrix(smp.yr.inds()[as.vector(t(smp.ind.prs))], ncol = 2)
 })
 
 # Indices of survey-years for each sample in each pair, starting at zero for
 # C++ template, and ordered by survey-year of first sample
-frst.smp.yr.ind.prs.fll = reactive({
-  # Indices of survey-years for each sample
-  smp.yr.inds = col(frst.smp.hsts())[as.logical(frst.smp.hsts())] - 1
-  
-  # n_pairs x 2 matrix of survey-years for each sample in each pair
-  matrix(smp.yr.inds[as.vector(t(frst.smp.pr.inds.fll()))], ncol = 2)
-})
+frst.SYIPs.fll = reactive(FindSYIPs()(frst.SIPs.fll()))
+frst.SYIPs.offst = reactive(FindSYIPs()(frst.SIPs.offst()))
 
 # Nullify genopair log-probabilities when new datasets simulated
-observeEvent(input$simulate, frst.lg.gp.prbs.KP(NULL))
+observeEvent(input$simulate, frst.LGPPs.KP.fll(NULL))
 
 # Find genopair log-probabilities as n.pairs x n.kp.tps matrix with rows for
 # pairs of individuals, and columns for types of kinships considered
@@ -73,13 +113,18 @@ observeEvent(
   if (
     input$nav.tab == "check.tab" && 
     input$check.sub.tabs %in% c("frst.gts.tb", "frst.ests.tb") &&
-    is.null(frst.lg.gp.prbs.KP())
+    is.null(frst.LGPPs.KP.fll())
   ) {
-    frst.lg.gp.prbs.KP(FindLogGPProbsKP(
-      frst.smp.gts(), frst.smp.pr.inds.fll(), L(), frst.pss.gp.prbs.KPs()
+    frst.LGPPs.KP.fll(FindLogGPProbsKP(
+      frst.smp.gts(), frst.SIPs.fll(), L(), frst.pss.gp.prbs.KPs()
     ))
   }
 )
+frst.LGPPs.KP.offst = reactive({
+  FindLogGPProbsKP(
+    frst.smp.gts(), frst.SIPs.offst(), L(), frst.pss.gp.prbs.KPs()
+  )
+})
 
 # Expected values of HSP vs UP PLODs given kinships
 exp.plod.KP = reactive({
@@ -106,8 +151,8 @@ exp.plod.KP = reactive({
 
 # Find half-sibling vs unrelated pairs PLODs from log genopair probabilities
 first.plods = reactive({
-  print(str(frst.lg.gp.prbs.KP()))
-  (frst.lg.gp.prbs.KP()[, 2] - frst.lg.gp.prbs.KP()[, 1]) / L()
+  print(str(frst.LGPPs.KP.fll()))
+  (frst.LGPPs.KP.fll()[, 2] - frst.LGPPs.KP.fll()[, 1]) / L()
 })
 
 ## Outputs
@@ -170,8 +215,8 @@ output$firstFewLGPPs = renderTable({
   df = data.frame(cbind(
     fst.std()[frst.smp.ind.prs()[1:3, 1], 1],
     fst.std()[frst.smp.ind.prs()[1:3, 2], 1],
-    frst.smp.yr.ind.prs.fll()[1:3, ],
-    frst.lg.gp.prbs.KP()[1:3, ]
+    frst.SYIPs.fll()[1:3, ],
+    frst.LGPPs.KP.fll()[1:3, ]
   ))
   names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
   df
@@ -184,9 +229,9 @@ output$firstLGPPs = renderPlot({
   xlab = "Log-probability"
   lapply(1:4, function(i) {
     # Plotting may fail if all log-probabilities negative infinity
-    if(any(is.finite(frst.lg.gp.prbs.KP()[, i]))) {
+    if(any(is.finite(frst.LGPPs.KP.fll()[, i]))) {
       hist(
-        frst.lg.gp.prbs.KP()[, i], main = gp.prb.KP.tps[i], xlab = xlab, br = br
+        frst.LGPPs.KP.fll()[, i], main = gp.prb.KP.tps[i], xlab = xlab, br = br
       )
     } else plot.new()
   })

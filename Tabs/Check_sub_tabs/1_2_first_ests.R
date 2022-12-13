@@ -4,7 +4,7 @@
 gpp.opt = reactive({
   # Get genopair probabilities (by excluding probabilities giveb half-sibs for
   # now) and check for pairs where all probabilities underflow to zero
-  lg.gpp.slct = frst.lg.gp.prbs.KP()[, -2]
+  lg.gpp.slct = frst.LGPPs.KP.fll()[, -2]
   gpp.slct = exp(lg.gpp.slct)
   all_undrflw = rowSums(gpp.slct) == 0
   
@@ -40,7 +40,7 @@ gpp.obj = reactive({
   ck.start <- c(rho(), phi(), FS.atts()$N.t.vec[hist.len()])
   
   MakeGPObj(
-    gpp.opt(), frst.smp.yr.ind.prs.fll(),
+    gpp.opt(), frst.SYIPs.fll(),
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), ck.start
   )
 })
@@ -142,10 +142,10 @@ first.gp.ests = reactive({
   ck.upr <- c(0.35, 1, Inf)
   
   # Try to fit genopair likelihood model
-  print(table(frst.smp.yr.ind.prs.fll()[, 1], frst.smp.yr.ind.prs.fll()[, 2]))
+  print(table(frst.SYIPs.fll()[, 1], frst.SYIPs.fll()[, 2]))
   print(str(gpp.opt()))
   gp.tmb = TryGenopairTMB(
-    gpp.opt(), frst.smp.yr.ind.prs.fll(),
+    gpp.opt(), frst.SYIPs.fll(),
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr, alpha()
   )
   
