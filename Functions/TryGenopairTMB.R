@@ -1,5 +1,5 @@
 MakeGPObj <- function(
-    gp.prbs, smp.yr.inds, k, srvy.gaps, f.year, srvy.yrs, alpha, ck.start
+    gp.prbs, smp.yr.inds, ck.start, k, srvy.gaps, f.year, srvy.yrs, alpha
 ) {
   # Create TMB function
   data <- list(
@@ -16,7 +16,7 @@ TryGenopairTMB <- function(
     ck.lwr, ck.upr, alpha
 ) {
   obj = MakeGPObj(
-    gp.prbs, smp.yr.inds, k, srvy.gaps, f.year, srvy.yrs, alpha, ck.start
+    gp.prbs, smp.yr.inds, ck.start, k, srvy.gaps, f.year, srvy.yrs, alpha
   )
   print(obj$fn(obj$par), digits = 15)
   print(obj$he(obj$par), digits = 15)

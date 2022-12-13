@@ -259,8 +259,10 @@ ui <- fluidPage(
           h3("Likelihood surface near true parameter values"),
           p("Negative log-likelihood over each parameter while others held at 
             true values."),
-          h4("Genopair likelihood"),
-          plotOutput(outputId = "firstGPNLLSurfs"),
+          h4("Full genopair likelihood"),
+          plotOutput(outputId = "firstFGPNLLSurfs"),
+          h4("Offset genopair likelihood"),
+          plotOutput(outputId = "firstOGPNLLSurfs"),
           h4("True kinships likelihood"),
           plotOutput(outputId = "firstCKNLLSurfs"),
           
