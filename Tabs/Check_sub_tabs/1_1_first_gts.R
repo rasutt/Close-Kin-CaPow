@@ -49,18 +49,17 @@ frst.n.smps = reactive(length(frst.smp.inds()))
 
 # Sample index pairs, 2 x n_pairs matrix of indices of samples in each pair to
 # include in likelihood, possibly all pairs or just consecutive pairs
-frst.SIPs.fll = reactive(combn(frst.n.smps(), 2))
-frst.SIPs.offst = reactive({
+FindSIPsOffset = function(k, smp.yr.inds) {
   # Empty matrix to add sample index pairs to, 2 x 0
   smp.ind.prs = matrix(0, 2, 0)
   
   # Possible survey-year indices
-  pss.s.yr.inds = 0:(k() - 1)
+  pss.s.yr.inds = 0:(k - 1)
   
   # Loop over first survey-year indices
   for (i in pss.s.yr.inds) {
     # Get indices for samples in this year 
-    smp.inds.yr.1 = which(smp.yr.inds() == i)
+    smp.inds.yr.1 = which(smp.yr.inds == i)
     
     # Check at least one sample
     if (length(smp.inds.yr.1) > 0) {
@@ -73,7 +72,7 @@ frst.SIPs.offst = reactive({
       # Loop over second survey-year indices
       for (j in pss.s.yr.inds[pss.s.yr.inds > i]) {
         # Get indices for samples in this year 
-        smp.inds.yr.2 = which(smp.yr.inds() == j)
+        smp.inds.yr.2 = which(smp.yr.inds == j)
         
         # Check at least one sample
         if (length(smp.inds.yr.2) > 0) {
@@ -88,7 +87,9 @@ frst.SIPs.offst = reactive({
   }
   
   smp.ind.prs
-})
+}
+frst.SIPs.fll = reactive(combn(frst.n.smps(), 2))
+frst.SIPs.offst = reactive(FindSIPsOffset(k(), smp.yr.inds()))
 
 FindSYIPs = reactive(function(smp.ind.prs) {
   # n_pairs x 2 matrix of survey-years for each sample in each pair

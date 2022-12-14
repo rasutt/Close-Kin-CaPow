@@ -47,7 +47,7 @@ ui <- fluidPage(
   navbarPage(
     title = "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "check.tab",
+    selected = "sim.tab",
     position = "fixed-top",
     
     # Sim tab ----
@@ -118,7 +118,7 @@ ui <- fluidPage(
           ),
           sliderInput(
             inputId = "n.sims", label = "Number of studies to simulate:",
-            1, 1000, value = 10
+            1, 1000, value = 2
           ),
           actionButton(
             inputId = "simulate", label = "Simulate studies"
@@ -131,7 +131,10 @@ ui <- fluidPage(
             inputId = "close.kin", label = "Close-kin model", value = F
           ),
           checkboxInput(
-            inputId = "genopair", label = "Genopair model", value = T
+            inputId = "genopair", label = "Full genopair model", value = T
+          ),
+          checkboxInput(
+            inputId = "offset", label = "Offset genopair model", value = T
           )
         ),
         # Outputs ---- 
