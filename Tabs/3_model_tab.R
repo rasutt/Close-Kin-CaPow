@@ -376,13 +376,11 @@ check.ests = reactive({
   
   # Loop over models requested
   for (i in 1:n.mods()) {
-    print(i)
     # Find where model fit successfully
     ses.ok[[i]] = rowSums(is.na(fit.lst()$ses[[i]][, 1:4])) == 0
-    print("ses")
     cis.ok[[i]] = fit.lst()$cnvgs[[i]] & ses.ok[[i]]
-    ests[[i]] = fit.lst()$ests[[i]][cis.ok[[i]], ]
-    ses[[i]] = fit.lst()$ses[[i]][cis.ok[[i]], ]
+    ests[[i]] = fit.lst()$ests[[i]][cis.ok[[i]], , drop = F]
+    ses[[i]] = fit.lst()$ses[[i]][cis.ok[[i]], , drop = F]
     
     # Find differences between population parameter estimates and true values
     N.fin.errs[[i]] = ests[[i]][, 3] / sim.lst()$N.fin.vec[cis.ok[[i]]] - 1
@@ -394,7 +392,8 @@ check.ests = reactive({
     ucbs[[i]] = fit.lst()$ests[[i]] + radius
     
     # Overwrite with log-normal CI's for population parameters
-    l.vars = log(1 + (fit.lst()$ses[[i]][, 3:4] / fit.lst()$ests[[i]][, 3:4])^2)
+    l.vars = 
+      log(1 + (fit.lst()$ses[[i]][, 3:4] / fit.lst()$ests[[i]][, 3:4])^2)
     fctr <- exp(1.959964 * sqrt(l.vars))
     lcbs[[i]][, 3:4] <- fit.lst()$ests[[i]][, 3:4] / fctr
     ucbs[[i]][, 3:4] <- fit.lst()$ests[[i]][, 3:4] * fctr

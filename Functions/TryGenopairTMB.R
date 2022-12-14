@@ -21,7 +21,8 @@ TryGenopairTMB <- function(
   print(obj$fn(obj$par), digits = 15)
   print(obj$he(obj$par), digits = 15)
   
-  # Run optimiser starting from true values
+  # Run optimiser starting from true values - Parameter scaling increases
+  # model-fitting rates from 50 to 100% in some cases.
   ck.opt <- try(
     nlminb(
       start = obj$par, obj = obj$fn, grad = obj$gr, hess = obj$he, 
