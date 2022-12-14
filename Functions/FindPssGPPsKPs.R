@@ -1,6 +1,6 @@
 # Function to find possible genopair probabilities over multiple loci given
 # multiple kinships
-find.pss.gp.prbs.KPs = function(pss.gts, n.pss.gts, ale.frqs, L) {
+FindPssGPPsKPs = function(pss.gts, n.pss.gts, ale.frqs, L) {
   ales.1.inds = pss.gts[1, ]
   ales.2.inds = pss.gts[2, ]
   
@@ -63,8 +63,13 @@ find.pss.gp.prbs.KPs = function(pss.gts, n.pss.gts, ale.frqs, L) {
   # probabilities for unrelated and parent-offspring pairs.
   pss.gp.prbs.HSP = (pss.gp.prbs.UP + pss.gp.prbs.POP) / 2
   
+  pss.gts = c("00", "01", "11")
   array(
     c(pss.gp.prbs.UP, pss.gp.prbs.HSP, pss.gp.prbs.POP, pss.gp.prbs.SP),
-    c(n.pss.gts, n.pss.gts, L, 4)
+    c(n.pss.gts, n.pss.gts, L, 4),
+    list(
+      gt.1 = pss.gts, gt.2 = pss.gts, Locus = paste0("L", 1:L), 
+      Kinship = c("UP", "HSP", "POP", "SP")
+    )
   )
 }

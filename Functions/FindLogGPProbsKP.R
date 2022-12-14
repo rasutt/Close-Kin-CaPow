@@ -7,16 +7,14 @@ FindLogGPProbsKP = function(smp.gts, smp.pr.inds, L, pss.gp.prbs.KP) {
   smp.2.inds = smp.pr.inds[2, ]
   
   n.pairs = length(smp.1.inds)
-
   n.KP.tps = dim(pss.gp.prbs.KP)[4]
-  
   lg.pss.gp.prbs.KP = log(pss.gp.prbs.KP)
   
   # Make matrix for genopair probabilities with columns for each kinship
   # considered
   lg.gp.prbs.KP = matrix(
     0, nrow = n.pairs, ncol = n.KP.tps,
-    dimnames = list(Locus = 1:n.pairs, Kinship = c("UP", "HSP", "POP", "SP"))
+    dimnames = list(pair = 1:n.pairs, Kinship = dimnames(pss.gp.prbs.KP)[[4]])
   )
 
   # Transform genotypes from 2 x L x n_samples arrays of alleles to n_samples x

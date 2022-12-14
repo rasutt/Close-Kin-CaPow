@@ -32,17 +32,16 @@ fit.gp = reactive(if (input$genopair) {
       # over time
       pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
       
-      # Get numbers of animals captured in each survey
-      ns.caps <- attributes(pop.cap.hist)$ns.caps
-      
       # Update optimiser starting-values and bounds
       ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
-      ck.lwr[3] <- ns.caps[k()]
+      ck.lwr[3] <- attributes(pop.cap.hist)$ns.caps[k()]
       
       smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
       smp.inds = row(smp.hsts)[as.logical(smp.hsts)]
+      
       # Indices of survey-years for each sample
       smp.yr.inds = col(smp.hsts)[as.logical(smp.hsts)] - 1
+      
       smp.gts = attributes(pop.cap.hist)$unq.smp.gts[, , smp.inds]
       n.smps = length(smp.inds)
       
@@ -59,12 +58,12 @@ fit.gp = reactive(if (input$genopair) {
       # Combine with frequencies for 0-coded alleles
       ale.frqs = rbind(1 - ale.frqs.1, ale.frqs.1)
       # Possible genopair probabilities at each locus given each kinship
-      pss.gp.prbs.KPs = find.pss.gp.prbs.KPs(pss.gts, n.pss.gts, ale.frqs, L())
+      pss.gp.prbs.KPs = FindPssGPPsKPs(pss.gts, n.pss.gts, ale.frqs, L())
       # Genopair log-probabilities over all loci given each kinship, for each
       # pair to include in likelihood
       lg.gp.prbs.KPs = 
-        FindLogGPProbsKP(smp.gts, smp.ind.prs, L(), pss.gp.prbs.KPs)
-      
+        FindLogGPProbsKP(smp.gts, smp.ind.prs, L(), pss.gp.prbs.KPs[, , , -2])
+
       GPPs = FindGPPs(lg.gp.prbs.KPs)
       
       print(table(smp.yr.ind.prs[, 1], smp.yr.ind.prs[, 2]))
@@ -118,12 +117,9 @@ fit.os = reactive(if (input$offset) {
       # over time
       pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
       
-      # Get numbers of animals captured in each survey
-      ns.caps <- attributes(pop.cap.hist)$ns.caps
-      
       # Update optimiser starting-values and bounds
       ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
-      ck.lwr[3] <- ns.caps[k()]
+      ck.lwr[3] <- attributes(pop.cap.hist)$ns.caps[k()]
       
       smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
       smp.inds = row(smp.hsts)[as.logical(smp.hsts)]
@@ -144,11 +140,11 @@ fit.os = reactive(if (input$offset) {
       # Combine with frequencies for 0-coded alleles
       ale.frqs = rbind(1 - ale.frqs.1, ale.frqs.1)
       # Possible genopair probabilities at each locus given each kinship
-      pss.gp.prbs.KPs = find.pss.gp.prbs.KPs(pss.gts, n.pss.gts, ale.frqs, L())
+      pss.gp.prbs.KPs = FindPssGPPsKPs(pss.gts, n.pss.gts, ale.frqs, L())
       # Genopair log-probabilities over all loci given each kinship, for each
       # pair to include in likelihood
       lg.gp.prbs.KPs = 
-        FindLogGPProbsKP(smp.gts, smp.ind.prs, L(), pss.gp.prbs.KPs)
+        FindLogGPProbsKP(smp.gts, smp.ind.prs, L(), pss.gp.prbs.KPs[, , , -2])
       
       GPPs = FindGPPs(lg.gp.prbs.KPs)
       

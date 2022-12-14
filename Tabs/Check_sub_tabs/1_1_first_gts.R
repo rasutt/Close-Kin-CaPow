@@ -22,7 +22,7 @@ frst.ale.frqs = reactive({
 # rows represent the first genotypes, and columns the second, ordered as 00, 01,
 # and 11, for binary SNPs.
 frst.pss.gp.prbs.KPs = reactive({
-  find.pss.gp.prbs.KPs(pss.gts, n.pss.gts, frst.ale.frqs(), L())
+  FindPssGPPsKPs(pss.gts, n.pss.gts, frst.ale.frqs(), L())
 })
 
 # Sample histories from first study, (n_animals x n_surveys)

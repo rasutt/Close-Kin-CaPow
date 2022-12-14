@@ -3,8 +3,7 @@
 FindGPPs = function(LGPPs) {
   # Get genopair probabilities (by excluding probabilities giveb half-sibs for
   # now) and check for pairs where all probabilities underflow to zero
-  lg.gpp.slct = LGPPs[, -2]
-  gpp.slct = exp(lg.gpp.slct)
+  gpp.slct = exp(LGPPs)
   all_undrflw = rowSums(gpp.slct) == 0
   
   # If there is underflow adjust log-probabilities by factor giving equal
@@ -15,8 +14,8 @@ FindGPPs = function(LGPPs) {
     
     # Want smallest maximum kinship probability and largest probability to be
     # equally far from one
-    adj = mean(c(min(apply(lg.gpp.slct, 1, max)), max(lg.gpp.slct)))
-    lg.gpp.adj = lg.gpp.slct - adj
+    adj = mean(c(min(apply(LGPPs, 1, max)), max(LGPPs)))
+    lg.gpp.adj = LGPPs - adj
     gpp.adj = exp(lg.gpp.adj)
     
     # Show adjustment and results
@@ -35,8 +34,8 @@ FindGPPs = function(LGPPs) {
 }
 
 # Genopair probabilities for optimization
-GPPs.fll = reactive(FindGPPs(frst.LGPPs.KP.fll()))
-GPPs.offst = reactive(FindGPPs(frst.LGPPs.KP.offst()))
+GPPs.fll = reactive(FindGPPs(frst.LGPPs.KP.fll()[, -2]))
+GPPs.offst = reactive(FindGPPs(frst.LGPPs.KP.offst()[, -2]))
 
 # Create general optimizer starting-values and bounds, NAs filled in below
 ck.start = reactive({
