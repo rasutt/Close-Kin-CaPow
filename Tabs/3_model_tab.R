@@ -65,39 +65,14 @@ fit.gp = reactive(if (input$genopair) {
       lg.gp.prbs.KPs = 
         FindLogGPProbsKP(smp.gts, smp.ind.prs, L(), pss.gp.prbs.KPs)
       
-      # Get genopair probabilities (by excluding probabilities given half-sibs
-      # for now) and check for pairs where all probabilities underflow to zero
-      lg.gpp.slct = lg.gp.prbs.KPs[, -2]
-      gpp.slct = exp(lg.gpp.slct)
-      all_undrflw = rowSums(gpp.slct) == 0
-      
-      # If there is underflow adjust log-probabilities by factor giving equal
-      # weight to smallest and largest values to avoid both under and overflow
-      if (any(all_undrflw)) {
-        cat("Proportion of pairs for which probabilities given all kinships 
-        underflow to zero:", mean(all_undrflw), "\n")
-        
-        # Want smallest maximum kinship probability and largest probability to
-        # be equally far from one
-        adj = mean(c(min(apply(lg.gpp.slct, 1, max)), max(lg.gpp.slct)))
-        lg.gpp.adj = lg.gpp.slct - adj
-        gpp.adj = exp(lg.gpp.adj)
-        
-        # Show adjustment and results
-        cat("Probabilities adjusted by factor of exp(", adj, ")\n", sep = "")
-        print("Adjusted log-probabilities and probabilities of genopairs:")
-        print(summary(lg.gpp.adj))
-        print(summary(gpp.adj))
-        cat("Proportion of pairs for which adjusted probabilities given all 
-        kinships underflow to zero:", mean(rowSums(gpp.adj) == 0), "\n")
-      }
+      GPPs = FindGPPs(lg.gp.prbs.KPs)
       
       print(table(smp.yr.ind.prs[, 1], smp.yr.ind.prs[, 2]))
-      print(str(gpp.slct))
+      print(str(GPPs))
       
       # Try to fit genopair likelihood model
       gp.tmb.res = TryGenopairTMB(
-        if (any(all_undrflw)) gpp.adj else gpp.slct, smp.yr.ind.prs, 
+        GPPs, smp.yr.ind.prs, 
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr,
         alpha()
       )
@@ -175,39 +150,14 @@ fit.os = reactive(if (input$offset) {
       lg.gp.prbs.KPs = 
         FindLogGPProbsKP(smp.gts, smp.ind.prs, L(), pss.gp.prbs.KPs)
       
-      # Get genopair probabilities (by excluding probabilities given half-sibs
-      # for now) and check for pairs where all probabilities underflow to zero
-      lg.gpp.slct = lg.gp.prbs.KPs[, -2]
-      gpp.slct = exp(lg.gpp.slct)
-      all_undrflw = rowSums(gpp.slct) == 0
-      
-      # If there is underflow adjust log-probabilities by factor giving equal
-      # weight to smallest and largest values to avoid both under and overflow
-      if (any(all_undrflw)) {
-        cat("Proportion of pairs for which probabilities given all kinships 
-        underflow to zero:", mean(all_undrflw), "\n")
-        
-        # Want smallest maximum kinship probability and largest probability to
-        # be equally far from one
-        adj = mean(c(min(apply(lg.gpp.slct, 1, max)), max(lg.gpp.slct)))
-        lg.gpp.adj = lg.gpp.slct - adj
-        gpp.adj = exp(lg.gpp.adj)
-        
-        # Show adjustment and results
-        cat("Probabilities adjusted by factor of exp(", adj, ")\n", sep = "")
-        print("Adjusted log-probabilities and probabilities of genopairs:")
-        print(summary(lg.gpp.adj))
-        print(summary(gpp.adj))
-        cat("Proportion of pairs for which adjusted probabilities given all 
-        kinships underflow to zero:", mean(rowSums(gpp.adj) == 0), "\n")
-      }
+      GPPs = FindGPPs(lg.gp.prbs.KPs)
       
       print(table(smp.yr.ind.prs[, 1], smp.yr.ind.prs[, 2]))
-      print(str(gpp.slct))
+      print(str(GPPs))
       
       # Try to fit genopair likelihood model
       os.tmb.res = TryGenopairTMB(
-        if (any(all_undrflw)) gpp.adj else gpp.slct, smp.yr.ind.prs, 
+        GPPs, smp.yr.ind.prs, 
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr,
         alpha()
       )
