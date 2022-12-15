@@ -1,38 +1,5 @@
 # Code and outputs for first study estimates sub-tab of check-tab
 
-FindGPPs = function(LGPPs) {
-  # Get genopair probabilities (by excluding probabilities giveb half-sibs for
-  # now) and check for pairs where all probabilities underflow to zero
-  gpp.slct = exp(LGPPs)
-  all_undrflw = rowSums(gpp.slct) == 0
-  
-  # If there is underflow adjust log-probabilities by factor giving equal
-  # weight to smallest and largest values to avoid both under and overflow
-  if (any(all_undrflw)) {
-    cat("Proportion of pairs for which probabilities given all kinships 
-        underflow to zero:", mean(all_undrflw), "\n")
-    
-    # Want smallest maximum kinship probability and largest probability to be
-    # equally far from one
-    adj = mean(c(min(apply(LGPPs, 1, max)), max(LGPPs)))
-    lg.gpp.adj = LGPPs - adj
-    gpp.adj = exp(lg.gpp.adj)
-    
-    # Show adjustment and results
-    cat("Probabilities adjusted by factor of exp(", adj, ")\n", sep = "")
-    print("Adjusted log-probabilities and probabilities of genopairs:")
-    print(summary(lg.gpp.adj))
-    print(summary(gpp.adj))
-    cat("Proportion of pairs for which adjusted probabilities given all 
-        kinships underflow to zero:", mean(rowSums(gpp.adj) == 0), "\n")
-    
-    return(gpp.adj)
-  } 
-  else {
-    return(gpp.slct)
-  }
-}
-
 # Genopair probabilities for optimization
 GPPs.fll = reactive(FindGPPs(frst.LGPPs.KP.fll()[, -2]))
 GPPs.offst = reactive(FindGPPs(frst.LGPPs.KP.offst()[, -2]))

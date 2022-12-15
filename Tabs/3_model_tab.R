@@ -36,42 +36,20 @@ fit.gp = reactive(if (input$genopair) {
       ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
       ck.lwr[3] <- attributes(pop.cap.hist)$ns.caps[k()]
       
-      smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
-      smp.inds = row(smp.hsts)[as.logical(smp.hsts)]
+      # Genopair model inputs, list of 2, genopair probabilities given kinship
+      # set, n_pairs x n_kinships, and sample-year index pairs, n_pairs x 2
+      Gp.Mdl.Inpts = FindGpMdlInpts(pop.cap.hist, L(), k(), os.mdl = F)
       
-      # Indices of survey-years for each sample
-      smp.yr.inds = col(smp.hsts)[as.logical(smp.hsts)] - 1
-      
-      smp.gts = attributes(pop.cap.hist)$unq.smp.gts[, , smp.inds]
-      n.smps = length(smp.inds)
-      
-      # 2 x n_pairs matrix of indices of samples in each pair to include in
-      # likelihood, possibly all pairs or just consecutive pairs
-      smp.ind.prs = combn(n.smps, 2)
-
-      # n_pairs x 2 matrix of survey-years for each sample in each pair
-      smp.yr.ind.prs = matrix(smp.yr.inds[as.vector(t(smp.ind.prs))], ncol = 2)
-      
-      # Frequencies of 1-coded SNP alleles are means over both alleles at each
-      # locus for each sample
-      ale.frqs.1 = apply(attributes(pop.cap.hist)$unq.smp.gts, 2, mean)
-      # Combine with frequencies for 0-coded alleles
-      ale.frqs = rbind(1 - ale.frqs.1, ale.frqs.1)
-      # Possible genopair probabilities at each locus given each kinship
-      pss.gp.prbs.KPs = FindPssGPPsKPs(pss.gts, n.pss.gts, ale.frqs, L())
-      # Genopair log-probabilities over all loci given each kinship, for each
-      # pair to include in likelihood
-      lg.gp.prbs.KPs = 
-        FindLogGPProbsKP(smp.gts, smp.ind.prs, L(), pss.gp.prbs.KPs[, , , -2])
-
-      GPPs = FindGPPs(lg.gp.prbs.KPs)
-      
-      print(table(smp.yr.ind.prs[, 1], smp.yr.ind.prs[, 2]))
-      print(str(GPPs))
+      # Show summaries of inputs to optimization function
+      print(str(Gp.Mdl.Inpts$GPPs))
+      print(table(
+        Gp.Mdl.Inpts$smp.yr.ind.prs[, 1], 
+        Gp.Mdl.Inpts$smp.yr.ind.prs[, 2]
+      ))
       
       # Try to fit genopair likelihood model
       gp.tmb.res = TryGenopairTMB(
-        GPPs, smp.yr.ind.prs, 
+        Gp.Mdl.Inpts$GPPs, Gp.Mdl.Inpts$smp.yr.ind.prs, 
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr,
         alpha()
       )
@@ -121,39 +99,20 @@ fit.os = reactive(if (input$offset) {
       ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
       ck.lwr[3] <- attributes(pop.cap.hist)$ns.caps[k()]
       
-      smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
-      smp.inds = row(smp.hsts)[as.logical(smp.hsts)]
-      smp.yr.inds = col(smp.hsts)[as.logical(smp.hsts)] - 1
-      smp.gts = attributes(pop.cap.hist)$unq.smp.gts[, , smp.inds]
-      n.smps = length(smp.inds)
+      # Genopair model inputs, list of 2, genopair probabilities given kinship
+      # set, n_pairs x n_kinships, and sample-year index pairs, n_pairs x 2
+      Gp.Mdl.Inpts = FindGpMdlInpts(pop.cap.hist, L(), k(), os.mdl = T)
       
-      # 2 x n_pairs matrix of indices of samples in each pair to include in
-      # likelihood, possibly all pairs or just consecutive pairs
-      smp.ind.prs = FindSIPsOffset(k(), smp.yr.inds)
-      
-      # n_pairs x 2 matrix of survey-years for each sample in each pair
-      smp.yr.ind.prs = matrix(smp.yr.inds[as.vector(t(smp.ind.prs))], ncol = 2)
-      
-      # Frequencies of 1-coded SNP alleles are means over both alleles at each
-      # locus for each sample
-      ale.frqs.1 = apply(attributes(pop.cap.hist)$unq.smp.gts, 2, mean)
-      # Combine with frequencies for 0-coded alleles
-      ale.frqs = rbind(1 - ale.frqs.1, ale.frqs.1)
-      # Possible genopair probabilities at each locus given each kinship
-      pss.gp.prbs.KPs = FindPssGPPsKPs(pss.gts, n.pss.gts, ale.frqs, L())
-      # Genopair log-probabilities over all loci given each kinship, for each
-      # pair to include in likelihood
-      lg.gp.prbs.KPs = 
-        FindLogGPProbsKP(smp.gts, smp.ind.prs, L(), pss.gp.prbs.KPs[, , , -2])
-      
-      GPPs = FindGPPs(lg.gp.prbs.KPs)
-      
-      print(table(smp.yr.ind.prs[, 1], smp.yr.ind.prs[, 2]))
-      print(str(GPPs))
+      # Show summaries of inputs to optimization function
+      print(str(Gp.Mdl.Inpts$GPPs))
+      print(table(
+        Gp.Mdl.Inpts$smp.yr.ind.prs[, 1], 
+        Gp.Mdl.Inpts$smp.yr.ind.prs[, 2]
+      ))
       
       # Try to fit genopair likelihood model
       os.tmb.res = TryGenopairTMB(
-        GPPs, smp.yr.ind.prs, 
+        Gp.Mdl.Inpts$GPPs, Gp.Mdl.Inpts$smp.yr.ind.prs, 
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr,
         alpha()
       )

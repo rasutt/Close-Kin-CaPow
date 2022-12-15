@@ -1,6 +1,6 @@
 # Function to find possible genopair probabilities over multiple loci given
 # multiple kinships
-FindPssGPPsKPs = function(pss.gts, n.pss.gts, ale.frqs, L) {
+FindPssGPPsKPs = function(ale.frqs, L) {
   ales.1.inds = pss.gts[1, ]
   ales.2.inds = pss.gts[2, ]
   

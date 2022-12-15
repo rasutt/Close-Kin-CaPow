@@ -3,27 +3,12 @@
 # repeated samples of the same individual in different surveys.  Frequencies are
 # returned as 2 x L matrices representing the frequencies of 0 and 1-coded SNP
 # alleles at each locus
-frst.ale.frqs = reactive({
-  # Frequencies of 1-coded SNP alleles are means over both alleles at each locus
-  # for each sample
-  ale.frqs.1 = apply(FS.atts()$unq.smp.gts, 2, mean)
-  # ale.frqs.1 = apply(
-  #   mpfrArray(
-  #     FS.atts()$unq.smp.gts, 10, 
-  #     dim(FS.atts()$unq.smp.gts)
-  #   ), 2, mean
-  # )
-  
-  # Combine with frequencies for 0-coded alleles
-  rbind(1 - ale.frqs.1, ale.frqs.1)
-})
+frst.ale.frqs = reactive(FindAleFrqs(FS.atts()$unq.smp.gts))
 
 # Probabilities of possible genopairs at each locus as 3 x 3 x L arrays, where
 # rows represent the first genotypes, and columns the second, ordered as 00, 01,
 # and 11, for binary SNPs.
-frst.pss.gp.prbs.KPs = reactive({
-  FindPssGPPsKPs(pss.gts, n.pss.gts, frst.ale.frqs(), L())
-})
+frst.pss.gp.prbs.KPs = reactive(FindPssGPPsKPs(frst.ale.frqs(), L()))
 
 # Sample histories from first study, (n_animals x n_surveys)
 frst.smp.hsts = reactive(as.matrix(fst.std()[, 4:(3 + k())]))
@@ -49,45 +34,6 @@ frst.n.smps = reactive(length(frst.smp.inds()))
 
 # Sample index pairs, 2 x n_pairs matrix of indices of samples in each pair to
 # include in likelihood, possibly all pairs or just consecutive pairs
-FindSIPsOffset = function(k, smp.yr.inds) {
-  # Empty matrix to add sample index pairs to, 2 x 0
-  smp.ind.prs = matrix(0, 2, 0)
-  
-  # Possible survey-year indices
-  pss.s.yr.inds = 0:(k - 1)
-  
-  # Loop over first survey-year indices
-  for (i in pss.s.yr.inds) {
-    # Get indices for samples in this year 
-    smp.inds.yr.1 = which(smp.yr.inds == i)
-    
-    # Check at least one sample
-    if (length(smp.inds.yr.1) > 0) {
-      # Add offset index pairs for samples in this year
-      smp.ind.prs = cbind(
-        smp.ind.prs, 
-        rbind(smp.inds.yr.1, c(smp.inds.yr.1[-1], smp.inds.yr.1[1]))
-      )
-      
-      # Loop over second survey-year indices
-      for (j in pss.s.yr.inds[pss.s.yr.inds > i]) {
-        # Get indices for samples in this year 
-        smp.inds.yr.2 = which(smp.yr.inds == j)
-        
-        # Check at least one sample
-        if (length(smp.inds.yr.2) > 0) {
-          # Add offset index pairs for samples from these years, shorter index
-          # set recycled with warning
-          smp.ind.prs = suppressWarnings(
-            cbind(smp.ind.prs, rbind(smp.inds.yr.1, smp.inds.yr.2))
-          )
-        }
-      }
-    }
-  }
-  
-  smp.ind.prs
-}
 frst.SIPs.fll = reactive(combn(frst.n.smps(), 2))
 frst.SIPs.offst = reactive(FindSIPsOffset(k(), smp.yr.inds()))
 
@@ -117,13 +63,13 @@ observeEvent(
     is.null(frst.LGPPs.KP.fll())
   ) {
     frst.LGPPs.KP.fll(FindLogGPProbsKP(
-      frst.smp.gts(), frst.SIPs.fll(), L(), frst.pss.gp.prbs.KPs()
+      frst.pss.gp.prbs.KPs(), frst.smp.gts(), frst.SIPs.fll(), L()
     ))
   }
 )
 frst.LGPPs.KP.offst = reactive({
   FindLogGPProbsKP(
-    frst.smp.gts(), frst.SIPs.offst(), L(), frst.pss.gp.prbs.KPs()
+    frst.pss.gp.prbs.KPs(), frst.smp.gts(), frst.SIPs.offst(), L()
   )
 })
 
