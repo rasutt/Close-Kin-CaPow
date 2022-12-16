@@ -47,7 +47,7 @@ ui <- fluidPage(
   navbarPage(
     title = "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "sim.tab",
+    selected = "check.tab",
     position = "fixed-top",
     
     # Sim tab ----
@@ -156,7 +156,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "frst.ests.tb",
+        selected = "frst.gts.tb",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
@@ -243,6 +243,7 @@ ui <- fluidPage(
           tableOutput(outputId = "firstFewLGPPs"),
           p("Observed values for all sample-pairs, over all loci."),
           plotOutput(outputId = "firstLGPPs"),
+          plotOutput(outputId = "frstGpPs"),
           # plotOutput(outputId = "firstObsGPPs"),
           
           h3("Half-sibling vs unrelated pair PLODs"),

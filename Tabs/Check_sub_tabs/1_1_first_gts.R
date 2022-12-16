@@ -22,24 +22,21 @@ frst.smp.inds = reactive(row(frst.smp.hsts())[as.logical(frst.smp.hsts())])
 # sample genotypes.
 frst.smp.gts = reactive(FS.atts()$unq.smp.gts[, , frst.smp.inds()])
 
-# Indices of pairs of samples from first study, (n_samples x 2)
-frst.smp.ind.prs = reactive(t(combn(frst.smp.inds(), 2)))
-
 # Indices of survey-years for each sample, starting from zero, as used in TMB
 # C++ objective function
-smp.yr.inds = reactive(col(frst.smp.hsts())[as.logical(frst.smp.hsts())] - 1)
-
-# Number of samples in first study
-frst.n.smps = reactive(length(frst.smp.inds()))
+frst.smp.yr.inds = reactive({
+  col(frst.smp.hsts())[as.logical(frst.smp.hsts())] - 1
+})
 
 # Sample index pairs, 2 x n_pairs matrix of indices of samples in each pair to
 # include in likelihood, possibly all pairs or just consecutive pairs
-frst.SIPs.fll = reactive(combn(frst.n.smps(), 2))
-frst.SIPs.offst = reactive(FindSIPsOffset(k(), smp.yr.inds()))
+frst.SIPs.fll = reactive(combn(length(frst.smp.inds()), 2))
+frst.SIPs.offst = reactive(FindSIPsOffset(k(), frst.smp.yr.inds()))
 
+# Sample-year index pairs
 FindSYIPs = reactive(function(smp.ind.prs) {
   # n_pairs x 2 matrix of survey-years for each sample in each pair
-  matrix(smp.yr.inds()[as.vector(t(smp.ind.prs))], ncol = 2)
+  matrix(frst.smp.yr.inds()[as.vector(t(smp.ind.prs))], ncol = 2)
 })
 
 # Indices of survey-years for each sample in each pair, starting at zero for
@@ -52,11 +49,10 @@ observeEvent(input$simulate, frst.LGPPs.KP.fll(NULL))
 
 # Find genopair log-probabilities as n.pairs x n.kp.tps matrix with rows for
 # pairs of individuals, and columns for types of kinships considered
-observeEvent(
-  {
+observeEvent({
     input$nav.tab
     input$check.sub.tabs
-  }, 
+}, {
   if (
     input$nav.tab == "check.tab" && 
     input$check.sub.tabs %in% c("frst.gts.tb", "frst.ests.tb") &&
@@ -66,7 +62,7 @@ observeEvent(
       frst.pss.gp.prbs.KPs(), frst.smp.gts(), frst.SIPs.fll(), L()
     ))
   }
-)
+})
 frst.LGPPs.KP.offst = reactive({
   FindLogGPProbsKP(
     frst.pss.gp.prbs.KPs(), frst.smp.gts(), frst.SIPs.offst(), L()
@@ -160,11 +156,11 @@ output$firstGPPsSP = renderTable({
 # kin-pairs later)
 output$firstFewLGPPs = renderTable({
   df = data.frame(cbind(
-    fst.std()[frst.smp.ind.prs()[1:3, 1], 1],
-    fst.std()[frst.smp.ind.prs()[1:3, 2], 1],
+    matrix(fst.std()[frst.smp.inds()[t(frst.SIPs.fll()[, 1:3])], 1], ncol = 2),
     frst.SYIPs.fll()[1:3, ],
     frst.LGPPs.KP.fll()[1:3, ]
   ))
+  df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
   names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
   df
 })
@@ -172,15 +168,28 @@ output$firstFewLGPPs = renderTable({
 # Histograms of genopair log-probabilities given basic kinships
 output$firstLGPPs = renderPlot({
   par(mfrow = c(1, 4))
-  br = 50
-  xlab = "Log-probability"
   lapply(1:4, function(i) {
     # Plotting may fail if all log-probabilities negative infinity
     if(any(is.finite(frst.LGPPs.KP.fll()[, i]))) {
       hist(
-        frst.LGPPs.KP.fll()[, i], main = gp.prb.KP.tps[i], xlab = xlab, br = br
+        frst.LGPPs.KP.fll()[, i], main = gp.prb.KP.tps[i],
+        xlab = "Log-probability", br = 50
       )
     } else plot.new()
+  })
+})
+
+# Histograms of genopair log-probabilities given basic kinships
+output$frstGpPs = renderPlot({
+  par(mfrow = c(1, 4))
+  frst.Gp.Ps = FindGPPs(frst.LGPPs.KP.fll())
+  lapply(1:4, function(i) {
+    hst.dt = hist(frst.Gp.Ps[, i], br = 50, plot = F)
+    hst.dt$counts = log(hst.dt$counts + 1)
+    plot(
+      hst.dt, main = gp.prb.KP.tps[i], xlab = "Probability", 
+      ylab = "log (frequency + 1)"
+    )
   })
 })
 
