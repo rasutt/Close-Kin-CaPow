@@ -55,7 +55,10 @@ FindSIPsOffset = function(k, smp.yr.inds) {
           # Add offset index pairs for samples from these years, shorter index
           # set recycled with warning
           smp.ind.prs = suppressWarnings(
-            cbind(smp.ind.prs, rbind(smp.inds.yr.1, smp.inds.yr.2))
+            cbind(smp.ind.prs, rbind(
+              smp.inds.yr.1[sample(length(smp.inds.yr.1))], 
+              smp.inds.yr.2[sample(length(smp.inds.yr.2))]
+            ))
           )
         }
       }
