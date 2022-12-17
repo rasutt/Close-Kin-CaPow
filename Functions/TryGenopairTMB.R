@@ -3,11 +3,17 @@ MakeGPObj <- function(
 ) {
   # Create TMB function
   data <- list(
-    gpprobs = gp.prbs, sampyrinds = smp.yr.inds, npairs = nrow(gp.prbs),
     k = k, srvygaps = srvy.gaps, fyear = f.year, srvyyrs = srvy.yrs, 
-    alpha = alpha
+    alpha = alpha, 
+    
+    nsSPsbtn = NA, nsPOPsbtn = NA, nsPOPswtn = NA, # nsHSPswtn = NA, 
+    nscaps = NA,
+    
+    gpprobs = gp.prbs, sampyrinds = smp.yr.inds, npairs = nrow(gp.prbs),
+    
+    mdltp = "genopair"
   )
-  MakeADFun(data, list(pars = ck.start), DLL = "GenopairNLL", silent = T)
+  MakeADFun(data, list(pars = ck.start), DLL = "UnifiedNLL", silent = T)
 }
 
 # Try to fit genopair model with TMB

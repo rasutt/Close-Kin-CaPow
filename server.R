@@ -9,10 +9,8 @@ for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]))
 library(TMB)
 compile("TMB_objective_functions/POPANNLL.cpp")
 dyn.load(dynlib("TMB_objective_functions/POPANNLL"))
-compile("TMB_objective_functions/CloseKinNLL.cpp")
-dyn.load(dynlib("TMB_objective_functions/CloseKinNLL"))
-compile("TMB_objective_functions/GenopairNLL.cpp")
-dyn.load(dynlib("TMB_objective_functions/GenopairNLL"))
+compile("TMB_objective_functions/UnifiedNLL.cpp")
+dyn.load(dynlib("TMB_objective_functions/UnifiedNLL"))
 
 # Define server logic for app
 server <- function(input, output) {

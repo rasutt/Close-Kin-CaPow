@@ -5,12 +5,18 @@ TryCloseKinTMB <- function(
 ) {
   # Create TMB function
   data <- list(
-    nsPOPswtn = ns.kps.lst$wtn[1, ], # nsHSPswtn = ns.kps.lst$wtn[3, ], 
-    nsSPsbtn = ns.kps.lst$btn[1, ], nsPOPsbtn = ns.kps.lst$btn[2, ], 
     k = k, srvygaps = srvy.gaps, fyear = f.year, srvyyrs = srvy.yrs, 
-    nscaps = ns.caps, alpha = alpha
+    alpha = alpha, 
+    
+    nsSPsbtn = ns.kps.lst$btn[1, ], nsPOPsbtn = ns.kps.lst$btn[2, ],
+    nsPOPswtn = ns.kps.lst$wtn[1, ], # nsHSPswtn = ns.kps.lst$wtn[3, ],
+    nscaps = ns.caps,
+    
+    gpprobs = matrix(NA, 1, 1), sampyrinds = matrix(NA, 1, 1), npairs = NA,
+    
+    mdltp = "true kinship"
   )
-  obj <- MakeADFun(data, list(pars = ck.start), DLL = "CloseKinNLL", silent = T)
+  obj <- MakeADFun(data, list(pars = ck.start), DLL = "UnifiedNLL", silent = T)
   
   # Run optimiser starting from true values
   ck.opt <- try(

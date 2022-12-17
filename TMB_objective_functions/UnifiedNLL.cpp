@@ -1,4 +1,4 @@
-// Genopair negative log-likelihood function for TMB
+// Unified negative log-likelihood function for TMB
 
 #include <TMB.hpp>
 
@@ -6,14 +6,27 @@ template<class Type>
 Type objective_function<Type>::operator() ()
 {
   // Declare data inputs
-  DATA_MATRIX(gpprobs);
-  DATA_IMATRIX(sampyrinds);
-  DATA_INTEGER(npairs);
+  // Study features
   DATA_INTEGER(k);
   DATA_IVECTOR(srvygaps);
   DATA_INTEGER(fyear);
   DATA_IVECTOR(srvyyrs);
   DATA_INTEGER(alpha);
+  
+  // True kinship model inputs
+  DATA_IVECTOR(nsSPsbtn);
+  DATA_IVECTOR(nsPOPsbtn);
+  DATA_IVECTOR(nsPOPswtn);
+  // DATA_IVECTOR(nsHSPswtn);
+  DATA_IVECTOR(nscaps);
+
+  // Genopair model inputs
+  DATA_MATRIX(gpprobs);
+  DATA_IMATRIX(sampyrinds);
+  DATA_INTEGER(npairs);
+  
+  // Model type
+  DATA_STRING(mdltp)
   
   // Declare parameter input
   PARAMETER_VECTOR(pars);
@@ -53,16 +66,13 @@ Type objective_function<Type>::operator() ()
   Type Ns = (Nfinal / cumlambda) / pentvec(0);
   ADREPORT(Ns);
   
-  // Set negative log likelihood to zero
-  Type nll = Type(0.0);
-  
   // Parent-offspring pair probabilities within samples
   
   // Declare variables for loop
   Type expNsurvyr;
   matrix<Type> prbPOPsmat(k, k);
   prbPOPsmat.setZero();
-
+  
   // Loop over surveys
   for(int srvyind = 0; srvyind < k; srvyind++) {
     // Find the expected number alive at the sample year
@@ -74,30 +84,30 @@ Type objective_function<Type>::operator() ()
   }
   
   // Self and parent-offspring pairs between samples
-
+  
   // Declare variables for loop
   Type expNsurvyr1, expNsurvyr2, prbPOPsbrnbtn;
   matrix<Type> prbSPsmat(k, k);
   prbSPsmat.setZero();
   int srvyyr1, srvyyr2, srvygap;
-
+  
   // Loop over all but last survey
   for(int srvyind1 = 0; srvyind1 < k - 1; srvyind1++) {
     // Find first survey year
     srvyyr1 = srvyyrs(srvyind1);
-
+    
     // Loop over surveys with greater indices than first
     for(int srvyind2 = srvyind1 + 1; srvyind2 < k; srvyind2++) {
       // Find second survey year
       srvyyr2 = srvyyrs(srvyind2);
-
+      
       // Find gap between surveys.  Remember not necessarily consecutive
       srvygap = srvyyr2 - srvyyr1;
-
+      
       // Find the expected numbers alive in survey years
       expNsurvyr1 = Nfinal / pow(lambda, fyear - srvyyr1);
       expNsurvyr2 = Nfinal / pow(lambda, fyear - srvyyr2);
-
+      
       // Probability of SPs between samples
       prbSPsmat(srvyind1, srvyind2) = pow(phi, srvygap) / expNsurvyr2;
       
@@ -120,23 +130,92 @@ Type objective_function<Type>::operator() ()
   ADREPORT(prbPOPsmat);
   ADREPORT(prbSPsmat);
   
-  int inds1, inds2;
+  // Temporary variables for kinpair probabilities
   Type prbPOP, prbSP;
   
-  // Loop over genopairs
-  for(int gpind = 0; gpind < npairs; gpind++) {
-    // Get sample-year indices and kinship probabilities
-    inds1 = sampyrinds(gpind, 0);
-    inds2 = sampyrinds(gpind, 1);
-    prbPOP = prbPOPsmat(inds1, inds2);
-    prbSP = prbSPsmat(inds1, inds2);
+  // Set negative log likelihood to zero
+  Type nll = Type(0.0);
+  
+  // If fitting genopair model
+  if(mdltp == "true kinship") {
+    // Numbers of unrelated pairs
+    // int nonPOPsHSPswtn;
+    int nonPOPswtn, nonPOPsSPsbtn;
     
-    // Add negative log likelihood from genopair probabilities given kinships
-    // and kinship probabilities in terms of parameters.
-    nll = nll - log(
-      (Type(1.0) - prbPOP - prbSP) * gpprobs(gpind, 0) +
-        prbPOP * gpprobs(gpind, 1) + prbSP * gpprobs(gpind, 2)
-    );
+    // Parent-offspring pairs within samples
+    
+    // Loop over number of surveys
+    for(int srvyind = 0; srvyind < k; srvyind++) {
+      // Find number of non-POP-non-HSPs within sample
+      // nonPOPsHSPswtn = nscaps(srvyind) * (nscaps(srvyind) - 1) / 2 -
+      //   nsPOPswtn(srvyind) - nsHSPswtn(srvyind);
+      nonPOPswtn = nscaps(srvyind) * (nscaps(srvyind) - 1) / 2 -
+        nsPOPswtn(srvyind);
+      
+      // Get parent-offspring pair probability
+      prbPOP = prbPOPsmat(srvyind, srvyind);
+      
+      // Add negative log likelihood from numbers of POPs and HSPs within sample
+      // nll = nll - nsPOPswtn(srvyind) * log(prbPOPswtn) -
+      //   nsHSPswtn(srvyind) * log(prbHSPswtn) -
+      //   nonPOPsHSPswtn * log(Type(1.0) - prbPOPswtn - prbHSPswtn);
+      nll = nll - nsPOPswtn(srvyind) * log(prbPOP) -
+        nonPOPswtn * log(Type(1.0) - prbPOP);
+    }
+    
+    // Self and parent-offspring pairs between samples
+    
+    // Set pair counter to zero
+    int prcnt = 0;
+    
+    // Loop over all but last survey
+    for(int srvyind1 = 0; srvyind1 < k - 1; srvyind1++) {
+      // Loop over surveys with greater indices than first
+      for(int srvyind2 = srvyind1 + 1; srvyind2 < k; srvyind2++) {
+        // Probability of SPs between samples
+        prbSP = prbSPsmat(srvyind1, srvyind2);
+        
+        // Get parent-offspring pair probability
+        prbPOP = prbPOPsmat(srvyind1, srvyind2);
+        
+        // Find number of non-POP-non-SPs within sample
+        nonPOPsSPsbtn = nscaps(srvyind1) * nscaps(srvyind2) -
+          nsSPsbtn(prcnt) - nsPOPsbtn(prcnt);
+        
+        // Add negative log likelihood from numbers of SPs and POPs observed.
+        // Omitting multinomial coefficient as only adds a constant w.r.t. the
+        // parameters.
+        nll = nll -
+          nsSPsbtn(prcnt) * log(prbSP) -
+          nsPOPsbtn(prcnt) * log(prbPOP) -
+          nonPOPsSPsbtn * log(Type(1.0) - prbPOP - prbSP);
+        
+        // Increment pair counter.  Remember first index is zero in cpp
+        prcnt++;
+      }
+    }
+  }
+  
+  // If fitting genopair model
+  if(mdltp == "genopair") {
+    // Temporary variables for genopairs
+    int inds1, inds2;
+
+    // Loop over genopairs
+    for(int gpind = 0; gpind < npairs; gpind++) {
+      // Get sample-year indices and kinship probabilities
+      inds1 = sampyrinds(gpind, 0);
+      inds2 = sampyrinds(gpind, 1);
+      prbPOP = prbPOPsmat(inds1, inds2);
+      prbSP = prbSPsmat(inds1, inds2);
+      
+      // Add negative log likelihood from genopair probabilities given kinships
+      // and kinship probabilities in terms of parameters.
+      nll = nll - log(
+        (Type(1.0) - prbPOP - prbSP) * gpprobs(gpind, 0) +
+          prbPOP * gpprobs(gpind, 1) + prbSP * gpprobs(gpind, 2)
+      );
+    }
   }
   
   // Return negative log likelihood
