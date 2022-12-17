@@ -24,7 +24,8 @@ FindSmpGts <- function(smp.hsts, unq.smp.gts) {
 }
 
 # Sample index pairs, 2 x n_pairs matrix of indices of samples in each pair to
-# include in likelihood, possibly all pairs or just consecutive pairs
+# include in likelihood, possibly all pairs or just consecutive pairs with
+# individuals shuffled out of ID/birth order
 FindSIPsOffset = function(k, smp.yr.inds) {
   # Empty matrix to add sample index pairs to, 2 x 0
   smp.ind.prs = matrix(0, 2, 0)
@@ -36,6 +37,7 @@ FindSIPsOffset = function(k, smp.yr.inds) {
   for (i in pss.s.yr.inds) {
     # Get indices for samples in this year 
     smp.inds.yr.1 = which(smp.yr.inds == i)
+    smp.inds.yr.1 = smp.inds.yr.1[sample(length(smp.inds.yr.1))]
     
     # Check at least one sample
     if (length(smp.inds.yr.1) > 0) {
@@ -49,16 +51,14 @@ FindSIPsOffset = function(k, smp.yr.inds) {
       for (j in pss.s.yr.inds[pss.s.yr.inds > i]) {
         # Get indices for samples in this year 
         smp.inds.yr.2 = which(smp.yr.inds == j)
+        smp.inds.yr.2 = smp.inds.yr.2[sample(length(smp.inds.yr.2))]
         
         # Check at least one sample
         if (length(smp.inds.yr.2) > 0) {
           # Add offset index pairs for samples from these years, shorter index
           # set recycled with warning
           smp.ind.prs = suppressWarnings(
-            cbind(smp.ind.prs, rbind(
-              smp.inds.yr.1[sample(length(smp.inds.yr.1))], 
-              smp.inds.yr.2[sample(length(smp.inds.yr.2))]
-            ))
+            cbind(smp.ind.prs, rbind(smp.inds.yr.1, smp.inds.yr.2))
           )
         }
       }
