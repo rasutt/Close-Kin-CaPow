@@ -5,46 +5,20 @@ GPPs.fll = reactive(FindGPPs(frst.LGPPs.KP.fll()[, -2]))
 GPPs.offst = reactive(FindGPPs(frst.LGPPs.KP.offst()[, -2]))
 
 # Create general optimizer starting-values and bounds, NAs filled in below
-ck.start = reactive({
-  c(rho(), phi(), FS.atts()$N.t.vec[hist.len()])
-})
-
-# Make TMB objective function by providing starting parameter values, model
-# type, and data required.
-MakeTMBObj <- function(
-    ck.start, mdltp = c("true kinship", "genopair"),
-    k = NA, srvygaps = NA, fyear = NA, srvyyrs = NA, alpha = NA, 
-    nsSPsbtn = NA, nsPOPsbtn = NA, nsPOPswtn = NA, # nsHSPswtn = NA, 
-    nscaps = NA,
-    gpprobs = NA, sampyrinds = NA
-) {
-  # Create TMB function
-  data <- list(
-    mdltp = mdltp,
-    k = k, srvygaps = srvygaps, fyear = fyear, srvyyrs = srvyyrs, 
-    alpha = alpha, 
-    nsSPsbtn = nsSPsbtn, nsPOPsbtn = nsPOPsbtn, nsPOPswtn = nsPOPswtn, 
-    # nsHSPswtn = nsHSPswtn, 
-    nscaps = nscaps,
-    gpprobs = gpprobs, sampyrinds = sampyrinds, npairs = nrow(gpprobs)
-  )
-  MakeADFun(data, list(pars = ck.start), DLL = "UnifiedNLL", silent = T)
-}
+ck.start = reactive(c(rho(), phi(), FS.atts()$N.t.vec[hist.len()]))
 
 # Genopair likelihood TMB objective function
 GPP.obj.fll = reactive({
   MakeTMBObj(
-    ck.start = ck.start(), mdltp = "genopair",
-    k = k(), srvygaps = srvy.gaps(), fyear = fnl.year(), 
-    srvyyrs = srvy.yrs(), alpha = alpha(), 
+    ck.start(), "genopair",
+    k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), 
     gpprobs = GPPs.fll(), sampyrinds = frst.SYIPs.fll()
   )
 })
 GPP.obj.offst = reactive({
   MakeTMBObj(
-    ck.start = ck.start(), mdltp = "genopair",
-    k = k(), srvygaps = srvy.gaps(), fyear = fnl.year(), 
-    srvyyrs = srvy.yrs(), alpha = alpha(), 
+    ck.start(), "genopair",
+    k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), 
     gpprobs = GPPs.offst(), sampyrinds = frst.SYIPs.offst()
   )
 })
@@ -58,19 +32,14 @@ ck.obj = reactive({
   ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), fst.std())
   
   # Create TMB function
-  data <- list(
-    k = k(), srvygaps = srvy.gaps(), fyear = fnl.year(), srvyyrs = srvy.yrs(),
-    alpha = alpha(),
-    
+  MakeTMBObj(
+    ck.start = ck.start(), mdltp = "true kinship",
+    k = k(), srvygaps = srvy.gaps(), fyear = fnl.year(), 
+    srvyyrs = srvy.yrs(), alpha = alpha(), 
     nsSPsbtn = ns.kps.lst$btn[1, ], nsPOPsbtn = ns.kps.lst$btn[2, ],
     nsPOPswtn = ns.kps.lst$wtn[1, ], # nsHSPswtn = ns.kps.lst$wtn[3, ],
-    nscaps = ns.caps,
-    
-    gpprobs = matrix(NA, 1, 1), sampyrinds = matrix(NA, 1, 1), npairs = NA,
-    
-    mdltp = "true kinship"
+    nscaps = ns.caps
   )
-  MakeADFun(data, list(pars = ck.start()), DLL = "UnifiedNLL", silent = T)
 })
 
 n.pts = 200
@@ -146,37 +115,18 @@ first.FGP.ests = reactive({
   # Try to fit genopair likelihood model
   print(table(frst.SYIPs.fll()[, 1], frst.SYIPs.fll()[, 2]))
   print(str(GPPs.fll()))
-  gp.tmb = TryGenopairTMB(
-    GPPs.fll(), frst.SYIPs.fll(),
-    k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start(), ck.lwr(), ck.upr(),
-    alpha()
-  )
-  
-  # # Checked that it give the same results in R
-  # gp.r = TryGenopair(
-  #   if (any(all_undrflw)) gpp.adj else gpp.slct, 
-  #   smp.yr.ind.prs() + 1,
-  #   k(), fnl.year(), srvy.yrs(), alpha(), 
-  #   ck.start(), ck.lwr(), ck.upr()
-  # )
-  # print(gp.r)
+  gp.tmb = TryModelTMB(GPP.obj.fll(), ck.lwr(), ck.upr(), "genopair")
   
   # Combine with missing values for capture probabilities
-  # rbind(gp.tmb$est.se.df, matrix(NA, k(), 2))
   c(gp.tmb$est.se.df[, 1], rep(NA, k()), gp.tmb$cnvg)
 })
 first.OGP.ests = reactive({
   # Try to fit genopair likelihood model
   print(table(frst.SYIPs.offst()[, 1], frst.SYIPs.offst()[, 2]))
   print(str(GPPs.offst()))
-  gp.tmb = TryGenopairTMB(
-    GPPs.offst(), frst.SYIPs.offst(),
-    k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start(), ck.lwr(), ck.upr(),
-    alpha()
-  )
+  gp.tmb = TryModelTMB(GPP.obj.offst(), ck.lwr(), ck.upr(), "genopair")
 
   # Combine with missing values for capture probabilities
-  # rbind(gp.tmb$est.se.df, matrix(NA, k(), 2))
   c(gp.tmb$est.se.df[, 1], rep(NA, k()), gp.tmb$cnvg)
 })
 
@@ -188,13 +138,18 @@ first.ck.ests = reactive({
   # Find numbers of kin pairs
   ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), fst.std())
   
-  # Try to fit close-kin likelihood model
-  ck.tmb = TryCloseKinTMB(
-    ns.kps.lst, k(), srvy.gaps(), fnl.year(), srvy.yrs(), ns.caps, 
-    ck.start(), ck.lwr(), ck.upr(), alpha()
+  # Create TMB function
+  obj = MakeTMBObj(
+    ck.start(), "true kinship",
+    k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), 
+    nsSPsbtn = ns.kps.lst$btn[1, ], nsPOPsbtn = ns.kps.lst$btn[2, ],
+    nsPOPswtn = ns.kps.lst$wtn[1, ], # nsHSPswtn = ns.kps.lst$wtn[3, ],
+    nscaps = ns.caps
   )
   
-  # rbind(ck.tmb$est.se.df, matrix(NA, k(), 2))
+  # Try to fit close-kin likelihood model
+  ck.tmb = TryModelTMB(obj, ck.lwr(), ck.upr(), "true kinship")
+  
   c(ck.tmb$est.se.df[, 1], rep(NA, k()), ck.tmb$cnvg)
 })
 
@@ -206,9 +161,7 @@ output$firstResults <- renderTable({
   colnames(res.mat) = c(est.par.names(), "Convergence")
 
   # Add results
-  res.mat = rbind(
-    res.mat, first.FGP.ests(), first.OGP.ests(), first.ck.ests()
-  )
+  res.mat = rbind(res.mat, first.FGP.ests(), first.OGP.ests(), first.ck.ests())
 
   # Add model names
   res.df = data.frame(

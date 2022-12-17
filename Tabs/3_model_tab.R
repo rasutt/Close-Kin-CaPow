@@ -47,12 +47,14 @@ fit.gp = reactive(if (input$genopair) {
         Gp.Mdl.Inpts$smp.yr.ind.prs[, 2]
       ))
       
-      # Try to fit genopair likelihood model
-      gp.tmb.res = TryGenopairTMB(
-        Gp.Mdl.Inpts$GPPs, Gp.Mdl.Inpts$smp.yr.ind.prs, 
-        k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr,
-        alpha()
+      obj = MakeTMBObj(
+        ck.start, "genopair",
+        k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), 
+        gpprobs = Gp.Mdl.Inpts$GPPs, sampyrinds = Gp.Mdl.Inpts$smp.yr.ind.prs
       )
+      
+      # Try to fit genopair likelihood model
+      gp.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "genopair")
       
       # If optimiser did not give error
       if(!all(is.na(gp.tmb.res))) {
@@ -110,12 +112,14 @@ fit.os = reactive(if (input$offset) {
         Gp.Mdl.Inpts$smp.yr.ind.prs[, 2]
       ))
       
-      # Try to fit genopair likelihood model
-      os.tmb.res = TryGenopairTMB(
-        Gp.Mdl.Inpts$GPPs, Gp.Mdl.Inpts$smp.yr.ind.prs, 
-        k(), srvy.gaps(), fnl.year(), srvy.yrs(), ck.start, ck.lwr, ck.upr,
-        alpha()
+      obj = MakeTMBObj(
+        ck.start, "genopair",
+        k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), 
+        gpprobs = Gp.Mdl.Inpts$GPPs, sampyrinds = Gp.Mdl.Inpts$smp.yr.ind.prs
       )
+      
+      # Try to fit genopair likelihood model
+      os.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "genopair")
       
       # If optimiser did not give error
       if(!all(is.na(os.tmb.res))) {
@@ -168,11 +172,19 @@ fit.ck = reactive(if (input$close.kin) {
       ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
       ck.lwr[3] <- ns.caps[k()]
       
-      # Try to fit model
-      ck.tmb.res <- TryCloseKinTMB(
-        ns.kps.lst, k(), srvy.gaps(), fnl.year(), srvy.yrs(), ns.caps, 
-        ck.start, ck.lwr, ck.upr, alpha()
+      # Create TMB function
+      obj = MakeTMBObj(
+        ck.start, "true kinship",
+        k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), 
+        nsSPsbtn = ns.kps.lst$btn[1, ], nsPOPsbtn = ns.kps.lst$btn[2, ],
+        nsPOPswtn = ns.kps.lst$wtn[1, ], # nsHSPswtn = ns.kps.lst$wtn[3, ],
+        nscaps = ns.caps
       )
+      
+      # Try to fit close-kin likelihood model
+      ck.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "true kinship")
+      
+      # Store results separately
       ck.tmb.ests[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
       ck.tmb.ses[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 2]
       ck.tmb.cnvg[hist.ind] = ck.tmb.res$cnvg
