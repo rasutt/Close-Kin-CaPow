@@ -9,17 +9,43 @@ ck.start = reactive({
   c(rho(), phi(), FS.atts()$N.t.vec[hist.len()])
 })
 
+# Make TMB objective function by providing starting parameter values, model
+# type, and data required.
+MakeTMBObj <- function(
+    ck.start, mdltp = c("true kinship", "genopair"),
+    k = NA, srvygaps = NA, fyear = NA, srvyyrs = NA, alpha = NA, 
+    nsSPsbtn = NA, nsPOPsbtn = NA, nsPOPswtn = NA, # nsHSPswtn = NA, 
+    nscaps = NA,
+    gpprobs = NA, sampyrinds = NA
+) {
+  # Create TMB function
+  data <- list(
+    mdltp = mdltp,
+    k = k, srvygaps = srvygaps, fyear = fyear, srvyyrs = srvyyrs, 
+    alpha = alpha, 
+    nsSPsbtn = nsSPsbtn, nsPOPsbtn = nsPOPsbtn, nsPOPswtn = nsPOPswtn, 
+    # nsHSPswtn = nsHSPswtn, 
+    nscaps = nscaps,
+    gpprobs = gpprobs, sampyrinds = sampyrinds, npairs = nrow(gpprobs)
+  )
+  MakeADFun(data, list(pars = ck.start), DLL = "UnifiedNLL", silent = T)
+}
+
 # Genopair likelihood TMB objective function
 GPP.obj.fll = reactive({
-  MakeGPObj(
-    GPPs.fll(), frst.SYIPs.fll(), ck.start(),
-    k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha()
+  MakeTMBObj(
+    ck.start = ck.start(), mdltp = "genopair",
+    k = k(), srvygaps = srvy.gaps(), fyear = fnl.year(), 
+    srvyyrs = srvy.yrs(), alpha = alpha(), 
+    gpprobs = GPPs.fll(), sampyrinds = frst.SYIPs.fll()
   )
 })
 GPP.obj.offst = reactive({
-  MakeGPObj(
-    GPPs.offst(), frst.SYIPs.offst(), ck.start(),
-    k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha()
+  MakeTMBObj(
+    ck.start = ck.start(), mdltp = "genopair",
+    k = k(), srvygaps = srvy.gaps(), fyear = fnl.year(), 
+    srvyyrs = srvy.yrs(), alpha = alpha(), 
+    gpprobs = GPPs.offst(), sampyrinds = frst.SYIPs.offst()
   )
 })
 

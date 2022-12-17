@@ -13,6 +13,14 @@ Type objective_function<Type>::operator() ()
   DATA_IVECTOR(srvyyrs);
   DATA_INTEGER(alpha);
   
+  // // Popan model inputs
+  // DATA_SCALAR(ncaphists);
+  // DATA_VECTOR(firsttab);
+  // DATA_VECTOR(lasttab);
+  // DATA_VECTOR(caps);
+  // DATA_VECTOR(noncaps);
+  // DATA_VECTOR(survives);
+  
   // True kinship model inputs
   DATA_IVECTOR(nsSPsbtn);
   DATA_IVECTOR(nsPOPsbtn);
