@@ -129,11 +129,12 @@ FindGpMdlInpts <- function(pop.cap.hist, L, k, os.mdl) {
   # Sample index pairs, 2 x n_pairs, representing indices of samples in each
   # pair to include in likelihood, possibly all pairs or just consecutive
   # pairs
-  smp.ind.prs = if (os.mdl) {
-    FindSIPsOffset(k, smp.yr.inds)
-  } else {
-    combn(length(smp.yr.inds), 2)
-  }
+  smp.ind.prs = 
+    if (os.mdl) {
+      FindSIPsOffset(k, smp.yr.inds)
+    } else {
+      combn(length(smp.yr.inds), 2)
+    }
   
   # Genopair log-probabilities over all loci given each kinship, for each
   # pair to include in likelihood

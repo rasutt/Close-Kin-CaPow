@@ -38,7 +38,7 @@ fit.gp = reactive(if (input$genopair) {
       
       # Genopair model inputs, list of 2, genopair probabilities given kinship
       # set, n_pairs x n_kinships, and sample-year index pairs, n_pairs x 2
-      Gp.Mdl.Inpts = FindGpMdlInpts(pop.cap.hist, L(), k(), os.mdl = F)
+      Gp.Mdl.Inpts = gp.mdl.inpts()[[hist.ind]]
       
       # Show summaries of inputs to optimization function
       print(str(Gp.Mdl.Inpts$GPPs))
@@ -244,11 +244,44 @@ fit.ppn = reactive(if (input$popan) {
 # Nullify model-fits when new datasets simulated
 observeEvent(input$simulate, {
   fit.lst(NULL)
+  gp.mdl.inpts(NULL)
 })
 
 # Combine model estimates and update in fit.lst reactive value
 observeEvent(input$nav.tab, {
-  if (input$nav.tab == "model.tab" && is.null(fit.lst())) {
+  if (
+    input$nav.tab == "model.tab" && input$genopair && is.null(gp.mdl.inpts())
+  ) {
+    lst = vector("list", n.sims())
+    
+    # Loop over histories
+    withProgress({
+      for (hist.ind in 1:n.sims()) {
+        # Display progress
+        cat("History:", hist.ind, "\n")
+        
+        # Get simulated family and capture histories of population of animals
+        # over time
+        pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
+        
+        # Genopair model inputs, list of 2, genopair probabilities given kinship
+        # set, n_pairs x n_kinships, and sample-year index pairs, n_pairs x 2
+        lst[[hist.ind]] = FindGpMdlInpts(pop.cap.hist, L(), k(), os.mdl = F)
+        
+        incProgress(1/n.sims())
+      }
+    }, value = 0, message = "Finding genopair model inputs")
+    
+    gp.mdl.inpts(lst)
+  }
+})
+
+# Combine model estimates and update in fit.lst reactive value
+observeEvent(input$nav.tab, {
+  if (
+    input$nav.tab == "model.tab" 
+    # && is.null(fit.lst())
+  ) {
     # Boolean for models requested 
     mod.bool = c(input$popan, input$close.kin, input$genopair, input$offset)
     

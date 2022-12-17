@@ -49,7 +49,8 @@ output$downloadData <- downloadHandler(
       ns.SFPs.t = ns.SFPs.t(),
       ns.SibPs = ns.SibPs(),
       pns.UPs = pns.UPs(),
-      frst.LGPPs.KP.fll = frst.LGPPs.KP.fll()
+      frst.LGPPs.KP.fll = frst.LGPPs.KP.fll(),
+      gp.mdl.inpts = gp.mdl.inpts()
     )
     save(saved.objs, file = file)
   }
@@ -107,6 +108,7 @@ observeEvent(input$file, {
   ns.SibPs(saved.objs$ns.SibPs)
   pns.UPs(saved.objs$pns.UPs)
   frst.LGPPs.KP.fll(saved.objs$frst.LGPPs.KP.fll)
+  gp.mdl.inpts(saved.objs$gp.mdl.inpts)
 })
 
 # Show number of files uploaded
