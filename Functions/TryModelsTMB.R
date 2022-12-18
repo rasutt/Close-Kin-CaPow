@@ -2,7 +2,10 @@
 # type, and data required.
 MakeTMBObj <- function(
     ck.start, mdltp = c("true kinship", "genopair"),
-    k = NA, srvygaps = NA, fyear = NA, srvyyrs = NA, alpha = NA, 
+    k = NA, srvygaps = NA, fyear = NA, srvyyrs = NA, 
+    ncaphists = NA, firsttab = NA, lasttab = NA, caps = NA, noncaps = NA, 
+    survives = NA,
+    alpha = NA, 
     nsSPsbtn = NA, nsPOPsbtn = NA, nsPOPswtn = NA, # nsHSPswtn = NA, 
     nscaps = NA,
     gpprobs = matrix(NA, 1, 1), sampyrinds = matrix(NA, 1, 1)
@@ -11,6 +14,8 @@ MakeTMBObj <- function(
   data <- list(
     mdltp = mdltp,
     k = k, srvygaps = srvygaps, fyear = fyear, srvyyrs = srvyyrs, 
+    ncaphists = ncaphists, firsttab = firsttab, lasttab = lasttab, 
+    caps = caps, noncaps = noncaps, survives = survives,
     alpha = alpha, 
     nsSPsbtn = nsSPsbtn, nsPOPsbtn = nsPOPsbtn, nsPOPswtn = nsPOPswtn, 
     # nsHSPswtn = nsHSPswtn, 

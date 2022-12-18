@@ -11,14 +11,16 @@ ck.start = reactive(c(rho(), phi(), FS.atts()$N.t.vec[hist.len()]))
 GPP.obj.fll = reactive({
   MakeTMBObj(
     ck.start(), "genopair",
-    k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), 
+    k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
+    alpha = alpha(), 
     gpprobs = GPPs.fll(), sampyrinds = frst.SYIPs.fll()
   )
 })
 GPP.obj.offst = reactive({
   MakeTMBObj(
     ck.start(), "genopair",
-    k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), 
+    k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
+    alpha = alpha(), 
     gpprobs = GPPs.offst(), sampyrinds = frst.SYIPs.offst()
   )
 })
@@ -35,12 +37,33 @@ ck.obj = reactive({
   MakeTMBObj(
     ck.start = ck.start(), mdltp = "true kinship",
     k = k(), srvygaps = srvy.gaps(), fyear = fnl.year(), 
-    srvyyrs = srvy.yrs(), alpha = alpha(), 
+    srvyyrs = srvy.yrs(), 
+    alpha = alpha(), 
     nsSPsbtn = ns.kps.lst$btn[1, ], nsPOPsbtn = ns.kps.lst$btn[2, ],
     nsPOPswtn = ns.kps.lst$wtn[1, ], # nsHSPswtn = ns.kps.lst$wtn[3, ],
     nscaps = ns.caps
   )
 })
+
+# # Popan likelihood TMB objective function 
+# ppn.obj = reactive({
+#   # Get numbers of animals captured in each survey
+#   ns.caps <- FS.atts()$ns.caps
+#   
+#   # Find numbers of kin pairs
+#   ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), fst.std())
+#   
+#   # Create TMB function
+#   MakeTMBObj(
+#     ck.start = ck.start(), mdltp = "true kinship",
+#     k = k(), srvygaps = srvy.gaps(), fyear = fnl.year(), 
+#     srvyyrs = srvy.yrs(), 
+#     alpha = alpha(), 
+#     nsSPsbtn = ns.kps.lst$btn[1, ], nsPOPsbtn = ns.kps.lst$btn[2, ],
+#     nsPOPswtn = ns.kps.lst$wtn[1, ], # nsHSPswtn = ns.kps.lst$wtn[3, ],
+#     nscaps = ns.caps
+#   )
+# })
 
 n.pts = 200
 
@@ -138,17 +161,8 @@ first.ck.ests = reactive({
   # Find numbers of kin pairs
   ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), fst.std())
   
-  # Create TMB function
-  obj = MakeTMBObj(
-    ck.start(), "true kinship",
-    k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), 
-    nsSPsbtn = ns.kps.lst$btn[1, ], nsPOPsbtn = ns.kps.lst$btn[2, ],
-    nsPOPswtn = ns.kps.lst$wtn[1, ], # nsHSPswtn = ns.kps.lst$wtn[3, ],
-    nscaps = ns.caps
-  )
-  
   # Try to fit close-kin likelihood model
-  ck.tmb = TryModelTMB(obj, ck.lwr(), ck.upr(), "true kinship")
+  ck.tmb = TryModelTMB(ck.obj(), ck.lwr(), ck.upr(), "true kinship")
   
   c(ck.tmb$est.se.df[, 1], rep(NA, k()), ck.tmb$cnvg)
 })

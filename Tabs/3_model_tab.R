@@ -49,7 +49,8 @@ fit.gp = reactive(if (input$genopair) {
       
       obj = MakeTMBObj(
         ck.start, "genopair",
-        k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), 
+        k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
+        alpha = alpha(), 
         gpprobs = Gp.Mdl.Inpts$GPPs, sampyrinds = Gp.Mdl.Inpts$smp.yr.ind.prs
       )
       
@@ -114,7 +115,8 @@ fit.os = reactive(if (input$offset) {
       
       obj = MakeTMBObj(
         ck.start, "genopair",
-        k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), 
+        k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
+        alpha = alpha(), 
         gpprobs = Gp.Mdl.Inpts$GPPs, sampyrinds = Gp.Mdl.Inpts$smp.yr.ind.prs
       )
       
@@ -175,7 +177,8 @@ fit.ck = reactive(if (input$close.kin) {
       # Create TMB function
       obj = MakeTMBObj(
         ck.start, "true kinship",
-        k(), srvy.gaps(), fnl.year(), srvy.yrs(), alpha(), 
+        k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
+        alpha = alpha(), 
         nsSPsbtn = ns.kps.lst$btn[1, ], nsPOPsbtn = ns.kps.lst$btn[2, ],
         nsPOPswtn = ns.kps.lst$wtn[1, ], # nsHSPswtn = ns.kps.lst$wtn[3, ],
         nscaps = ns.caps
