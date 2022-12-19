@@ -42,10 +42,18 @@ TryModelTMB <- function(obj, lwr, upr, mdltp = c("true kinship", "genopair")) {
     return(NA)
   }
   
-  # Get estimates and standard errors from TMB, replacing rho with lambda
   print(mdltp)
   print(summary(sdreport(obj)))
-  est.se.df = summary(sdreport(obj))[c(4, 2:3, 5), ]
+  # If Popan model10
+  if (mdltp == "popan") {
+    # Get estimates and standard errors from TMB, replacing rho with lambda and
+    # inserting estimate for final population size
+    k = length(lwr) - 3
+    est.se.df = summary(sdreport(obj))[c(k + 4, 2, k + 5, 3:(k + 3)), ]
+  } else {
+    # Get estimates and standard errors from TMB, replacing rho with lambda
+    est.se.df = summary(sdreport(obj))[c(4, 2:3, 5), ]
+  }
   
   # Show results
   if (opt$convergence == 0) {

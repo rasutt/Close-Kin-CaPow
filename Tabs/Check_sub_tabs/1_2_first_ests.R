@@ -5,12 +5,12 @@ GPPs.fll = reactive(FindGPPs(frst.LGPPs.KP.fll()[, -2]))
 GPPs.offst = reactive(FindGPPs(frst.LGPPs.KP.offst()[, -2]))
 
 # Create general optimizer starting-values and bounds, NAs filled in below
-ck.start = reactive(c(rho(), phi(), FS.atts()$N.t.vec[hist.len()]))
-ppn.start = reactive({
-  ppn.start = c(ck.start(), rep(p(), k()))
-  ppn.start[3] = FS.atts()$Ns
-  ppn.start
+ck.start = reactive({
+  vec = c(rho(), phi(), FS.atts()$N.t.vec[hist.len()])
+  names(vec) = c("rho", "phi", "N.final")
+  vec
 })
+ppn.start = reactive(c(ck.start()[-3], FS.atts()$Ns, rep(p(), k())))
 
 # Genopair likelihood TMB objective function
 GPP.obj.fll = reactive({
