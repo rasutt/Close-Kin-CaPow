@@ -43,6 +43,8 @@ TryModelTMB <- function(obj, lwr, upr, mdltp = c("true kinship", "genopair")) {
   }
   
   # Get estimates and standard errors from TMB, replacing rho with lambda
+  print(mdltp)
+  print(summary(sdreport(obj)))
   est.se.df = summary(sdreport(obj))[c(4, 2:3, 5), ]
   
   # Show results

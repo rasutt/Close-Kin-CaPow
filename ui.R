@@ -156,7 +156,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "frst.gts.tb",
+        selected = "frst.ests.tb",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
@@ -263,12 +263,14 @@ ui <- fluidPage(
           h3("Likelihood surface near true parameter values"),
           p("Negative log-likelihood over each parameter while others held at 
             true values."),
-          h4("Full genopair likelihood"),
-          plotOutput(outputId = "firstFGPNLLSurfs"),
-          h4("Offset genopair likelihood"),
-          plotOutput(outputId = "firstOGPNLLSurfs"),
-          h4("True kinships likelihood"),
+          h4("Popan likelihood"),
+          plotOutput(outputId = "firstPpnNLLSurfs"),
+          h4("True kinship likelihood"),
           plotOutput(outputId = "firstCKNLLSurfs"),
+          # h4("Full genopair likelihood"),
+          # plotOutput(outputId = "firstFGPNLLSurfs"),
+          # h4("Offset genopair likelihood"),
+          # plotOutput(outputId = "firstOGPNLLSurfs"),
           
           h3("Results for first study"),
           tableOutput(outputId = "firstResults")
