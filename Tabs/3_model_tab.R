@@ -232,17 +232,27 @@ fit.ppn = reactive(if (input$popan) {
       # Get numbers of animals captured in study
       n.cap.hists <- nrow(pop.cap.hist)
       
-      # Summarise data for POPAN model
-      pop.sum <- FindPopSum(k(), pop.cap.hist, n.cap.hists)
-      
       # Update optimiser starting-values and bounds
       ppn.start[3] <- attributes(pop.cap.hist)$Ns
       ppn.lwr[3] <- n.cap.hists
       
-      # Try to fit models
-      ppn.tmb.res <- TryPOPANTMB(
-        k(), srvy.gaps(), n.cap.hists, pop.sum, ppn.start, ppn.lwr, ppn.upr
+      # Summarise data for POPAN model
+      pop.sum <- FindPopSum(k(), pop.cap.hist, n.cap.hists)
+      
+      # Create TMB function
+      ppn.obj = MakeTMBObj(
+        ck.start = ppn.start, mdltp = "popan",
+        k = k(), srvygaps = srvy.gaps(), 
+        ncaphists = n.cap.hists, firsttab = pop.sum$first.tab, 
+        lasttab = pop.sum$last.tab, caps = pop.sum$caps, 
+        noncaps = pop.sum$non.caps, survives = pop.sum$survives[-k()]
       )
+      
+      # Try to fit models
+      ppn.tmb.res = TryModelTMB(ppn.obj, ppn.lwr, ppn.upr, "popan")
+      # ppn.tmb.res <- TryPOPANTMB(
+      #   k(), srvy.gaps(), n.cap.hists, pop.sum, ppn.start, ppn.lwr, ppn.upr
+      # )
       ppn.tmb.ests[hist.ind, ] <- ppn.tmb.res$est.se.df[, 1]
       ppn.tmb.ses[hist.ind, ] <- ppn.tmb.res$est.se.df[, 2]
       ppn.tmb.cnvg[hist.ind] = ppn.tmb.res$cnvg

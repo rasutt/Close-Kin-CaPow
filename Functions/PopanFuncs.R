@@ -19,20 +19,21 @@ pent_vec_func <- function(lmbd.gps.mat, phi.gps.mat){
 
 # Function to find final population size for each of multiple sets of parameter
 # estimates
-N_fin_vec_func <- function(Ns, lambda, phi){
+N_fin_vec_func <- function(Ns, lambda, phi, srvy.gaps){
   lmbd.gps.mat <- outer(lambda, srvy.gaps, "^")
   phi.gps.mat <- outer(phi, srvy.gaps, "^")
-  rowSums(pent_vec_func(lmbd.gps.mat, phi.gps.mat) * Ns * 
-            apply(phi.gps.mat, 1, prod) / 
-            t(apply(cbind(1, phi.gps.mat), 1, cumprod)))
+  rowSums(
+    pent_vec_func(lmbd.gps.mat, phi.gps.mat) * Ns * 
+      apply(phi.gps.mat, 1, prod) / t(apply(cbind(1, phi.gps.mat), 1, cumprod))
+  )
 }
 
 # Function to find superpopulation size for each of multiple sets of parameter
 # estimates
-Ns_vec_func <- function(N_fin, lambda, phi){
+Ns_vec_func <- function(N_fin, lambda, phi, srvy.gaps) {
   lmbd.gps.mat <- outer(lambda, srvy.gaps, "^")
   phi.gps.mat <- outer(phi, srvy.gaps, "^")
-  N_fin / lambda^stdy.len / pent_vec_func(lmbd.gps.mat, phi.gps.mat)[, 1]
+  N_fin / lambda^sum(srvy.gaps) / pent_vec_func(lmbd.gps.mat, phi.gps.mat)[, 1]
 }
 
 # Function to find probability that animal alive in population and not

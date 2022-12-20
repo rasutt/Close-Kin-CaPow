@@ -73,14 +73,24 @@ n.pts = 200
 # Create general optimizer bounds
 ck.lwr = reactive(c(0, 0.75, FS.atts()$ns.caps[k()]))
 ck.upr = reactive(c(0.35, 1, Inf))
+ppn.lwr = reactive(c(ck.lwr()[1:2], n.cap.hists(), rep(0, k())))
+ppn.upr = reactive(c(ck.upr(), rep(1, k())))
 
 # Matrix of values to plot NLL at for each parameter, n_points x 3
-par.mat = reactive({
+ck.par.mat = reactive({
   ck.upr = ck.upr()
   ck.upr[3] = 1e4
   sapply(1:3, function(p) {
     seq(ck.lwr()[p], ck.upr[p], len = n.pts)
   })
+})
+ppn.par.mat = reactive({
+  ppn.upr = ppn.upr()
+  ppn.upr[3] = 1e4
+  cbind(
+    ck.par.mat()[, 1:2],
+    seq(ppn.lwr()[3], ppn.upr[3], len = n.pts)
+  )
 })
 
 # Negative log-likelihood surfaces for first study, n_points x n_pars x n_models
@@ -95,18 +105,20 @@ frst.nll.srfcs = reactive({
   # Loop over parameters
   for (p in 1:3) {
     # Reset all parameter values
-    par.vals = ck.start()
+    ck.par.vals = ck.start()
+    ppn.par.vals = ppn.start()
     
     # Loop over points for plotting
     for (i in 1:n.pts) {
       # Set value of current parameter
-      par.vals[p] = par.mat()[i, p]
+      ck.par.vals[p] = ck.par.mat()[i, p]
+      ppn.par.vals[p] = ppn.par.mat()[i, p]
       
       # Find NLL values at current parameter values
-      obj.par[i, p, "Popan"] = ppn.obj()$fn(c(par.vals, rep(p(), k())))
-      obj.par[i, p, "True kinship"] = ck.obj()$fn(par.vals)
-      # obj.par[i, p, "Full genopair"] = GPP.obj.fll()$fn(par.vals)
-      # obj.par[i, p, "Offset genopair"] = GPP.obj.offst()$fn(par.vals)
+      obj.par[i, p, "Popan"] = ppn.obj()$fn(ppn.par.vals)
+      obj.par[i, p, "True kinship"] = ck.obj()$fn(ck.par.vals)
+      # obj.par[i, p, "Full genopair"] = GPP.obj.fll()$fn(ck.par.vals)
+      # obj.par[i, p, "Offset genopair"] = GPP.obj.offst()$fn(ck.par.vals)
     }
   }
   
@@ -117,15 +129,18 @@ frst.nll.srfcs = reactive({
 # for one model
 plot.nll = function(mdl.nm) {
   par(mfrow = c(1, 3))
-  p.nms = c("Rho", "Phi", "N.final")
+  p.nms = c("Rho", "Phi", if (mdl.nm == "Popan") "Ns" else "N.final")
   
   # Loop over parameters
   for (p in 1:3) {
     plot(
-      par.mat()[, p], frst.nll.srfcs()[, p, mdl.nm], main = p.nms[p], 
+      if (mdl.nm == "Popan") ppn.par.mat()[, p] else ck.par.mat()[, p], 
+      frst.nll.srfcs()[, p, mdl.nm], main = p.nms[p], 
       xlab = p.nms[p], ylab = "NLL", type = 'l', col = 1
     )
-    abline(v = ck.start()[p], col = 2)
+    abline(
+      v = if (mdl.nm == "Popan") ppn.start()[p] else ck.start()[p], col = 2
+    )
     legend(
       "topright", legend = c("Likelihood", "True value"), col = 1:2, lty = 1
     )
@@ -143,13 +158,8 @@ output$firstCKNLLSurfs = renderPlot(plot.nll("True kinship"))
 
 # Popan model
 first.ppn.ests = reactive({
-  # Update optimiser bounds
-  ppn.lwr = c(ck.lwr(), rep(0, k()))
-  ppn.upr = c(ck.upr(), rep(1, k()))
-  ppn.lwr[3] = n.cap.hists()
-  
   # Try to fit close-kin likelihood model
-  ppn.tmb = TryModelTMB(ppn.obj(), ppn.lwr, ppn.upr, "popan")
+  ppn.tmb = TryModelTMB(ppn.obj(), ppn.lwr(), ppn.upr(), "popan")
   
   c(ppn.tmb$est.se.df[, 1], ppn.tmb$cnvg)
 })
