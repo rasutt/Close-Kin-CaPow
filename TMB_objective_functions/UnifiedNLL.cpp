@@ -51,24 +51,24 @@ Type objective_function<Type>::operator() ()
   // Find superpopulation size to compare with POPAN estimates
   
   // Find lambda and phi with respect to gaps between surveys
-  vector<Type> lambdagaps(k - 1);
-  vector<Type> phigaps(k - 1);
+  vector<Type> lmbd_gaps(k - 1);
+  vector<Type> phi_gaps(k - 1);
   for(int i = 0; i < k - 1; i++) {
-    lambdagaps(i) = pow(lambda, srvy_gaps(i));
-    phigaps(i) = pow(phi, srvy_gaps(i));
+    lmbd_gaps(i) = pow(lambda, srvy_gaps(i));
+    phi_gaps(i) = pow(phi, srvy_gaps(i));
   }
   
   // Find entry proportions
-  vector<Type> pentvec(k);
-  pentvec(0) = Type(1.0);
-  Type cumlambda = Type(1.0);
+  vector<Type> p_ent(k);
+  p_ent(0) = Type(1.0);
+  Type cum_lmbd = Type(1.0);
   for(int i = 1; i < k; i++) {
-    pentvec(i) = (lambdagaps(i - 1) - phigaps(i - 1)) * cumlambda;
-    cumlambda *= lambdagaps(i - 1);
+    p_ent(i) = (lmbd_gaps(i - 1) - phi_gaps(i - 1)) * cum_lmbd;
+    cum_lmbd *= lmbd_gaps(i - 1);
   }
-  Type sumpentvec = pentvec.sum();
+  Type sump_ent = p_ent.sum();
   for(int i = 0; i < k; i++) {
-    pentvec(i) = pentvec(i) / sumpentvec;
+    p_ent(i) = p_ent(i) / sump_ent;
   }
   
   // Set negative log likelihood to zero
@@ -77,17 +77,17 @@ Type objective_function<Type>::operator() ()
   if(mdl_tp == "true kinship" || mdl_tp == "genopair") {
     // Find Ns as first N_t divided by first entry proportion and specify it as a
     // derived parameter to calculate and report the standard error
-    Type Nfinal = pars(2);
-    Type Ns = (Nfinal / cumlambda) / pentvec(0);
+    Type N_fnl = pars(2);
+    Type Ns = (N_fnl / cum_lmbd) / p_ent(0);
     ADREPORT(Ns);
     
     // Parent-offspring pair probabilities within samples
     
     // Declare variables for loop
-    Type expNsurvyr, expnsSMPs;
-    matrix<Type> prbPOPsmat(k, k), prbHSPsmat(k, k);
-    prbPOPsmat.setZero();
-    prbHSPsmat.setZero();
+    Type exp_N_s_yr, exp_ns_SMPs;
+    matrix<Type> prbs_POPs(k, k), prbs_HSPs(k, k);
+    prbs_POPs.setZero();
+    prbs_HSPs.setZero();
     
     // Lambda minus phi-squared
     Type lmb_m_ph_sq = lambda - pow(phi, 2);
@@ -101,17 +101,18 @@ Type objective_function<Type>::operator() ()
     Type beta = 2 * (1 - p_o_l) * rcl_prb_mtr;
     
     // Loop over surveys
-    for(int srvyind = 0; srvyind < k; srvyind++) {
-      // Find the expected number alive at the sample year
-      expNsurvyr = Nfinal / pow(lambda, fnl_year - srvy_yrs(srvyind));
-      
+    for(int s_ind = 0; s_ind < k; s_ind++) {
+      // Expected population sizes in survey years
+      exp_N_s_yr = N_fnl / pow(lambda, fnl_year - srvy_yrs(s_ind));
+
       // Probability of POPs within sample
-      prbPOPsmat(srvyind, srvyind) = Type(2.0) / (expNsurvyr - Type(1.0)) * 
+      prbs_POPs(s_ind, s_ind) = Type(2.0) / (exp_N_s_yr - Type(1.0)) * 
         rho * (Type(1.0) + phi) / (lambda - pow(phi, 2));
       
       // Same-mother pairs within survey years
       // exp.ns.SMPs.wtn = exp.N.s.yrs * beta * rho * phi^2 / lmb_m_ph_sq^2
-      expnsSMPs = expNsurvyr * beta * rho * pow(phi, 2) / pow(lmb_m_ph_sq, 2);
+      exp_ns_SMPs = exp_N_s_yr * beta * rho * 
+        pow(phi, 2) / pow(lmb_m_ph_sq, 2);
       
       // // Same-father pairs within survey years, split into same and different
       // // birth years as used separately later
@@ -127,116 +128,114 @@ Type objective_function<Type>::operator() ()
       //   
       // // Half-sibling pairs within survey years
       // exp.ns.HSPs.wtn = exp.ns.SMPs.wtn + exp.ns.SFPs.wtn - 2 * exp.ns.FSPs.wtn
-        
-        
     }
     
     // Self and parent-offspring pairs between samples
     
     // Declare variables for loop
-    Type expNsurvyr1, expNsurvyr2, prbPOPsbrnbtn;
-    matrix<Type> prbSPsmat(k, k);
-    prbSPsmat.setZero();
-    int srvyyr1, srvyyr2, srvygap;
+    Type exp_N_s_yr_1, exp_N_s_yr_2, prb_POPs_brn_btn;
+    matrix<Type> prbs_SPs(k, k);
+    prbs_SPs.setZero();
+    int s_yr_1, s_yr_2, s_gap;
     
     // Loop over all but last survey
-    for(int srvyind1 = 0; srvyind1 < k - 1; srvyind1++) {
+    for(int s_ind_1 = 0; s_ind_1 < k - 1; s_ind_1++) {
       // Find first survey year
-      srvyyr1 = srvy_yrs(srvyind1);
+      s_yr_1 = srvy_yrs(s_ind_1);
       
       // Loop over surveys with greater indices than first
-      for(int srvyind2 = srvyind1 + 1; srvyind2 < k; srvyind2++) {
+      for(int s_ind_2 = s_ind_1 + 1; s_ind_2 < k; s_ind_2++) {
         // Find second survey year
-        srvyyr2 = srvy_yrs(srvyind2);
+        s_yr_2 = srvy_yrs(s_ind_2);
         
-        // Find gap between surveys.  Remember not necessarily consecutive
-        srvygap = srvyyr2 - srvyyr1;
+        // Find gap between surveys.  Not necessarily consecutive surveys so
+        // different from survey gaps passed in as data.
+        s_gap = s_yr_2 - s_yr_1;
         
         // Find the expected numbers alive in survey years
-        expNsurvyr1 = Nfinal / pow(lambda, fnl_year - srvyyr1);
-        expNsurvyr2 = Nfinal / pow(lambda, fnl_year - srvyyr2);
+        exp_N_s_yr_1 = N_fnl / pow(lambda, fnl_year - s_yr_1);
+        exp_N_s_yr_2 = N_fnl / pow(lambda, fnl_year - s_yr_2);
         
         // Probability of SPs between samples
-        prbSPsmat(srvyind1, srvyind2) = pow(phi, srvygap) / expNsurvyr2;
+        prbs_SPs(s_ind_1, s_ind_2) = pow(phi, s_gap) / exp_N_s_yr_2;
         
         // New probability of POPs between samples
-        if(srvyyr1 + alpha < srvyyr2) {
-          prbPOPsbrnbtn = (srvyyr2 - (srvyyr1 + alpha)) * 
-            pow(lambda / phi, srvyyr1 + alpha);
+        if(s_yr_1 + alpha < s_yr_2) {
+          prb_POPs_brn_btn = (s_yr_2 - (s_yr_1 + alpha)) * 
+            pow(lambda / phi, s_yr_1 + alpha);
         } else {
-          prbPOPsbrnbtn = Type(0.0);
+          prb_POPs_brn_btn = Type(0.0);
         }
-        prbPOPsmat(srvyind1, srvyind2) = prbPOPsmat(srvyind1, srvyind1) * 
-          (expNsurvyr1 - 1) / expNsurvyr2 * pow(phi, srvygap) + 
-          Type(2.0) / expNsurvyr1 * (Type(1.0) - phi / lambda) * 
-          pow(phi / lambda, srvyyr2) *
-          ((pow(lambda / phi, srvyyr1 + Type(1.0)) - 
-          pow(lambda / phi, std::min(srvyyr1 + alpha, srvyyr2) + Type(1.0))) / 
-          (Type(1.0) - lambda / phi) + prbPOPsbrnbtn);
+        prbs_POPs(s_ind_1, s_ind_2) = prbs_POPs(s_ind_1, s_ind_1) * 
+          (exp_N_s_yr_1 - 1) / exp_N_s_yr_2 * pow(phi, s_gap) + 
+          Type(2.0) / exp_N_s_yr_1 * (Type(1.0) - phi / lambda) * 
+          pow(phi / lambda, s_yr_2) *
+          ((pow(lambda / phi, s_yr_1 + Type(1.0)) - 
+          pow(lambda / phi, std::min(s_yr_1 + alpha, s_yr_2) + Type(1.0))) / 
+          (Type(1.0) - lambda / phi) + prb_POPs_brn_btn);
       }
     }
-    ADREPORT(prbPOPsmat);
-    ADREPORT(prbSPsmat);
+    ADREPORT(prbs_POPs);
+    ADREPORT(prbs_SPs);
     
     // Temporary variables for kinpair probabilities
-    Type prbPOP, prbSP;
+    Type prb_POP, prb_SP;
     
-    // If fitting genopair model
+    // If fitting true kinship model
     if(mdl_tp == "true kinship") {
-      // Numbers of unrelated pairs
-      // int nonPOPsHSPswtn;
-      int nonPOPswtn, nonPOPsSPsbtn;
+      // Numbers of "unrelated" pairs
+      int ns_UPs_wtn, ns_UPs_btn;
       
       // Parent-offspring pairs within samples
       
       // Loop over number of surveys
-      for(int srvyind = 0; srvyind < k; srvyind++) {
+      for(int s_ind = 0; s_ind < k; s_ind++) {
         // Find number of non-POP-non-HSPs within sample
-        // nonPOPsHSPswtn = ns_caps(srvyind) * (ns_caps(srvyind) - 1) / 2 -
-        //   ns_POPs_wtn(srvyind) - ns_HSPs_wtn(srvyind);
-        nonPOPswtn = ns_caps(srvyind) * (ns_caps(srvyind) - 1) / 2 -
-          ns_POPs_wtn(srvyind);
+        // ns_UPs_wtn = ns_caps(s_ind) * (ns_caps(s_ind) - 1) / 2 -
+        //   ns_POPs_wtn(s_ind) - ns_HSPs_wtn(s_ind);
+        ns_UPs_wtn = ns_caps(s_ind) * (ns_caps(s_ind) - 1) / 2 -
+          ns_POPs_wtn(s_ind);
         
         // Get parent-offspring pair probability
-        prbPOP = prbPOPsmat(srvyind, srvyind);
+        prb_POP = prbs_POPs(s_ind, s_ind);
         
         // Add negative log likelihood from numbers of POPs and HSPs within sample
-        // nll = nll - ns_POPs_wtn(srvyind) * log(prbPOPswtn) -
-        //   ns_HSPs_wtn(srvyind) * log(prbHSPswtn) -
-        //   nonPOPsHSPswtn * log(Type(1.0) - prbPOPswtn - prbHSPswtn);
-        nll = nll - ns_POPs_wtn(srvyind) * log(prbPOP) -
-          nonPOPswtn * log(Type(1.0) - prbPOP);
+        // nll = nll - ns_POPs_wtn(s_ind) * log(prb_POPswtn) -
+        //   ns_HSPs_wtn(s_ind) * log(prbHSPswtn) -
+        //   ns_UPs_wtn * log(Type(1.0) - prb_POPswtn - prbHSPswtn);
+        nll = nll - ns_POPs_wtn(s_ind) * log(prb_POP) -
+          ns_UPs_wtn * log(Type(1.0) - prb_POP);
       }
       
       // Self and parent-offspring pairs between samples
       
       // Set pair counter to zero
-      int prcnt = 0;
+      int pr_cnt = 0;
       
       // Loop over all but last survey
-      for(int srvyind1 = 0; srvyind1 < k - 1; srvyind1++) {
+      for(int s_ind_1 = 0; s_ind_1 < k - 1; s_ind_1++) {
         // Loop over surveys with greater indices than first
-        for(int srvyind2 = srvyind1 + 1; srvyind2 < k; srvyind2++) {
+        for(int s_ind_2 = s_ind_1 + 1; s_ind_2 < k; s_ind_2++) {
           // Probability of SPs between samples
-          prbSP = prbSPsmat(srvyind1, srvyind2);
+          prb_SP = prbs_SPs(s_ind_1, s_ind_2);
           
           // Get parent-offspring pair probability
-          prbPOP = prbPOPsmat(srvyind1, srvyind2);
+          prb_POP = prbs_POPs(s_ind_1, s_ind_2);
           
           // Find number of non-POP-non-SPs within sample
-          nonPOPsSPsbtn = ns_caps(srvyind1) * ns_caps(srvyind2) -
-            ns_SPs_btn(prcnt) - ns_POPs_btn(prcnt);
+          ns_UPs_btn = ns_caps(s_ind_1) * ns_caps(s_ind_2) -
+            ns_SPs_btn(pr_cnt) - ns_POPs_btn(pr_cnt);
           
           // Add negative log likelihood from numbers of SPs and POPs observed.
           // Omitting multinomial coefficient as only adds a constant w.r.t. the
           // parameters.
           nll = nll -
-            ns_SPs_btn(prcnt) * log(prbSP) -
-            ns_POPs_btn(prcnt) * log(prbPOP) -
-            nonPOPsSPsbtn * log(Type(1.0) - prbPOP - prbSP);
+            ns_SPs_btn(pr_cnt) * log(prb_SP) -
+            ns_POPs_btn(pr_cnt) * log(prb_POP) -
+            ns_UPs_btn * log(Type(1.0) - prb_POP - prb_SP);
           
           // Increment pair counter.  Remember first index is zero in cpp
-          prcnt++;
+          pr_cnt++;
         }
       }
     }
@@ -244,78 +243,71 @@ Type objective_function<Type>::operator() ()
     // If fitting genopair model
     if(mdl_tp == "genopair") {
       // Temporary variables for genopairs
-      int inds1, inds2;
+      int smp_yr_ind_1, smp_yr_ind_2;
       
       // Loop over genopairs
       for(int gpind = 0; gpind < n_pairs; gpind++) {
         // Get sample-year indices and kinship probabilities
-        inds1 = smp_yr_ind_prs(gpind, 0);
-        inds2 = smp_yr_ind_prs(gpind, 1);
-        prbPOP = prbPOPsmat(inds1, inds2);
-        prbSP = prbSPsmat(inds1, inds2);
+        smp_yr_ind_1 = smp_yr_ind_prs(gpind, 0);
+        smp_yr_ind_2 = smp_yr_ind_prs(gpind, 1);
+        prb_POP = prbs_POPs(smp_yr_ind_1, smp_yr_ind_2);
+        prb_SP = prbs_SPs(smp_yr_ind_1, smp_yr_ind_2);
         
         // Add negative log likelihood from genopair probabilities given kinships
         // and kinship probabilities in terms of parameters.
         nll = nll - log(
-          (Type(1.0) - prbPOP - prbSP) * gp_probs(gpind, 0) +
-            prbPOP * gp_probs(gpind, 1) + prbSP * gp_probs(gpind, 2)
+          (Type(1.0) - prb_POP - prb_SP) * gp_probs(gpind, 0) +
+            prb_POP * gp_probs(gpind, 1) + prb_SP * gp_probs(gpind, 2)
         );
       }
     }
   } 
   
   if(mdl_tp == "popan") {
+    // Superpopulation size
     Type Ns = pars(2);
-    vector<Type> pvec(k);
+    
+    // Capture probabilities and their complements
+    vector<Type> p(k), p_comp(k);
     for(int i = 0; i < k; i++) {
-      pvec(i) = pars(3 + i);
+      p(i) = pars(3 + i);
+      p_comp(i) = Type(1.0) - p(i);
     }
     
-    // Find E(Nt) and specify it as a derived parameter to calculate and report
-    // the standard error
-    vector<Type> exp_N_t(k);
-    exp_N_t(0) = Ns * pentvec(0);
-    for(int i = 1; i < k; i++) {
-      exp_N_t(i) = exp_N_t(i - 1) * phigaps(i - 1) + Ns * pentvec(i);
-    }
-    ADREPORT(exp_N_t(k - 1));
-    
-    // Find probability that animal not consequenty observed given alive in
+    // Find probability that animal not consequently observed given alive in
     // population at each survey
-    vector<Type> chivec(k);
-    chivec(k - 1) = Type(1.0);
+    vector<Type> chi(k);
+    chi(k - 1) = Type(1.0);
     for(int i = k - 2; i >= 0; i--) {
-      chivec(i) = Type(1.0) - phigaps(i) +
-        phigaps(i) * (Type(1.0) - pvec(i + 1)) * chivec(i + 1);
+      chi(i) = Type(1.0) - phi_gaps(i) +
+        phi_gaps(i) * (Type(1.0) - p(i + 1)) * chi(i + 1);
     }
     
     // Find probability that animal alive in population and not previously
-    // observed at each survey
-    vector<Type> psivec(k);
-    psivec(0) = pentvec(0);
+    // observed at each survey, and expected population sizes in survey years
+    // (probably request SEs for all years later, so leave in)
+    vector<Type> psi(k), exp_N_s_yrs(k);
+    psi(0) = p_ent(0);
+    exp_N_s_yrs(0) = Ns * p_ent(0);
     for(int i = 1; i < k; i++) {
-      psivec(i) = 
-        psivec(i - 1) * (1 - pvec(i - 1)) * phigaps(i - 1) + pentvec(i);
+      psi(i) = psi(i - 1) * (1 - p(i - 1)) * phi_gaps(i - 1) + p_ent(i);
+      exp_N_s_yrs(i) = exp_N_s_yrs(i - 1) * phi_gaps(i - 1) + Ns * p_ent(i);
     }
     
-    // Find 1 - pvec
-    vector<Type> pveccomp(k);
-    for(int i = 0; i < k; i++) {
-      pveccomp(i) = Type(1.0) - pvec(i);
-    }
+    // Request standard error for expected population size in final year
+    ADREPORT(exp_N_s_yrs(k - 1));
     
     // Find log(P(unseen))
-    Type logpunseen = log((pentvec * pveccomp * chivec).sum());
+    Type lg_p_unseen = log((p_ent * p_comp * chi).sum());
     
-    // Find and return negative log likelihood
+    // Find negative log likelihood
     nll = -lgamma(Ns + Type(1.0)) + lgamma(Ns - n_cap_hists + Type(1.0)) -
-      (Ns - n_cap_hists) * logpunseen;
-    nll = nll -
-      (first_tab * log(psivec)).sum() -
-      (last_tab * log(chivec)).sum() -
-      (caps * log(pvec)).sum() -
-      (non_caps * log(pveccomp)).sum() -
-      (survives * log(phigaps)).sum();
+      (Ns - n_cap_hists) * lg_p_unseen -
+      (first_tab * log(psi)).sum() -
+      (last_tab * log(chi)).sum() -
+      (caps * log(p)).sum() -
+      (non_caps * log(p_comp)).sum() -
+      (survives * log(phi_gaps)).sum();
   }
   
   // Return negative log likelihood

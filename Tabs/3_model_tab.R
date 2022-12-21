@@ -175,7 +175,8 @@ fit.gp = reactive(if (input$genopair) {
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), 
-        gp_probs = Gp.Mdl.Inpts$GPPs, smp_yr_ind_prs = Gp.Mdl.Inpts$smp.yr.ind.prs
+        gp_probs = Gp.Mdl.Inpts$GPPs, 
+        smp_yr_ind_prs = Gp.Mdl.Inpts$smp.yr.ind.prs
       )
       
       # Try to fit genopair likelihood model
@@ -241,7 +242,8 @@ fit.os = reactive(if (input$offset) {
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), 
-        gp_probs = Gp.Mdl.Inpts$GPPs, smp_yr_ind_prs = Gp.Mdl.Inpts$smp.yr.ind.prs
+        gp_probs = Gp.Mdl.Inpts$GPPs, 
+        smp_yr_ind_prs = Gp.Mdl.Inpts$smp.yr.ind.prs
       )
       
       # Try to fit genopair likelihood model
