@@ -18,7 +18,7 @@ GPP.obj.fll = reactive({
     ck.start(), "genopair",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
     alpha = alpha(), 
-    gpprobs = GPPs.fll(), sampyrinds = frst.SYIPs.fll()
+    gp_probs = GPPs.fll(), smp_yr_ind_prs = frst.SYIPs.fll()
   )
 })
 GPP.obj.offst = reactive({
@@ -26,7 +26,7 @@ GPP.obj.offst = reactive({
     ck.start(), "genopair",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
     alpha = alpha(), 
-    gpprobs = GPPs.offst(), sampyrinds = frst.SYIPs.offst()
+    gp_probs = GPPs.offst(), smp_yr_ind_prs = frst.SYIPs.offst()
   )
 })
 
@@ -40,13 +40,12 @@ ck.obj = reactive({
   
   # Create TMB function
   MakeTMBObj(
-    ck.start = ck.start(), mdltp = "true kinship",
-    k = k(), srvygaps = srvy.gaps(), fyear = fnl.year(), 
-    srvyyrs = srvy.yrs(), 
+    ck.start(), "true kinship",
+    k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
     alpha = alpha(), 
-    nsSPsbtn = ns.kps.lst$btn[1, ], nsPOPsbtn = ns.kps.lst$btn[2, ],
-    nsPOPswtn = ns.kps.lst$wtn[1, ], # nsHSPswtn = ns.kps.lst$wtn[3, ],
-    nscaps = ns.caps
+    ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_btn = ns.kps.lst$btn[2, ],
+    ns_POPs_wtn = ns.kps.lst$wtn[1, ], # ns_HSPs_wtn = ns.kps.lst$wtn[3, ],
+    ns_caps = ns.caps
   )
 })
 
@@ -60,11 +59,11 @@ ppn.obj = reactive({
   
   # Create TMB function
   MakeTMBObj(
-    ck.start = ppn.start(), mdltp = "popan",
-    k = k(), srvygaps = srvy.gaps(), 
-    ncaphists = n.cap.hists(), firsttab = pop.sum$first.tab, 
-    lasttab = pop.sum$last.tab, caps = pop.sum$caps, 
-    noncaps = pop.sum$non.caps, survives = pop.sum$survives[-k()]
+    ppn.start(), "popan",
+    k(), srvy.gaps(), 
+    n_cap_hists = n.cap.hists(), first_tab = pop.sum$first.tab, 
+    last_tab = pop.sum$last.tab, caps = pop.sum$caps, 
+    non_caps = pop.sum$non.caps, survives = pop.sum$survives[-k()]
   )
 })
 

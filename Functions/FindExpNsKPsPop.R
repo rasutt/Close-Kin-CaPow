@@ -13,7 +13,7 @@ FindPredNsKPsPop = function(
   # Reciprocal of probability not new-born (phi over lambda)
   l.o.p = lambda / phi
   # Reciprocal of probability that an animal is mature
-  rcl.prb.mtr = (l.o.p)^alpha
+  rcl.prb.mtr = l.o.p^alpha
   # Birth rate among mature females
   beta = 2 * (1 - p.o.l) * rcl.prb.mtr
   

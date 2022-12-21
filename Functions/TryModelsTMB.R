@@ -1,32 +1,32 @@
 # Make TMB objective function by providing starting parameter values, model
 # type, and data required.
 MakeTMBObj <- function(
-    ck.start, mdltp = c("true kinship", "genopair"),
-    k = NA, srvygaps = NA, fyear = NA, srvyyrs = NA, 
-    ncaphists = NA, firsttab = NA, lasttab = NA, caps = NA, noncaps = NA, 
+    start, md_ltp = c("popan", "true kinship", "genopair"),
+    k = NA, srvy_gaps = NA, fnl_year = NA, srvy_yrs = NA, 
+    n_cap_hists = NA, first_tab = NA, last_tab = NA, caps = NA, non_caps = NA, 
     survives = NA,
     alpha = NA, 
-    nsSPsbtn = NA, nsPOPsbtn = NA, nsPOPswtn = NA, # nsHSPswtn = NA, 
-    nscaps = NA,
-    gpprobs = matrix(NA, 1, 1), sampyrinds = matrix(NA, 1, 1)
+    ns_SPs_btn = NA, ns_POPs_btn = NA, ns_POPs_wtn = NA, # ns_HSPs_wtn = NA, 
+    ns_caps = NA,
+    gp_probs = matrix(NA, 1, 1), smp_yr_ind_prs = matrix(NA, 1, 1)
 ) {
   # Create TMB function
   data <- list(
-    mdltp = mdltp,
-    k = k, srvygaps = srvygaps, fyear = fyear, srvyyrs = srvyyrs, 
-    ncaphists = ncaphists, firsttab = firsttab, lasttab = lasttab, 
-    caps = caps, noncaps = noncaps, survives = survives,
+    mdl_tp = md_ltp,
+    k = k, srvy_gaps = srvy_gaps, fnl_year = fnl_year, srvy_yrs = srvy_yrs, 
+    n_cap_hists = n_cap_hists, first_tab = first_tab, last_tab = last_tab, 
+    caps = caps, non_caps = non_caps, survives = survives,
     alpha = alpha, 
-    nsSPsbtn = nsSPsbtn, nsPOPsbtn = nsPOPsbtn, nsPOPswtn = nsPOPswtn, 
-    # nsHSPswtn = nsHSPswtn, 
-    nscaps = nscaps,
-    gpprobs = gpprobs, sampyrinds = sampyrinds, npairs = nrow(gpprobs)
+    ns_SPs_btn = ns_SPs_btn, ns_POPs_btn = ns_POPs_btn, 
+    ns_POPs_wtn = ns_POPs_wtn, # ns_HSPs_wtn = ns_HSPs_wtn, 
+    ns_caps = ns_caps,
+    gp_probs = gp_probs, smp_yr_ind_prs = smp_yr_ind_prs, n_pairs = nrow(gp_probs)
   )
-  MakeADFun(data, list(pars = ck.start), DLL = "UnifiedNLL", silent = T)
+  MakeADFun(data, list(pars = start), DLL = "UnifiedNLL", silent = T)
 }
 
 # Try to fit close kin model with TMB
-TryModelTMB <- function(obj, lwr, upr, mdltp = c("true kinship", "genopair")) {
+TryModelTMB <- function(obj, lwr, upr, mdl.tp = c("true kinship", "genopair")) {
   # Run optimiser starting from true values
   opt <- try(
     nlminb(
@@ -38,14 +38,14 @@ TryModelTMB <- function(obj, lwr, upr, mdltp = c("true kinship", "genopair")) {
   
   # If optimiser hit error
   if (inherits(opt, "try-error")) {
-    cat("Optimiser reports error for", mdltp, "model using TMB \n")
+    cat("Optimiser reports error for", mdl.tp, "model using TMB \n")
     return(NA)
   }
   
-  print(mdltp)
+  print(mdl.tp)
   print(summary(sdreport(obj)))
   # If Popan model10
-  if (mdltp == "popan") {
+  if (mdl.tp == "popan") {
     # Get estimates and standard errors from TMB, replacing rho with lambda and
     # inserting estimate for final population size
     k = length(lwr) - 3
@@ -57,10 +57,10 @@ TryModelTMB <- function(obj, lwr, upr, mdltp = c("true kinship", "genopair")) {
   
   # Show results
   if (opt$convergence == 0) {
-    cat("Optimiser reports success for", mdltp, "model using TMB \n")
+    cat("Optimiser reports success for", mdl.tp, "model using TMB \n")
     cat("Estimates:", round(est.se.df[, 1], 3), "\n")
   } else {
-    cat("Optimiser reports failure for", mdltp, "model using TMB \n")
+    cat("Optimiser reports failure for", mdl.tp, "model using TMB \n")
     cat("Message:", opt$message, "\n")
   }
   

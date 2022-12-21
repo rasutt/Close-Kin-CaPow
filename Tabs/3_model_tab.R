@@ -7,6 +7,130 @@ mod.names = reactive({
 # Number of models requested
 n.mods = reactive(input$popan + input$close.kin + input$genopair + input$offset)
 
+# Fit popan model
+fit.ppn = reactive(if (input$popan) {
+  # Create general optimizer starting-values and bounds, NAs filled in below
+  ck.start <- c(rho(), phi(), NA)
+  ck.lwr <- c(0, 0.75, NA)
+  ck.upr <- c(0.35, 1, Inf)
+  ppn.start <- cbd.start <- c(ck.start, rep(p(), k()))
+  ppn.lwr <- cbd.lwr <- c(ck.lwr, rep(0, k()))
+  ppn.upr <- cbd.upr <- c(ck.upr, rep(1, k()))
+  
+  # Create vector model convergences
+  ppn.tmb.cnvg <- numeric(n.sims())
+  
+  # Create matrices for estimates and standard errors
+  ppn.tmb.ests <- ppn.tmb.ses <- matrix(
+    nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
+  )
+  
+  # Loop over histories
+  withProgress({
+    for (hist.ind in 1:n.sims()) {
+      # Display progress
+      cat("History:", hist.ind, "\n")
+      
+      # Get simulated family and capture histories of population of animals
+      # over time
+      pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
+      
+      # Get numbers of animals captured in study
+      n.cap.hists <- nrow(pop.cap.hist)
+      
+      # Update optimiser starting-values and bounds
+      ppn.start[3] <- attributes(pop.cap.hist)$Ns
+      ppn.lwr[3] <- n.cap.hists
+      
+      # Summarise data for POPAN model
+      pop.sum <- FindPopSum(k(), pop.cap.hist, n.cap.hists)
+      
+      # Create TMB function
+      ppn.obj = MakeTMBObj(
+        ppn.start, "popan",
+        k(), srvy.gaps(), 
+        n_cap_hists = n.cap.hists, first_tab = pop.sum$first.tab, 
+        last_tab = pop.sum$last.tab, caps = pop.sum$caps, 
+        non_caps = pop.sum$non.caps, survives = pop.sum$survives[-k()]
+      )
+      
+      # Try to fit models
+      ppn.tmb.res = TryModelTMB(ppn.obj, ppn.lwr, ppn.upr, "popan")
+      ppn.tmb.ests[hist.ind, ] <- ppn.tmb.res$est.se.df[, 1]
+      ppn.tmb.ses[hist.ind, ] <- ppn.tmb.res$est.se.df[, 2]
+      ppn.tmb.cnvg[hist.ind] = ppn.tmb.res$cnvg
+      
+      incProgress(1/n.sims())
+    }
+  }, value = 0, message = "Fitting Popan model")
+  
+  # Combine model estimates, standard errors, and convergences, as lists and
+  # return those requested
+  list(ests = ppn.tmb.ests, ses = ppn.tmb.ses, cnvgs = !ppn.tmb.cnvg)
+})
+
+# Fit close-kin model
+fit.ck = reactive(if (input$close.kin) {
+  # Create general optimizer starting-values and bounds, NAs filled in below
+  ck.start <- c(rho(), phi(), NA)
+  ck.lwr <- c(0, 0.75, NA)
+  ck.upr <- c(0.35, 1, Inf)
+  
+  # Create vector for model convergences
+  ck.tmb.cnvg <- numeric(n.sims())
+  
+  # Create matrices for estimates and standard errors
+  ck.tmb.ests <- ck.tmb.ses <- matrix(
+    nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
+  )
+  
+  # Loop over histories
+  withProgress({
+    for (hist.ind in 1:n.sims()) {
+      # Display progress
+      cat("History:", hist.ind, "\n")
+      
+      # Get simulated family and capture histories of population of animals
+      # over time
+      pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
+      
+      # Get numbers of animals captured in each survey
+      ns.caps <- attributes(pop.cap.hist)$ns.caps
+      
+      # Find numbers of kin pairs
+      ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
+      
+      # Update optimiser starting-values and bounds
+      ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
+      ck.lwr[3] <- ns.caps[k()]
+      
+      # Create TMB function
+      obj = MakeTMBObj(
+        ck.start, "true kinship",
+        k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
+        alpha = alpha(), 
+        ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_btn = ns.kps.lst$btn[2, ],
+        ns_POPs_wtn = ns.kps.lst$wtn[1, ], # ns_HSPs_wtn = ns.kps.lst$wtn[3, ],
+        ns_caps = ns.caps
+      )
+      
+      # Try to fit close-kin likelihood model
+      ck.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "true kinship")
+      
+      # Store results separately
+      ck.tmb.ests[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
+      ck.tmb.ses[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 2]
+      ck.tmb.cnvg[hist.ind] = ck.tmb.res$cnvg
+      
+      incProgress(1/n.sims())
+    }
+  }, value = 0, message = "Fitting close-kin model")
+  
+  # Combine model estimates, standard errors, and convergences, and return as
+  # lists
+  list(ests = ck.tmb.ests, ses = ck.tmb.ses, cnvgs = !ck.tmb.cnvg)
+})
+
 # Fit genopair model
 fit.gp = reactive(if (input$genopair) {
   # Create general optimizer starting-values and bounds, NAs filled in below
@@ -51,7 +175,7 @@ fit.gp = reactive(if (input$genopair) {
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), 
-        gpprobs = Gp.Mdl.Inpts$GPPs, sampyrinds = Gp.Mdl.Inpts$smp.yr.ind.prs
+        gp_probs = Gp.Mdl.Inpts$GPPs, smp_yr_ind_prs = Gp.Mdl.Inpts$smp.yr.ind.prs
       )
       
       # Try to fit genopair likelihood model
@@ -117,7 +241,7 @@ fit.os = reactive(if (input$offset) {
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), 
-        gpprobs = Gp.Mdl.Inpts$GPPs, sampyrinds = Gp.Mdl.Inpts$smp.yr.ind.prs
+        gp_probs = Gp.Mdl.Inpts$GPPs, smp_yr_ind_prs = Gp.Mdl.Inpts$smp.yr.ind.prs
       )
       
       # Try to fit genopair likelihood model
@@ -137,133 +261,6 @@ fit.os = reactive(if (input$offset) {
   # Combine model estimates, standard errors, and convergences, and return as
   # lists
   list(ests = os.tmb.ests, ses = os.tmb.ses, cnvgs = !os.tmb.cnvg)
-})
-
-# Fit close-kin model
-fit.ck = reactive(if (input$close.kin) {
-  # Create general optimizer starting-values and bounds, NAs filled in below
-  ck.start <- c(rho(), phi(), NA)
-  ck.lwr <- c(0, 0.75, NA)
-  ck.upr <- c(0.35, 1, Inf)
-  
-  # Create vector for model convergences
-  ck.tmb.cnvg <- numeric(n.sims())
-  
-  # Create matrices for estimates and standard errors
-  ck.tmb.ests <- ck.tmb.ses <- matrix(
-    nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
-  )
-  
-  # Loop over histories
-  withProgress({
-    for (hist.ind in 1:n.sims()) {
-      # Display progress
-      cat("History:", hist.ind, "\n")
-      
-      # Get simulated family and capture histories of population of animals
-      # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
-      
-      # Get numbers of animals captured in each survey
-      ns.caps <- attributes(pop.cap.hist)$ns.caps
-      
-      # Find numbers of kin pairs
-      ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
-      
-      # Update optimiser starting-values and bounds
-      ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
-      ck.lwr[3] <- ns.caps[k()]
-      
-      # Create TMB function
-      obj = MakeTMBObj(
-        ck.start, "true kinship",
-        k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-        alpha = alpha(), 
-        nsSPsbtn = ns.kps.lst$btn[1, ], nsPOPsbtn = ns.kps.lst$btn[2, ],
-        nsPOPswtn = ns.kps.lst$wtn[1, ], # nsHSPswtn = ns.kps.lst$wtn[3, ],
-        nscaps = ns.caps
-      )
-      
-      # Try to fit close-kin likelihood model
-      ck.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "true kinship")
-      
-      # Store results separately
-      ck.tmb.ests[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
-      ck.tmb.ses[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 2]
-      ck.tmb.cnvg[hist.ind] = ck.tmb.res$cnvg
-      
-      incProgress(1/n.sims())
-    }
-  }, value = 0, message = "Fitting close-kin model")
-  
-  # Combine model estimates, standard errors, and convergences, and return as
-  # lists
-  list(ests = ck.tmb.ests, ses = ck.tmb.ses, cnvgs = !ck.tmb.cnvg)
-})
-
-# Fit popan model
-fit.ppn = reactive(if (input$popan) {
-  # Create general optimizer starting-values and bounds, NAs filled in below
-  ck.start <- c(rho(), phi(), NA)
-  ck.lwr <- c(0, 0.75, NA)
-  ck.upr <- c(0.35, 1, Inf)
-  ppn.start <- cbd.start <- c(ck.start, rep(p(), k()))
-  ppn.lwr <- cbd.lwr <- c(ck.lwr, rep(0, k()))
-  ppn.upr <- cbd.upr <- c(ck.upr, rep(1, k()))
-  
-  # Create vector model convergences
-  ppn.tmb.cnvg <- numeric(n.sims())
-  
-  # Create matrices for estimates and standard errors
-  ppn.tmb.ests <- ppn.tmb.ses <- matrix(
-    nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
-  )
-  
-  # Loop over histories
-  withProgress({
-    for (hist.ind in 1:n.sims()) {
-      # Display progress
-      cat("History:", hist.ind, "\n")
-      
-      # Get simulated family and capture histories of population of animals
-      # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
-      
-      # Get numbers of animals captured in study
-      n.cap.hists <- nrow(pop.cap.hist)
-      
-      # Update optimiser starting-values and bounds
-      ppn.start[3] <- attributes(pop.cap.hist)$Ns
-      ppn.lwr[3] <- n.cap.hists
-      
-      # Summarise data for POPAN model
-      pop.sum <- FindPopSum(k(), pop.cap.hist, n.cap.hists)
-      
-      # Create TMB function
-      ppn.obj = MakeTMBObj(
-        ck.start = ppn.start, mdltp = "popan",
-        k = k(), srvygaps = srvy.gaps(), 
-        ncaphists = n.cap.hists, firsttab = pop.sum$first.tab, 
-        lasttab = pop.sum$last.tab, caps = pop.sum$caps, 
-        noncaps = pop.sum$non.caps, survives = pop.sum$survives[-k()]
-      )
-      
-      # Try to fit models
-      ppn.tmb.res = TryModelTMB(ppn.obj, ppn.lwr, ppn.upr, "popan")
-      # ppn.tmb.res <- TryPOPANTMB(
-      #   k(), srvy.gaps(), n.cap.hists, pop.sum, ppn.start, ppn.lwr, ppn.upr
-      # )
-      ppn.tmb.ests[hist.ind, ] <- ppn.tmb.res$est.se.df[, 1]
-      ppn.tmb.ses[hist.ind, ] <- ppn.tmb.res$est.se.df[, 2]
-      ppn.tmb.cnvg[hist.ind] = ppn.tmb.res$cnvg
-      
-      incProgress(1/n.sims())
-    }
-  }, value = 0, message = "Fitting Popan model")
-  
-  # Combine model estimates, standard errors, and convergences, as lists and
-  # return those requested
-  list(ests = ppn.tmb.ests, ses = ppn.tmb.ses, cnvgs = !ppn.tmb.cnvg)
 })
 
 # Nullify model-fits when new datasets simulated

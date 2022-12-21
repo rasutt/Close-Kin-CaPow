@@ -7,8 +7,6 @@ for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]))
 # Matrix package matches, or actually delete and recompile files after
 # reinstalling TMB
 library(TMB)
-compile("TMB_objective_functions/POPANNLL.cpp")
-dyn.load(dynlib("TMB_objective_functions/POPANNLL"))
 compile("TMB_objective_functions/UnifiedNLL.cpp")
 dyn.load(dynlib("TMB_objective_functions/UnifiedNLL"))
 
