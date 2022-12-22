@@ -174,35 +174,56 @@ output$firstOGPNLLSurfs = renderPlot(plot.nll("Offset genopair"))
 # Popan model
 first.ppn.ests = reactive({
   # Try to fit close-kin likelihood model
-  ppn.tmb = TryModelTMB(ppn.obj(), ppn.lwr(), ppn.upr(), "popan")
+  rslt = TryModelTMB(ppn.obj(), ppn.lwr(), ppn.upr(), "popan")
   
-  c(ppn.tmb$est.se.df[, 1], ppn.tmb$cnvg)
+  # If no error
+  if (!all(is.na(rslt))) {
+    c(rslt$est.se.df[, 1], rslt$cnvg)
+  } else {
+    c(rep(NA, k() + 4), 1)
+  }
 })
 
 # True kinship model
 first.ck.ests = reactive({
   # Try to fit close-kin likelihood model
-  ck.tmb = TryModelTMB(ck.obj(), ck.lwr(), ck.upr(), "true kinship")
+  rslt = TryModelTMB(ck.obj(), ck.lwr(), ck.upr(), "true kinship")
   
-  c(ck.tmb$est.se.df[, 1], rep(NA, k()), ck.tmb$cnvg)
+  # If no error
+  if (!all(is.na(rslt))) {
+    # Combine with missing values for capture probabilities
+    c(rslt$est.se.df[, 1], rep(NA, k()), rslt$cnvg)
+  } else {
+    c(rep(NA, k() + 4), 1)
+  }
 })
 
 # Full genopair model 
 first.FGP.ests = reactive({
   # Try to fit genopair likelihood model
-  gp.tmb = TryModelTMB(GPP.obj.fll(), ck.lwr(), ck.upr(), "genopair")
-  
-  # Combine with missing values for capture probabilities
-  c(gp.tmb$est.se.df[, 1], rep(NA, k()), gp.tmb$cnvg)
+  rslt = TryModelTMB(GPP.obj.fll(), ck.lwr(), ck.upr(), "genopair")
+
+  # If no error
+  if (!all(is.na(rslt))) {
+    # Combine with missing values for capture probabilities
+    c(rslt$est.se.df[, 1], rep(NA, k()), rslt$cnvg)
+  } else {
+    c(rep(NA, k() + 4), 1)
+  }
 })
 
 # Offset model
 first.OGP.ests = reactive({
   # Try to fit genopair likelihood model
-  gp.tmb = TryModelTMB(GPP.obj.offst(), ck.lwr(), ck.upr(), "genopair")
+  rslt = TryModelTMB(GPP.obj.offst(), ck.lwr(), ck.upr(), "genopair")
 
-  # Combine with missing values for capture probabilities
-  c(gp.tmb$est.se.df[, 1], rep(NA, k()), gp.tmb$cnvg)
+  # If no error
+  if (!all(is.na(rslt))) {
+    # Combine with missing values for capture probabilities
+    c(rslt$est.se.df[, 1], rep(NA, k()), rslt$cnvg)
+  } else {
+    c(rep(NA, k() + 4), 1)
+  }
 })
 
 # Print results for first study

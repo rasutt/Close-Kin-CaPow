@@ -45,7 +45,8 @@ TryModelTMB <- function(obj, lwr, upr, mdl.tp = c("true kinship", "genopair")) {
   
   print(mdl.tp)
   print(summary(sdreport(obj)))
-  # If Popan model10
+  
+  # If Popan model
   if (mdl.tp == "popan") {
     # Get estimates and standard errors from TMB, replacing rho with lambda and
     # inserting estimate for final population size
