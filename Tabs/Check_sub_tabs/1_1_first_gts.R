@@ -94,7 +94,6 @@ exp.plod.KP = reactive({
 
 # Find half-sibling vs unrelated pairs PLODs from log genopair probabilities
 first.plods = reactive({
-  print(str(frst.LGPPs.KP.fll()))
   (frst.LGPPs.KP.fll()[, 2] - frst.LGPPs.KP.fll()[, 1]) / L()
 })
 

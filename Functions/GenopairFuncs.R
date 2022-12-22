@@ -139,7 +139,7 @@ FindGpMdlInpts <- function(pop.cap.hist, L, k, os.mdl) {
   # Genopair log-probabilities over all loci given each kinship, for each
   # pair to include in likelihood
   lg.gp.prbs.KPs = 
-    FindLogGPProbsKP(pss.gp.prbs.KPs[, , , -2], smp.gts, smp.ind.prs, L)
+    FindLogGPProbsKP(pss.gp.prbs.KPs, smp.gts, smp.ind.prs, L)
   
   # Exponentiate genopair log-probabilities given kinship set, checking for
   # underflow and trying to adjust if necessary.  Would be good to raise a

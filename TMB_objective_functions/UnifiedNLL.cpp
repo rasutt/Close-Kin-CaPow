@@ -29,9 +29,10 @@ Type objective_function<Type>::operator() ()
   
   // True kinship model inputs
   DATA_IVECTOR(ns_SPs_btn);
-  DATA_IVECTOR(ns_POPs_btn);
   DATA_IVECTOR(ns_POPs_wtn);
+  DATA_IVECTOR(ns_POPs_btn);
   DATA_IVECTOR(ns_HSPs_wtn);
+  DATA_IVECTOR(ns_HSPs_btn);
   DATA_IVECTOR(ns_caps);
 
   // Genopair model inputs
@@ -94,9 +95,9 @@ Type objective_function<Type>::operator() ()
       exp_ns_SFPs_diff_b_yrs(k, k), exp_ns_SFPs_same_b_yr(k, k),
       exp_ns_SFPs(k, k), exp_ns_FSPs(k, k), exp_ns_HSPs(k, k), 
       exp_ns_APs(k, k);
-    prbs_SPs.setZero();
-    prbs_POPs.setZero();
-    prbs_HSPs.setZero();
+    // prbs_SPs.setZero();
+    // prbs_POPs.setZero();
+    // prbs_HSPs.setZero();
     
     // Lambda minus phi-squared
     lmb_m_ph_sq = lambda - pow(phi, 2);
@@ -222,8 +223,6 @@ Type objective_function<Type>::operator() ()
       // Numbers of "unrelated" pairs
       int ns_UPs_wtn, ns_UPs_btn;
       
-      // Parent-offspring pairs within samples
-      
       // Loop over number of surveys
       for(int s_ind = 0; s_ind < k; s_ind++) {
         // Find number of non-POP-non-HSPs within sample
@@ -247,7 +246,7 @@ Type objective_function<Type>::operator() ()
         //   ns_UPs_wtn * log(Type(1.0) - prb_POP);
       }
       
-      // Self and parent-offspring pairs between samples
+      // Pairs between samples
       
       // Set pair counter to zero
       int pr_cnt = 0;
@@ -262,9 +261,12 @@ Type objective_function<Type>::operator() ()
           // Get parent-offspring pair probability
           prb_POP = prbs_POPs(s_ind_1, s_ind_2);
           
+          // Get parent-offspring pair probability
+          prb_HSP = prbs_HSPs(s_ind_1, s_ind_2);
+          
           // Find number of non-POP-non-SPs within sample
           ns_UPs_btn = ns_caps(s_ind_1) * ns_caps(s_ind_2) -
-            ns_SPs_btn(pr_cnt) - ns_POPs_btn(pr_cnt);
+            ns_SPs_btn(pr_cnt) - ns_POPs_btn(pr_cnt) - ns_HSPs_btn(pr_cnt);
           
           // Add negative log likelihood from numbers of SPs and POPs observed.
           // Omitting multinomial coefficient as only adds a constant w.r.t. the
@@ -272,7 +274,8 @@ Type objective_function<Type>::operator() ()
           nll = nll -
             ns_SPs_btn(pr_cnt) * log(prb_SP) -
             ns_POPs_btn(pr_cnt) * log(prb_POP) -
-            ns_UPs_btn * log(Type(1.0) - prb_POP - prb_SP);
+            ns_HSPs_btn(pr_cnt) * log(prb_HSP) -
+            ns_UPs_btn * log(Type(1.0) - prb_SP - prb_POP - prb_HSP);
           
           // Increment pair counter.  Remember first index is zero in cpp
           pr_cnt++;
@@ -290,14 +293,17 @@ Type objective_function<Type>::operator() ()
         // Get sample-year indices and kinship probabilities
         smp_yr_ind_1 = smp_yr_ind_prs(gpind, 0);
         smp_yr_ind_2 = smp_yr_ind_prs(gpind, 1);
-        prb_POP = prbs_POPs(smp_yr_ind_1, smp_yr_ind_2);
         prb_SP = prbs_SPs(smp_yr_ind_1, smp_yr_ind_2);
+        prb_POP = prbs_POPs(smp_yr_ind_1, smp_yr_ind_2);
+        prb_HSP = prbs_HSPs(smp_yr_ind_1, smp_yr_ind_2);
         
         // Add negative log likelihood from genopair probabilities given kinships
         // and kinship probabilities in terms of parameters.
         nll = nll - log(
-          (Type(1.0) - prb_POP - prb_SP) * gp_probs(gpind, 0) +
-            prb_POP * gp_probs(gpind, 1) + prb_SP * gp_probs(gpind, 2)
+          (Type(1.0) - prb_SP - prb_POP - prb_HSP) * gp_probs(gpind, 0) +
+            prb_HSP * gp_probs(gpind, 1) +
+            prb_POP * gp_probs(gpind, 2) + 
+            prb_SP * gp_probs(gpind, 3)
         );
       }
     }

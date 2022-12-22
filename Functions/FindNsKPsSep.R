@@ -154,7 +154,7 @@ find.SPs.prnts.kwn = function(pop.atts, k) {
   }))
 }
 
-# Find full-sibling pairs and self-pairs with ages unknown, between survey-years
+# Find full-sibling pairs and self-pairs, with ages unknown, between survey-years
 find.FSSPs.btn = function(pop.atts, k) {
   # Indices of animals alive each survey, with known parents
   alv.KwnPs.lst = lapply(1:k, function(s.ind) {
@@ -176,7 +176,7 @@ find.FSSPs.btn = function(pop.atts, k) {
     )
   })
   
-  # Full-sibling pairs, excluding self-pairs with known parents
+  # Full-sibling pairs, including self-pairs with known parents
   as.vector(combn(1:k, 2, function(s.inds) {
     sum(tbl.lst[[s.inds[1]]] * tbl.lst[[s.inds[2]]])
   }))

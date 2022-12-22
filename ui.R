@@ -267,10 +267,10 @@ ui <- fluidPage(
           plotOutput(outputId = "firstPpnNLLSurfs"),
           h4("True kinship likelihood"),
           plotOutput(outputId = "firstCKNLLSurfs"),
-          # h4("Full genopair likelihood"),
-          # plotOutput(outputId = "firstFGPNLLSurfs"),
-          # h4("Offset genopair likelihood"),
-          # plotOutput(outputId = "firstOGPNLLSurfs"),
+          h4("Full genopair likelihood"),
+          plotOutput(outputId = "firstFGPNLLSurfs"),
+          h4("Offset genopair likelihood"),
+          plotOutput(outputId = "firstOGPNLLSurfs"),
           
           h3("Results for first study"),
           tableOutput(outputId = "firstResults")

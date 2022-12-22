@@ -1,9 +1,5 @@
 # Code and outputs for first study estimates sub-tab of check-tab
 
-# Genopair probabilities for optimization
-GPPs.fll = reactive(FindGPPs(frst.LGPPs.KP.fll()[, -2]))
-GPPs.offst = reactive(FindGPPs(frst.LGPPs.KP.offst()[, -2]))
-
 # Create general optimizer starting-values and bounds, NAs filled in below
 ck.start = reactive({
   vec = c(rho(), phi(), FS.atts()$N.t.vec[hist.len()])
@@ -12,21 +8,25 @@ ck.start = reactive({
 })
 ppn.start = reactive(c(ck.start()[-3], FS.atts()$Ns, rep(p(), k())))
 
-# Genopair likelihood TMB objective function
-GPP.obj.fll = reactive({
+# Get numbers of animals captured in study
+n.cap.hists = reactive(nrow(fst.std()))
+
+# Popan likelihood TMB objective function
+ppn.obj = reactive({
+  # Summarise data for POPAN model
+  pop.sum = FindPopSum(k(), fst.std(), n.cap.hists())
+  
+  print("Popan data")
+  print(n.cap.hists())
+  print(pop.sum)
+  
+  # Create TMB function
   MakeTMBObj(
-    ck.start(), "genopair",
-    k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-    alpha = alpha(), 
-    gp_probs = GPPs.fll(), smp_yr_ind_prs = frst.SYIPs.fll()
-  )
-})
-GPP.obj.offst = reactive({
-  MakeTMBObj(
-    ck.start(), "genopair",
-    k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-    alpha = alpha(), 
-    gp_probs = GPPs.offst(), smp_yr_ind_prs = frst.SYIPs.offst()
+    ppn.start(), "popan",
+    k(), srvy.gaps(), 
+    n_cap_hists = n.cap.hists(), first_tab = pop.sum$first.tab, 
+    last_tab = pop.sum$last.tab, caps = pop.sum$caps, 
+    non_caps = pop.sum$non.caps, survives = pop.sum$survives[-k()]
   )
 })
 
@@ -38,32 +38,48 @@ ck.obj = reactive({
   # Find numbers of kin pairs
   ns.kps.lst = FindNsKinPairs(k(), n.srvy.prs(), fst.std())
   
+  print("True kinship data")
+  print(ns.caps)
+  print(ns.kps.lst)
+  
   # Create TMB function
   MakeTMBObj(
     ck.start(), "true kinship",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
     alpha = alpha(), 
-    ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_btn = ns.kps.lst$btn[2, ],
-    ns_POPs_wtn = ns.kps.lst$wtn[1, ], ns_HSPs_wtn = ns.kps.lst$wtn[3, ],
-    ns_caps = ns.caps
+    ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ], 
+    ns_POPs_btn = ns.kps.lst$btn[2, ], ns_HSPs_wtn = ns.kps.lst$wtn[2, ],
+    ns_HSPs_btn = ns.kps.lst$btn[3, ], ns_caps = ns.caps
   )
 })
 
-# Get numbers of animals captured in study
-n.cap.hists = reactive(nrow(fst.std()))
+# Genopair probabilities for optimization
+GPPs.fll = reactive(FindGPPs(frst.LGPPs.KP.fll()))
+GPPs.offst = reactive(FindGPPs(frst.LGPPs.KP.offst()))
 
-# Popan likelihood TMB objective function
-ppn.obj = reactive({
-  # Summarise data for POPAN model
-  pop.sum = FindPopSum(k(), fst.std(), n.cap.hists())
+# Genopair likelihood TMB objective function
+GPP.obj.fll = reactive({
+  print("All genopair data")
+  print(table(frst.SYIPs.fll()[, 1], frst.SYIPs.fll()[, 2]))
+  print(str(GPPs.fll()))
   
-  # Create TMB function
   MakeTMBObj(
-    ppn.start(), "popan",
-    k(), srvy.gaps(), 
-    n_cap_hists = n.cap.hists(), first_tab = pop.sum$first.tab, 
-    last_tab = pop.sum$last.tab, caps = pop.sum$caps, 
-    non_caps = pop.sum$non.caps, survives = pop.sum$survives[-k()]
+    ck.start(), "genopair",
+    k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
+    alpha = alpha(), 
+    gp_probs = GPPs.fll(), smp_yr_ind_prs = frst.SYIPs.fll()
+  )
+})
+GPP.obj.offst = reactive({
+  print("Offset genopair data")
+  print(table(frst.SYIPs.offst()[, 1], frst.SYIPs.offst()[, 2]))
+  print(str(GPPs.offst()))
+  
+  MakeTMBObj(
+    ck.start(), "genopair",
+    k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
+    alpha = alpha(), 
+    gp_probs = GPPs.offst(), smp_yr_ind_prs = frst.SYIPs.offst()
   )
 })
 
@@ -116,8 +132,8 @@ frst.nll.srfcs = reactive({
       # Find NLL values at current parameter values
       obj.par[i, p, "Popan"] = ppn.obj()$fn(ppn.par.vals)
       obj.par[i, p, "True kinship"] = ck.obj()$fn(ck.par.vals)
-      # obj.par[i, p, "Full genopair"] = GPP.obj.fll()$fn(ck.par.vals)
-      # obj.par[i, p, "Offset genopair"] = GPP.obj.offst()$fn(ck.par.vals)
+      obj.par[i, p, "Full genopair"] = GPP.obj.fll()$fn(ck.par.vals)
+      obj.par[i, p, "Offset genopair"] = GPP.obj.offst()$fn(ck.par.vals)
     }
   }
   
@@ -150,8 +166,8 @@ plot.nll = function(mdl.nm) {
 # model
 output$firstPpnNLLSurfs = renderPlot(plot.nll("Popan"))
 output$firstCKNLLSurfs = renderPlot(plot.nll("True kinship"))
-# output$firstFGPNLLSurfs = renderPlot(plot.nll("Full genopair"))
-# output$firstOGPNLLSurfs = renderPlot(plot.nll("Offset genopair"))
+output$firstFGPNLLSurfs = renderPlot(plot.nll("Full genopair"))
+output$firstOGPNLLSurfs = renderPlot(plot.nll("Offset genopair"))
 
 # Find estimates for first study
 
@@ -165,12 +181,6 @@ first.ppn.ests = reactive({
 
 # True kinship model
 first.ck.ests = reactive({
-  # # Get numbers of animals captured in each survey
-  # ns.caps = FS.atts()$ns.caps
-  # 
-  # # Find numbers of kin pairs
-  # ns.kps.lst = FindNsKinPairs(k(), n.srvy.prs(), fst.std())
-  
   # Try to fit close-kin likelihood model
   ck.tmb = TryModelTMB(ck.obj(), ck.lwr(), ck.upr(), "true kinship")
   
@@ -180,8 +190,6 @@ first.ck.ests = reactive({
 # Full genopair model 
 first.FGP.ests = reactive({
   # Try to fit genopair likelihood model
-  print(table(frst.SYIPs.fll()[, 1], frst.SYIPs.fll()[, 2]))
-  print(str(GPPs.fll()))
   gp.tmb = TryModelTMB(GPP.obj.fll(), ck.lwr(), ck.upr(), "genopair")
   
   # Combine with missing values for capture probabilities
@@ -191,8 +199,6 @@ first.FGP.ests = reactive({
 # Offset model
 first.OGP.ests = reactive({
   # Try to fit genopair likelihood model
-  print(table(frst.SYIPs.offst()[, 1], frst.SYIPs.offst()[, 2]))
-  print(str(GPPs.offst()))
   gp.tmb = TryModelTMB(GPP.obj.offst(), ck.lwr(), ck.upr(), "genopair")
 
   # Combine with missing values for capture probabilities
@@ -208,15 +214,15 @@ output$firstResults = renderTable({
 
   # Add results
   res.mat = rbind(
-    res.mat, first.ppn.ests(), first.ck.ests()
-    # first.FGP.ests(), first.OGP.ests()
+    res.mat, first.ppn.ests(), first.ck.ests(),
+    first.FGP.ests(), first.OGP.ests()
   )
 
   # Add model names
   res.df = data.frame(
     model = c(
-      "True values", "Popan", "True kinship"
-      # "Full genopair", "Offset genopair"
+      "True values", "Popan", "True kinship",
+      "Full genopair", "Offset genopair"
     ),
     res.mat
   )

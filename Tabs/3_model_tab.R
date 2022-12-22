@@ -109,9 +109,9 @@ fit.ck = reactive(if (input$close.kin) {
         ck.start, "true kinship",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), 
-        ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_btn = ns.kps.lst$btn[2, ],
-        ns_POPs_wtn = ns.kps.lst$wtn[1, ], # ns_HSPs_wtn = ns.kps.lst$wtn[3, ],
-        ns_caps = ns.caps
+        ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ], 
+        ns_POPs_btn = ns.kps.lst$btn[2, ], ns_HSPs_wtn = ns.kps.lst$wtn[2, ],
+        ns_HSPs_btn = ns.kps.lst$btn[3, ], ns_caps = ns.caps
       )
       
       # Try to fit close-kin likelihood model
