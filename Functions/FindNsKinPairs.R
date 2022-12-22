@@ -15,13 +15,15 @@ FindNsKinPairs <- function(k, n.srvy.prs, pop.cap.hist) {
       fam.samp$dad %in% fam.samp$ID
     )
     
-    # # Find number of HSPs within current sample
-    # ns.HSPs.wtn[smp.ind] <- sum(
-    #   choose(table(fam.samp$mum), 2),
-    #   choose(table(fam.samp$dad), 2),
-    #   -2 * choose(table(fam.samp$mum, fam.samp$dad), 2)
-    # )
-    # 
+    # Find number of HSPs within current sample. Selecting before calling choose
+    # is 10x faster
+    tbl = table(fam.samp$mum, fam.samp$dad)
+    ns.HSPs.wtn[smp.ind] <- sum(
+      choose(table(fam.samp$mum), 2),
+      choose(table(fam.samp$dad), 2),
+      -2 * choose(tbl[tbl > 1], 2)
+    )
+
     # # Same mother pairs
     # ns.SMPs.wtn[smp.ind] <- sum(choose(table(fam.samp$mum), 2))
   }

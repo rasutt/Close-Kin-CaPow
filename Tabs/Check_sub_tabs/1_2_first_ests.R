@@ -44,7 +44,7 @@ ck.obj = reactive({
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
     alpha = alpha(), 
     ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_btn = ns.kps.lst$btn[2, ],
-    ns_POPs_wtn = ns.kps.lst$wtn[1, ], # ns_HSPs_wtn = ns.kps.lst$wtn[3, ],
+    ns_POPs_wtn = ns.kps.lst$wtn[1, ], ns_HSPs_wtn = ns.kps.lst$wtn[3, ],
     ns_caps = ns.caps
   )
 })

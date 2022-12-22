@@ -6,7 +6,7 @@ MakeTMBObj <- function(
     n_cap_hists = NA, first_tab = NA, last_tab = NA, caps = NA, non_caps = NA, 
     survives = NA,
     alpha = NA, 
-    ns_SPs_btn = NA, ns_POPs_btn = NA, ns_POPs_wtn = NA, # ns_HSPs_wtn = NA, 
+    ns_SPs_btn = NA, ns_POPs_btn = NA, ns_POPs_wtn = NA, ns_HSPs_wtn = NA, 
     ns_caps = NA,
     gp_probs = matrix(NA, 1, 1), smp_yr_ind_prs = matrix(NA, 1, 1)
 ) {
@@ -18,7 +18,7 @@ MakeTMBObj <- function(
     caps = caps, non_caps = non_caps, survives = survives,
     alpha = alpha, 
     ns_SPs_btn = ns_SPs_btn, ns_POPs_btn = ns_POPs_btn, 
-    ns_POPs_wtn = ns_POPs_wtn, # ns_HSPs_wtn = ns_HSPs_wtn, 
+    ns_POPs_wtn = ns_POPs_wtn, ns_HSPs_wtn = ns_HSPs_wtn, 
     ns_caps = ns_caps,
     gp_probs = gp_probs, smp_yr_ind_prs = smp_yr_ind_prs, n_pairs = nrow(gp_probs)
   )

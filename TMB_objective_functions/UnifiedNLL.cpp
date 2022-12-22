@@ -12,9 +12,9 @@ Type objective_function<Type>::operator() ()
   
   // Study features
   DATA_INTEGER(k);
-  DATA_IVECTOR(srvy_gaps);
-  DATA_INTEGER(fnl_year);
-  DATA_IVECTOR(srvy_yrs);
+  DATA_VECTOR(srvy_gaps);
+  DATA_SCALAR(fnl_year);
+  DATA_VECTOR(srvy_yrs);
   
   // Popan model inputs
   DATA_SCALAR(n_cap_hists);
@@ -25,13 +25,13 @@ Type objective_function<Type>::operator() ()
   DATA_VECTOR(survives);
   
   // Close-kin model inputs
-  DATA_INTEGER(alpha);
+  DATA_SCALAR(alpha);
   
   // True kinship model inputs
   DATA_IVECTOR(ns_SPs_btn);
   DATA_IVECTOR(ns_POPs_btn);
   DATA_IVECTOR(ns_POPs_wtn);
-  // DATA_IVECTOR(ns_HSPs_wtn);
+  DATA_IVECTOR(ns_HSPs_wtn);
   DATA_IVECTOR(ns_caps);
 
   // Genopair model inputs
@@ -47,8 +47,6 @@ Type objective_function<Type>::operator() ()
   Type phi = pars(1);
   Type lambda = rho + phi;
   ADREPORT(lambda);
-  
-  // Find superpopulation size to compare with POPAN estimates
   
   // Find lambda and phi with respect to gaps between surveys
   vector<Type> lmbd_gaps(k - 1);
@@ -66,77 +64,84 @@ Type objective_function<Type>::operator() ()
     p_ent(i) = (lmbd_gaps(i - 1) - phi_gaps(i - 1)) * cum_lmbd;
     cum_lmbd *= lmbd_gaps(i - 1);
   }
-  Type sump_ent = p_ent.sum();
+  Type sum_p_ent = p_ent.sum();
   for(int i = 0; i < k; i++) {
-    p_ent(i) = p_ent(i) / sump_ent;
+    p_ent(i) = p_ent(i) / sum_p_ent;
   }
   
   // Set negative log likelihood to zero
   Type nll = Type(0.0);
   
+  // If fitting true kinship or genopair model
   if(mdl_tp == "true kinship" || mdl_tp == "genopair") {
-    // Find Ns as first N_t divided by first entry proportion and specify it as a
-    // derived parameter to calculate and report the standard error
+    // Find super-population size to compare with popan models, first N_t
+    // divided by first entry proportion, and request standard error
     Type N_fnl = pars(2);
     Type Ns = (N_fnl / cum_lmbd) / p_ent(0);
     ADREPORT(Ns);
     
-    // Parent-offspring pair probabilities within samples
+    // Kinship probabilities within samples. Using vectorised code as simpler to
+    // avoid recomputing terms for each element in expressions, though slightly
+    // less tidy.
     
-    // Declare variables for loop
-    Type exp_N_s_yr, exp_ns_SMPs;
-    matrix<Type> prbs_POPs(k, k), prbs_HSPs(k, k);
+    // Declare variables
+    Type lmb_m_ph_sq, p_o_l, l_o_p, rcl_prb_mtr, beta, 
+      s_yr_1, s_yr_2, s_gap, p_t_s_gap,
+      exp_N_s_yr_1, exp_N_s_yr_2, prb_POPs_brn_btn;
+    vector<Type> exp_N_s_yrs(k);
+    matrix<Type> prbs_SPs(k, k), prbs_POPs(k, k), prbs_HSPs(k, k), 
+      exp_ns_SMPs(k, k),
+      exp_ns_SFPs_diff_b_yrs(k, k), exp_ns_SFPs_same_b_yr(k, k),
+      exp_ns_SFPs(k, k), exp_ns_FSPs(k, k), exp_ns_HSPs(k, k), 
+      exp_ns_APs(k, k);
+    prbs_SPs.setZero();
     prbs_POPs.setZero();
     prbs_HSPs.setZero();
     
     // Lambda minus phi-squared
-    Type lmb_m_ph_sq = lambda - pow(phi, 2);
+    lmb_m_ph_sq = lambda - pow(phi, 2);
     // Probability not new-born (phi over lambda)
-    Type p_o_l = phi / lambda;
+    p_o_l = phi / lambda;
     // Reciprocal of probability not new-born (phi over lambda)
-    Type l_o_p = lambda / phi;
+    l_o_p = lambda / phi;
     // Reciprocal of probability that an animal is mature
-    Type rcl_prb_mtr = pow(l_o_p, alpha);
+    rcl_prb_mtr = pow(l_o_p, alpha);
     // Birth rate among mature females
-    Type beta = 2 * (1 - p_o_l) * rcl_prb_mtr;
-    
-    // Loop over surveys
-    for(int s_ind = 0; s_ind < k; s_ind++) {
-      // Expected population sizes in survey years
-      exp_N_s_yr = N_fnl / pow(lambda, fnl_year - srvy_yrs(s_ind));
+    beta = 2 * (1 - p_o_l) * rcl_prb_mtr;
 
-      // Probability of POPs within sample
-      prbs_POPs(s_ind, s_ind) = Type(2.0) / (exp_N_s_yr - Type(1.0)) * 
-        rho * (Type(1.0) + phi) / (lambda - pow(phi, 2));
-      
-      // Same-mother pairs within survey years
-      // exp.ns.SMPs.wtn = exp.N.s.yrs * beta * rho * phi^2 / lmb_m_ph_sq^2
-      exp_ns_SMPs = exp_N_s_yr * beta * rho * 
-        pow(phi, 2) / pow(lmb_m_ph_sq, 2);
-      
-      // // Same-father pairs within survey years, split into same and different
-      // // birth years as used separately later
-      // exp.ns.SFPs.diff.b.yrs.wtn = phi * exp.ns.SMPs.wtn
-      // exp.ns.SFPs.same.b.yr.wtn = beta^2 * phi^(alpha + 1) / 4 * 
-      //   (exp.N.s.yrs / (lambda^(alpha - 1) * lmb_m_ph_sq) - 1 / (1 - phi^2))
-      // exp.ns.SFPs.wtn = exp.ns.SFPs.diff.b.yrs.wtn + exp.ns.SFPs.same.b.yr.wtn
-      // 
-      // // Full-sibling pairs within survey years, constant over time but gets
-      // // repeated by cbind when returned
-      // exp.ns.FSPs.wtn = 2 * beta * rclprbmtr * rho * phi^4 / 
-      //   (lambda * (lambda - phi^3) * (1 - phi^2))
-      //   
-      // // Half-sibling pairs within survey years
-      // exp.ns.HSPs.wtn = exp.ns.SMPs.wtn + exp.ns.SFPs.wtn - 2 * exp.ns.FSPs.wtn
-    }
+    // Expected population sizes in survey years
+    exp_N_s_yrs = 
+      N_fnl / pow(lambda, vector<Type>::Constant(k, fnl_year) - srvy_yrs);
     
+    // Expected total number of pairs in survey years
+    exp_ns_APs = (exp_N_s_yrs * 
+      (exp_N_s_yrs - Type(1.0)) / Type(2.0)).matrix().asDiagonal();
+
+    // Probability of POPs within sample
+    prbs_POPs = (Type(2.0) / (exp_N_s_yrs - Type(1.0)) * 
+      rho * (Type(1.0) + phi) / lmb_m_ph_sq).matrix().asDiagonal();
+    
+    // Same-mother pairs within survey years
+    exp_ns_SMPs = (exp_N_s_yrs * beta * rho * 
+      pow(phi, 2) / pow(lmb_m_ph_sq, 2)).matrix().asDiagonal();
+    
+    // Same-father pairs within survey years, split into same and different
+    // birth years as used separately later
+    exp_ns_SFPs_same_b_yr = 
+      (pow(beta, 2) * pow(phi, alpha + Type(1.0)) / Type(4.0) *
+      (exp_N_s_yrs / (pow(lambda, alpha - Type(1.0)) * lmb_m_ph_sq) - 
+      Type(1.0) / (Type(1.0) - pow(phi, 2)))).matrix().asDiagonal();
+    exp_ns_SFPs_diff_b_yrs = phi * exp_ns_SMPs;
+    exp_ns_SFPs = exp_ns_SFPs_diff_b_yrs + exp_ns_SFPs_same_b_yr;
+    
+    // Full-sibling pairs within survey years, constant over time
+    exp_ns_FSPs = matrix<Type>::Constant(
+      k, 1, 
+      Type(2.0) * beta * rcl_prb_mtr * rho * pow(phi, 4) /
+        (lambda * (lambda - pow(phi, 3)) * (Type(1.0) - pow(phi, 2)))
+    ).asDiagonal();
+
     // Self and parent-offspring pairs between samples
-    
-    // Declare variables for loop
-    Type exp_N_s_yr_1, exp_N_s_yr_2, prb_POPs_brn_btn;
-    matrix<Type> prbs_SPs(k, k);
-    prbs_SPs.setZero();
-    int s_yr_1, s_yr_2, s_gap;
     
     // Loop over all but last survey
     for(int s_ind_1 = 0; s_ind_1 < k - 1; s_ind_1++) {
@@ -153,11 +158,17 @@ Type objective_function<Type>::operator() ()
         s_gap = s_yr_2 - s_yr_1;
         
         // Find the expected numbers alive in survey years
-        exp_N_s_yr_1 = N_fnl / pow(lambda, fnl_year - s_yr_1);
-        exp_N_s_yr_2 = N_fnl / pow(lambda, fnl_year - s_yr_2);
+        exp_N_s_yr_1 = exp_N_s_yrs(s_ind_1);
+        exp_N_s_yr_2 = exp_N_s_yrs(s_ind_2);
+        
+        // Phi to the power of the survey-gap
+        p_t_s_gap = pow(phi, s_gap);
+
+        // All pairs between pairs of surveys
+        exp_ns_APs(s_ind_1, s_ind_2) = exp_N_s_yr_1 * exp_N_s_yr_2;
         
         // Probability of SPs between samples
-        prbs_SPs(s_ind_1, s_ind_2) = pow(phi, s_gap) / exp_N_s_yr_2;
+        prbs_SPs(s_ind_1, s_ind_2) = p_t_s_gap / exp_N_s_yr_2;
         
         // New probability of POPs between samples
         if(s_yr_1 + alpha < s_yr_2) {
@@ -167,19 +178,44 @@ Type objective_function<Type>::operator() ()
           prb_POPs_brn_btn = Type(0.0);
         }
         prbs_POPs(s_ind_1, s_ind_2) = prbs_POPs(s_ind_1, s_ind_1) * 
-          (exp_N_s_yr_1 - 1) / exp_N_s_yr_2 * pow(phi, s_gap) + 
+          (exp_N_s_yr_1 - 1) / exp_N_s_yr_2 * p_t_s_gap + 
           Type(2.0) / exp_N_s_yr_1 * (Type(1.0) - phi / lambda) * 
           pow(phi / lambda, s_yr_2) *
           ((pow(lambda / phi, s_yr_1 + Type(1.0)) - 
           pow(lambda / phi, std::min(s_yr_1 + alpha, s_yr_2) + Type(1.0))) / 
           (Type(1.0) - lambda / phi) + prb_POPs_brn_btn);
+        
+        // Same-mother pairs between survey years
+        exp_ns_SMPs(s_ind_1, s_ind_2) = Type(2.0) * 
+          exp_ns_SMPs(s_ind_1, s_ind_1) * p_t_s_gap +
+          s_gap * exp_N_s_yr_2 * beta * (1 - p_o_l) *
+          lambda / lmb_m_ph_sq * pow(p_o_l, s_gap);
+
+        // Same-father pairs between survey years
+        exp_ns_SFPs(s_ind_1, s_ind_2) = phi * exp_ns_SMPs(s_ind_1, s_ind_2) +
+          Type(2.0) * p_t_s_gap * exp_ns_SFPs_same_b_yr(s_ind_1, s_ind_1);
+
+        // Full-sibling pairs between survey years, note the predicted number
+        // within surveys is constant
+        exp_ns_FSPs(s_ind_1, s_ind_2) = 2 * exp_ns_FSPs(s_ind_1, s_ind_1) * 
+          p_t_s_gap +
+          2 * beta * (1 - p_o_l) * rcl_prb_mtr * pow(phi, s_yr_1 + s_yr_2 + 1) *
+          (pow(p_o_l, s_yr_1 + 1) - pow(p_o_l, s_yr_2 + 1)) /
+          (pow(pow(phi, 3) / lambda, s_yr_1) * (1 - pow(phi, 3) / lambda) * 
+            (1 - p_o_l));
       }
     }
-    ADREPORT(prbs_POPs);
+    
+    // Half-sibling pairs within survey years
+    exp_ns_HSPs = exp_ns_SMPs + exp_ns_SFPs - Type(2.0) * exp_ns_FSPs;
+    prbs_HSPs = (exp_ns_HSPs.array() / exp_ns_APs.array()).matrix();
+
     ADREPORT(prbs_SPs);
+    ADREPORT(prbs_POPs);
+    ADREPORT(prbs_HSPs);
     
     // Temporary variables for kinpair probabilities
-    Type prb_POP, prb_SP;
+    Type prb_SP, prb_POP, prb_HSP;
     
     // If fitting true kinship model
     if(mdl_tp == "true kinship") {
@@ -191,20 +227,24 @@ Type objective_function<Type>::operator() ()
       // Loop over number of surveys
       for(int s_ind = 0; s_ind < k; s_ind++) {
         // Find number of non-POP-non-HSPs within sample
-        // ns_UPs_wtn = ns_caps(s_ind) * (ns_caps(s_ind) - 1) / 2 -
-        //   ns_POPs_wtn(s_ind) - ns_HSPs_wtn(s_ind);
         ns_UPs_wtn = ns_caps(s_ind) * (ns_caps(s_ind) - 1) / 2 -
-          ns_POPs_wtn(s_ind);
+          ns_POPs_wtn(s_ind) - ns_HSPs_wtn(s_ind);
+        // ns_UPs_wtn = ns_caps(s_ind) * (ns_caps(s_ind) - 1) / 2 -
+        //   ns_POPs_wtn(s_ind);
         
         // Get parent-offspring pair probability
         prb_POP = prbs_POPs(s_ind, s_ind);
         
-        // Add negative log likelihood from numbers of POPs and HSPs within sample
-        // nll = nll - ns_POPs_wtn(s_ind) * log(prb_POPswtn) -
-        //   ns_HSPs_wtn(s_ind) * log(prbHSPswtn) -
-        //   ns_UPs_wtn * log(Type(1.0) - prb_POPswtn - prbHSPswtn);
+        // Get half-sibling pair probability
+        prb_HSP = prbs_HSPs(s_ind, s_ind);
+        
+        // Add negative log likelihood from numbers of POPs and HSPs within
+        // sample
         nll = nll - ns_POPs_wtn(s_ind) * log(prb_POP) -
-          ns_UPs_wtn * log(Type(1.0) - prb_POP);
+          ns_HSPs_wtn(s_ind) * log(prb_HSP) -
+          ns_UPs_wtn * log(Type(1.0) - prb_POP - prb_HSP);
+        // nll = nll - ns_POPs_wtn(s_ind) * log(prb_POP) -
+        //   ns_UPs_wtn * log(Type(1.0) - prb_POP);
       }
       
       // Self and parent-offspring pairs between samples
@@ -261,6 +301,9 @@ Type objective_function<Type>::operator() ()
         );
       }
     }
+    
+    // Return negative log likelihood
+    return nll;
   } 
   
   if(mdl_tp == "popan") {
@@ -300,8 +343,8 @@ Type objective_function<Type>::operator() ()
     // Find log(P(unseen))
     Type lg_p_unseen = log((p_ent * p_comp * chi).sum());
     
-    // Find negative log likelihood
-    nll = -lgamma(Ns + Type(1.0)) + lgamma(Ns - n_cap_hists + Type(1.0)) -
+    // Find and return negative log likelihood
+    return -lgamma(Ns + Type(1.0)) + lgamma(Ns - n_cap_hists + Type(1.0)) -
       (Ns - n_cap_hists) * lg_p_unseen -
       (first_tab * log(psi)).sum() -
       (last_tab * log(chi)).sum() -
@@ -310,6 +353,5 @@ Type objective_function<Type>::operator() ()
       (survives * log(phi_gaps)).sum();
   }
   
-  // Return negative log likelihood
   return nll;
 }  
