@@ -30,10 +30,12 @@ MakeTMBObj <- function(
 TryModelTMB <- function(obj, lwr, upr, mdl.tp = c("true kinship", "genopair")) {
   # Run optimiser starting from true values
   opt <- try(
-    nlminb(
-      start = obj$par, obj = obj$fn, grad = obj$gr, hess = obj$he,
-      scale = 1 / obj$par,
-      control = list(iter.max = 400), lower = lwr, upper = upr
+    suppressWarnings(
+      nlminb(
+        start = obj$par, obj = obj$fn, grad = obj$gr, hess = obj$he,
+        scale = 1 / obj$par,
+        control = list(iter.max = 400), lower = lwr, upper = upr
+      )
     )
   )
   

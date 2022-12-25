@@ -97,7 +97,7 @@ Type objective_function<Type>::operator() ()
       exp_ns_APs(k, k);
     // prbs_SPs.setZero();
     // prbs_POPs.setZero();
-    // prbs_HSPs.setZero();
+    prbs_HSPs.setZero();
     
     // Lambda minus phi-squared
     lmb_m_ph_sq = lambda - pow(phi, 2);
@@ -142,6 +142,12 @@ Type objective_function<Type>::operator() ()
         (lambda * (lambda - pow(phi, 3)) * (Type(1.0) - pow(phi, 2)))
     ).asDiagonal();
 
+    // Half-sibling pairs within survey years
+    exp_ns_HSPs.diagonal() = exp_ns_SMPs.diagonal() + exp_ns_SFPs.diagonal() - 
+      Type(2.0) * exp_ns_FSPs.diagonal();
+    prbs_HSPs.diagonal() = (exp_ns_HSPs.diagonal().array() / 
+      exp_ns_APs.diagonal().array()).matrix();
+    
     // Self and parent-offspring pairs between samples
     
     // Loop over all but last survey
@@ -204,13 +210,16 @@ Type objective_function<Type>::operator() ()
           (pow(p_o_l, s_yr_1 + 1) - pow(p_o_l, s_yr_2 + 1)) /
           (pow(pow(phi, 3) / lambda, s_yr_1) * (1 - pow(phi, 3) / lambda) * 
             (1 - p_o_l));
+        
+        // Half-sibs
+        prbs_HSPs(s_ind_1, s_ind_2) = (exp_ns_SMPs(s_ind_1, s_ind_2) + 
+          exp_ns_SFPs(s_ind_1, s_ind_2) - 
+          Type(2.0) * exp_ns_FSPs(s_ind_1, s_ind_2)) / 
+          exp_ns_APs(s_ind_1, s_ind_2);
       }
     }
     
-    // Half-sibling pairs within survey years
-    exp_ns_HSPs = exp_ns_SMPs + exp_ns_SFPs - Type(2.0) * exp_ns_FSPs;
-    prbs_HSPs = (exp_ns_HSPs.array() / exp_ns_APs.array()).matrix();
-
+    // Request derivatives for kinship probabilities
     ADREPORT(prbs_SPs);
     ADREPORT(prbs_POPs);
     ADREPORT(prbs_HSPs);

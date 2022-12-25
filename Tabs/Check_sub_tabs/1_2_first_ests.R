@@ -100,11 +100,9 @@ ck.par.mat = reactive({
   })
 })
 ppn.par.mat = reactive({
-  ppn.upr = ppn.upr()
-  ppn.upr[3] = 1e4
   cbind(
     ck.par.mat()[, 1:2],
-    seq(ppn.lwr()[3], ppn.upr[3], len = n.pts)
+    seq(ppn.lwr()[3], 1e4, len = n.pts)
   )
 })
 
