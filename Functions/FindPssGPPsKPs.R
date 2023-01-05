@@ -66,7 +66,7 @@ FindPssGPPsKPs = function(ale.frqs, L) {
   pss.gts = c("00", "01", "11")
   array(
     c(pss.gp.prbs.UP, pss.gp.prbs.HSP, pss.gp.prbs.POP, pss.gp.prbs.SP),
-    dims = c(n.pss.gts, n.pss.gts, L, 4),
+    dim = c(n.pss.gts, n.pss.gts, L, 4),
     dimnames = list(
       gt.1 = pss.gts, gt.2 = pss.gts, Locus = paste0("L", 1:L), 
       Kinship = c("UP", "HSP", "POP", "SP")
