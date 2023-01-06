@@ -16,9 +16,12 @@ ppn.obj = reactive({
   # Summarise data for POPAN model
   pop.sum = FindPopSum(k(), fst.std(), n.cap.hists())
   
-  print("Popan data")
-  print(n.cap.hists())
-  print(pop.sum)
+  # Show data
+  cat("Popan data for objective function \n")
+  cat("Number of capture histories:", n.cap.hists(), "\n")
+  cat("Summary of capture histories:\n")
+  print(t(pop.sum))
+  cat("\n")
   
   # Create TMB function
   MakeTMBObj(
@@ -37,11 +40,19 @@ ck.obj = reactive({
   
   # Find numbers of kin pairs
   ns.kps.lst = FindNsKinPairs(k(), n.srvy.prs(), fst.std())
+  colnames(ns.kps.lst$wtn) = srvy.yrs()
+  colnames(ns.kps.lst$btn) = srvy.prs()
   
-  print("True kinship data")
+  # Show data
+  cat("True kinship data for objective function \n")
+  cat("Numbers of captures per survey:\n")
   print(ns.caps)
-  print(ns.kps.lst)
-  
+  cat("Numbers of kin-pairs within surveys:\n")
+  print(ns.kps.lst$wtn)
+  cat("Numbers of kin-pairs between pairs of surveys:\n")
+  print(ns.kps.lst$btn)
+  cat("\n")
+
   # Create TMB function
   MakeTMBObj(
     ck.start(), "true kinship",
@@ -59,9 +70,15 @@ GPPs.offst = reactive(FindGPPs(frst.LGPPs.KP.offst()))
 
 # Genopair likelihood TMB objective function
 GPP.obj.fll = reactive({
-  print("All genopair data")
-  print(table(frst.SYIPs.fll()[, 1], frst.SYIPs.fll()[, 2]))
-  print(str(GPPs.fll()))
+  # Show data
+  cat("Full genopair data for objective function \n")
+  cat("Survey indices of first and second samples in each pair:\n")
+  df = data.frame(frst.SYIPs.fll())
+  names(df) = paste("Survey index", 1:2)
+  print(table(df))
+  cat("Genopair probabilities of first pairs in dataset given kinships:\n")
+  print(head(GPPs.fll()))
+  cat("\n")
   
   MakeTMBObj(
     ck.start(), "genopair",
@@ -71,10 +88,16 @@ GPP.obj.fll = reactive({
   )
 })
 GPP.obj.offst = reactive({
-  print("Offset genopair data")
-  print(table(frst.SYIPs.offst()[, 1], frst.SYIPs.offst()[, 2]))
-  print(str(GPPs.offst()))
-  
+  # Show data
+  cat("Offset genopair data for objective function \n")
+  cat("Survey indices of first and second samples in each pair:\n")
+  df = data.frame(frst.SYIPs.offst())
+  names(df) = paste("Survey index", 1:2)
+  print(table(df))
+  cat("Genopair probabilities of first pairs in dataset given kinships:\n")
+  print(head(GPPs.offst()))
+  cat("\n")
+
   MakeTMBObj(
     ck.start(), "genopair",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
@@ -174,7 +197,7 @@ first.ppn.ests = reactive({
   # Try to fit close-kin likelihood model
   rslt = TryModelTMB(ppn.obj(), ppn.lwr(), ppn.upr(), "popan")
   
-  # If no error
+  # If no error return results, otherwise return NA and non-convergence
   if (!all(is.na(rslt))) {
     c(rslt$est.se.df[, 1], rslt$cnvg)
   } else {

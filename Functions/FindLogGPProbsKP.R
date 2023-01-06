@@ -85,7 +85,7 @@ FindLogGPProbsKP = function(pss.gp.prbs.KP, smp.gts, smp.ind.prs, L) {
 
   # Display progress
   cat("Done \n")
-  cat("Time taken:", proc.time()[3] - s.time, "seconds \n")
+  cat("Time taken:", proc.time()[3] - s.time, "seconds \n\n")
   
   # Return log genopair probabilities
   lg.gp.prbs.KP

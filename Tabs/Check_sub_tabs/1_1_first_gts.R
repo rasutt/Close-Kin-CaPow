@@ -36,7 +36,10 @@ frst.SIPs.offst = reactive(FindSIPsOffset(k(), frst.smp.yr.inds()))
 # Sample-year index pairs
 FindSYIPs = reactive(function(smp.ind.prs) {
   # n_pairs x 2 matrix of survey-years for each sample in each pair
-  matrix(frst.smp.yr.inds()[as.vector(t(smp.ind.prs))], ncol = 2)
+  matrix(
+    frst.smp.yr.inds()[as.vector(t(smp.ind.prs))], ncol = 2,
+    dimnames = list(pair = NULL, sample_year_index = 1:2)
+  )
 })
 
 # Indices of survey-years for each sample in each pair, starting at zero for
