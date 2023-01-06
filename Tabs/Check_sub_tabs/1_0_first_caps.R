@@ -8,11 +8,6 @@ frst.pop.sum = reactive({
 # First sample-histories
 output$firstSampHists = renderTable(head(data.frame(fst.std())))
 
-# First number of sample-histories
-output$firstNSmpHsts = renderText({
-  paste("Number of sample histories:", n.cap.hists())
-})
-
 # First sample-history sufficient statistics
 output$firstSmpHstStats = renderTable({
   df = t(frst.pop.sum())
@@ -24,4 +19,9 @@ output$firstSmpHstStats = renderTable({
   )
   df
 }, rownames = T)
+
+# First number of sample-histories
+output$firstNSmpHsts = renderText({
+  paste("Total number of sample histories:", n.cap.hists())
+})
 
