@@ -28,7 +28,7 @@ output$firstNsKPsWtnPop = renderTable({
   FSPs = find.FSPs.wtn(FS.atts(), k())
   frmt.tbl(
     rbind(
-      FS.Nts.wtn(), reactive(choose(FS.Nts.wtn(), 2)), 
+      FS.Nts.wtn(), choose(FS.Nts.wtn(), 2), 
       find.POPs.wtn(FS.atts(), k()), 
       SMPs, SFPs, FSPs, SMPs + SFPs - 2 * FSPs
     ), 

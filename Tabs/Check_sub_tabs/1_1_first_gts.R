@@ -102,9 +102,6 @@ first.plods = reactive({
 
 ## Outputs
 
-# First sample-histories
-output$firstSampHists = renderTable(head(data.frame(fst.std())))
-
 # Table of genotypes of first few individuals captured (can show kin-pairs
 # later)
 output$firstGTs = renderTable({

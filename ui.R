@@ -156,7 +156,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "frst.ests.tb",
+        selected = "frst.cps.tb",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
@@ -171,6 +171,25 @@ ui <- fluidPage(
           tableOutput(outputId = "currSimOpts"),
           h3("Biological scenario"),
           tableOutput(outputId = "currBioScen")
+        ),
+        # First study samples ----
+        tabPanel(
+          title = "First study samples",
+          value = "frst.cps.tb",
+          h2("First study samples"),
+          p("Sample-histories from first population and study simulated."),
+          
+          h3("First sample-histories"),
+          p("The data for the first few animals sampled
+            in the study, by earliest birth year."),
+          tableOutput(outputId = "firstSampHists"),
+          
+          h3("Sufficient statistics"),
+          p("Sufficient statistics for sample histories, used to fit popan 
+            models."),
+          tableOutput(outputId = "firstSmpHstStats"),
+          textOutput(outputId = "firstNSmpHsts")
+          
         ),
         # First study kin-pairs ----
         tabPanel(
@@ -209,13 +228,8 @@ ui <- fluidPage(
           p("Genetic analysis of samples from first population and study 
             simulated."),
           
-          h3("First sample-histories"),
-          p("The data for the first few animals sampled
-            in the study, by earliest birth year."),
-          tableOutput(outputId = "firstSampHists"),
-          
           h3("First sample genotypes"),
-          p("First few individuals captured."),
+          p("First few individuals sampled."),
           tableOutput(outputId = "firstGTs"),
           
           h3("Allele frequencies"),

@@ -13,23 +13,13 @@ n.cap.hists = reactive(nrow(fst.std()))
 
 # Popan likelihood TMB objective function
 ppn.obj = reactive({
-  # Summarise data for POPAN model
-  pop.sum = FindPopSum(k(), fst.std(), n.cap.hists())
-  
-  # Show data
-  cat("Popan data for objective function \n")
-  cat("Number of capture histories:", n.cap.hists(), "\n")
-  cat("Summary of capture histories:\n")
-  print(t(pop.sum))
-  cat("\n")
-  
   # Create TMB function
   MakeTMBObj(
     ppn.start(), "popan",
     k(), srvy.gaps(), 
-    n_cap_hists = n.cap.hists(), first_tab = pop.sum$first.tab, 
-    last_tab = pop.sum$last.tab, caps = pop.sum$caps, 
-    non_caps = pop.sum$non.caps, survives = pop.sum$survives[-k()]
+    n_cap_hists = n.cap.hists(), first_tab = frst.pop.sum()$first.tab, 
+    last_tab = frst.pop.sum()$last.tab, caps = frst.pop.sum()$caps, 
+    non_caps = frst.pop.sum()$non.caps, survives = frst.pop.sum()$survives[-k()]
   )
 })
 
