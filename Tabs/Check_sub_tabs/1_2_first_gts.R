@@ -72,6 +72,10 @@ frst.LGPPs.KP.offst = reactive({
   )
 })
 
+# Genopair probabilities for optimization
+GPPs.fll = reactive(FindGPPs(frst.LGPPs.KP.fll()))
+GPPs.offst = reactive(FindGPPs(frst.LGPPs.KP.offst()))
+
 # Expected values of HSP vs UP PLODs given kinships
 exp.plod.KP = reactive({
   # Possible values of HSP vs UP PLODs, leaving division by number of loci to
@@ -177,6 +181,19 @@ output$firstLGPPs = renderPlot({
     } else plot.new()
   })
 })
+
+# Table of genopair probabilities of first few pairs captured (can show
+# kin-pairs later)
+output$firstFewGPPs = renderTable({
+  df = data.frame(cbind(
+    matrix(fst.std()[frst.smp.inds()[t(frst.SIPs.fll()[, 1:3])], 1], ncol = 2),
+    frst.SYIPs.fll()[1:3, ],
+    format(head(GPPs.fll(), 3), scientific = T)
+  ))
+  df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
+  names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
+  df
+}, digits = 6)
 
 # Histograms of genopair log-probabilities given basic kinships
 output$frstGpPs = renderPlot({

@@ -274,9 +274,13 @@ ui <- fluidPage(
           tableOutput(outputId = "firstFewLGPPs"),
           p("Observed values for all sample-pairs, over all loci."),
           plotOutput(outputId = "firstLGPPs"),
-          plotOutput(outputId = "frstGpPs"),
-          # plotOutput(outputId = "firstObsGPPs"),
           
+          h3("Genopair probabilities given kinship"),
+          p("Observed values for first few sample-pairs, over all loci."),
+          tableOutput(outputId = "firstFewGPPs"),
+          p("Observed values for all sample-pairs, over all loci."),
+          plotOutput(outputId = "frstGpPs"),
+
           h3("Half-sibling vs unrelated pair PLODs"),
           p("Observed values for all sample-pairs, over all loci."),
           fluidRow(

@@ -30,18 +30,6 @@ ck.obj = reactive({
   
   # Find numbers of kin pairs
   ns.kps.lst = FindNsKinPairs(k(), n.srvy.prs(), fst.std())
-  colnames(ns.kps.lst$wtn) = srvy.yrs()
-  colnames(ns.kps.lst$btn) = srvy.prs()
-  
-  # Show data
-  cat("True kinship data for objective function \n")
-  cat("Numbers of captures per survey:\n")
-  print(ns.caps)
-  cat("Numbers of kin-pairs within surveys:\n")
-  print(ns.kps.lst$wtn)
-  cat("Numbers of kin-pairs between pairs of surveys:\n")
-  print(ns.kps.lst$btn)
-  cat("\n")
 
   # Create TMB function
   MakeTMBObj(
@@ -53,10 +41,6 @@ ck.obj = reactive({
     ns_HSPs_btn = ns.kps.lst$btn[3, ], ns_caps = ns.caps
   )
 })
-
-# Genopair probabilities for optimization
-GPPs.fll = reactive(FindGPPs(frst.LGPPs.KP.fll()))
-GPPs.offst = reactive(FindGPPs(frst.LGPPs.KP.offst()))
 
 # Genopair likelihood TMB objective function
 GPP.obj.fll = reactive({
