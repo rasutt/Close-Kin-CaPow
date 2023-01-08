@@ -35,11 +35,11 @@ FindSIPsOffset = function(k, smp.yr.inds) {
   
   # Loop over first survey-year indices
   for (i in pss.s.yr.inds) {
-    # Get indices for samples in this year 
+    # Get indices for samples in this year and randomize order
     smp.inds.yr.1 = which(smp.yr.inds == i)
     smp.inds.yr.1 = smp.inds.yr.1[sample(length(smp.inds.yr.1))]
     
-    # Check at least one sample
+    # If at least one sample
     if (length(smp.inds.yr.1) > 0) {
       # Add offset index pairs for samples in this year
       smp.ind.prs = cbind(

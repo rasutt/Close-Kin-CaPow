@@ -274,19 +274,31 @@ ui <- fluidPage(
           tableOutput(outputId = "firstFewLGPPs"),
           p("Observed values for all sample-pairs, over all loci."),
           plotOutput(outputId = "firstLGPPs"),
-          
-          h3("Genopair probabilities given kinship"),
-          p("Observed values for first few sample-pairs, over all loci."),
-          tableOutput(outputId = "firstFewGPPs"),
-          p("Observed values for all sample-pairs, over all loci."),
-          plotOutput(outputId = "frstGpPs"),
 
           h3("Half-sibling vs unrelated pair PLODs"),
           p("Observed values for all sample-pairs, over all loci."),
           fluidRow(
             column(6, plotOutput(outputId = "firstPLODs")),
             column(6, plotOutput(outputId = "firstPLODsRare"))
-          )
+          ),
+          
+          h3("Genopair probabilities given kinship"),
+          h4("All pairs"),
+          p("Observed values for first few sample-pairs, over all loci."),
+          tableOutput(outputId = "firstFewGPPsFll"),
+          p("Numbers of pairs with corresponding survey indices for first and
+            second samples."),
+          tableOutput(outputId = "frstSYIPCntsFll"),
+          
+          h4("Offset pairs"),
+          p("Observed values for first few sample-pairs, over all loci."),
+          tableOutput(outputId = "firstFewGPPsOffst"),
+          p("Numbers of pairs with corresponding survey indices for first and
+            second samples."),
+          tableOutput(outputId = "frstSYIPCntsOffst"),
+          
+          p("Observed values for all sample-pairs, over all loci."),
+          plotOutput(outputId = "frstGpPs")
         ),
         # First study estimates ----
         tabPanel(

@@ -182,33 +182,6 @@ output$firstLGPPs = renderPlot({
   })
 })
 
-# Table of genopair probabilities of first few pairs captured (can show
-# kin-pairs later)
-output$firstFewGPPs = renderTable({
-  df = data.frame(cbind(
-    matrix(fst.std()[frst.smp.inds()[t(frst.SIPs.fll()[, 1:3])], 1], ncol = 2),
-    frst.SYIPs.fll()[1:3, ],
-    format(head(GPPs.fll(), 3), scientific = T)
-  ))
-  df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
-  names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
-  df
-}, digits = 6)
-
-# Histograms of genopair log-probabilities given basic kinships
-output$frstGpPs = renderPlot({
-  par(mfrow = c(1, 4))
-  frst.Gp.Ps = FindGPPs(frst.LGPPs.KP.fll())
-  lapply(1:4, function(i) {
-    hst.dt = hist(frst.Gp.Ps[, i], br = 50, plot = F)
-    hst.dt$counts = log(hst.dt$counts + 1)
-    plot(
-      hst.dt, main = gp.prb.KP.tps[i], xlab = "Probability", 
-      ylab = "log (frequency + 1)"
-    )
-  })
-})
-
 # Plot PLODs
 output$firstPLODs = renderPlot({
   # Plot plods
@@ -243,4 +216,64 @@ output$firstPLODsRare = renderPlot({
   # Plot expected values
   abline(v = exp.plod.KP(), col = 2:7, lwd = 2)
 })
+
+# Table of genopair probabilities of first few pairs captured
+output$firstFewGPPsFll = renderTable({
+  df = data.frame(cbind(
+    matrix(fst.std()[frst.smp.inds()[t(frst.SIPs.fll()[, 1:3])], 1], ncol = 2),
+    frst.SYIPs.fll()[1:3, ],
+    format(head(GPPs.fll(), 3), scientific = T)
+  ))
+  df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
+  names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
+  df
+}, digits = 6)
+
+# Table of genopair probabilities of first few offset pairs (order is random to
+# avoid bias due to age representation when individuals repeated to include
+# pairs between surveys with different numbers of samples)
+output$firstFewGPPsOffst = renderTable({
+  df = data.frame(cbind(
+    matrix(
+      fst.std()[frst.smp.inds()[t(frst.SIPs.offst()[, 1:3])], 1], 
+      ncol = 2
+    ),
+    frst.SYIPs.offst()[1:3, ],
+    format(head(GPPs.offst(), 3), scientific = T)
+  ))
+  df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
+  names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
+  df
+}, digits = 6)
+
+# Table of numbers of pairs with corresponding survey indices for first and
+# second samples
+output$frstSYIPCntsFll = renderTable({
+  df = data.frame(matrix(table(data.frame(frst.SYIPs.fll())), nrow = k()))
+  dimnames(df) = list(Index_1 = 1:k() - 1, Index_2 = 1:k() - 1)
+  df
+}, rownames = T)
+
+# Table of numbers of pairs with corresponding survey indices for first and
+# second samples
+output$frstSYIPCntsOffst = renderTable({
+  df = data.frame(matrix(table(data.frame(frst.SYIPs.offst())), nrow = k()))
+  dimnames(df) = list(Index_1 = 1:k() - 1, Index_2 = 1:k() - 1)
+  df
+}, rownames = T)
+
+# Histograms of genopair log-probabilities given basic kinships
+output$frstGpPs = renderPlot({
+  par(mfrow = c(1, 4))
+  frst.Gp.Ps = FindGPPs(frst.LGPPs.KP.fll())
+  lapply(1:4, function(i) {
+    hst.dt = hist(frst.Gp.Ps[, i], br = 50, plot = F)
+    hst.dt$counts = log(hst.dt$counts + 1)
+    plot(
+      hst.dt, main = gp.prb.KP.tps[i], xlab = "Probability", 
+      ylab = "log (frequency + 1)"
+    )
+  })
+})
+
 

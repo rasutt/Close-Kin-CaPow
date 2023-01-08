@@ -44,16 +44,6 @@ ck.obj = reactive({
 
 # Genopair likelihood TMB objective function
 GPP.obj.fll = reactive({
-  # Show data
-  cat("Full genopair data for objective function \n")
-  cat("Survey indices of first and second samples in each pair:\n")
-  df = data.frame(frst.SYIPs.fll())
-  names(df) = paste("Survey index", 1:2)
-  print(table(df))
-  cat("Genopair probabilities of first pairs in dataset given kinships:\n")
-  print(head(GPPs.fll()))
-  cat("\n")
-  
   MakeTMBObj(
     ck.start(), "genopair",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
@@ -62,16 +52,6 @@ GPP.obj.fll = reactive({
   )
 })
 GPP.obj.offst = reactive({
-  # Show data
-  cat("Offset genopair data for objective function \n")
-  cat("Survey indices of first and second samples in each pair:\n")
-  df = data.frame(frst.SYIPs.offst())
-  names(df) = paste("Survey index", 1:2)
-  print(table(df))
-  cat("Genopair probabilities of first pairs in dataset given kinships:\n")
-  print(head(GPPs.offst()))
-  cat("\n")
-
   MakeTMBObj(
     ck.start(), "genopair",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
