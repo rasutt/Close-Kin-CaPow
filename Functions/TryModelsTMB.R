@@ -45,8 +45,8 @@ TryModelTMB <- function(obj, lwr, upr, mdl.tp = c("true kinship", "genopair")) {
     return(NA)
   }
   
-  print(mdl.tp)
-  print(summary(sdreport(obj)))
+  # print(mdl.tp)
+  # print(summary(sdreport(obj)))
   
   # If Popan model
   if (mdl.tp == "popan") {

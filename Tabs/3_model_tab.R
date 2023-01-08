@@ -164,13 +164,7 @@ fit.gp = reactive(if (input$genopair) {
       # set, n_pairs x n_kinships, and sample-year index pairs, n_pairs x 2
       Gp.Mdl.Inpts = gp.mdl.inpts()[[hist.ind]]
       
-      # Show summaries of inputs to optimization function
-      print(str(Gp.Mdl.Inpts$GPPs))
-      print(table(
-        Gp.Mdl.Inpts$smp.yr.ind.prs[, 1], 
-        Gp.Mdl.Inpts$smp.yr.ind.prs[, 2]
-      ))
-      
+      # Make objective function
       obj = MakeTMBObj(
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
@@ -231,13 +225,7 @@ fit.os = reactive(if (input$offset) {
       # set, n_pairs x n_kinships, and sample-year index pairs, n_pairs x 2
       Gp.Mdl.Inpts = FindGpMdlInpts(pop.cap.hist, L(), k(), os.mdl = T)
       
-      # Show summaries of inputs to optimization function
-      print(str(Gp.Mdl.Inpts$GPPs))
-      print(table(
-        Gp.Mdl.Inpts$smp.yr.ind.prs[, 1], 
-        Gp.Mdl.Inpts$smp.yr.ind.prs[, 2]
-      ))
-      
+      # Make objective function
       obj = MakeTMBObj(
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
@@ -271,7 +259,7 @@ observeEvent(input$simulate, {
   gp.mdl.inpts(NULL)
 })
 
-# Combine model estimates and update in fit.lst reactive value
+# Find genopair model inputs
 observeEvent(input$nav.tab, {
   if (
     input$nav.tab == "model.tab" && input$genopair && is.null(gp.mdl.inpts())
@@ -301,11 +289,11 @@ observeEvent(input$nav.tab, {
 })
 
 # Combine model estimates and update in fit.lst reactive value
-observeEvent(input$nav.tab, {
-  if (
-    input$nav.tab == "model.tab" 
-    # && is.null(fit.lst())
-  ) {
+observeEvent(input$fit, {
+  # if (
+  #   input$nav.tab == "model.tab" 
+  #   # && is.null(fit.lst())
+  # ) {
     # Boolean for models requested 
     mod.bool = c(input$popan, input$close.kin, input$genopair, input$offset)
     
@@ -323,7 +311,7 @@ observeEvent(input$nav.tab, {
         genopair = fit.gp()$cnvgs, offset = fit.os()$cnvgs
       )[mod.bool]
     ))
-  }
+  # }
 })
 
 # Check when optimizer converged and standard errors calculable
@@ -393,6 +381,13 @@ check.ests = reactive({
 output$nDatasets = renderTable({
   df = data.frame(n.sims())
   names(df) = "Number of datasets"
+  df
+})
+
+# Show number of datasets models fit to
+output$knshpSt = renderTable({
+  df = data.frame(input$knshp.st)
+  names(df) = "Kinships included"
   df
 })
 

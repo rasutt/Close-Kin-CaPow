@@ -217,8 +217,7 @@ output$firstResults = renderTable({
   # Add model names
   res.df = data.frame(
     model = c(
-      "True values", "Popan", "True kinship",
-      "Full genopair", "Offset genopair"
+      "True values", "Popan", "True kinship", "Full genopair", "Offset genopair"
     ),
     res.mat
   )

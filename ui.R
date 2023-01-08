@@ -47,7 +47,7 @@ ui <- fluidPage(
   navbarPage(
     title = "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "check.tab",
+    selected = "model.tab",
     position = "fixed-top",
     
     # Sim tab ----
@@ -122,19 +122,6 @@ ui <- fluidPage(
           ),
           actionButton(
             inputId = "simulate", label = "Simulate studies"
-          ),
-          # helpText("~3 seconds per 100 populations"),
-          checkboxInput(
-            inputId = "popan", label = "Popan model", value = F
-          ),
-          checkboxInput(
-            inputId = "close.kin", label = "Close-kin model", value = F
-          ),
-          checkboxInput(
-            inputId = "genopair", label = "Full genopair model", value = T
-          ),
-          checkboxInput(
-            inputId = "offset", label = "Offset genopair model", value = T
           )
         ),
         # Outputs ---- 
@@ -291,7 +278,10 @@ ui <- fluidPage(
           tableOutput(outputId = "frstSYIPCntsFll"),
           
           h4("Offset pairs"),
-          p("Observed values for first few sample-pairs, over all loci."),
+          p("Observed values for first few sample-pairs, over all loci (order is 
+          random to avoid bias due to age representation when individuals 
+          repeated to include pairs between surveys with different numbers of 
+            samples)."),
           tableOutput(outputId = "firstFewGPPsOffst"),
           p("Numbers of pairs with corresponding survey indices for first and
             second samples."),
@@ -434,16 +424,55 @@ ui <- fluidPage(
     tabPanel(
       title = "Analyze model performance",
       value = "model.tab",
-      h2("Analyze model performance"),
-      h3("Model fitting success rates"),
-      tableOutput(outputId = "nDatasets"),
-      tableOutput(outputId = "modStats"),
-      h3("Estimates"),
-      plotOutput(outputId = "modComp"),
-      h3("95% confidence interval coverage"),
-      tableOutput(outputId = "CICov"),
-      h3("95% confidence intervals for lambda"),
-      plotOutput(outputId = "CIPlot")
+      tabsetPanel(
+        id = "mdl.sb.tbs",
+        selected = "fit.mdls",
+        tabPanel(
+          title = "Fit models",
+          value = "fit.mdls",
+          h2("Fit models"),
+          sidebarLayout(
+            sidebarPanel(
+              checkboxInput(
+                inputId = "popan", label = "Popan model", value = T
+              ),
+              checkboxInput(
+                inputId = "close.kin", label = "Close-kin model", value = T
+              ),
+              checkboxInput(
+                inputId = "genopair", label = "Full genopair model", value = T
+              ),
+              checkboxInput(
+                inputId = "offset", label = "Offset genopair model", value = T
+              ),
+              checkboxGroupInput(
+                inputId = "knshp.st", label = "Kinships to include",
+                choices = list("Self", "Parent-offspring", "Half-sibling"),
+                selected = list("Self", "Parent-offspring", "Half-sibling")
+              ),
+              actionButton(
+                inputId = "fit", label = "Fit models"
+              )
+            ),
+            mainPanel()
+          )
+        ),
+        tabPanel(
+          title = "Compare model performance",
+          value = "cmpr.mdls",
+          h2("Compare model performance"),
+          tableOutput(outputId = "nDatasets"),
+          tableOutput(outputId = "knshpSt"),
+          h3("Model fitting success rates"),
+          tableOutput(outputId = "modStats"),
+          h3("Estimates"),
+          plotOutput(outputId = "modComp"),
+          h3("95% confidence interval coverage"),
+          tableOutput(outputId = "CICov"),
+          h3("95% confidence intervals for lambda"),
+          plotOutput(outputId = "CIPlot")
+        )
+      )
     ),
     # Save/load tab ----
     tabPanel(
