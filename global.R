@@ -7,7 +7,7 @@ max_phi = 1
 step_phi = 0.005
 
 # Model choices
-mod.choices = c("Popan", "Close-kin", "Genopair", "Offset")
+mdl.chcs = c("Popan", "True kinship", "Full genopair", "Offset genopair")
 
 # Set simulation parameters for basic scenario
 stch.bths <- T # Set whether numbers of births stochastic

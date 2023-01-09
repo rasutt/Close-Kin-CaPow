@@ -1,14 +1,10 @@
 # Number of parameters
 n.pars = reactive(length(est.par.names()))
-# Names of models requested
-mod.names = reactive({
-  mod.choices[c(input$popan, input$close.kin, input$genopair, input$offset)]
-})
 # Number of models requested
-n.mods = reactive(input$popan + input$close.kin + input$genopair + input$offset)
+n.mods = reactive(length(mdl.st()))
 
 # Fit popan model
-fit.ppn = reactive(if (input$popan) {
+fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), NA)
   ck.lwr <- c(0, 0.75, NA)
@@ -70,7 +66,7 @@ fit.ppn = reactive(if (input$popan) {
 })
 
 # Fit close-kin model
-fit.ck = reactive(if (input$close.kin) {
+fit.ck = reactive(if ("True kinship" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), NA)
   ck.lwr <- c(0, 0.75, NA)
@@ -132,7 +128,7 @@ fit.ck = reactive(if (input$close.kin) {
 })
 
 # Fit genopair model
-fit.gp = reactive(if (input$genopair) {
+fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), NA)
   ck.lwr <- c(0, 0.75, NA)
@@ -193,7 +189,7 @@ fit.gp = reactive(if (input$genopair) {
 })
 
 # Fit offset model
-fit.os = reactive(if (input$offset) {
+fit.os = reactive(if ("Offset genopair" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), NA)
   ck.lwr <- c(0, 0.75, NA)
@@ -260,9 +256,11 @@ observeEvent(input$simulate, {
 })
 
 # Find genopair model inputs
-observeEvent(input$nav.tab, {
+observeEvent(input$fit, {
   if (
-    input$nav.tab == "model.tab" && input$genopair && is.null(gp.mdl.inpts())
+    input$nav.tab == "model.tab" && 
+    "Full genopair" %in% mdl.st() && 
+    is.null(gp.mdl.inpts())
   ) {
     lst = vector("list", n.sims())
     
@@ -290,28 +288,25 @@ observeEvent(input$nav.tab, {
 
 # Combine model estimates and update in fit.lst reactive value
 observeEvent(input$fit, {
-  # if (
-  #   input$nav.tab == "model.tab" 
-  #   # && is.null(fit.lst())
-  # ) {
-    # Boolean for models requested 
-    mod.bool = c(input$popan, input$close.kin, input$genopair, input$offset)
-    
-    fit.lst(list(
-      ests = list(
-        popan = fit.ppn()$ests, close.kin = fit.ck()$ests,
-        genopair = fit.gp()$ests, offset = fit.os()$ests
-      )[mod.bool],
-      ses = list(
-        popan = fit.ppn()$ses, close.kin = fit.ck()$ses,
-        genopair = fit.gp()$ses, offset = fit.os()$ses
-      )[mod.bool],
-      cnvgs = list(
-        popan = fit.ppn()$cnvgs, close.kin = fit.ck()$cnvgs,
-        genopair = fit.gp()$cnvgs, offset = fit.os()$cnvgs
-      )[mod.bool]
-    ))
-  # }
+  # Update reactive values
+  mdl.st(input$mdl.st)
+  knshp.st(input$knshp.st)
+  
+  # Boolean for models requested 
+  mod.bool = mdl.chcs %in% mdl.st()
+  
+  # Combine and keep only for selected models
+  ests = list(fit.ppn()$ests, fit.ck()$ests, fit.gp()$ests, fit.os()$ests)[
+    mod.bool
+  ]
+  ses = list(fit.ppn()$ses, fit.ck()$ses, fit.gp()$ses, fit.os()$ses)[mod.bool]
+  cnvgs = list(fit.ppn()$cnvgs, fit.ck()$cnvgs, fit.gp()$cnvgs, fit.os()$cnvgs)[
+    mod.bool
+  ]
+  names(ests) = names(ses) = names(cnvgs) = mdl.st()
+  
+  # Update list
+  fit.lst(list(ests = ests, ses = ses, cnvgs = cnvgs))
 })
 
 # Check when optimizer converged and standard errors calculable
@@ -386,7 +381,7 @@ output$nDatasets = renderTable({
 
 # Show number of datasets models fit to
 output$knshpSt = renderTable({
-  df = data.frame(input$knshp.st)
+  df = data.frame(knshp.st())
   names(df) = "Kinships included"
   df
 })
@@ -396,7 +391,7 @@ output$knshpSt = renderTable({
 output$modStats = renderTable({
   perc = function(stat) paste0(round(stat * 100, 1), "%")
   df = data.frame(
-    mod.names(), 
+    mdl.st(), 
     perc(check.ests()$prpn.cnvgd), 
     perc(check.ests()$prpn.ses.ok), 
     perc(check.ests()$prpn.cis.ok)
@@ -438,7 +433,7 @@ output$modComp <- renderPlot({
 # Print CI coverage
 output$CICov = renderTable({
   df = data.frame(
-    mod.names(), matrix(perc(check.ests()$prpn.ci.cov), n.mods(), n.pars())
+    mdl.st(), matrix(perc(check.ests()$prpn.ci.cov), n.mods(), n.pars())
   )
   names(df) = c("Model", est.par.names())
   df
@@ -458,7 +453,7 @@ output$CIPlot = renderPlot({
         plot(
           1:n.sims(), 
           rep(par.vals()[p], n.sims()), 
-          main = mod.names()[m], ylab = est.par.names()[p], xlab = "", 
+          main = mdl.st()[m], ylab = est.par.names()[p], xlab = "", 
           type = 'n'
         )
       } 
@@ -468,7 +463,7 @@ output$CIPlot = renderPlot({
         plot(
           rep(1:n.sims(), 2), 
           c(check.ests()$lcbs[[m]][, p], check.ests()$ucbs[[m]][, p]), 
-          main = mod.names()[m], ylab = est.par.names()[p], xlab = "", 
+          main = mdl.st()[m], ylab = est.par.names()[p], xlab = "", 
           type = 'n'
         )
       }

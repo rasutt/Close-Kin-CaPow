@@ -422,44 +422,25 @@ ui <- fluidPage(
     ), 
     # Model tab ----
     tabPanel(
-      title = "Analyze model performance",
+      title = "Fit models",
       value = "model.tab",
-      tabsetPanel(
-        id = "mdl.sb.tbs",
-        selected = "fit.mdls",
-        tabPanel(
-          title = "Fit models",
-          value = "fit.mdls",
-          h2("Fit models"),
-          sidebarLayout(
-            sidebarPanel(
-              checkboxInput(
-                inputId = "popan", label = "Popan model", value = T
-              ),
-              checkboxInput(
-                inputId = "close.kin", label = "Close-kin model", value = T
-              ),
-              checkboxInput(
-                inputId = "genopair", label = "Full genopair model", value = T
-              ),
-              checkboxInput(
-                inputId = "offset", label = "Offset genopair model", value = T
-              ),
-              checkboxGroupInput(
-                inputId = "knshp.st", label = "Kinships to include",
-                choices = list("Self", "Parent-offspring", "Half-sibling"),
-                selected = list("Self", "Parent-offspring", "Half-sibling")
-              ),
-              actionButton(
-                inputId = "fit", label = "Fit models"
-              )
-            ),
-            mainPanel()
+      h2("Fit models"),
+      sidebarLayout(
+        sidebarPanel(
+          checkboxGroupInput(
+            inputId = "mdl.st", label = "Models to fit",
+            choices = mdl.chcs, selected = mdl.chcs
+          ),
+          checkboxGroupInput(
+            inputId = "knshp.st", label = "Kinships to include",
+            choices = list("Self", "Parent-offspring", "Half-sibling"),
+            selected = list("Self", "Parent-offspring", "Half-sibling")
+          ),
+          actionButton(
+            inputId = "fit", label = "Fit models"
           )
         ),
-        tabPanel(
-          title = "Compare model performance",
-          value = "cmpr.mdls",
+        mainPanel(
           h2("Compare model performance"),
           tableOutput(outputId = "nDatasets"),
           tableOutput(outputId = "knshpSt"),

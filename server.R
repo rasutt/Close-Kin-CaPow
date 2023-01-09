@@ -104,6 +104,8 @@ server <- function(input, output) {
   pns.UPs = reactiveVal(saved.objs$pns.UPs)
   frst.LGPPs.KP.fll = reactiveVal(saved.objs$frst.LGPPs.KP.fll)
   gp.mdl.inpts = reactiveVal(saved.objs$gp.mdl.inpts)
+  mdl.st = reactiveVal(saved.objs$mdl.st)
+  knshp.st = reactiveVal(saved.objs$knshp.st)
   # ----
 
   # Variables bound to simulate button (for last simulation) ----

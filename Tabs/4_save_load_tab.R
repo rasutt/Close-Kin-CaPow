@@ -50,13 +50,15 @@ output$downloadData <- downloadHandler(
       ns.SibPs = ns.SibPs(),
       pns.UPs = pns.UPs(),
       frst.LGPPs.KP.fll = frst.LGPPs.KP.fll(),
-      gp.mdl.inpts = gp.mdl.inpts()
+      gp.mdl.inpts = gp.mdl.inpts(),
+      mdl.st = mdl.st(),
+      knshp.st = knshp.st()
     )
     save(saved.objs, file = file)
   }
 )
 
-# Increase maximum file upload size to 50MB
+# Increase maximum file upload size
 options(shiny.maxRequestSize=100*1024^2)
 
 # Load saved objects
@@ -109,6 +111,8 @@ observeEvent(input$file, {
   pns.UPs(saved.objs$pns.UPs)
   frst.LGPPs.KP.fll(saved.objs$frst.LGPPs.KP.fll)
   gp.mdl.inpts(saved.objs$gp.mdl.inpts)
+  mdl.st(saved.objs$mdl.st)
+  knshp.st(saved.objs$knshp.st)
 })
 
 # Show number of files uploaded
