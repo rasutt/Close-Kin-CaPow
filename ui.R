@@ -433,8 +433,8 @@ ui <- fluidPage(
           ),
           checkboxGroupInput(
             inputId = "knshp.st", label = "Kinships to include",
-            choices = list("Self", "Parent-offspring", "Half-sibling"),
-            selected = list("Self", "Parent-offspring", "Half-sibling")
+            choices = knshp.chcs,
+            selected = knshp.chcs
           ),
           actionButton(
             inputId = "fit", label = "Fit models"

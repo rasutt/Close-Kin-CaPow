@@ -9,6 +9,9 @@ step_phi = 0.005
 # Model choices
 mdl.chcs = c("Popan", "True kinship", "Full genopair", "Offset genopair")
 
+# Kinship choices for models
+knshp.chcs = c("Self", "Parent-offspring", "Half-sibling")
+
 # Set simulation parameters for basic scenario
 stch.bths <- T # Set whether numbers of births stochastic
 

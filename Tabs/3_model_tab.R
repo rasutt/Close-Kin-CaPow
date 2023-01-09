@@ -3,6 +3,8 @@ n.pars = reactive(length(est.par.names()))
 # Number of models requested
 n.mods = reactive(length(mdl.st()))
 
+knshp.st.bln = reactive(as.integer(knshp.chcs %in% knshp.st()))
+
 # Fit popan model
 fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
@@ -104,7 +106,7 @@ fit.ck = reactive(if ("True kinship" %in% mdl.st()) {
       obj = MakeTMBObj(
         ck.start, "true kinship",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-        alpha = alpha(), 
+        alpha = alpha(), knshp_st_bool = knshp.st.bln(),
         ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ], 
         ns_POPs_btn = ns.kps.lst$btn[2, ], ns_HSPs_wtn = ns.kps.lst$wtn[2, ],
         ns_HSPs_btn = ns.kps.lst$btn[3, ], ns_caps = ns.caps
@@ -113,10 +115,13 @@ fit.ck = reactive(if ("True kinship" %in% mdl.st()) {
       # Try to fit close-kin likelihood model
       ck.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "true kinship")
       
-      # Store results separately
-      ck.tmb.ests[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
-      ck.tmb.ses[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 2]
-      ck.tmb.cnvg[hist.ind] = ck.tmb.res$cnvg
+      # If optimiser did not give error
+      if(!all(is.na(ck.tmb.res))) {
+        # Store results separately
+        ck.tmb.ests[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
+        ck.tmb.ses[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 2]
+        ck.tmb.cnvg[hist.ind] = ck.tmb.res$cnvg
+      }
       
       incProgress(1/n.sims())
     }
@@ -164,7 +169,7 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
       obj = MakeTMBObj(
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-        alpha = alpha(), 
+        alpha = alpha(), knshp_st_bool = knshp.st.bln(),
         gp_probs = Gp.Mdl.Inpts$GPPs, 
         smp_yr_ind_prs = Gp.Mdl.Inpts$smp.yr.ind.prs
       )
@@ -225,7 +230,7 @@ fit.os = reactive(if ("Offset genopair" %in% mdl.st()) {
       obj = MakeTMBObj(
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-        alpha = alpha(), 
+        alpha = alpha(), knshp_st_bool = knshp.st.bln(),
         gp_probs = Gp.Mdl.Inpts$GPPs, 
         smp_yr_ind_prs = Gp.Mdl.Inpts$smp.yr.ind.prs
       )

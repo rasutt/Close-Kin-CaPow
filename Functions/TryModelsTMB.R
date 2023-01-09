@@ -1,22 +1,25 @@
 # Make TMB objective function by providing starting parameter values, model
 # type, and data required.
 MakeTMBObj <- function(
-    start, md_ltp = c("popan", "true kinship", "genopair"),
+    start, mdl_tp = c("popan", "true kinship", "genopair"),
     k = NA, srvy_gaps = NA, fnl_year = NA, srvy_yrs = NA, 
     n_cap_hists = NA, first_tab = NA, last_tab = NA, caps = NA, non_caps = NA, 
     survives = NA,
-    alpha = NA, 
+    alpha = NA, knshp_st_bool = NA,
     ns_SPs_btn = NA, ns_POPs_wtn = NA, ns_POPs_btn = NA, ns_HSPs_wtn = NA, 
     ns_HSPs_btn = NA, ns_caps = NA,
     gp_probs = matrix(NA, 1, 1), smp_yr_ind_prs = matrix(NA, 1, 1)
 ) {
+  print(mdl_tp)
+  print(knshp_st_bool)
+  
   # Create TMB function
   data <- list(
-    mdl_tp = md_ltp,
+    mdl_tp = mdl_tp,
     k = k, srvy_gaps = srvy_gaps, fnl_year = fnl_year, srvy_yrs = srvy_yrs, 
     n_cap_hists = n_cap_hists, first_tab = first_tab, last_tab = last_tab, 
     caps = caps, non_caps = non_caps, survives = survives,
-    alpha = alpha, 
+    alpha = alpha, knshp_st_bool = knshp_st_bool,
     ns_SPs_btn = ns_SPs_btn, ns_POPs_wtn = ns_POPs_wtn, 
     ns_POPs_btn = ns_POPs_btn, ns_HSPs_wtn = ns_HSPs_wtn, 
     ns_HSPs_btn = ns_HSPs_btn, ns_caps = ns_caps,
@@ -33,8 +36,8 @@ TryModelTMB <- function(obj, lwr, upr, mdl.tp = c("true kinship", "genopair")) {
     suppressWarnings(
       nlminb(
         start = obj$par, obj = obj$fn, grad = obj$gr, hess = obj$he,
-        scale = 1 / obj$par,
-        control = list(iter.max = 400), lower = lwr, upper = upr
+        scale = 1 / obj$par, 
+        control = list(iter.max = 400, trace = 1), lower = lwr, upper = upr
       )
     )
   )
