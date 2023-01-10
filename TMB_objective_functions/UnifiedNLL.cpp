@@ -101,6 +101,17 @@ Type objective_function<Type>::operator() ()
       exp_ns_SFPs_same_b_yr(k, k), exp_ns_SFPs(k, k), exp_ns_FSPs(k, k), 
       exp_ns_HSPs(k, k), prbs_HSPs(k, k);
 
+    // Lambda minus phi-squared
+    lmb_m_ph_sq = lambda - pow(phi, 2);
+    // Probability not new-born (phi over lambda)
+    p_o_l = phi / lambda;
+    // Reciprocal of probability not new-born (phi over lambda)
+    l_o_p = lambda / phi;
+    // Reciprocal of probability that an animal is mature
+    rcl_prb_mtr = pow(l_o_p, alpha);
+    // Birth rate among mature females
+    beta = 2 * (1 - p_o_l) * rcl_prb_mtr;
+    
     // Expected population sizes in survey years
     exp_N_s_yrs = 
       N_fnl / pow(lambda, vector<Type>::Constant(k, fnl_year) - srvy_yrs);
@@ -110,7 +121,7 @@ Type objective_function<Type>::operator() ()
       (exp_N_s_yrs - Type(1.0)) / Type(2.0)).matrix().asDiagonal();
     
     if(incld_POPs) {
-      // Probability of POPs within sample
+      // Probability of POPs within samples
       prbs_POPs = (Type(2.0) / (exp_N_s_yrs - Type(1.0)) * 
         rho * (Type(1.0) + phi) / lmb_m_ph_sq).matrix().asDiagonal();
     }
@@ -144,17 +155,6 @@ Type objective_function<Type>::operator() ()
         exp_ns_APs.diagonal().array()).matrix();
     }
     
-    // Lambda minus phi-squared
-    lmb_m_ph_sq = lambda - pow(phi, 2);
-    // Probability not new-born (phi over lambda)
-    p_o_l = phi / lambda;
-    // Reciprocal of probability not new-born (phi over lambda)
-    l_o_p = lambda / phi;
-    // Reciprocal of probability that an animal is mature
-    rcl_prb_mtr = pow(l_o_p, alpha);
-    // Birth rate among mature females
-    beta = 2 * (1 - p_o_l) * rcl_prb_mtr;
-
     // Self and parent-offspring pairs between samples
     
     // Loop over all but last survey

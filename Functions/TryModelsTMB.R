@@ -10,9 +10,6 @@ MakeTMBObj <- function(
     ns_HSPs_btn = NA, ns_caps = NA,
     gp_probs = matrix(NA, 1, 1), smp_yr_ind_prs = matrix(NA, 1, 1)
 ) {
-  print(mdl_tp)
-  print(knshp_st_bool)
-  
   # Create TMB function
   data <- list(
     mdl_tp = mdl_tp,
@@ -31,25 +28,31 @@ MakeTMBObj <- function(
 
 # Try to fit close kin model with TMB
 TryModelTMB <- function(obj, lwr, upr, mdl.tp = c("true kinship", "genopair")) {
+  # cat(mdl.tp, "\n")
+  # cat("Optimiser trace: \n")
+  
   # Run optimiser starting from true values
   opt <- try(
     suppressWarnings(
       nlminb(
         start = obj$par, obj = obj$fn, grad = obj$gr, hess = obj$he,
-        scale = 1 / obj$par, 
-        control = list(iter.max = 400, trace = 1), lower = lwr, upper = upr
+        scale = 1 / obj$par, lower = lwr, upper = upr,
+        control = list(
+          # trace = 1,
+          iter.max = 400
+        )
       )
     )
   )
+  
+  # cat("Reported values from TMB: \n")
+  # print(summary(sdreport(obj)))
   
   # If optimiser hit error
   if (inherits(opt, "try-error")) {
     cat("Optimiser reports error for", mdl.tp, "model using TMB \n")
     return(NA)
   }
-  
-  # print(mdl.tp)
-  # print(summary(sdreport(obj)))
   
   # If Popan model
   if (mdl.tp == "popan") {
