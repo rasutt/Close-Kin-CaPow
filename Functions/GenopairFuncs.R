@@ -102,16 +102,6 @@ FindGPPs = function(LGPPs) {
 }
 
 FindGpMdlInpts <- function(pop.cap.hist, L, k, os.mdl) {
-  # Allele frequencies, 2 x n_loci matrices, representing relative
-  # frequencies of 0 and 1-coded SNP alleles at each locus
-  ale.frqs = FindAleFrqs(attributes(pop.cap.hist)$unq.smp.gts)
-  
-  # Possible genopair probabilities given kinship set, n_possible_genotypes
-  # x n_possible_genotypes x n_loci x n_kinships, representing probabilities
-  # of each possible pair of genotypes at each locus given each kinship
-  # considered
-  pss.gp.prbs.KPs = FindPssGPPsKPs(ale.frqs, L)
-  
   # Sample history matrix, n_individuals x n_surveys, rows ordered by
   # individual ID
   smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k)])
@@ -136,6 +126,21 @@ FindGpMdlInpts <- function(pop.cap.hist, L, k, os.mdl) {
       combn(length(smp.yr.inds), 2)
     }
   
+  # Sample-year index pairs, n_pairs x 2, representing survey-year of each
+  # sample in each pair, counting from zero as passing into TMB C++
+  # objective function
+  smp.yr.ind.prs = matrix(smp.yr.inds[as.vector(t(smp.ind.prs))], ncol = 2)
+  
+  # Allele frequencies, 2 x n_loci matrices, representing relative
+  # frequencies of 0 and 1-coded SNP alleles at each locus
+  ale.frqs = FindAleFrqs(attributes(pop.cap.hist)$unq.smp.gts)
+  
+  # Possible genopair probabilities given kinship set, n_possible_genotypes
+  # x n_possible_genotypes x n_loci x n_kinships, representing probabilities
+  # of each possible pair of genotypes at each locus given each kinship
+  # considered
+  pss.gp.prbs.KPs = FindPssGPPsKPs(ale.frqs, L)
+  
   # Genopair log-probabilities over all loci given each kinship, for each
   # pair to include in likelihood
   lg.gp.prbs.KPs = 
@@ -145,11 +150,6 @@ FindGpMdlInpts <- function(pop.cap.hist, L, k, os.mdl) {
   # underflow and trying to adjust if necessary.  Would be good to raise a
   # proper error if adjustment impossible
   GPPs = FindGPPs(lg.gp.prbs.KPs)
-  
-  # Sample-year index pairs, n_pairs x 2, representing survey-year of each
-  # sample in each pair, counting from zero as passing into TMB C++
-  # objective function
-  smp.yr.ind.prs = matrix(smp.yr.inds[as.vector(t(smp.ind.prs))], ncol = 2)
   
   list(GPPs = GPPs, smp.yr.ind.prs = smp.yr.ind.prs)
 }

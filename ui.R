@@ -429,7 +429,9 @@ ui <- fluidPage(
         sidebarPanel(
           checkboxGroupInput(
             inputId = "mdl.st", label = "Models to fit",
-            choices = mdl.chcs, selected = mdl.chcs
+            choices = mdl.chcs, 
+            # selected = mdl.chcs
+            selected = "Full genopair"
           ),
           checkboxGroupInput(
             inputId = "knshp.st", label = "Kinships to include",

@@ -2,8 +2,87 @@
 n.pars = reactive(length(est.par.names()))
 # Number of models requested
 n.mods = reactive(length(mdl.st()))
-
+# Kinship set Boolean vector
 knshp.st.bln = reactive(as.integer(knshp.chcs %in% knshp.st()))
+
+# List of possible genopair probabilities for each study
+pss.GpPs.lst = reactive({
+  # Make empty list
+  pss.GpPs.lst.tmp = vector("list", n.sims())
+
+  # Loop over histories
+  withProgress({
+    for (hst.ind in 1:n.sims()) {
+      # Display progress
+      cat("History:", hst.ind, "\n")
+      
+      # Get simulated family and capture histories of population of animals
+      # over time
+      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
+      
+      # Allele frequencies, 2 x n_loci matrices, representing relative
+      # frequencies of 0 and 1-coded SNP alleles at each locus
+      ale.frqs = FindAleFrqs(attributes(pop.cap.hist)$unq.smp.gts)
+      
+      # Possible genopair probabilities given kinship set,
+      # n_possible_genotypes x n_possible_genotypes x n_loci x n_kinships,
+      # representing probabilities of each possible pair of genotypes at each
+      # locus given each kinship considered
+      pss.GpPs.lst.tmp[[hst.ind]] = FindPssGPPsKPs(ale.frqs, L(), knshp.st())
+
+      incProgress(1/n.sims())
+    }
+  }, value = 0, message = "Finding general genopair model inputs")
+  
+  pss.GpPs.lst.tmp
+})
+
+# List of full set of genopair probabilities for each study
+fll.GpPs.lst = reactive({
+  # Make empty lists
+  fll.GpPs.lst.tmp = vector("list", n.sims())
+  
+  # Loop over histories
+  withProgress({
+    for (hst.ind in 1:n.sims()) {
+      # Display progress
+      cat("History:", hst.ind, "\n")
+      
+      # Get simulated family and capture histories of population of animals
+      # over time
+      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
+      
+      # Sample history matrix, n_individuals x n_surveys, rows ordered by
+      # individual ID
+      smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
+      
+      # Sample genotypes, extracted from matrix of individual genotypes,
+      # n_samples x n_loci, rows ordered by survey-year then individual ID
+      smp.gts = FindSmpGts(smp.hsts, attributes(pop.cap.hist)$unq.smp.gts)
+
+      smp.ind.prs = t(fll.SYIPs.lst()[[hst.ind]])
+
+      # Possible genopair probabilities given kinship set,
+      # n_possible_genotypes x n_possible_genotypes x n_loci x n_kinships,
+      # representing probabilities of each possible pair of genotypes at each
+      # locus given each kinship considered
+      pss.GpPs = pss.GpPs.lst()[[hst.ind]]
+
+      # Genopair log-probabilities over all loci given each kinship, for each
+      # pair to include in likelihood
+      lg.gp.prbs.KPs = FindLogGPProbsKP(pss.GpPs, smp.gts, smp.ind.prs, L())
+
+      # Exponentiate genopair log-probabilities given kinship set, checking for
+      # underflow and trying to adjust if necessary.  Would be good to raise a
+      # proper error if adjustment impossible
+      fll.GpPs.lst.tmp[[hst.ind]] = FindGPPs(lg.gp.prbs.KPs)
+
+      incProgress(1/n.sims())
+    }
+  }, value = 0, message = "Finding genopair model inputs")
+  
+  fll.GpPs.lst.tmp
+})
 
 # Fit popan model
 fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
@@ -25,13 +104,13 @@ fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
   
   # Loop over histories
   withProgress({
-    for (hist.ind in 1:n.sims()) {
+    for (hst.ind in 1:n.sims()) {
       # Display progress
-      cat("History:", hist.ind, "\n")
+      cat("History:", hst.ind, "\n")
       
       # Get simulated family and capture histories of population of animals
       # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
+      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
       
       # Get numbers of animals captured in study
       n.cap.hists <- nrow(pop.cap.hist)
@@ -54,9 +133,9 @@ fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
       
       # Try to fit models
       ppn.tmb.res = TryModelTMB(ppn.obj, ppn.lwr, ppn.upr, "popan")
-      ppn.tmb.ests[hist.ind, ] <- ppn.tmb.res$est.se.df[, 1]
-      ppn.tmb.ses[hist.ind, ] <- ppn.tmb.res$est.se.df[, 2]
-      ppn.tmb.cnvg[hist.ind] = ppn.tmb.res$cnvg
+      ppn.tmb.ests[hst.ind, ] <- ppn.tmb.res$est.se.df[, 1]
+      ppn.tmb.ses[hst.ind, ] <- ppn.tmb.res$est.se.df[, 2]
+      ppn.tmb.cnvg[hst.ind] = ppn.tmb.res$cnvg
       
       incProgress(1/n.sims())
     }
@@ -84,13 +163,13 @@ fit.ck = reactive(if ("True kinship" %in% mdl.st()) {
   
   # Loop over histories
   withProgress({
-    for (hist.ind in 1:n.sims()) {
+    for (hst.ind in 1:n.sims()) {
       # Display progress
-      cat("History:", hist.ind, "\n")
+      cat("History:", hst.ind, "\n")
       
       # Get simulated family and capture histories of population of animals
       # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
+      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
       
       # Get numbers of animals captured in each survey
       ns.caps <- attributes(pop.cap.hist)$ns.caps
@@ -118,9 +197,9 @@ fit.ck = reactive(if ("True kinship" %in% mdl.st()) {
       # If optimiser did not give error
       if(!all(is.na(ck.tmb.res))) {
         # Store results separately
-        ck.tmb.ests[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
-        ck.tmb.ses[hist.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 2]
-        ck.tmb.cnvg[hist.ind] = ck.tmb.res$cnvg
+        ck.tmb.ests[hst.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
+        ck.tmb.ses[hst.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 2]
+        ck.tmb.cnvg[hst.ind] = ck.tmb.res$cnvg
       }
       
       incProgress(1/n.sims())
@@ -149,39 +228,46 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
   
   # Loop over histories
   withProgress({
-    for (hist.ind in 1:n.sims()) {
+    for (hst.ind in 1:n.sims()) {
       # Display progress
-      cat("History:", hist.ind, "\n")
+      cat("History:", hst.ind, "\n")
       
       # Get simulated family and capture histories of population of animals
       # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
+      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
       
       # Update optimiser starting-values and bounds
       ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
       ck.lwr[3] <- attributes(pop.cap.hist)$ns.caps[k()]
       
-      # Genopair model inputs, list of 2, genopair probabilities given kinship
-      # set, n_pairs x n_kinships, and sample-year index pairs, n_pairs x 2
-      Gp.Mdl.Inpts = gp.mdl.inpts()[[hist.ind]]
+      print("fll.GpPs.lst()[[hst.ind]]")
+      print(str(fll.GpPs.lst()[[hst.ind]]))
+      print("Correct, n_pairs x n_kinships")
+      
+      print("fll.SYIPs.lst()[[hst.ind]]")
+      print(str(fll.SYIPs.lst()[[hst.ind]]))
+      print("Correct, n_pairs x 2")
+      
+      print("knshp.st.bln")
+      print(knshp.st.bln())
       
       # Make objective function
       obj = MakeTMBObj(
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), knshp_st_bool = knshp.st.bln(),
-        gp_probs = Gp.Mdl.Inpts$GPPs, 
-        smp_yr_ind_prs = Gp.Mdl.Inpts$smp.yr.ind.prs
+        gp_probs = fll.GpPs.lst()[[hst.ind]], 
+        smp_yr_ind_prs = fll.SYIPs.lst()[[hst.ind]]
       )
-      
+
       # Try to fit genopair likelihood model
       gp.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "genopair")
       
       # If optimiser did not give error
       if(!all(is.na(gp.tmb.res))) {
-        gp.tmb.ests[hist.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 1]
-        gp.tmb.ses[hist.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 2]
-        gp.tmb.cnvg[hist.ind] = gp.tmb.res$cnvg
+        gp.tmb.ests[hst.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 1]
+        gp.tmb.ses[hst.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 2]
+        gp.tmb.cnvg[hst.ind] = gp.tmb.res$cnvg
       }
       
       incProgress(1/n.sims())
@@ -210,13 +296,13 @@ fit.os = reactive(if ("Offset genopair" %in% mdl.st()) {
   
   # Loop over histories
   withProgress({
-    for (hist.ind in 1:n.sims()) {
+    for (hst.ind in 1:n.sims()) {
       # Display progress
-      cat("History:", hist.ind, "\n")
+      cat("History:", hst.ind, "\n")
       
       # Get simulated family and capture histories of population of animals
       # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
+      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
       
       # Update optimiser starting-values and bounds
       ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
@@ -240,9 +326,9 @@ fit.os = reactive(if ("Offset genopair" %in% mdl.st()) {
       
       # If optimiser did not give error
       if(!all(is.na(os.tmb.res))) {
-        os.tmb.ests[hist.ind, -(5:(4 + k()))] <- os.tmb.res$est.se.df[, 1]
-        os.tmb.ses[hist.ind, -(5:(4 + k()))] <- os.tmb.res$est.se.df[, 2]
-        os.tmb.cnvg[hist.ind] = os.tmb.res$cnvg
+        os.tmb.ests[hst.ind, -(5:(4 + k()))] <- os.tmb.res$est.se.df[, 1]
+        os.tmb.ses[hst.ind, -(5:(4 + k()))] <- os.tmb.res$est.se.df[, 2]
+        os.tmb.cnvg[hst.ind] = os.tmb.res$cnvg
       }
       
       incProgress(1/n.sims())
@@ -254,48 +340,130 @@ fit.os = reactive(if ("Offset genopair" %in% mdl.st()) {
   list(ests = os.tmb.ests, ses = os.tmb.ses, cnvgs = !os.tmb.cnvg)
 })
 
-# Nullify model-fits when new datasets simulated
+# Nullify objects when new datasets simulated
 observeEvent(input$simulate, {
   fit.lst(NULL)
-  gp.mdl.inpts(NULL)
+  SYIs.lst(NULL)
+  fll.SYIPs.lst(NULL)
+  offst.SYIPs.lst(NULL)
 })
 
-# Find genopair model inputs
+# When fit models button clicked
 observeEvent(input$fit, {
+  # Update reactive values for model and kinship sets
+  mdl.st(input$mdl.st)
+  knshp.st(input$knshp.st)
+  
+  # If fitting a genopair model for first time find sample-year indices
   if (
-    input$nav.tab == "model.tab" && 
-    "Full genopair" %in% mdl.st() && 
-    is.null(gp.mdl.inpts())
+    is.null(SYIs.lst()) &&
+    any(c("Full genopair", "Offset genopair") %in% mdl.st())
   ) {
-    lst = vector("list", n.sims())
+    # Make empty list
+    SYIs.lst.tmp = vector("list", n.sims())
     
     # Loop over histories
     withProgress({
-      for (hist.ind in 1:n.sims()) {
+      for (hst.ind in 1:n.sims()) {
         # Display progress
-        cat("History:", hist.ind, "\n")
+        cat("History:", hst.ind, "\n")
         
         # Get simulated family and capture histories of population of animals
         # over time
-        pop.cap.hist <- sim.lst()$hists.lst[[hist.ind]]
+        pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
         
-        # Genopair model inputs, list of 2, genopair probabilities given kinship
-        # set, n_pairs x n_kinships, and sample-year index pairs, n_pairs x 2
-        lst[[hist.ind]] = FindGpMdlInpts(pop.cap.hist, L(), k(), os.mdl = F)
+        # Sample history matrix, n_individuals x n_surveys, rows ordered by
+        # individual ID
+        smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
+        
+        # Sample-year indices, columns in sample history matrix, representing
+        # the survey that each sample came from, ordered by survey-year then
+        # individual ID.  Counting from zero as will be passed to TMB objective
+        # function
+        SYIs.lst.tmp[[hst.ind]] = col(smp.hsts)[as.logical(smp.hsts)] - 1
         
         incProgress(1/n.sims())
       }
-    }, value = 0, message = "Finding genopair model inputs")
+    }, value = 0, message = "Finding general genopair model inputs")
     
-    gp.mdl.inpts(lst)
+    SYIs.lst(SYIs.lst.tmp)
   }
-})
+  
+  # If fitting full genopair model for first time find survey-year index pairs
+  if (
+    is.null(fll.SYIPs.lst()) &&
+    "Full genopair" %in% mdl.st()
+  ) {
+    fll.SYIPs.lst.tmp = vector("list", n.sims())
+    
+    # Loop over histories
+    withProgress({
+      for (hst.ind in 1:n.sims()) {
+        # Display progress
+        cat("History:", hst.ind, "\n")
+        
+        # Sample-year indices, columns in sample history matrix, representing
+        # the survey that each sample came from, ordered by survey-year then
+        # individual ID.  Counting from zero as will be passed to TMB objective
+        # function
+        smp.yr.inds = SYIs.lst()[[hst.ind]]
+        
+        # Sample index pairs, 2 x n_pairs, representing indices of samples in
+        # all pairs
+        smp.ind.prs.fll = combn(length(smp.yr.inds), 2)
 
-# Combine model estimates and update in fit.lst reactive value
-observeEvent(input$fit, {
-  # Update reactive values
-  mdl.st(input$mdl.st)
-  knshp.st(input$knshp.st)
+        # Sample-year index pairs, n_pairs x 2, representing survey-year of each
+        # sample in each pair, counting from zero as passing into TMB C++
+        # objective function
+        fll.SYIPs.lst.tmp[[hst.ind]] = 
+          matrix(smp.yr.inds[as.vector(t(smp.ind.prs.fll))], ncol = 2)
+        
+        print("SYIPs")
+        print(str(fll.SYIPs.lst.tmp[[hst.ind]]))
+        
+        incProgress(1/n.sims())
+      }
+    }, value = 0, message = "Finding all survey-year index pairs")
+    
+    fll.SYIPs.lst(fll.SYIPs.lst.tmp)
+  }
+  
+  # If fitting offset genopair model for first time find offset survey-year
+  # index pairs
+  if (
+    is.null(offst.SYIPs.lst()) &&
+    "Offset genopair" %in% mdl.st()
+  ) {
+    offst.SYIPs.lst.tmp = vector("list", n.sims())
+    
+    # Loop over histories
+    withProgress({
+      for (hst.ind in 1:n.sims()) {
+        # Display progress
+        cat("History:", hst.ind, "\n")
+        
+        # Sample-year indices, columns in sample history matrix, representing
+        # the survey that each sample came from, ordered by survey-year then
+        # individual ID.  Counting from zero as will be passed to TMB objective
+        # function
+        smp.yr.inds = SYIs.lst()[[hst.ind]]
+        
+        # Sample index pairs for just consecutive
+        # pairs
+        smp.ind.prs.offst = FindSIPsOffset(k(), smp.yr.inds)
+        
+        # Sample-year index pairs, n_pairs x 2, representing survey-year of each
+        # sample in each offset pair, counting from zero as passing into TMB C++
+        # objective function
+        offst.SYIPs.lst.tmp[[hst.ind]] = 
+          matrix(smp.yr.inds[as.vector(t(smp.ind.prs.offst))], ncol = 2)
+        
+        incProgress(1/n.sims())
+      }
+    }, value = 0, message = "Finding offset survey-year index pairs")
+    
+    offst.SYIPs.lst(offst.SYIPs.lst.tmp)
+  }
   
   # Boolean for models requested 
   mod.bool = mdl.chcs %in% mdl.st()
@@ -310,8 +478,9 @@ observeEvent(input$fit, {
   ]
   names(ests) = names(ses) = names(cnvgs) = mdl.st()
   
-  # Update list
+  # Update list of model fits
   fit.lst(list(ests = ests, ses = ses, cnvgs = cnvgs))
+  
 })
 
 # Check when optimizer converged and standard errors calculable
