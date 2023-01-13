@@ -56,11 +56,19 @@ fll.GpPs.lst = reactive({
       # individual ID
       smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
       
+      # Sample-year indices, columns in sample history matrix, representing the
+      # survey that each sample came from, ordered by survey-year then
+      # individual ID.  Counting from zero as will be passed to TMB objective
+      # function
+      smp.yr.inds = col(smp.hsts)[as.logical(smp.hsts)] - 1
+      
+      # Sample index pairs, 2 x n_pairs, representing indices of samples in each
+      # pair
+      smp.ind.prs = combn(length(smp.yr.inds), 2)
+
       # Sample genotypes, extracted from matrix of individual genotypes,
       # n_samples x n_loci, rows ordered by survey-year then individual ID
       smp.gts = FindSmpGts(smp.hsts, attributes(pop.cap.hist)$unq.smp.gts)
-
-      smp.ind.prs = t(fll.SYIPs.lst()[[hst.ind]])
 
       # Possible genopair probabilities given kinship set,
       # n_possible_genotypes x n_possible_genotypes x n_loci x n_kinships,
@@ -240,16 +248,16 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
       ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
       ck.lwr[3] <- attributes(pop.cap.hist)$ns.caps[k()]
       
-      print("fll.GpPs.lst()[[hst.ind]]")
-      print(str(fll.GpPs.lst()[[hst.ind]]))
-      print("Correct, n_pairs x n_kinships")
-      
-      print("fll.SYIPs.lst()[[hst.ind]]")
-      print(str(fll.SYIPs.lst()[[hst.ind]]))
-      print("Correct, n_pairs x 2")
-      
-      print("knshp.st.bln")
-      print(knshp.st.bln())
+      # print("fll.GpPs.lst()[[hst.ind]]")
+      # print(str(fll.GpPs.lst()[[hst.ind]]))
+      # print("Correct, n_pairs x n_kinships")
+      # 
+      # print("fll.SYIPs.lst()[[hst.ind]]")
+      # print(str(fll.SYIPs.lst()[[hst.ind]]))
+      # print("Correct, n_pairs x 2")
+      # 
+      # print("knshp.st.bln")
+      # print(knshp.st.bln())
       
       # Make objective function
       obj = MakeTMBObj(
@@ -417,10 +425,7 @@ observeEvent(input$fit, {
         # objective function
         fll.SYIPs.lst.tmp[[hst.ind]] = 
           matrix(smp.yr.inds[as.vector(t(smp.ind.prs.fll))], ncol = 2)
-        
-        print("SYIPs")
-        print(str(fll.SYIPs.lst.tmp[[hst.ind]]))
-        
+
         incProgress(1/n.sims())
       }
     }, value = 0, message = "Finding all survey-year index pairs")

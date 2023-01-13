@@ -431,12 +431,13 @@ ui <- fluidPage(
             inputId = "mdl.st", label = "Models to fit",
             choices = mdl.chcs, 
             # selected = mdl.chcs
-            selected = "Full genopair"
+            selected = c("True kinship", "Full genopair")
           ),
           checkboxGroupInput(
             inputId = "knshp.st", label = "Kinships to include",
             choices = knshp.chcs,
-            selected = knshp.chcs
+            # selected = knshp.chcs
+            selected = c("Self", "Parent-offspring")
           ),
           actionButton(
             inputId = "fit", label = "Fit models"
