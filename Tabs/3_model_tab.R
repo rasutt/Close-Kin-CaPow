@@ -13,9 +13,6 @@ pss.GpPs.lst = reactive({
   # Loop over histories
   withProgress({
     for (hst.ind in 1:n.sims()) {
-      # Display progress
-      cat("History:", hst.ind, "\n")
-      
       # Get simulated family and capture histories of population of animals
       # over time
       pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
@@ -32,7 +29,7 @@ pss.GpPs.lst = reactive({
 
       incProgress(1/n.sims())
     }
-  }, value = 0, message = "Finding general genopair model inputs")
+  }, value = 0, message = "Finding possible genopair probabilities")
   
   pss.GpPs.lst.tmp
 })
@@ -45,9 +42,6 @@ fll.GpPs.lst = reactive({
   # Loop over histories
   withProgress({
     for (hst.ind in 1:n.sims()) {
-      # Display progress
-      cat("History:", hst.ind, "\n")
-      
       # Get simulated family and capture histories of population of animals
       # over time
       pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
@@ -87,7 +81,7 @@ fll.GpPs.lst = reactive({
 
       incProgress(1/n.sims())
     }
-  }, value = 0, message = "Finding genopair model inputs")
+  }, value = 0, message = "Finding all genopair probabilities")
   
   fll.GpPs.lst.tmp
 })
@@ -350,6 +344,7 @@ fit.os = reactive(if ("Offset genopair" %in% mdl.st()) {
 
 # Nullify objects when new datasets simulated
 observeEvent(input$simulate, {
+  knshp.st(NULL)
   fit.lst(NULL)
   SYIs.lst(NULL)
   fll.SYIPs.lst(NULL)
@@ -373,9 +368,6 @@ observeEvent(input$fit, {
     # Loop over histories
     withProgress({
       for (hst.ind in 1:n.sims()) {
-        # Display progress
-        cat("History:", hst.ind, "\n")
-        
         # Get simulated family and capture histories of population of animals
         # over time
         pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
@@ -392,7 +384,7 @@ observeEvent(input$fit, {
         
         incProgress(1/n.sims())
       }
-    }, value = 0, message = "Finding general genopair model inputs")
+    }, value = 0, message = "Finding sample-year indices")
     
     SYIs.lst(SYIs.lst.tmp)
   }
@@ -407,9 +399,6 @@ observeEvent(input$fit, {
     # Loop over histories
     withProgress({
       for (hst.ind in 1:n.sims()) {
-        # Display progress
-        cat("History:", hst.ind, "\n")
-        
         # Sample-year indices, columns in sample history matrix, representing
         # the survey that each sample came from, ordered by survey-year then
         # individual ID.  Counting from zero as will be passed to TMB objective
@@ -428,7 +417,7 @@ observeEvent(input$fit, {
 
         incProgress(1/n.sims())
       }
-    }, value = 0, message = "Finding all survey-year index pairs")
+    }, value = 0, message = "Finding all sample-year index pairs")
     
     fll.SYIPs.lst(fll.SYIPs.lst.tmp)
   }
@@ -444,9 +433,6 @@ observeEvent(input$fit, {
     # Loop over histories
     withProgress({
       for (hst.ind in 1:n.sims()) {
-        # Display progress
-        cat("History:", hst.ind, "\n")
-        
         # Sample-year indices, columns in sample history matrix, representing
         # the survey that each sample came from, ordered by survey-year then
         # individual ID.  Counting from zero as will be passed to TMB objective
@@ -465,7 +451,7 @@ observeEvent(input$fit, {
         
         incProgress(1/n.sims())
       }
-    }, value = 0, message = "Finding offset survey-year index pairs")
+    }, value = 0, message = "Finding offset sample-year index pairs")
     
     offst.SYIPs.lst(offst.SYIPs.lst.tmp)
   }
@@ -498,45 +484,48 @@ check.ests = reactive({
   # Matrix for confidence interval coverage
   prpn.ci.cov = matrix(NA, n.mods(), n.pars())
   
-  # Loop over models requested
-  for (i in 1:n.mods()) {
-    # Find where model fit successfully
-    ses.ok[[i]] = rowSums(is.na(fit.lst()$ses[[i]][, 1:4])) == 0
-    cis.ok[[i]] = fit.lst()$cnvgs[[i]] & ses.ok[[i]]
-    ests[[i]] = fit.lst()$ests[[i]][cis.ok[[i]], , drop = F]
-    ses[[i]] = fit.lst()$ses[[i]][cis.ok[[i]], , drop = F]
-    
-    # Find differences between population parameter estimates and true values
-    N.fin.errs[[i]] = ests[[i]][, 3] / sim.lst()$N.fin.vec[cis.ok[[i]]] - 1
-    Ns.errs[[i]] = ests[[i]][, 4] / sim.lst()$Ns.vec[cis.ok[[i]]] - 1
-    
-    # Confidence intervals (creates matrices of correct size)
-    radius = 1.96 * fit.lst()$ses[[i]]
-    lcbs[[i]] = fit.lst()$ests[[i]] - radius
-    ucbs[[i]] = fit.lst()$ests[[i]] + radius
-    
-    # Overwrite with log-normal CI's for population parameters
-    l.vars = 
-      log(1 + (fit.lst()$ses[[i]][, 3:4] / fit.lst()$ests[[i]][, 3:4])^2)
-    fctr <- exp(1.959964 * sqrt(l.vars))
-    lcbs[[i]][, 3:4] <- fit.lst()$ests[[i]][, 3:4] / fctr
-    ucbs[[i]][, 3:4] <- fit.lst()$ests[[i]][, 3:4] * fctr
-    
-    # Bounds are matrices for studies x parameters, par.vals is a vector for
-    # parameters, and cis.ok is a vector for studies
-    ci.cov[[i]] = 
-      t(par.vals() > t(lcbs[[i]]) & par.vals() < t(ucbs[[i]])) & cis.ok[[i]]
-    
-    # Overwrite for population parameters
-    true.pops = cbind(sim.lst()$N.fin.vec, sim.lst()$Ns.vec)
-    ci.cov[[i]][, 3:4] = 
-      true.pops > lcbs[[i]][, 3:4] & true.pops < ucbs[[i]][, 3:4] & cis.ok[[i]]
-    
-    # Find proportions
-    prpn.ci.cov[i, ] = colMeans(ci.cov[[i]])
-    prpn.cnvgd[i] = mean(fit.lst()$cnvgs[[i]])
-    prpn.ses.ok[i] = mean(ses.ok[[i]])
-    prpn.cis.ok[i] = mean(cis.ok[[i]])
+  if(!is.null(fit.lst())) {
+    # Loop over models requested
+    for (i in 1:n.mods()) {
+      # Find where model fit successfully
+      ses.ok[[i]] = rowSums(is.na(fit.lst()$ses[[i]][, 1:4])) == 0
+      cis.ok[[i]] = fit.lst()$cnvgs[[i]] & ses.ok[[i]]
+      ests[[i]] = fit.lst()$ests[[i]][cis.ok[[i]], , drop = F]
+      ses[[i]] = fit.lst()$ses[[i]][cis.ok[[i]], , drop = F]
+      
+      # Find differences between population parameter estimates and true values
+      N.fin.errs[[i]] = ests[[i]][, 3] / sim.lst()$N.fin.vec[cis.ok[[i]]] - 1
+      Ns.errs[[i]] = ests[[i]][, 4] / sim.lst()$Ns.vec[cis.ok[[i]]] - 1
+      
+      # Confidence intervals (creates matrices of correct size)
+      radius = 1.96 * fit.lst()$ses[[i]]
+      lcbs[[i]] = fit.lst()$ests[[i]] - radius
+      ucbs[[i]] = fit.lst()$ests[[i]] + radius
+      
+      # Overwrite with log-normal CI's for population parameters
+      l.vars = 
+        log(1 + (fit.lst()$ses[[i]][, 3:4] / fit.lst()$ests[[i]][, 3:4])^2)
+      fctr <- exp(1.959964 * sqrt(l.vars))
+      lcbs[[i]][, 3:4] <- fit.lst()$ests[[i]][, 3:4] / fctr
+      ucbs[[i]][, 3:4] <- fit.lst()$ests[[i]][, 3:4] * fctr
+      
+      # Bounds are matrices for studies x parameters, par.vals is a vector for
+      # parameters, and cis.ok is a vector for studies
+      ci.cov[[i]] = 
+        t(par.vals() > t(lcbs[[i]]) & par.vals() < t(ucbs[[i]])) & cis.ok[[i]]
+      
+      # Overwrite for population parameters
+      true.pops = cbind(sim.lst()$N.fin.vec, sim.lst()$Ns.vec)
+      ci.cov[[i]][, 3:4] = 
+        true.pops > lcbs[[i]][, 3:4] & true.pops < ucbs[[i]][, 3:4] & 
+        cis.ok[[i]]
+      
+      # Find proportions
+      prpn.ci.cov[i, ] = colMeans(ci.cov[[i]])
+      prpn.cnvgd[i] = mean(fit.lst()$cnvgs[[i]])
+      prpn.ses.ok[i] = mean(ses.ok[[i]])
+      prpn.cis.ok[i] = mean(cis.ok[[i]])
+    }
   }
   
   names(ests) = names(ses) = names(cis.ok) = names(lcbs) = names(ucbs) = 
@@ -560,9 +549,11 @@ output$nDatasets = renderTable({
 
 # Show number of datasets models fit to
 output$knshpSt = renderTable({
-  df = data.frame(knshp.st())
-  names(df) = "Kinships included"
-  df
+  if(!is.null(knshp.st())) {
+    df = data.frame(knshp.st())
+    names(df) = "Kinships included"
+    df
+  }
 })
 
 # Show convergence, standard error acceptance, and confidence interval
@@ -620,54 +611,58 @@ output$CICov = renderTable({
 
 # Plot confidence intervals for lambda
 output$CIPlot = renderPlot({
-  par(mfrow = c(n.mods(), 1), mar = c(3.1, 4.1, 2.1, 2.1))
-  # Loop over models requested
-  for (m in 1:n.mods()) {
-    # Loop over parameters, just lambda for now
-    for (p in 1) {
-      ord = order(fit.lst()$ests[[m]][, p])
-      
-      # If no valid estimates create empty plot
-      if (all(is.na(fit.lst()$ses[[m]][, p]))) {
-        plot(
-          1:n.sims(), 
-          rep(par.vals()[p], n.sims()), 
-          main = mdl.st()[m], ylab = est.par.names()[p], xlab = "", 
-          type = 'n'
+  if(!is.null(fit.lst())) {
+    # Set space for multiple plots and set their margins
+    par(mfrow = c(n.mods(), 1), mar = c(3.1, 4.1, 2.1, 2.1))
+    
+    # Loop over models requested
+    for (m in 1:n.mods()) {
+      # Loop over parameters, just lambda for now
+      for (p in 1) {
+        ord = order(fit.lst()$ests[[m]][, p])
+        
+        # If no valid estimates create empty plot
+        if (all(is.na(fit.lst()$ses[[m]][, p]))) {
+          plot(
+            1:n.sims(), 
+            rep(par.vals()[p], n.sims()), 
+            main = mdl.st()[m], ylab = est.par.names()[p], xlab = "", 
+            type = 'n'
+          )
+        } 
+        # Otherwise plot CIs
+        else {
+          # Setup plot
+          plot(
+            rep(1:n.sims(), 2), 
+            c(check.ests()$lcbs[[m]][, p], check.ests()$ucbs[[m]][, p]), 
+            main = mdl.st()[m], ylab = est.par.names()[p], xlab = "", 
+            type = 'n'
+          )
+        }
+        # Plot estimates
+        points(
+          1:n.sims(), fit.lst()$ests[[m]][ord, p], pch = "-", 
+          col = 1 + !check.ests()$ci.cov[[m]][ord, p]
         )
-      } 
-      # Otherwise plot CIs
-      else {
-        # Setup plot
-        plot(
-          rep(1:n.sims(), 2), 
-          c(check.ests()$lcbs[[m]][, p], check.ests()$ucbs[[m]][, p]), 
-          main = mdl.st()[m], ylab = est.par.names()[p], xlab = "", 
-          type = 'n'
+        # Plot intervals
+        arrows(
+          1:n.sims(), check.ests()$lcbs[[m]][ord, p], 
+          1:n.sims(), check.ests()$ucbs[[m]][ord, p], 
+          code = 3, length = 0.02, angle = 90, 
+          col = 1 + !check.ests()$ci.cov[[m]][ord, p]
         )
+        # True parameter value
+        abline(h = par.vals()[p], col = 2)
+        # abline(h = c(lb(), ub()))
+        # legend(
+        #   "topleft", col = 1:2, lwd = c(1, 1), 
+        #   legend = c(
+        #     "Optimizer converged and CI covers true value", 
+        #     "Did not converge and/or does not cover"
+        #   )
+        # )
       }
-      # Plot estimates
-      points(
-        1:n.sims(), fit.lst()$ests[[m]][ord, p], pch = "-", 
-        col = 1 + !check.ests()$ci.cov[[m]][ord, p]
-      )
-      # Plot intervals
-      arrows(
-        1:n.sims(), check.ests()$lcbs[[m]][ord, p], 
-        1:n.sims(), check.ests()$ucbs[[m]][ord, p], 
-        code = 3, length = 0.02, angle = 90, 
-        col = 1 + !check.ests()$ci.cov[[m]][ord, p]
-      )
-      # True parameter value
-      abline(h = par.vals()[p], col = 2)
-      # abline(h = c(lb(), ub()))
-      # legend(
-      #   "topleft", col = 1:2, lwd = c(1, 1), 
-      #   legend = c(
-      #     "Optimizer converged and CI covers true value", 
-      #     "Did not converge and/or does not cover"
-      #   )
-      # )
     }
   }
 })
