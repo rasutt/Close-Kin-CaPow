@@ -558,7 +558,7 @@ output$knshpSt = renderTable({
 
 # Show convergence, standard error acceptance, and confidence interval
 # acceptance rates for all models requested
-output$modStats = renderTable({
+output$mdlFtRts = renderTable({
   perc = function(stat) paste0(round(stat * 100, 1), "%")
   df = data.frame(
     mdl.st(), 
@@ -575,8 +575,73 @@ output$modStats = renderTable({
   df
 })
 
+# Function to find empirical CV and bias
+findBiasCV = function(ests.lst, true.vals) {
+  # Make matrices
+  ests.bias = ests.cv = matrix(NA, n.mods(), n.pars())
+  
+  # Find empirical CVs and biases
+  ests.means = sapply(ests.lst, colMeans)
+  ests.sds = sapply(ests.lst, apply, 2, sd)
+  
+  # Loop over parameters
+  for (i in 1:n.pars()) {
+    true.val = true.vals[i]
+    ests.mean = ests.means[i, ]
+    ests.sd = ests.sds[i, ]
+    
+    # If the true value for this parameter is zero
+    if (true.val == 0) {
+      # Find proportional differences
+      ests.bias[, i] <- ests.mean * 100
+      ests.cv[, i] <- ests.sd * 100
+    } else {
+      # Find standard estimates
+      ests.bias[, i] <- (ests.mean - true.val) / true.val * 100
+      ests.cv[, i] <- ests.sd / ests.mean * 100
+    }
+  }
+  
+  # Return as list
+  list(bias = ests.bias, cv = ests.cv)
+}
+
+# Find CV and bias for estimates
+est.bias.cv = reactive({
+  findBiasCV(check.ests()$ests, par.vals())
+})
+
+# Show estimator performance in terms of bias and coefficient of variation
+output$estBias = renderTable({
+  if (length(check.ests()$ests) > 0 && !is.null(nrow(check.ests()$ests[[1]]))) {
+    df = data.frame(cbind(
+      mdl.st(), matrix(paste0(round(est.bias.cv()$bias, 1), "%"), n.mods())
+    ))
+    names(df) = c("Model", par.names())
+    df
+  }
+})
+
+# Show estimator performance in terms of bias and coefficient of variation
+output$estCV = renderTable({
+  if (length(check.ests()$ests) > 0 && !is.null(nrow(check.ests()$ests[[1]]))) {
+    df = data.frame(cbind(
+      mdl.st(), matrix(paste0(round(est.bias.cv()$cv, 1), "%"), n.mods())
+    ))
+    names(df) = c("Model", par.names())
+    df 
+  }
+})
+
+# Function to compare estimates from POPAN and close kin models
+ComparisonPlot <- function(ests.lst, par, true.val) {
+  # Plot estimates
+  boxplot(ests.lst, main = par, show.names = T)
+  abline(h = true.val, col = 'red')
+}
+
 # Plot estimates using model comparison plot function
-output$modComp <- renderPlot({
+output$mdlCmpnPlt <- renderPlot({
   # If any estimates OK
   if(any(check.ests()$prpn.cis.ok > 0)) {
     # Set four plots per figure

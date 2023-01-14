@@ -431,7 +431,8 @@ ui <- fluidPage(
             inputId = "mdl.st", label = "Models to fit",
             choices = mdl.chcs, 
             # selected = mdl.chcs
-            selected = c("True kinship", "Full genopair")
+            # selected = c("True kinship", "Full genopair")
+            selected = "True kinship"
           ),
           checkboxGroupInput(
             inputId = "knshp.st", label = "Kinships to include",
@@ -447,10 +448,15 @@ ui <- fluidPage(
           h2("Compare model performance"),
           tableOutput(outputId = "nDatasets"),
           tableOutput(outputId = "knshpSt"),
-          h3("Model fitting success rates"),
-          tableOutput(outputId = "modStats"),
-          h3("Estimates"),
-          plotOutput(outputId = "modComp"),
+          h3("Model fitting"),
+          tableOutput(outputId = "mdlFtRts"),
+          h3("Estimator performance"),
+          h4("Bias"),
+          tableOutput(outputId = "estBias"),
+          h4("Coefficient of variation"),
+          tableOutput(outputId = "estCV"),
+          h4("Estimates/errors"),
+          plotOutput(outputId = "mdlCmpnPlt"),
           h3("95% confidence interval coverage"),
           tableOutput(outputId = "CICov"),
           h3("95% confidence intervals for lambda"),
