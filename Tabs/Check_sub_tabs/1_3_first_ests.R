@@ -35,7 +35,7 @@ ck.obj = reactive({
   MakeTMBObj(
     ck.start(), "true kinship",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-    alpha = alpha(), 
+    alpha = alpha(), knshp_st_bool = all.knshps.bln,
     ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ], 
     ns_POPs_btn = ns.kps.lst$btn[2, ], ns_HSPs_wtn = ns.kps.lst$wtn[2, ],
     ns_HSPs_btn = ns.kps.lst$btn[3, ], ns_caps = ns.caps
@@ -47,7 +47,7 @@ GPP.obj.fll = reactive({
   MakeTMBObj(
     ck.start(), "genopair",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-    alpha = alpha(), 
+    alpha = alpha(), knshp_st_bool = all.knshps.bln,
     gp_probs = GPPs.fll(), smp_yr_ind_prs = frst.SYIPs.fll()
   )
 })
@@ -55,7 +55,7 @@ GPP.obj.offst = reactive({
   MakeTMBObj(
     ck.start(), "genopair",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-    alpha = alpha(), 
+    alpha = alpha(), knshp_st_bool = all.knshps.bln, 
     gp_probs = GPPs.offst(), smp_yr_ind_prs = frst.SYIPs.offst()
   )
 })

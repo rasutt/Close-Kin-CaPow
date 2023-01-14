@@ -8,7 +8,8 @@ frst.ale.frqs = reactive(FindAleFrqs(FS.atts()$unq.smp.gts))
 # Probabilities of possible genopairs at each locus as 3 x 3 x L arrays, where
 # rows represent the first genotypes, and columns the second, ordered as 00, 01,
 # and 11, for binary SNPs.
-frst.pss.gp.prbs.KPs = reactive(FindPssGPPsKPs(frst.ale.frqs(), L()))
+frst.pss.gp.prbs.KPs = 
+  reactive(FindPssGPPsKPs(frst.ale.frqs(), L(), knshp.chcs))
 
 # Sample histories from first study, (n_animals x n_surveys)
 frst.smp.hsts = reactive(as.matrix(fst.std()[, 4:(3 + k())]))
@@ -121,9 +122,16 @@ output$firstGTs = renderTable({
 # Table showing allele frequencies
 output$firstAFs = renderTable({
   df = data.frame(frst.ale.frqs())
-  # df = data.frame(asNumeric(ale.frqs()))
   names(df) = paste0("L", 1:L())
   row.names(df) = 0:1
+  df
+}, rownames = T)
+
+# Table showing possible genotype probabilities
+output$firstGtPrbs = renderTable({
+  df = data.frame(FindPssGtPrbs(frst.ale.frqs()))
+  names(df) = paste0("L", 1:L())
+  row.names(df) = pss.gt.lbls
   df
 }, rownames = T)
 
@@ -131,7 +139,7 @@ output$firstAFs = renderTable({
 frmt.gpps = function(gpps) {
   df = data.frame(gpps)
   # df = data.frame(asNumeric(gpps))
-  names(df) = row.names(df) = c("00", "01", "11")
+  names(df) = row.names(df) = pss.gt.lbls
   df
 }
 
@@ -229,9 +237,9 @@ output$firstFewGPPsFll = renderTable({
   df
 }, digits = 6)
 
-# Table of genopair probabilities of first few offset pairs (order is random to
-# avoid bias due to age representation when individuals repeated to include
-# pairs between surveys with different numbers of samples)
+# Show table of genopair probabilities for first few offset pairs (order is
+# random to avoid bias due to age representation when individuals repeated to
+# include pairs between surveys with different numbers of samples)
 output$firstFewGPPsOffst = renderTable({
   df = data.frame(cbind(
     matrix(

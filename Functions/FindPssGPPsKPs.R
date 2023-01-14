@@ -118,15 +118,12 @@ FindPssGPPsKPs = function(ale.frqs, L, knshp.st) {
     pss.gp.prbs.HSP = NULL
   }
   
-  # Possible genotypes for row and column-names
-  pss.gts = c("00", "01", "11")
-  
   # Combine genopair probabilities for selected kinships and return
   array(
     c(pss.gp.prbs.UP, pss.gp.prbs.HSP, pss.gp.prbs.POP, pss.gp.prbs.SP),
     dim = c(n.pss.gts, n.pss.gts, L, length(knshp.st) + 1),
     dimnames = list(
-      gt.1 = pss.gts, gt.2 = pss.gts, Locus = paste0("L", 1:L),
+      gt.1 = pss.gt.lbls, gt.2 = pss.gt.lbls, Locus = paste0("L", 1:L),
       Kinship = c("UP", c("HSP", "POP", "SP")[rev(knshp.chcs) %in% knshp.st])
     )
   )

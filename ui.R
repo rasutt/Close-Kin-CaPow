@@ -47,7 +47,7 @@ ui <- fluidPage(
   navbarPage(
     title = "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "model.tab",
+    selected = "check.tab",
     position = "fixed-top",
     
     # Sim tab ----
@@ -143,7 +143,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "frst.KPs.tb",
+        selected = "frst.gts.tb",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
@@ -241,18 +241,23 @@ ui <- fluidPage(
              different surveys."),
           tableOutput(outputId = "firstAFs"),
           
+          h3("Genotype probabilities"),
+          p("Probabilities of possible genotypes assuming that genes are 
+            inherited with probabilities given by their frequencies above."),
+          tableOutput(outputId = "firstGtPrbs"),
+          
           h3("Genopair probabilities given kinship"),
           p("Possible values at first locus."),
           fluidRow(
-            column(3, h5("Unrelated"), tableOutput(outputId = "firstGPPsUP")),
+            column(3, h4("Unrelated"), tableOutput(outputId = "firstGPPsUP")),
             column(
-              3, h5("Half-siblings"), tableOutput(outputId = "firstGPPsHSP")
+              3, h4("Half-siblings"), tableOutput(outputId = "firstGPPsHSP")
             ),
             column(
-              3, h5("Parent-offspring"), tableOutput(outputId = "firstGPPsPOP")
+              3, h4("Parent-offspring"), tableOutput(outputId = "firstGPPsPOP")
             ),
             column(
-              3, h5("Self-resample"), tableOutput(outputId = "firstGPPsSP")
+              3, h4("Self-resample"), tableOutput(outputId = "firstGPPsSP")
             )
           ),
           
@@ -295,7 +300,8 @@ ui <- fluidPage(
           title = "First study estimates",
           value = "frst.ests.tb",
           h2("First study estimates"),
-          p("Parameter estimates for first simulated study."),
+          p("Parameter estimates for first simulated study. Close-kin models 
+             include self, parent-offspring, and half-sibling pairs."),
 
           h3("Likelihood surface near true parameter values"),
           p("Negative log-likelihood over each parameter while others held at 

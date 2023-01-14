@@ -11,6 +11,7 @@ mdl.chcs = c("Popan", "True kinship", "Full genopair", "Offset genopair")
 
 # Kinship choices for models
 knshp.chcs = c("Self", "Parent-offspring", "Half-sibling")
+all.knshps.bln = rep(1, 3)
 
 # Set simulation parameters for basic scenario
 stch.bths <- T # Set whether numbers of births stochastic
@@ -82,6 +83,7 @@ rglr.kp.ids = c("APs", "POPs", "SMPs", "SFPs", "FSPs", "HSPs")
 # alleles as 1 and 2 respectively, to index corresponding allele frequencies
 pss.gts = cbind(c(1, 1), 1:2, c(2, 2))
 n.pss.gts = 3
+pss.gt.lbls = c("00", "01", "11")
 
 # Find possible genopairs by indexing possible genotypes to get all combinations
 pss.gts.1 = pss.gts[, rep(1:n.pss.gts, n.pss.gts)]
