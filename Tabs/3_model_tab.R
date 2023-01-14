@@ -312,8 +312,9 @@ fit.os = reactive(if ("Offset genopair" %in% mdl.st()) {
       
       # Genopair model inputs, list of 2, genopair probabilities given kinship
       # set, n_pairs x n_kinships, and sample-year index pairs, n_pairs x 2
-      Gp.Mdl.Inpts = FindGpMdlInpts(pop.cap.hist, L(), k(), os.mdl = T)
-      
+      Gp.Mdl.Inpts = 
+        FindGpMdlInpts(pop.cap.hist, L(), k(), os.mdl = T, knshp.st())
+
       # Make objective function
       obj = MakeTMBObj(
         ck.start, "genopair",
@@ -575,18 +576,19 @@ output$mdlFtRts = renderTable({
   df
 })
 
-# Function to find empirical CV and bias
-findBiasCV = function(ests.lst, true.vals) {
+# Find CV and bias for estimates
+est.bias.cv = reactive({
   # Make matrices
   ests.bias = ests.cv = matrix(NA, n.mods(), n.pars())
   
   # Find empirical CVs and biases
+  ests.lst = check.ests()$ests
   ests.means = sapply(ests.lst, colMeans)
   ests.sds = sapply(ests.lst, apply, 2, sd)
   
   # Loop over parameters
   for (i in 1:n.pars()) {
-    true.val = true.vals[i]
+    true.val = par.vals()[i]
     ests.mean = ests.means[i, ]
     ests.sd = ests.sds[i, ]
     
@@ -604,34 +606,24 @@ findBiasCV = function(ests.lst, true.vals) {
   
   # Return as list
   list(bias = ests.bias, cv = ests.cv)
+})
+
+# Function to make estimate performance table for output
+makeEstPrfTbl = function(vals) {
+  if (length(check.ests()$ests) > 0 && !is.null(nrow(check.ests()$ests[[1]]))) {
+    df = data.frame(cbind(
+    mdl.st(), matrix(paste0(round(vals, 1), "%"), n.mods())
+  ))
+  names(df) = c("Model", par.names())
+  df
+  }
 }
 
-# Find CV and bias for estimates
-est.bias.cv = reactive({
-  findBiasCV(check.ests()$ests, par.vals())
-})
+# Show estimator performance in terms of bias and coefficient of variation
+output$estBias = renderTable(makeEstPrfTbl(est.bias.cv()$bias))
 
 # Show estimator performance in terms of bias and coefficient of variation
-output$estBias = renderTable({
-  if (length(check.ests()$ests) > 0 && !is.null(nrow(check.ests()$ests[[1]]))) {
-    df = data.frame(cbind(
-      mdl.st(), matrix(paste0(round(est.bias.cv()$bias, 1), "%"), n.mods())
-    ))
-    names(df) = c("Model", par.names())
-    df
-  }
-})
-
-# Show estimator performance in terms of bias and coefficient of variation
-output$estCV = renderTable({
-  if (length(check.ests()$ests) > 0 && !is.null(nrow(check.ests()$ests[[1]]))) {
-    df = data.frame(cbind(
-      mdl.st(), matrix(paste0(round(est.bias.cv()$cv, 1), "%"), n.mods())
-    ))
-    names(df) = c("Model", par.names())
-    df 
-  }
-})
+output$estCV = renderTable(makeEstPrfTbl(est.bias.cv()$cv))
 
 # Function to compare estimates from POPAN and close kin models
 ComparisonPlot <- function(ests.lst, par, true.val) {

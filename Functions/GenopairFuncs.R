@@ -101,7 +101,7 @@ FindGPPs = function(LGPPs) {
   }
 }
 
-FindGpMdlInpts <- function(pop.cap.hist, L, k, os.mdl) {
+FindGpMdlInpts <- function(pop.cap.hist, L, k, os.mdl, knshp.st) {
   # Sample history matrix, n_individuals x n_surveys, rows ordered by
   # individual ID
   smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k)])
@@ -139,7 +139,7 @@ FindGpMdlInpts <- function(pop.cap.hist, L, k, os.mdl) {
   # x n_possible_genotypes x n_loci x n_kinships, representing probabilities
   # of each possible pair of genotypes at each locus given each kinship
   # considered
-  pss.gp.prbs.KPs = FindPssGPPsKPs(ale.frqs, L)
+  pss.gp.prbs.KPs = FindPssGPPsKPs(ale.frqs, L, knshp.st)
   
   # Genopair log-probabilities over all loci given each kinship, for each
   # pair to include in likelihood
