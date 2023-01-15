@@ -81,9 +81,11 @@ rglr.kp.ids = c("APs", "POPs", "SMPs", "SFPs", "FSPs", "HSPs")
 
 # Set possible genotypes at each locus, representing 0 and 1-coded SNP
 # alleles as 1 and 2 respectively, to index corresponding allele frequencies
-pss.gts = cbind(c(1, 1), 1:2, c(2, 2))
-n.pss.gts = 3
 pss.gt.lbls = c("00", "01", "11")
+pss.gts = cbind(c(1, 1), 1:2, c(2, 2))
+ales.1.inds = pss.gts[1, ]
+ales.2.inds = pss.gts[2, ]
+n.pss.gts = 3
 
 # Find possible genopairs by indexing possible genotypes to get all combinations
 pss.gts.1 = pss.gts[, rep(1:n.pss.gts, n.pss.gts)]

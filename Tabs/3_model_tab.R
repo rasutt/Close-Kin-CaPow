@@ -5,6 +5,70 @@ n.mods = reactive(length(mdl.st()))
 # Kinship set Boolean vector
 knshp.st.bln = reactive(as.integer(knshp.chcs %in% knshp.st()))
 
+# Allele frequencies for each study, 2 x n_loci X n_sims
+ale.frqs.ary = reactive({
+  # Make empty list
+  ale.frqs.ary.tmp = array(dim = c(2, L(), n.sims()))
+  
+  # Loop over histories
+  withProgress({
+    for (hst.ind in 1:n.sims()) {
+      # Get simulated family and capture histories of population of animals
+      # over time
+      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
+      
+      # Allele frequencies, 2 x n_loci matrices, representing relative
+      # frequencies of 0 and 1-coded SNP alleles at each locus
+      ale.frqs.ary.tmp[, , hst.ind] = 
+        FindAleFrqs(attributes(pop.cap.hist)$unq.smp.gts)
+      
+    }
+  }, value = 0, message = "Finding allele frequencies")
+  
+  ale.frqs.ary.tmp
+})
+
+# Possible genotype probabilities for each study, 3 x n_loci x n_sims
+pss.gt.prbs.ary = reactive({
+  FindPssGtPrbsAry(ale.frqs.ary())
+})
+
+# Possible first genotype probabilities for sample pairs for each study, 3 x 3 x
+# n_loci x n_sims, first genotypes are rows
+pss.gt.1.prbs.ary = reactive({
+  FindPssFrstGtPrbsAry(pss.gt.prbs.ary(), L(), n.sims())
+})
+
+# Possible genopair probabilities for unrelated pairs for each study, 3 x 3 x
+# n_loci x n_sims
+pss.gp.prbs.UPs.ary = reactive({
+  FindPssGpPsUPsAry(pss.gt.1.prbs.ary())
+})
+
+# Possible genopair probabilities for parent-offspring pairs for each study, 3 x
+# 3 x n_loci x n_sims
+pss.gp.prbs.POPs.ary = reactive({
+  FindPssGpPsPOPsAry(pss.gt.1.prbs.ary(), ale.frqs.ary(), L(), n.sims())
+})
+
+# Possible genopair probabilities for self-pairs for each study, 3 x 3 x n_loci
+# x n_sims
+pss.gp.prbs.SPs.ary = reactive({
+  FindPssGpPsSPsAry(pss.gt.prbs.ary(), L(), n.sims())
+})
+
+# Possible genopair probabilities for half-sibling pairs for each study, 3 x 3 x
+# n_loci x n_sims
+pss.gp.prbs.HSPs.ary = reactive({
+  FindPssGpPsHSPsAry(pss.gp.prbs.UP.ary(), pss.gp.prbs.POP.ary())
+})
+
+# # Possible genopair probabilities for selected kin-pairs for each study, 3 x 3 x
+# # n_loci x n_kinships x n_sims
+# pss.gp.prbs.KPs.ary = reactive({
+#   
+# })
+
 # List of possible genopair probabilities for each study
 pss.GpPs.lst = reactive({
   # Make empty list
@@ -50,15 +114,9 @@ fll.GpPs.lst = reactive({
       # individual ID
       smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
       
-      # Sample-year indices, columns in sample history matrix, representing the
-      # survey that each sample came from, ordered by survey-year then
-      # individual ID.  Counting from zero as will be passed to TMB objective
-      # function
-      smp.yr.inds = col(smp.hsts)[as.logical(smp.hsts)] - 1
-      
       # Sample index pairs, 2 x n_pairs, representing indices of samples in each
       # pair
-      smp.ind.prs = combn(length(smp.yr.inds), 2)
+      smp.ind.prs = combn(sum(smp.hsts), 2)
 
       # Sample genotypes, extracted from matrix of individual genotypes,
       # n_samples x n_loci, rows ordered by survey-year then individual ID

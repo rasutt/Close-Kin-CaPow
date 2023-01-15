@@ -344,7 +344,7 @@ Type objective_function<Type>::operator() ()
         POP_ind = knshp_ind;
         knshp_ind++;
       }
-      if(incld_HSPs) {
+      if(incld_SPs) {
         SP_ind = knshp_ind;
       }
       
@@ -377,7 +377,7 @@ Type objective_function<Type>::operator() ()
         
         // Add negative log likelihood from genopair probabilities given kinships
         // and kinship probabilities in terms of parameters.
-        nll = nll - log(prb_UP * gp_probs(gpind, 0) + gp_prb);
+        nll = nll - log(gp_prb + prb_UP * gp_probs(gpind, 0));
       }
     }
     

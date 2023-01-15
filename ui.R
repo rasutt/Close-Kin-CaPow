@@ -47,7 +47,7 @@ ui <- fluidPage(
   navbarPage(
     title = "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "check.tab",
+    selected = "sim.tab",
     position = "fixed-top",
     
     # Sim tab ----
@@ -83,7 +83,7 @@ ui <- fluidPage(
           textInput(
             inputId = "srvy.yrs", label = "Survey years:",
             # value = "1995:1998, 2006:2009, 2020"
-            value = "2000, 2010, 2020"
+            value = "2010, 2015, 2020"
           ),
           sliderInput(
             inputId = "p", label = "Base level capture probability:",
@@ -437,8 +437,8 @@ ui <- fluidPage(
             inputId = "mdl.st", label = "Models to fit",
             choices = mdl.chcs, 
             # selected = mdl.chcs
-            # selected = c("True kinship", "Full genopair")
-            selected = "True kinship"
+            # selected = "True kinship"
+            selected = c("True kinship", "Full genopair")
           ),
           checkboxGroupInput(
             inputId = "knshp.st", label = "Kinships to include",
