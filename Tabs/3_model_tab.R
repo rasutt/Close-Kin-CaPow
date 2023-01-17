@@ -39,110 +39,129 @@ pss.gt.1.prbs.ary = reactive({
   FindPssFrstGtPrbsAry(pss.gt.prbs.ary(), L(), n.sims())
 })
 
-# Possible genopair probabilities for unrelated pairs for each study, 3 x 3 x
+# Possible genopair probabilities for each kinship for each study, 3 x 3 x
 # n_loci x n_sims
 pss.gp.prbs.UPs.ary = reactive({
   FindPssGpPsUPsAry(pss.gt.1.prbs.ary())
 })
-
-# Possible genopair probabilities for parent-offspring pairs for each study, 3 x
-# 3 x n_loci x n_sims
-pss.gp.prbs.POPs.ary = reactive({
-  FindPssGpPsPOPsAry(pss.gt.1.prbs.ary(), ale.frqs.ary(), L(), n.sims())
-})
-
-# Possible genopair probabilities for self-pairs for each study, 3 x 3 x n_loci
-# x n_sims
 pss.gp.prbs.SPs.ary = reactive({
   FindPssGpPsSPsAry(pss.gt.prbs.ary(), L(), n.sims())
 })
-
-# Possible genopair probabilities for half-sibling pairs for each study, 3 x 3 x
-# n_loci x n_sims
+pss.gp.prbs.POPs.ary = reactive({
+  FindPssGpPsPOPsAry(pss.gt.1.prbs.ary(), ale.frqs.ary(), L(), n.sims())
+})
 pss.gp.prbs.HSPs.ary = reactive({
-  FindPssGpPsHSPsAry(pss.gp.prbs.UP.ary(), pss.gp.prbs.POP.ary())
+  FindPssGpPsHSPsAry(pss.gp.prbs.UPs.ary(), pss.gp.prbs.POPs.ary())
 })
 
-# # Possible genopair probabilities for selected kin-pairs for each study, 3 x 3 x
-# # n_loci x n_kinships x n_sims
-# pss.gp.prbs.KPs.ary = reactive({
-#   
-# })
+# Find full set of genopair log-probabilities for each kinship
 
-# List of possible genopair probabilities for each study
-pss.GpPs.lst = reactive({
-  # Make empty list
-  pss.GpPs.lst.tmp = vector("list", n.sims())
-
-  # Loop over histories
-  withProgress({
-    for (hst.ind in 1:n.sims()) {
-      # Get simulated family and capture histories of population of animals
-      # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
-      
-      # Allele frequencies, 2 x n_loci matrices, representing relative
-      # frequencies of 0 and 1-coded SNP alleles at each locus
-      ale.frqs = FindAleFrqs(attributes(pop.cap.hist)$unq.smp.gts)
-      
-      # Possible genopair probabilities given kinship set,
-      # n_possible_genotypes x n_possible_genotypes x n_loci x n_kinships,
-      # representing probabilities of each possible pair of genotypes at each
-      # locus given each kinship considered
-      pss.GpPs.lst.tmp[[hst.ind]] = FindPssGPPsKPs(ale.frqs, L(), knshp.st())
-
-      incProgress(1/n.sims())
-    }
-  }, value = 0, message = "Finding possible genopair probabilities")
+# Normal function, taking an array of possible genopair probabilities given a
+# certain kinship, over all studies, as an input, and using reactive objects
+FindFllLgGpPrbsKP = function(hst.ind, pss.gp.prbs.KP.ary, kp.tp) {
+  # Get simulated family and capture histories of population of animals
+  # over time
+  pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
   
-  pss.GpPs.lst.tmp
-})
-
-# List of full set of genopair probabilities for each study
-fll.GpPs.lst = reactive({
-  # Make empty lists
-  fll.GpPs.lst.tmp = vector("list", n.sims())
+  # Sample history matrix, n_individuals x n_surveys, rows ordered by
+  # individual ID
+  smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
   
-  # Loop over histories
-  withProgress({
-    for (hst.ind in 1:n.sims()) {
-      # Get simulated family and capture histories of population of animals
-      # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
-      
-      # Sample history matrix, n_individuals x n_surveys, rows ordered by
-      # individual ID
-      smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
-      
-      # Sample index pairs, 2 x n_pairs, representing indices of samples in each
-      # pair
-      smp.ind.prs = combn(sum(smp.hsts), 2)
-
-      # Sample genotypes, extracted from matrix of individual genotypes,
-      # n_samples x n_loci, rows ordered by survey-year then individual ID
-      smp.gts = FindSmpGts(smp.hsts, attributes(pop.cap.hist)$unq.smp.gts)
-
-      # Possible genopair probabilities given kinship set,
-      # n_possible_genotypes x n_possible_genotypes x n_loci x n_kinships,
-      # representing probabilities of each possible pair of genotypes at each
-      # locus given each kinship considered
-      pss.GpPs = pss.GpPs.lst()[[hst.ind]]
-
-      # Genopair log-probabilities over all loci given each kinship, for each
-      # pair to include in likelihood
-      lg.gp.prbs.KPs = FindLogGPProbsKP(pss.GpPs, smp.gts, smp.ind.prs, L())
-
-      # Exponentiate genopair log-probabilities given kinship set, checking for
-      # underflow and trying to adjust if necessary.  Would be good to raise a
-      # proper error if adjustment impossible
-      fll.GpPs.lst.tmp[[hst.ind]] = FindGPPs(lg.gp.prbs.KPs)
-
-      incProgress(1/n.sims())
-    }
-  }, value = 0, message = "Finding all genopair probabilities")
+  # Sample index pairs, 2 x n_pairs, representing indices of samples in each
+  # pair
+  smp.ind.prs = combn(sum(smp.hsts), 2)
   
-  fll.GpPs.lst.tmp
-})
+  # Sample genotypes, extracted from matrix of individual genotypes,
+  # n_samples x n_loci, rows ordered by survey-year then individual ID
+  smp.gts = FindSmpGts(smp.hsts, attributes(pop.cap.hist)$unq.smp.gts)
+  
+  # Possible genopair probabilities over genopairs and loci for this study
+  pss.gp.prbs.KP = pss.gp.prbs.KP.ary[, , , hst.ind]
+  
+  # Genopair log-probabilities over all loci given each kinship, for each
+  # pair to include in likelihood
+  FindLogGPProbsKP(
+    pss.gp.prbs.KP, smp.gts, smp.ind.prs, L(), sngl.knshp = T, kp.tp
+  )
+}
+
+# Function using "parallel" library to use multiple CPU cores, giving > 2x
+# speedup for datasets >= 100 loci and 100 studies. Sample histories, genotypes,
+# and possible genopair probabilities are exported to the new R sessions in
+# advance
+FindFllLgGpPrbsKPPrll = function(hst.ind, kp.tp) {
+  # Get simulated family and capture histories of population of animals
+  # over time
+  pop.cap.hist <- hst.lst.prll[[hst.ind]]
+  
+  # Sample history matrix, n_individuals x n_surveys, rows ordered by
+  # individual ID
+  smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k.prll)])
+  
+  # Sample index pairs, 2 x n_pairs, representing indices of samples in each
+  # pair
+  smp.ind.prs = combn(sum(attributes(pop.cap.hist)$ns.caps), 2)
+  
+  # Sample genotypes, extracted from matrix of individual genotypes,
+  # n_samples x n_loci, rows ordered by survey-year then individual ID
+  smp.gts = FindSmpGts(smp.hsts, attributes(pop.cap.hist)$unq.smp.gts)
+  
+  # Possible genopair probabilities over genopairs and loci for this study
+  pss.gp.prbs.KP = pss.gp.prbs.KP.ary[, , , hst.ind]
+
+  # Genopair log-probabilities over all loci given each kinship, for each
+  # pair to include in likelihood
+  FindLogGPProbsKP(
+    pss.gp.prbs.KP, smp.gts, smp.ind.prs, L.prll, sngl.knshp = T, kp.tp
+  )
+}
+
+# Set up multicore processing and find log-probabilities given unrelated pairs 
+MakeFLGPsKPRctv = function(kp.tp) {
+  reactive({
+    # Record time
+    s = Sys.time()
+    
+    pss.gp.prbs.KP.ary = switch(
+      kp.tp,
+      "unrelated" = pss.gp.prbs.UPs.ary(),
+      "self" = pss.gp.prbs.SPs.ary(),
+      "parent-offspring" = pss.gp.prbs.POPs.ary(),
+      "half-sibling" = pss.gp.prbs.HSPs.ary()
+    )
+    clusterExport(cl(), list("pss.gp.prbs.KP.ary"), environment())
+      
+    # Find log-probabilities for different chunks of studies on different nodes
+    # and combine results when done
+    withProgress(
+      {
+        lst = parLapply(cl(), 1:n.sims(), function(hst.ind) {
+          FindFllLgGpPrbsKPPrll(hst.ind, kp.tp)
+        })
+      },
+      value = 0,
+      message = paste(
+        "Finding genopair log-probabilities given", kp.tp, "pairs"
+      ),
+      detail = "Using multiple cores so no progress updates available"
+    )
+    
+    # Show time taken
+    cat(
+      "Found log probabilities, given", kp.tp, "pairs, over",
+      L(), "loci and",
+      n.sims(), "studies in",
+      Sys.time() - s, "\n\n"
+    )
+    
+    # Return results
+    lst
+  })
+}
+fll.gp.lg.prbs.UP.lst = MakeFLGPsKPRctv("unrelated")
+fll.gp.lg.prbs.SP.lst = MakeFLGPsKPRctv("self")
+fll.gp.lg.prbs.POP.lst = MakeFLGPsKPRctv("parent-offspring")
+fll.gp.lg.prbs.HSP.lst = MakeFLGPsKPRctv("half-sibling")
 
 # Fit popan model
 fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
@@ -286,6 +305,22 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
     nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
   )
   
+  # Start new R sessions on separate "logical" CPU cores (nodes) for finding
+  # genopair log-probabilities. Using 6 of my 12 cores seems to be optimal
+  cl(makeCluster(6))
+  
+  # Evaluate reactive objects and pass values to new R sessions. Passing large
+  # objects to parLapply does not improve performance (to my surprise). Can't
+  # index in parLapply for some reason
+  hst.lst.prll = sim.lst()$hists.lst
+  L.prll = L()
+  k.prll = k()
+  clusterExport(
+    cl(),
+    list("hst.lst.prll", "L.prll", "k.prll", "FindSmpGts", "FindLogGPProbsKP"), 
+    environment()
+  )
+
   # Loop over histories
   withProgress({
     for (hst.ind in 1:n.sims()) {
@@ -300,8 +335,25 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
       ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
       ck.lwr[3] <- attributes(pop.cap.hist)$ns.caps[k()]
       
-      # print("fll.GpPs.lst()[[hst.ind]]")
-      # print(str(fll.GpPs.lst()[[hst.ind]]))
+      # Find genopair log-probabilities given selected kinships
+      fll.gp.lg.prbs.KP = cbind(
+        fll.gp.lg.prbs.UP.lst()[[hst.ind]],
+        if ("Half-sibling" %in% knshp.st()) 
+          fll.gp.lg.prbs.HSP.lst()[[hst.ind]],
+        if ("Parent-offspring" %in% knshp.st()) 
+          fll.gp.lg.prbs.POP.lst()[[hst.ind]],
+        if ("Self" %in% knshp.st()) 
+          fll.gp.lg.prbs.SP.lst()[[hst.ind]]
+      )
+      
+      # Exponentiate genopair log-probabilities given kinship set, checking for
+      # underflow and trying to adjust if necessary.  Would be good to raise a
+      # proper error if adjustment impossible
+      fll.gp.prbs.KP = FindGPPs(fll.gp.lg.prbs.KP)
+
+      print("fll.gp.prbs.KP")
+      print(str(fll.gp.prbs.KP))
+      print(head(fll.gp.prbs.KP))
       # print("Correct, n_pairs x n_kinships")
       # 
       # print("fll.SYIPs.lst()[[hst.ind]]")
@@ -316,7 +368,7 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), knshp_st_bool = knshp.st.bln(),
-        gp_probs = fll.GpPs.lst()[[hst.ind]], 
+        gp_probs = fll.gp.prbs.KP, 
         smp_yr_ind_prs = fll.SYIPs.lst()[[hst.ind]]
       )
 
@@ -333,6 +385,9 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
       incProgress(1/n.sims())
     }
   }, value = 0, message = "Fitting genopair model")
+  
+  # Stop R sessions on other nodes
+  stopCluster(cl())
   
   # Combine model estimates, standard errors, and convergences, and return as
   # lists

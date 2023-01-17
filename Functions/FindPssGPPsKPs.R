@@ -14,7 +14,7 @@ FindPssGtPrbsAry = function(ale.frqs.ary) {
   # each possible genotype (globally defined for SNP genotypes), and multiplying
   # by 2 possible cases for heterozygous genotypes
   ary = ale.frqs.ary[ales.1.inds, , ] * ale.frqs.ary[ales.2.inds, , ]
-  ary[ales.1.inds != ales.2.inds, , ] = mat[ales.1.inds != ales.2.inds, , ] * 2
+  ary[ales.1.inds != ales.2.inds, , ] = ary[ales.1.inds != ales.2.inds, , ] * 2
   ary
 }
 
@@ -135,9 +135,9 @@ FindPssGpPsSPsAry = function(pss.gt.prbs.ary, L, n.sims) {
   aperm(
     array(
       cbind(
-        pss.gt.prbs[1, , ], 0, 0, 
-        0, pss.gt.prbs[2, , ], 0, 
-        0, 0, pss.gt.prbs[3, , ]
+        pss.gt.prbs.ary[1, , ], 0, 0, 
+        0, pss.gt.prbs.ary[2, , ], 0, 
+        0, 0, pss.gt.prbs.ary[3, , ]
       ), 
       c(L, n.sims, n.pss.gts, n.pss.gts)
     ), 

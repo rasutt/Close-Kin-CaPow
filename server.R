@@ -10,6 +10,9 @@ library(TMB)
 compile("TMB_objective_functions/UnifiedNLL.cpp")
 dyn.load(dynlib("TMB_objective_functions/UnifiedNLL"))
 
+# Load parallel library for multicore processing
+library(parallel)
+
 # Define server logic for app
 server <- function(input, output) {
   # Reactive variables (for next simulation).  Can ignore warnings for invalid
@@ -109,6 +112,7 @@ server <- function(input, output) {
   SYIs.lst = reactiveVal(saved.objs$SYIs.lst)
   fll.SYIPs.lst = reactiveVal(saved.objs$fll.SYIPs.lst)
   offst.SYIPs.lst = reactiveVal(saved.objs$offst.SYIPs.lst)
+  cl = reactiveVal()
   
   # Variables bound to simulate button (for last simulation) ----
   observeEvent(input$simulate, {
