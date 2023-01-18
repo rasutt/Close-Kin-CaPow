@@ -2,7 +2,7 @@
 # one of a set of possible kinpairs.  Computes over batches of loci to limit
 # memory usage to ~1Gb.
 FindLogGPProbsKP = function(
-    pss.gp.prbs.KP, smp.gts, smp.ind.prs, L, sngl.knshp = F, kp.tp = NULL
+    pss.gp.prbs.KP, smp.gts, smp.ind.prs, L, sngl.knshp = F
 ) {
   # Indices of first and second samples in each pair
   smp.1.inds = smp.ind.prs[1, ]

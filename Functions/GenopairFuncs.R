@@ -15,12 +15,12 @@ FindAleFrqs <- function(unq.smp.gts) {
 # Find sample genotypes, extracted from matrix of individual genotypes,
 # n_samples x n_loci, rows ordered by survey-year then individual ID
 FindSmpGts <- function(smp.hsts, unq.smp.gts) {
-  # Sample indices, rows in sample history matrix, representing the
-  # individual that each sample came from, ordered by survey-year then
-  # individual ID
-  smp.inds = row(smp.hsts)[as.logical(smp.hsts)]
+  # Sample-individual indices, row numbers in sample history matrix,
+  # representing the individual that each sample came from, ordered by
+  # survey-year then individual ID
+  smp.indvdl.inds = row(smp.hsts)[as.logical(smp.hsts)]
   
-  unq.smp.gts[, , smp.inds]
+  unq.smp.gts[, , smp.indvdl.inds]
 }
 
 # Sample index pairs, 2 x n_pairs matrix of indices of samples in each pair to

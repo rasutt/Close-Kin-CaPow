@@ -54,6 +54,38 @@ pss.gp.prbs.HSPs.ary = reactive({
   FindPssGpPsHSPsAry(pss.gp.prbs.UPs.ary(), pss.gp.prbs.POPs.ary())
 })
 
+# Full set of sample-individual and sample-year index pairs for genopair models,
+# 2 x n_pairs x 2(??), representing individual and year that each sample came
+# from. Sample-years start from zero for TMB C++ objective function
+fll.SI.SY.IPs.lst = reactive({
+  # Make lists
+  SIIPs.lst = SYIPs.lst = vector("list", n.sims())
+  
+  # Show progress-bar
+  withProgress({
+    # Loop over histories
+    for (hst.ind in 1:n.sims()) {
+      # Get simulated family and capture histories of population of animals
+      # over time
+      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
+      
+      # Sample history matrix, n_individuals x n_surveys, rows ordered by
+      # individual ID
+      smp.hsts.bln = pop.cap.hist[, 4:(3 + k())] == 1
+      
+      # Sample-individual and sample-year index pairs
+      SIIPs.lst[[hst.ind]] = combn(row(smp.hsts.bln)[smp.hsts.bln], 2)
+      SYIPs.lst[[hst.ind]] = t(combn(col(smp.hsts.bln)[smp.hsts.bln] - 1, 2))
+
+      # Update progress-bar
+      incProgress(1/n.sims())
+    }
+  }, value = 0, message = "Finding all sample-year index pairs")
+  
+  # Return lists
+  list(SIIPs.lst = SIIPs.lst, SYIPs.lst = SYIPs.lst)
+})
+
 # Find full set of genopair log-probabilities for each kinship
 
 # Normal function, taking an array of possible genopair probabilities given a
@@ -89,31 +121,25 @@ FindFllLgGpPrbsKP = function(hst.ind, pss.gp.prbs.KP.ary, kp.tp) {
 # speedup for datasets >= 100 loci and 100 studies. Sample histories, genotypes,
 # and possible genopair probabilities are exported to the new R sessions in
 # advance
-FindFllLgGpPrbsKPPrll = function(hst.ind, kp.tp) {
+FindFllLgGpPrbsKPPrll = function(hst.ind) {
   # Get simulated family and capture histories of population of animals
   # over time
   pop.cap.hist <- hst.lst.prll[[hst.ind]]
   
-  # Sample history matrix, n_individuals x n_surveys, rows ordered by
-  # individual ID
-  smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k.prll)])
-  
-  # Sample index pairs, 2 x n_pairs, representing indices of samples in each
-  # pair
-  smp.ind.prs = combn(sum(attributes(pop.cap.hist)$ns.caps), 2)
-  
-  # Sample genotypes, extracted from matrix of individual genotypes,
-  # n_samples x n_loci, rows ordered by survey-year then individual ID
-  smp.gts = FindSmpGts(smp.hsts, attributes(pop.cap.hist)$unq.smp.gts)
+  # Individual genotypes, n_individuals x n_loci, representing genotypes for
+  # each individual sampled
+  indvdl.gts = attributes(pop.cap.hist)$unq.smp.gts
   
   # Possible genopair probabilities over genopairs and loci for this study
   pss.gp.prbs.KP = pss.gp.prbs.KP.ary[, , , hst.ind]
+  
+  # Sample-individual index pairs, n_pairs x 2, representing individual that
+  # each sample in each pair came from
+  SIIPs = SIIPs.lst.prll[[hst.ind]]
 
   # Genopair log-probabilities over all loci given each kinship, for each
   # pair to include in likelihood
-  FindLogGPProbsKP(
-    pss.gp.prbs.KP, smp.gts, smp.ind.prs, L.prll, sngl.knshp = T, kp.tp
-  )
+  FindLogGPProbsKP(pss.gp.prbs.KP, indvdl.gts, SIIPs, L.prll, sngl.knshp = T)
 }
 
 # Set up multicore processing and find log-probabilities given unrelated pairs 
@@ -136,7 +162,7 @@ MakeFLGPsKPRctv = function(kp.tp) {
     withProgress(
       {
         lst = parLapply(cl(), 1:n.sims(), function(hst.ind) {
-          FindFllLgGpPrbsKPPrll(hst.ind, kp.tp)
+          FindFllLgGpPrbsKPPrll(hst.ind)
         })
       },
       value = 0,
@@ -313,11 +339,14 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
   # objects to parLapply does not improve performance (to my surprise). Can't
   # index in parLapply for some reason
   hst.lst.prll = sim.lst()$hists.lst
+  SIIPs.lst.prll = fll.SI.SY.IPs.lst()$SIIPs.lst
   L.prll = L()
   k.prll = k()
   clusterExport(
     cl(),
-    list("hst.lst.prll", "L.prll", "k.prll", "FindSmpGts", "FindLogGPProbsKP"), 
+    list(
+      "hst.lst.prll", "SIIPs.lst.prll", "L.prll", "k.prll", "FindLogGPProbsKP"
+    ), 
     environment()
   )
 
@@ -369,7 +398,7 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), knshp_st_bool = knshp.st.bln(),
         gp_probs = fll.gp.prbs.KP, 
-        smp_yr_ind_prs = fll.SYIPs.lst()[[hst.ind]]
+        smp_yr_ind_prs = fll.SI.SY.IPs.lst()$SYIPs.lst[[hst.ind]]
       )
 
       # Try to fit genopair likelihood model
@@ -460,8 +489,6 @@ fit.os = reactive(if ("Offset genopair" %in% mdl.st()) {
 observeEvent(input$simulate, {
   knshp.st(NULL)
   fit.lst(NULL)
-  SYIs.lst(NULL)
-  fll.SYIPs.lst(NULL)
   offst.SYIPs.lst(NULL)
 })
 
@@ -471,76 +498,12 @@ observeEvent(input$fit, {
   mdl.st(input$mdl.st)
   knshp.st(input$knshp.st)
   
-  # If fitting a genopair model for first time find sample-year indices
-  if (
-    is.null(SYIs.lst()) &&
-    any(c("Full genopair", "Offset genopair") %in% mdl.st())
-  ) {
-    # Make empty list
-    SYIs.lst.tmp = vector("list", n.sims())
-    
-    # Loop over histories
-    withProgress({
-      for (hst.ind in 1:n.sims()) {
-        # Get simulated family and capture histories of population of animals
-        # over time
-        pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
-        
-        # Sample history matrix, n_individuals x n_surveys, rows ordered by
-        # individual ID
-        smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
-        
-        # Sample-year indices, columns in sample history matrix, representing
-        # the survey that each sample came from, ordered by survey-year then
-        # individual ID.  Counting from zero as will be passed to TMB objective
-        # function
-        SYIs.lst.tmp[[hst.ind]] = col(smp.hsts)[as.logical(smp.hsts)] - 1
-        
-        incProgress(1/n.sims())
-      }
-    }, value = 0, message = "Finding sample-year indices")
-    
-    SYIs.lst(SYIs.lst.tmp)
-  }
-  
-  # If fitting full genopair model for first time find survey-year index pairs
-  if (
-    is.null(fll.SYIPs.lst()) &&
-    "Full genopair" %in% mdl.st()
-  ) {
-    fll.SYIPs.lst.tmp = vector("list", n.sims())
-    
-    # Loop over histories
-    withProgress({
-      for (hst.ind in 1:n.sims()) {
-        # Sample-year indices, columns in sample history matrix, representing
-        # the survey that each sample came from, ordered by survey-year then
-        # individual ID.  Counting from zero as will be passed to TMB objective
-        # function
-        smp.yr.inds = SYIs.lst()[[hst.ind]]
-        
-        # Sample index pairs, 2 x n_pairs, representing indices of samples in
-        # all pairs
-        smp.ind.prs.fll = combn(length(smp.yr.inds), 2)
-
-        # Sample-year index pairs, n_pairs x 2, representing survey-year of each
-        # sample in each pair, counting from zero as passing into TMB C++
-        # objective function
-        fll.SYIPs.lst.tmp[[hst.ind]] = 
-          matrix(smp.yr.inds[as.vector(t(smp.ind.prs.fll))], ncol = 2)
-
-        incProgress(1/n.sims())
-      }
-    }, value = 0, message = "Finding all sample-year index pairs")
-    
-    fll.SYIPs.lst(fll.SYIPs.lst.tmp)
-  }
-  
   # If fitting offset genopair model for first time find offset survey-year
   # index pairs
   if (
-    is.null(offst.SYIPs.lst()) &&
-    "Offset genopair" %in% mdl.st()
+    F
+    # is.null(offst.SYIPs.lst()) &&
+    # "Offset genopair" %in% mdl.st()
   ) {
     offst.SYIPs.lst.tmp = vector("list", n.sims())
     
@@ -553,8 +516,7 @@ observeEvent(input$fit, {
         # function
         smp.yr.inds = SYIs.lst()[[hst.ind]]
         
-        # Sample index pairs for just consecutive
-        # pairs
+        # Sample index pairs for just consecutive pairs
         smp.ind.prs.offst = FindSIPsOffset(k(), smp.yr.inds)
         
         # Sample-year index pairs, n_pairs x 2, representing survey-year of each

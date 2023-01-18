@@ -108,9 +108,6 @@ server <- function(input, output) {
   frst.LGPPs.KP.fll = reactiveVal(saved.objs$frst.LGPPs.KP.fll)
   mdl.st = reactiveVal(saved.objs$mdl.st)
   knshp.st = reactiveVal(saved.objs$knshp.st)
-  # pss.GpPs.lst = reactiveVal(saved.objs$pss.GpPs.lst)
-  SYIs.lst = reactiveVal(saved.objs$SYIs.lst)
-  fll.SYIPs.lst = reactiveVal(saved.objs$fll.SYIPs.lst)
   offst.SYIPs.lst = reactiveVal(saved.objs$offst.SYIPs.lst)
   cl = reactiveVal()
   
