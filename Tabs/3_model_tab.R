@@ -334,12 +334,20 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
       print(head(fll.gp.prbs.KP))
       # print("Correct, n_pairs x n_kinships")
       # 
-      # print("fll.SYIPs.lst()[[hst.ind]]")
-      # print(str(fll.SYIPs.lst()[[hst.ind]]))
-      # print("Correct, n_pairs x 2")
+      print("fll.SI.SY.IPs.lst()$SYIPs.lst[[hst.ind]]")
+      print(str(fll.SI.SY.IPs.lst()$SYIPs.lst[[hst.ind]]))
+
+      print("fll.SI.SY.IPs.lst()$SIIPs.lst[[hst.ind]]")
+      print(str(fll.SI.SY.IPs.lst()$SIIPs.lst[[hst.ind]]))
+
+      # print("pss.gp.prbs.SPs.ary()[, , 1, hst.ind]")
+      # print(pss.gp.prbs.SPs.ary()[, , 1, hst.ind])
       # 
-      # print("knshp.st.bln")
-      # print(knshp.st.bln())
+      # print("pss.gt.prbs.ary()[, 1, hst.ind]")
+      # print(pss.gt.prbs.ary()[, 1, hst.ind])
+      
+      print("knshp.st.bln")
+      print(knshp.st.bln())
       
       # Make objective function
       obj = MakeTMBObj(

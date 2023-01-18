@@ -135,9 +135,9 @@ FindPssGpPsSPsAry = function(pss.gt.prbs.ary, L, n.sims) {
   aperm(
     array(
       cbind(
-        pss.gt.prbs.ary[1, , ], 0, 0, 
-        0, pss.gt.prbs.ary[2, , ], 0, 
-        0, 0, pss.gt.prbs.ary[3, , ]
+        as.vector(pss.gt.prbs.ary[1, , ]), 0, 0, 
+        0, as.vector(pss.gt.prbs.ary[2, , ]), 0, 
+        0, 0, as.vector(pss.gt.prbs.ary[3, , ])
       ), 
       c(L, n.sims, n.pss.gts, n.pss.gts)
     ), 

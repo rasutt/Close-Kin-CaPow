@@ -334,8 +334,7 @@ Type objective_function<Type>::operator() ()
       Type gp_prb;
       
       // Find indices of kinships in genopair probabilities matrix
-      int knshp_ind = 1;
-      int HSP_ind = 0, POP_ind = 0, SP_ind = 0;
+      int knshp_ind = 1, HSP_ind = 0, POP_ind = 0, SP_ind = 0;
       if(incld_HSPs) {
         HSP_ind = knshp_ind;
         knshp_ind++;
@@ -350,25 +349,26 @@ Type objective_function<Type>::operator() ()
       
       // Loop over genopairs
       for(int gpind = 0; gpind < n_pairs; gpind++) {
-        // Get sample-year indices and kinship probabilities
+        // Get sample-year indices
         smp_yr_ind_1 = smp_yr_ind_prs(gpind, 0);
         smp_yr_ind_2 = smp_yr_ind_prs(gpind, 1);
         
+        // Reset genopair and unrelated pair probabilities
         gp_prb = Type(0.0);
         prb_UP = Type(1.0);
         
+        // Add genopair probabilities over kinships and update unrelated pair
+        // probability
         if(incld_SPs) {
           prb_SP = prbs_SPs(smp_yr_ind_1, smp_yr_ind_2);
           gp_prb = gp_prb + prb_SP * gp_probs(gpind, SP_ind);
           prb_UP = prb_UP - prb_SP;
         }
-        
         if(incld_POPs) {
           prb_POP = prbs_POPs(smp_yr_ind_1, smp_yr_ind_2);
           gp_prb = gp_prb + prb_POP * gp_probs(gpind, POP_ind);
           prb_UP = prb_UP - prb_POP;
         }
-        
         if(incld_HSPs) {
           prb_HSP = prbs_HSPs(smp_yr_ind_1, smp_yr_ind_2);
           gp_prb = gp_prb + prb_HSP * gp_probs(gpind, HSP_ind);
