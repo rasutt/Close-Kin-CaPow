@@ -112,7 +112,14 @@ observeEvent(input$file, {
   frst.LGPPs.KP.fll(saved.objs$frst.LGPPs.KP.fll)
   mdl.st(saved.objs$mdl.st)
   knshp.st(saved.objs$knshp.st)
+  fll.SI.SY.IPs.lst(NULL)
   offst.SYIPs.lst(saved.objs$offst.SYIPs.lst)
+  
+  # If started multi-core cluster
+  if (!is.null(cl())) {
+    # Stop R sessions on other nodes
+    stopCluster(cl())
+  }
 })
 
 # Show number of files uploaded

@@ -54,38 +54,6 @@ pss.gp.prbs.HSPs.ary = reactive({
   FindPssGpPsHSPsAry(pss.gp.prbs.UPs.ary(), pss.gp.prbs.POPs.ary())
 })
 
-# Full set of sample-individual and sample-year index pairs for genopair models,
-# 2 x n_pairs x 2(??), representing individual and year that each sample came
-# from. Sample-years start from zero for TMB C++ objective function
-fll.SI.SY.IPs.lst = reactive({
-  # Make lists
-  SIIPs.lst = SYIPs.lst = vector("list", n.sims())
-  
-  # Show progress-bar
-  withProgress({
-    # Loop over histories
-    for (hst.ind in 1:n.sims()) {
-      # Get simulated family and capture histories of population of animals
-      # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
-      
-      # Sample history matrix, n_individuals x n_surveys, rows ordered by
-      # individual ID
-      smp.hsts.bln = pop.cap.hist[, 4:(3 + k())] == 1
-      
-      # Sample-individual and sample-year index pairs
-      SIIPs.lst[[hst.ind]] = combn(row(smp.hsts.bln)[smp.hsts.bln], 2)
-      SYIPs.lst[[hst.ind]] = t(combn(col(smp.hsts.bln)[smp.hsts.bln] - 1, 2))
-
-      # Update progress-bar
-      incProgress(1/n.sims())
-    }
-  }, value = 0, message = "Finding all sample-year index pairs")
-  
-  # Return lists
-  list(SIIPs.lst = SIIPs.lst, SYIPs.lst = SYIPs.lst)
-})
-
 # Find full set of genopair log-probabilities for each kinship
 
 # Normal function, taking an array of possible genopair probabilities given a
@@ -331,25 +299,6 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
     nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
   )
   
-  # Start new R sessions on separate "logical" CPU cores (nodes) for finding
-  # genopair log-probabilities. Using 6 of my 12 cores seems to be optimal
-  cl(makeCluster(6))
-  
-  # Evaluate reactive objects and pass values to new R sessions. Passing large
-  # objects to parLapply does not improve performance (to my surprise). Can't
-  # index in parLapply for some reason
-  hst.lst.prll = sim.lst()$hists.lst
-  SIIPs.lst.prll = fll.SI.SY.IPs.lst()$SIIPs.lst
-  L.prll = L()
-  k.prll = k()
-  clusterExport(
-    cl(),
-    list(
-      "hst.lst.prll", "SIIPs.lst.prll", "L.prll", "k.prll", "FindLogGPProbsKP"
-    ), 
-    environment()
-  )
-
   # Loop over histories
   withProgress({
     for (hst.ind in 1:n.sims()) {
@@ -414,9 +363,6 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
       incProgress(1/n.sims())
     }
   }, value = 0, message = "Fitting genopair model")
-  
-  # Stop R sessions on other nodes
-  stopCluster(cl())
   
   # Combine model estimates, standard errors, and convergences, and return as
   # lists
@@ -485,11 +431,19 @@ fit.os = reactive(if ("Offset genopair" %in% mdl.st()) {
   list(ests = os.tmb.ests, ses = os.tmb.ses, cnvgs = !os.tmb.cnvg)
 })
 
-# Nullify objects when new datasets simulated
+# When new datasets simulated
 observeEvent(input$simulate, {
+  # Nullify objects
   knshp.st(NULL)
   fit.lst(NULL)
+  fll.SI.SY.IPs.lst(NULL)
   offst.SYIPs.lst(NULL)
+  
+  # If started multi-core cluster
+  if (!is.null(cl())) {
+    # Stop R sessions on other nodes
+    stopCluster(cl())
+  }
 })
 
 # When fit models button clicked
@@ -497,6 +451,64 @@ observeEvent(input$fit, {
   # Update reactive values for model and kinship sets
   mdl.st(input$mdl.st)
   knshp.st(input$knshp.st)
+  
+  # If fitting full genopair model for first time since simulation/loading
+  if ("Full genopair" %in% mdl.st() && is.null(fll.SI.SY.IPs.lst())) {
+    # Full set of sample-individual and sample-year index pairs for genopair
+    # models, 2 x n_pairs x 2(??), representing individual and year that each
+    # sample came from. Sample-years start from zero for TMB C++ objective
+    # function
+    fll.SI.SY.IPs.lst({
+      # Make lists
+      SIIPs.lst = SYIPs.lst = vector("list", n.sims())
+      
+      # Show progress-bar
+      withProgress(
+        # Loop over histories
+        for (hst.ind in 1:n.sims()) {
+          # Get simulated family and capture histories of population of
+          # animals over time
+          pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
+          
+          # Sample history matrix, n_individuals x n_surveys, rows ordered by
+          # individual ID
+          smp.hsts.bln = pop.cap.hist[, 4:(3 + k())] == 1
+          
+          # Sample-individual and sample-year index pairs
+          SIIPs.lst[[hst.ind]] = combn(row(smp.hsts.bln)[smp.hsts.bln], 2)
+          SYIPs.lst[[hst.ind]] = 
+            t(combn(col(smp.hsts.bln)[smp.hsts.bln] - 1, 2))
+          
+          # Update progress-bar
+          incProgress(1/n.sims())
+        }, 
+        value = 0, 
+        message = "Finding all sample-individual and sample-year index pairs"
+      )
+      
+      # Return lists
+      list(SIIPs.lst = SIIPs.lst, SYIPs.lst = SYIPs.lst)
+    })
+    
+    # Start new R sessions on separate "logical" CPU cores (nodes) for finding
+    # genopair log-probabilities. Using 6 of my 12 cores seems to be optimal
+    cl(makeCluster(6))
+    
+    # Evaluate reactive objects and pass values to new R sessions. Passing large
+    # objects to parLapply does not improve performance (to my surprise). Can't
+    # index in parLapply for some reason
+    hst.lst.prll = sim.lst()$hists.lst
+    SIIPs.lst.prll = fll.SI.SY.IPs.lst()$SIIPs.lst
+    L.prll = L()
+    k.prll = k()
+    clusterExport(
+      cl(),
+      list(
+        "hst.lst.prll", "SIIPs.lst.prll", "L.prll", "k.prll", "FindLogGPProbsKP"
+      ), 
+      environment()
+    )
+  }
   
   # If fitting offset genopair model for first time find offset survey-year
   # index pairs
@@ -547,7 +559,6 @@ observeEvent(input$fit, {
   
   # Update list of model fits
   fit.lst(list(ests = ests, ses = ses, cnvgs = cnvgs))
-  
 })
 
 # Check when optimizer converged and standard errors calculable
