@@ -88,9 +88,9 @@ Type objective_function<Type>::operator() ()
     
     // Unpack kinship set variables
     bool incld_SPs, incld_POPs, incld_HSPs;
-    incld_SPs = knshp_st_bool[0] == 1;
-    incld_POPs = knshp_st_bool[1] == 1;
-    incld_HSPs = knshp_st_bool[2] == 1;
+    incld_SPs = knshp_st_bool(0) == 1;
+    incld_POPs = knshp_st_bool(1) == 1;
+    incld_HSPs = knshp_st_bool(2) == 1;
     
     // Declare variables
     Type lmb_m_ph_sq, p_o_l, l_o_p, rcl_prb_mtr, beta, s_yr_1, s_yr_2, s_gap, 
@@ -298,7 +298,6 @@ Type objective_function<Type>::operator() ()
             nll = nll - ns_SPs_btn(pr_cnt) * log(prb_SP);
             prb_UP = prb_UP - prb_SP;
           }
-          
           if(incld_POPs) {
             // Get parent-offspring pair probability
             prb_POP = prbs_POPs(s_ind_1, s_ind_2);
@@ -306,7 +305,6 @@ Type objective_function<Type>::operator() ()
             nll = nll - ns_POPs_btn(pr_cnt) * log(prb_POP);
             prb_UP = prb_UP - prb_POP;
           }
-          
           if(incld_HSPs) {
             // Get parent-offspring pair probability
             prb_HSP = prbs_HSPs(s_ind_1, s_ind_2);

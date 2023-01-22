@@ -336,18 +336,28 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
       # 
       print("fll.SI.SY.IPs.lst()$SYIPs.lst[[hst.ind]]")
       print(str(fll.SI.SY.IPs.lst()$SYIPs.lst[[hst.ind]]))
-
-      print("fll.SI.SY.IPs.lst()$SIIPs.lst[[hst.ind]]")
-      print(str(fll.SI.SY.IPs.lst()$SIIPs.lst[[hst.ind]]))
-
-      # print("pss.gp.prbs.SPs.ary()[, , 1, hst.ind]")
-      # print(pss.gp.prbs.SPs.ary()[, , 1, hst.ind])
-      # 
-      # print("pss.gt.prbs.ary()[, 1, hst.ind]")
-      # print(pss.gt.prbs.ary()[, 1, hst.ind])
+      print(summary(fll.SI.SY.IPs.lst()$SYIPs.lst[[hst.ind]]))
       
-      print("knshp.st.bln")
-      print(knshp.st.bln())
+      # print("fll.SI.SY.IPs.lst()$SIIPs.lst[[hst.ind]]")
+      # print(str(fll.SI.SY.IPs.lst()$SIIPs.lst[[hst.ind]]))
+      # 
+      # print("pss.gt.prbs.ary()[, 1:2, hst.ind]")
+      # print(pss.gt.prbs.ary()[, 1:2, hst.ind])
+      # 
+      # print("pss.gt.1.prbs.ary()[, , 1:2, hst.ind]")
+      # print(pss.gt.1.prbs.ary()[, , 1:2, hst.ind])
+      # 
+      # print("pss.gp.prbs.UPs.ary()[, , 1:2, hst.ind]")
+      # print(pss.gp.prbs.UPs.ary()[, , 1:2, hst.ind])
+      # 
+      # print("pss.gp.prbs.HSPs.ary()[, , 1:2, hst.ind]")
+      # print(pss.gp.prbs.HSPs.ary()[, , 1:2, hst.ind])
+      # 
+      # print("pss.gp.prbs.POPs.ary()[, , 1:2, hst.ind]")
+      # print(pss.gp.prbs.POPs.ary()[, , 1:2, hst.ind])
+      # 
+      # print("knshp.st.bln")
+      # print(knshp.st.bln())
       
       # Make objective function
       obj = MakeTMBObj(

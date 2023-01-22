@@ -14,11 +14,11 @@ FindLogGPProbsKP = function(
   } else {
     n.KP.tps = dim(pss.gp.prbs.KP)[4]
   }
-  lg.pss.gp.prbs.KP = log(pss.gp.prbs.KP)
+  pss.gp.lg.prbs.KP = log(pss.gp.prbs.KP)
   
   # Make matrix for genopair probabilities with columns for each kinship
   # considered
-  lg.gp.prbs.KP = matrix(
+  gp.lg.prbs.KP = matrix(
     0, nrow = n.pairs, ncol = n.KP.tps,
     dimnames = list(pair = 1:n.pairs, Kinship = dimnames(pss.gp.prbs.KP)[[4]])
   )
@@ -27,8 +27,8 @@ FindLogGPProbsKP = function(
   # L matrices of indices of genotypes ordered 00, 01, and 11, for binary SNPs
   smp.gt.inds = t(colSums(smp.gts)) + 1
   
-  # Set size of batches of loci to keep memory usage < 1GB
-  # n.pairs * btch.sz * 8 < 1Gb = 1e9 ~ 2^30 => btch.sz ~< 2^27 / n.pairs
+  # Set size of batches of loci to keep memory usage < 1GB, n.pairs * btch.sz *
+  # 8 bytes < 1Gb = 1e9 bytes ~ 2^30 => btch.sz ~< 2^27 / n.pairs
   btch.sz = 2^(26 - ceiling(log(n.pairs, 2)))
   
   # Find numbers of batches
@@ -44,9 +44,6 @@ FindLogGPProbsKP = function(
   for(btch.ind in 1:n.btchs) {
     # Increment batch counter
     btch.cnt = btch.cnt + 1
-    
-    # # Display progress
-    # cat(btch.cnt, "")
     
     # Find indices for current batch of loci
     loci.inds = ((btch.ind - 1) * btch.sz + 1):min(btch.ind * btch.sz, L)
@@ -73,17 +70,16 @@ FindLogGPProbsKP = function(
     # array. Using apply to pick out one kinship at a time to limit memory
     # usage. No significant slow down as just a few kinships.
     if (sngl.knshp) {
-      lg.gp.prbs.KP = lg.gp.prbs.KP + 
-        rowSums(matrix(lg.pss.gp.prbs.KP[ind.mat], nrow = n.pairs))
+      gp.lg.prbs.KP = gp.lg.prbs.KP + 
+        rowSums(matrix(pss.gp.lg.prbs.KP[ind.mat], nrow = n.pairs))
     } else {
-      lg.gp.prbs.KP = lg.gp.prbs.KP + 
-        apply(lg.pss.gp.prbs.KP, 4, function(lg.pss.gp.prbs) {
+      gp.lg.prbs.KP = gp.lg.prbs.KP + 
+        apply(pss.gp.lg.prbs.KP, 4, function(lg.pss.gp.prbs) {
           rowSums(matrix(lg.pss.gp.prbs[ind.mat], nrow = n.pairs))
         })
     }
-    
   }
   
   # Return log genopair probabilities
-  lg.gp.prbs.KP
+  gp.lg.prbs.KP
 }

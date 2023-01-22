@@ -45,8 +45,8 @@ TryModelTMB <- function(obj, lwr, upr, mdl.tp = c("true kinship", "genopair")) {
     )
   )
   
-  # cat("Reported values from TMB: \n")
-  # print(summary(sdreport(obj)))
+  cat("Reported values from TMB: \n")
+  print(summary(sdreport(obj)))
   
   # If optimiser hit error
   if (inherits(opt, "try-error")) {

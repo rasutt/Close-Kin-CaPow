@@ -23,8 +23,8 @@ ppn.obj = reactive({
   )
 })
 
-# Close-kin likelihood TMB objective function - True kinships 
-ck.obj = reactive({
+# True kinship likelihood TMB objective function - True kinships 
+tk.obj = reactive({
   # Get numbers of animals captured in each survey
   ns.caps = FS.atts()$ns.caps
   
@@ -106,7 +106,7 @@ frst.nll.srfcs = reactive({
       
       # Find NLL values at current parameter values
       obj.par[i, p, "Popan"] = ppn.obj()$fn(ppn.par.vals)
-      obj.par[i, p, "True kinship"] = ck.obj()$fn(ck.par.vals)
+      obj.par[i, p, "True kinship"] = tk.obj()$fn(ck.par.vals)
       obj.par[i, p, "Full genopair"] = GPP.obj.fll()$fn(ck.par.vals)
       obj.par[i, p, "Offset genopair"] = GPP.obj.offst()$fn(ck.par.vals)
     }
@@ -118,37 +118,42 @@ frst.nll.srfcs = reactive({
 # Function to plot NLL over each parameter while holding others at true values,
 # for one model
 plot.nll = function(mdl.nm) {
-  par(mfrow = c(1, 3))
   p.nms = c("Rho", "Phi", if (mdl.nm == "Popan") "Ns" else "N.final")
   
   # Loop over parameters
   for (p in 1:3) {
     plot(
       if (mdl.nm == "Popan") ppn.par.mat()[, p] else ck.par.mat()[, p], 
-      frst.nll.srfcs()[, p, mdl.nm], main = p.nms[p], 
-      xlab = p.nms[p], ylab = "NLL", type = 'l', col = 1
+      frst.nll.srfcs()[, p, mdl.nm], 
+      main = paste(p.nms[p], "-", mdl.nm), 
+      xlab = p.nms[p], 
+      ylab = mdl.nm, 
+      type = 'l', col = 1
     )
     abline(
       v = if (mdl.nm == "Popan") ppn.start()[p] else ck.start()[p], col = 2
     )
-    legend(
-      "topright", legend = c("Likelihood", "True value"), col = 1:2, lty = 1
-    )
+    # legend(
+    #   "topright", legend = c("Likelihood", "True value"), col = 1:2, lty = 1
+    # )
   }
 }
 
 # Plot NLL surfaces for each parameter with others held at true values, for each
 # model
-output$firstPpnNLLSurfs = renderPlot(plot.nll("Popan"))
-output$firstCKNLLSurfs = renderPlot(plot.nll("True kinship"))
-output$firstFGPNLLSurfs = renderPlot(plot.nll("Full genopair"))
-output$firstOGPNLLSurfs = renderPlot(plot.nll("Offset genopair"))
+output$firstNLLSurfs = renderPlot({
+  par(mfrow = c(4, 3), mar = rep(2, 4))
+  plot.nll("Popan")
+  plot.nll("True kinship")
+  plot.nll("Full genopair")
+  plot.nll("Offset genopair")
+})
 
 # Find estimates for first study
 
 # Popan model
 first.ppn.ests = reactive({
-  # Try to fit close-kin likelihood model
+  # Try to fit popan likelihood model
   rslt = TryModelTMB(ppn.obj(), ppn.lwr(), ppn.upr(), "popan")
   
   # If no error return results, otherwise return NA and non-convergence
@@ -161,8 +166,8 @@ first.ppn.ests = reactive({
 
 # True kinship model
 first.ck.ests = reactive({
-  # Try to fit close-kin likelihood model
-  rslt = TryModelTMB(ck.obj(), ck.lwr(), ck.upr(), "true kinship")
+  # Try to fit true kinship likelihood model
+  rslt = TryModelTMB(tk.obj(), ck.lwr(), ck.upr(), "true kinship")
   
   # If no error
   if (!all(is.na(rslt))) {
@@ -201,19 +206,34 @@ first.OGP.ests = reactive({
   }
 })
 
+# Print kinpair probabilities for first study under true parameters
+output$firstKPPrbs = renderTable({
+  sumsd = summary(sdreport(tk.obj()))[, "Estimate"]
+  srvy.pr.inds = 1:n.srvy.prs()^2
+  prbs_SPs = sumsd[5 + srvy.pr.inds]
+
+  # True parameter values
+  res.mat = data.frame(matrix(
+    format(prbs_SPs, digits = 3, scientific = T), nrow = k()
+  ))
+  colnames(res.mat) = rownames(res.mat) = srvy.yrs()
+  
+  res.mat
+}, rownames = T)
+
 # Print results for first study
 output$firstResults = renderTable({
   # True parameter values
   res.mat = matrix(c(par.vals(), NA), nrow = 1)
   res.mat[1, 3:4] = c(sim.lst()$N.fin.vec[1], sim.lst()$Ns.vec[1])
   colnames(res.mat) = c(est.par.names(), "Convergence")
-
+  
   # Add results
   res.mat = rbind(
     res.mat, first.ppn.ests(), first.ck.ests(),
     first.FGP.ests(), first.OGP.ests()
   )
-
+  
   # Add model names
   res.df = data.frame(
     model = c(
@@ -222,7 +242,7 @@ output$firstResults = renderTable({
     res.mat
   )
   res.df[, ncol(res.df)] = res.df[, ncol(res.df)] == 0
-
+  
   res.df
 }, digits = 3)
 

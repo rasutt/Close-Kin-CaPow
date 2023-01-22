@@ -29,12 +29,9 @@ FindPssFrstGtPrbs = function(pss.gt.prbs, L) {
 # studies, 3 x 3 x n_loci x n_sims
 FindPssFrstGtPrbsAry = function(pss.gt.prbs.ary, L, n.sims) {
   # 3 x n_loci x n_sims array indexed 3 times to fill three columns.
-  aperm(
-    array(
-      pss.gt.prbs.ary[, rep(1:L, each = n.pss.gts), ], 
-      c(n.pss.gts, n.sims, n.pss.gts, L)
-    ),
-    c(1, 3, 4, 2)
+  array(
+    pss.gt.prbs.ary[, rep(1:L, each = n.pss.gts), ], 
+    c(n.pss.gts, n.pss.gts, L, n.sims)
   )
 }
 
@@ -48,7 +45,7 @@ FindPssGpPsUPs = function(pss.gt.1.prbs) {
 
 # Function to find possible genopair probabilities for unrelated pairs
 FindPssGpPsUPsAry = function(pss.gt.1.prbs.ary) {
-  # Pproducts of the respective genotype probabilities, the second found by
+  # Products of the respective genotype probabilities, the second found by
   # permuting the array containing the first.
   pss.gt.1.prbs.ary * aperm(pss.gt.1.prbs.ary, c(2, 1, 3, 4))
 }
@@ -100,7 +97,7 @@ FindPssGpPsPOPsAry = function(pss.gt.1.prbs.ary, ale.frqs.ary, L, n.sims) {
         # Note: order data enters array is down columns, not across rows
         c(
           ale.frqs.ary[1, , ], 0.5 * ale.frqs.ary[1, , ], rep(0, L * n.sims), 
-          ale.frqs.ary[2, , ], 0.5 * colSums(ale.frqs.ary), ale.frqs.ary[1, , ],
+          ale.frqs.ary[2, , ], rep(0.5, L * n.sims), ale.frqs.ary[1, , ],
           rep(0, L * n.sims), 0.5 * ale.frqs.ary[2, , ], ale.frqs.ary[2, , ]
         ), 
         c(L, n.sims, n.pss.gts, n.pss.gts)

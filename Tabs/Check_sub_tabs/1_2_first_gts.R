@@ -230,7 +230,7 @@ output$firstFewGPPsFll = renderTable({
   df = data.frame(cbind(
     matrix(fst.std()[frst.smp.inds()[t(frst.SIPs.fll()[, 1:3])], 1], ncol = 2),
     frst.SYIPs.fll()[1:3, ],
-    format(head(GPPs.fll(), 3), scientific = T)
+    format(head(GPPs.fll(), 3), digits = 3, scientific = T)
   ))
   df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
   names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
@@ -247,7 +247,7 @@ output$firstFewGPPsOffst = renderTable({
       ncol = 2
     ),
     frst.SYIPs.offst()[1:3, ],
-    format(head(GPPs.offst(), 3), scientific = T)
+    format(head(GPPs.offst(), 3), digits = 3, scientific = T)
   ))
   df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
   names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
