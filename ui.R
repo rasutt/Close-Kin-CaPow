@@ -308,8 +308,17 @@ ui <- fluidPage(
             true values."),
           plotOutput(outputId = "firstNLLSurfs"),
           
-          h3("Kinpair probabilities for first study"),
-          tableOutput(outputId = "firstKPPrbs"),
+          h3("Kinpair probabilities estimated for first study"),
+          h4("True parameter values"),
+          h4("Unrelated"), tableOutput(outputId = "firstUPPrbsTVs"), 
+          h4("Half-siblings"), tableOutput(outputId = "firstHSPPrbsTVs"),
+          h4("Parent-offspring"), tableOutput(outputId = "firstPOPPrbsTVs"),
+          h4("Self-resample"), tableOutput(outputId = "firstSPPrbsTVs"),
+          h4("True kinship model"),
+          h4("Unrelated"), tableOutput(outputId = "firstUPPrbsTK"), 
+          h4("Half-siblings"), tableOutput(outputId = "firstHSPPrbsTK"), 
+          h4("Parent-offspring"), tableOutput(outputId = "firstPOPPrbsTK"), 
+          h4("Self-resample"), tableOutput(outputId = "firstSPPrbsTK"),
           
           h3("Results for first study"),
           tableOutput(outputId = "firstResults")

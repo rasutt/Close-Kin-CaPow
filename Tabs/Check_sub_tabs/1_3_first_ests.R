@@ -206,20 +206,45 @@ first.OGP.ests = reactive({
   }
 })
 
-# Print kinpair probabilities for first study under true parameters
-output$firstKPPrbs = renderTable({
-  sumsd = summary(sdreport(tk.obj()))[, "Estimate"]
-  srvy.pr.inds = 1:n.srvy.prs()^2
-  prbs_SPs = sumsd[5 + srvy.pr.inds]
+# Kinpair probabilities for true parameter values from TMB objective function
+frst.KP.prbs.lst = reactive({
+  print(str(tk.obj()))
+  tk.obj()$report(tk.obj()$par)
+})
 
-  # True parameter values
-  res.mat = data.frame(matrix(
-    format(prbs_SPs, digits = 3, scientific = T), nrow = k()
+# Kinpair probabilities for first study after optimisation of true kinships
+# likelihood
+frst.KP.prbs.mat = reactive({
+  matrix(
+    summary(sdreport(tk.obj()))[-(1:5), "Estimate"], 
+    nrow = k()^2, dimnames = list(srvy.pr = NULL, kp.tp = c("SP", "POP", "HSP"))
+  )
+})
+frmt.kp.prbs = function(kp.prbs) {
+  df = data.frame(matrix(
+    format(kp.prbs, digits = 3, scientific = T), nrow = k()
   ))
-  colnames(res.mat) = rownames(res.mat) = srvy.yrs()
-  
-  res.mat
-}, rownames = T)
+  colnames(df) = rownames(df) = srvy.yrs()
+  df
+}
+output$firstHSPPrbsTK = renderTable(
+  frmt.kp.prbs(frst.KP.prbs.mat()[, "HSP"]), rownames = T
+)
+output$firstPOPPrbsTK = renderTable(
+  frmt.kp.prbs(frst.KP.prbs.mat()[, "POP"]), rownames = T
+)
+output$firstSPPrbsTK = renderTable(
+  frmt.kp.prbs(frst.KP.prbs.mat()[, "SP"]), rownames = T
+)
+output$firstHSPPrbsTVs = renderTable(
+  frmt.kp.prbs(frst.KP.prbs.lst()[["prbs_HSPs"]]), rownames = T
+)
+output$firstPOPPrbsTVs = renderTable(
+  frmt.kp.prbs(frst.KP.prbs.lst()[["prbs_POPs"]]), rownames = T
+)
+output$firstSPPrbsTVs = renderTable(
+  frmt.kp.prbs(frst.KP.prbs.lst()[["prbs_SPs"]]), rownames = T
+)
 
 # Print results for first study
 output$firstResults = renderTable({
