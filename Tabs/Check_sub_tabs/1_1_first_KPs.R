@@ -6,6 +6,55 @@ fst.std = reactive(sim.lst()$hists.lst[[1]])
 # Get attributes of first study
 FS.atts = reactive(attributes(fst.std()))
 
+# Create general optimizer starting-values and bounds, NAs filled in below
+ck.start = reactive({
+  vec = c(rho(), phi(), FS.atts()$N.t.vec[hist.len()])
+  names(vec) = c("rho", "phi", "N.final")
+  vec
+})
+
+# True kinship likelihood TMB objective function - True kinships 
+tk.obj = reactive({
+  # Get numbers of animals captured in each survey
+  ns.caps = FS.atts()$ns.caps
+  
+  # Find numbers of kin pairs
+  ns.kps.lst = FindNsKinPairs(k(), n.srvy.prs(), fst.std())
+  
+  # Create TMB function
+  MakeTMBObj(
+    ck.start(), "true kinship",
+    k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
+    alpha = alpha(), knshp_st_bool = all.knshps.bln,
+    ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ], 
+    ns_POPs_btn = ns.kps.lst$btn[2, ], ns_HSPs_wtn = ns.kps.lst$wtn[2, ],
+    ns_HSPs_btn = ns.kps.lst$btn[3, ], ns_caps = ns.caps
+  )
+})
+
+# Kinpair probabilities for true parameter values from TMB objective function
+frst.KP.prbs.lst = reactive({
+  print(str(tk.obj()))
+  tk.obj()$report(tk.obj()$par)
+})
+
+# Kinpair probabilities for first study given true parameter values, from TMB
+frmt.kp.prbs = function(kp.prbs) {
+  mat = matrix(format(kp.prbs, digits = 3, scientific = T), nrow = k())
+  df = data.frame(matrix(c(diag(mat), mat[upper.tri(mat)]), nrow = 1))
+  colnames(df) = c(paste(srvy.yrs(), srvy.yrs(), sep = "-"), srvy.prs())
+  df
+}
+output$firstKPPrbsTMB = renderTable({
+  df = rbind(
+    frmt.kp.prbs(frst.KP.prbs.lst()[["prbs_SPs"]]),
+    frmt.kp.prbs(frst.KP.prbs.lst()[["prbs_POPs"]]),
+    frmt.kp.prbs(frst.KP.prbs.lst()[["prbs_HSPs"]])
+  )
+  rownames(df) = knshp.chcs
+  df
+}, rownames = T)
+
 # Function to format table of integers
 frmt.tbl = function(data, rw.nms, cl.nms) {
   mode(data) = "integer"

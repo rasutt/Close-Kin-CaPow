@@ -1,11 +1,6 @@
 # Code and outputs for first study estimates sub-tab of check-tab
 
 # Create general optimizer starting-values and bounds, NAs filled in below
-ck.start = reactive({
-  vec = c(rho(), phi(), FS.atts()$N.t.vec[hist.len()])
-  names(vec) = c("rho", "phi", "N.final")
-  vec
-})
 ppn.start = reactive(c(ck.start()[-3], FS.atts()$Ns, rep(p(), k())))
 
 # Get numbers of animals captured in study
@@ -20,25 +15,6 @@ ppn.obj = reactive({
     n_cap_hists = n.cap.hists(), first_tab = frst.pop.sum()$first.tab, 
     last_tab = frst.pop.sum()$last.tab, caps = frst.pop.sum()$caps, 
     non_caps = frst.pop.sum()$non.caps, survives = frst.pop.sum()$survives[-k()]
-  )
-})
-
-# True kinship likelihood TMB objective function - True kinships 
-tk.obj = reactive({
-  # Get numbers of animals captured in each survey
-  ns.caps = FS.atts()$ns.caps
-  
-  # Find numbers of kin pairs
-  ns.kps.lst = FindNsKinPairs(k(), n.srvy.prs(), fst.std())
-
-  # Create TMB function
-  MakeTMBObj(
-    ck.start(), "true kinship",
-    k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-    alpha = alpha(), knshp_st_bool = all.knshps.bln,
-    ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ], 
-    ns_POPs_btn = ns.kps.lst$btn[2, ], ns_HSPs_wtn = ns.kps.lst$wtn[2, ],
-    ns_HSPs_btn = ns.kps.lst$btn[3, ], ns_caps = ns.caps
   )
 })
 
@@ -146,28 +122,5 @@ output$firstNLLSurfs = renderPlot({
   plot.nll("Full genopair")
   plot.nll("Offset genopair")
 })
-
-# Kinpair probabilities for true parameter values from TMB objective function
-frst.KP.prbs.lst = reactive({
-  print(str(tk.obj()))
-  tk.obj()$report(tk.obj()$par)
-})
-
-# Kinpair probabilities for first study given true parameter values, from TMB
-frmt.kp.prbs = function(kp.prbs) {
-  mat = matrix(format(kp.prbs, digits = 3, scientific = T), nrow = k())
-  df = data.frame(matrix(c(diag(mat), mat[upper.tri(mat)]), nrow = 1))
-  colnames(df) = c(paste(srvy.yrs(), srvy.yrs(), sep = "-"), srvy.prs())
-  df
-}
-output$firstHSPPrbsTVs = renderTable(
-  frmt.kp.prbs(frst.KP.prbs.lst()[["prbs_HSPs"]]), rownames = T
-)
-output$firstPOPPrbsTVs = renderTable(
-  frmt.kp.prbs(frst.KP.prbs.lst()[["prbs_POPs"]]), rownames = T
-)
-output$firstSPPrbsTVs = renderTable(
-  frmt.kp.prbs(frst.KP.prbs.lst()[["prbs_SPs"]]), rownames = T
-)
 
 

@@ -143,7 +143,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "frst.lklhds.tb",
+        selected = "frst.KPs.tb",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
@@ -187,6 +187,13 @@ ui <- fluidPage(
             individual simulations can be quite different from each other, but 
             the average over many simulations should approach the expected 
             values."),
+          
+          h3("Kinpair probabilities predicted for first study from TMB"),
+          p("Predictions given true parameter values"),
+          h4("From TMB function"),
+          tableOutput(outputId = "firstKPPrbsTMB"),
+          h4("From kin pair numbers checks"),
+          tableOutput(outputId = "firstKPPrbsR"),
           
           h3("Numbers of pairs within survey-years (whole population)"),
           p("Numbers of pairs of individuals with given relationships,
@@ -303,14 +310,7 @@ ui <- fluidPage(
           h3("Likelihood surface near true parameter values"),
           p("Negative log-likelihood over each parameter while others held at 
             true values."),
-          plotOutput(outputId = "firstNLLSurfs"),
-          
-          h3("Kinpair probabilities predicted for first study from TMB"),
-          h4("True parameter values"),
-          h4("Unrelated"), tableOutput(outputId = "firstUPPrbsTVs"), 
-          h4("Half-siblings"), tableOutput(outputId = "firstHSPPrbsTVs"),
-          h4("Parent-offspring"), tableOutput(outputId = "firstPOPPrbsTVs"),
-          h4("Self-resample"), tableOutput(outputId = "firstSPPrbsTVs")
+          plotOutput(outputId = "firstNLLSurfs")
         ),
         # First study estimates ----
         tabPanel(
