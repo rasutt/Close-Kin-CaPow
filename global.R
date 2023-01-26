@@ -6,6 +6,9 @@ min_phi = 0.9
 max_phi = 1
 step_phi = 0.005
 
+# Number of points at which to plot likelihood surfaces
+n.pts = 100
+
 # Model choices
 mdl.chcs = c("Popan", "True kinship", "Full genopair", "Offset genopair")
 

@@ -120,6 +120,11 @@ Type objective_function<Type>::operator() ()
     exp_ns_APs = (exp_N_s_yrs * 
       (exp_N_s_yrs - Type(1.0)) / Type(2.0)).matrix().asDiagonal();
     
+    if(incld_SPs) {
+      // Initialise probabilities of SPs
+      prbs_SPs.setZero();
+    }
+    
     if(incld_POPs) {
       // Probability of POPs within samples
       prbs_POPs = (Type(2.0) / (exp_N_s_yrs - Type(1.0)) * 

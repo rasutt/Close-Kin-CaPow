@@ -143,7 +143,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "frst.ests.tb",
+        selected = "frst.lklhds.tb",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
@@ -295,6 +295,23 @@ ui <- fluidPage(
           p("Observed values for all sample-pairs, over all loci."),
           plotOutput(outputId = "frstGpPs")
         ),
+        # First study likelihoods ----
+        tabPanel(
+          title = "First study likelihoods",
+          value = "frst.lklhds.tb",
+          h2("First study likelihoods"),
+          h3("Likelihood surface near true parameter values"),
+          p("Negative log-likelihood over each parameter while others held at 
+            true values."),
+          plotOutput(outputId = "firstNLLSurfs"),
+          
+          h3("Kinpair probabilities predicted for first study from TMB"),
+          h4("True parameter values"),
+          h4("Unrelated"), tableOutput(outputId = "firstUPPrbsTVs"), 
+          h4("Half-siblings"), tableOutput(outputId = "firstHSPPrbsTVs"),
+          h4("Parent-offspring"), tableOutput(outputId = "firstPOPPrbsTVs"),
+          h4("Self-resample"), tableOutput(outputId = "firstSPPrbsTVs")
+        ),
         # First study estimates ----
         tabPanel(
           title = "First study estimates",
@@ -302,26 +319,15 @@ ui <- fluidPage(
           h2("First study estimates"),
           p("Parameter estimates for first simulated study. Close-kin models 
              include self, parent-offspring, and half-sibling pairs."),
+          h3("Results for first study"),
+          tableOutput(outputId = "firstResults"),
 
-          h3("Likelihood surface near true parameter values"),
-          p("Negative log-likelihood over each parameter while others held at 
-            true values."),
-          plotOutput(outputId = "firstNLLSurfs"),
-          
           h3("Kinpair probabilities estimated for first study"),
-          h4("True parameter values"),
-          h4("Unrelated"), tableOutput(outputId = "firstUPPrbsTVs"), 
-          h4("Half-siblings"), tableOutput(outputId = "firstHSPPrbsTVs"),
-          h4("Parent-offspring"), tableOutput(outputId = "firstPOPPrbsTVs"),
-          h4("Self-resample"), tableOutput(outputId = "firstSPPrbsTVs"),
           h4("True kinship model"),
           h4("Unrelated"), tableOutput(outputId = "firstUPPrbsTK"), 
           h4("Half-siblings"), tableOutput(outputId = "firstHSPPrbsTK"), 
           h4("Parent-offspring"), tableOutput(outputId = "firstPOPPrbsTK"), 
-          h4("Self-resample"), tableOutput(outputId = "firstSPPrbsTK"),
-          
-          h3("Results for first study"),
-          tableOutput(outputId = "firstResults")
+          h4("Self-resample"), tableOutput(outputId = "firstSPPrbsTK")
         ),
         # Populations ----
         tabPanel(
@@ -332,13 +338,6 @@ ui <- fluidPage(
           h3("Whole simulation"),
           plotOutput(outputId = "checkExpPop"),
           VBE.ui("N", "In survey-years", "")
-        ),
-        # Genotypes ----
-        tabPanel(
-          title = "Genotypes",
-          value = "gt.tab",
-          h2("Genotypes"),
-          p("Genotypes simulated.")
         ),
         # Unknown parents ----
         tabPanel(

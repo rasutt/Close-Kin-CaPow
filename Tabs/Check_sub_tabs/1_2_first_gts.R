@@ -59,7 +59,9 @@ observeEvent({
 }, {
   if (
     input$nav.tab == "check.tab" && 
-    input$check.sub.tabs %in% c("frst.gts.tb", "frst.ests.tb") &&
+    input$check.sub.tabs %in% c(
+      "frst.gts.tb", "frst.lklhds.tb", "frst.ests.tb"
+    ) &&
     is.null(frst.LGPPs.KP.fll())
   ) {
     frst.LGPPs.KP.fll(FindLogGPProbsKP(
@@ -74,7 +76,9 @@ frst.LGPPs.KP.offst = reactive({
 })
 
 # Genopair probabilities for optimization
-GPPs.fll = reactive(FindGPPs(frst.LGPPs.KP.fll()))
+GPPs.fll = reactive({
+  FindGPPs(frst.LGPPs.KP.fll())
+})
 GPPs.offst = reactive(FindGPPs(frst.LGPPs.KP.offst()))
 
 # Expected values of HSP vs UP PLODs given kinships
