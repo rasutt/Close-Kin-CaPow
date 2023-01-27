@@ -82,18 +82,12 @@ output$firstResults = renderTable({
 
 # Kinpair probabilities for first study after optimisation of true kinships
 # likelihood
-frst.KP.prbs.mat = reactive({
-  matrix(
-    summary(sdreport(tk.obj()))[-(1:5), "Estimate"], 
-    nrow = k()^2, dimnames = list(srvy.pr = NULL, kp.tp = c("SP", "POP", "HSP"))
-  )
+frst.KP.prbs.TKs.lst = reactive({
+  ests = first.ck.ests()
+  tk.obj()$report(c(ests[1] - ests[2], ests[2:3]))
 })
-output$firstHSPPrbsTK = renderTable(
-  frmt.kp.prbs(frst.KP.prbs.mat()[, "HSP"]), rownames = T
-)
-output$firstPOPPrbsTK = renderTable(
-  frmt.kp.prbs(frst.KP.prbs.mat()[, "POP"]), rownames = T
-)
-output$firstSPPrbsTK = renderTable(
-  frmt.kp.prbs(frst.KP.prbs.mat()[, "SP"]), rownames = T
-)
+
+output$firstKPPrbsTK = renderTable({
+  frmt.kp.prbs(frst.KP.prbs.TKs.lst())
+}, rownames = T)
+

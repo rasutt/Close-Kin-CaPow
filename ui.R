@@ -324,10 +324,7 @@ ui <- fluidPage(
 
           h3("Kinpair probabilities estimated for first study"),
           h4("True kinship model"),
-          h4("Unrelated"), tableOutput(outputId = "firstUPPrbsTK"), 
-          h4("Half-siblings"), tableOutput(outputId = "firstHSPPrbsTK"), 
-          h4("Parent-offspring"), tableOutput(outputId = "firstPOPPrbsTK"), 
-          h4("Self-resample"), tableOutput(outputId = "firstSPPrbsTK")
+          tableOutput(outputId = "firstKPPrbsTK")
         ),
         # Populations ----
         tabPanel(

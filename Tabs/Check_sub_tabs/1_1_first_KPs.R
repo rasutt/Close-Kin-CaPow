@@ -33,26 +33,29 @@ tk.obj = reactive({
 })
 
 # Kinpair probabilities for true parameter values from TMB objective function
-frst.KP.prbs.lst = reactive({
-  print(str(tk.obj()))
+frst.KP.prbs.TVs.lst = reactive({
   tk.obj()$report(tk.obj()$par)
 })
 
 # Kinpair probabilities for first study given true parameter values, from TMB
-frmt.kp.prbs = function(kp.prbs) {
-  mat = matrix(format(kp.prbs, digits = 3, scientific = T), nrow = k())
-  df = data.frame(matrix(c(diag(mat), mat[upper.tri(mat)]), nrow = 1))
-  colnames(df) = c(paste(srvy.yrs(), srvy.yrs(), sep = "-"), srvy.prs())
-  df
-}
-output$firstKPPrbsTMB = renderTable({
-  df = rbind(
-    frmt.kp.prbs(frst.KP.prbs.lst()[["prbs_SPs"]]),
-    frmt.kp.prbs(frst.KP.prbs.lst()[["prbs_POPs"]]),
-    frmt.kp.prbs(frst.KP.prbs.lst()[["prbs_HSPs"]])
+frmt.kp.prbs = function(kp.prbs.lst) {
+  mat = t(
+    sapply(
+      rev(kp.prbs.lst), 
+      function(kp.prbs.mat) {
+        # Pull out and combine values within and between surveys
+        c(diag(kp.prbs.mat), kp.prbs.mat[upper.tri(kp.prbs.mat)])
+      }
+    )
   )
+  df = data.frame(format(mat, digits = 3, scientific = T))
+  colnames(df) = c(srvy.yrs(), srvy.prs())
   rownames(df) = knshp.chcs
   df
+}
+
+output$firstKPPrbsTMB = renderTable({
+  frmt.kp.prbs(frst.KP.prbs.TVs.lst())
 }, rownames = T)
 
 # Function to format table of integers
