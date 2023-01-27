@@ -142,7 +142,6 @@ output$firstGtPrbs = renderTable({
 # Function to format genopair probabilities for display
 frmt.gpps = function(gpps) {
   df = data.frame(gpps)
-  # df = data.frame(asNumeric(gpps))
   names(df) = row.names(df) = pss.gt.lbls
   df
 }

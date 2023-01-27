@@ -83,8 +83,7 @@ output$firstResults = renderTable({
 # Kinpair probabilities for first study after optimisation of true kinships
 # likelihood
 frst.KP.prbs.TKs.lst = reactive({
-  ests = first.ck.ests()
-  tk.obj()$report(c(ests[1] - ests[2], ests[2:3]))
+  tk.obj()$report()
 })
 
 output$firstKPPrbsTK = renderTable({

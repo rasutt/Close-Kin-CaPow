@@ -5,10 +5,10 @@ output$currParsSltd <- renderTable({
   # Make data frame for display
   par.vals.df(
     c(phi(), rho(), exp.N.base(), base.yr(), paste(srvy.yrs(), collapse = ", "), 
-      p()),
+      p(), L()),
     c("Survival rate", "Per capita birth rate", "Expected population size in 
       base year", "Base year for expected population size", "Survey years",
-      "Base level capture probability"),
+      "Base level capture probability", "Number of loci"),
     NULL
   )
 }, digits = 3)

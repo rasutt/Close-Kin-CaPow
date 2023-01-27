@@ -243,6 +243,7 @@ Type objective_function<Type>::operator() ()
     
     // Request values and derivatives for kinship probabilities, need values
     // separately to check for true parameter values
+    REPORT(exp_N_s_yrs);
     REPORT(prbs_SPs);
     REPORT(prbs_POPs);
     REPORT(prbs_HSPs);
