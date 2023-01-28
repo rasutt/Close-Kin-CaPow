@@ -68,7 +68,7 @@ FindSIPsOffset = function(k, smp.yr.inds) {
   smp.ind.prs
 }
 
-FindGPPs = function(LGPPs) {
+FindGPsGvnKs = function(LGPPs) {
   # Get genopair probabilities (by excluding probabilities giveb half-sibs for
   # now) and check for pairs where all probabilities underflow to zero
   gpp.slct = exp(LGPPs)

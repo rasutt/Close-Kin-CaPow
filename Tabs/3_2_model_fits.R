@@ -1,7 +1,6 @@
 # Kinship set Boolean vector
 knshp.st.bln = reactive(as.integer(knshp.chcs %in% knshp.st()))
 
-
 # Fit popan model
 fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
@@ -154,29 +153,28 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
       # over time
       pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
       
-      # Update optimiser starting-values and bounds
+      # Update optimizer starting-values and bounds
       ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
       ck.lwr[3] <- attributes(pop.cap.hist)$ns.caps[k()]
       
-      # Find genopair log-probabilities given selected kinships
-      fll.gp.lg.prbs.KP = cbind(
-        fll.gp.lg.prbs.UP.lst()[[hst.ind]],
-        if ("Half-sibling" %in% knshp.st()) 
-          fll.gp.lg.prbs.HSP.lst()[[hst.ind]],
-        if ("Parent-offspring" %in% knshp.st()) 
-          fll.gp.lg.prbs.POP.lst()[[hst.ind]],
-        if ("Self" %in% knshp.st()) 
-          fll.gp.lg.prbs.SP.lst()[[hst.ind]]
+      # Full genopair log-probabilities given selected kinships, n_pairs x
+      # n_kinships, combining those for unrelated pairs and selected kinships
+      FGLPs.gvn.Ks = cbind(
+        FGLPs.UPs.lst()[[hst.ind]],
+        if ("Half-sibling" %in% knshp.st()) FGLPs.HSPs.lst()[[hst.ind]],
+        if ("Parent-offspring" %in% knshp.st()) FGLPs.POPs.lst()[[hst.ind]],
+        if ("Self" %in% knshp.st()) FGLPs.SPs.lst()[[hst.ind]]
       )
       
-      # Exponentiate genopair log-probabilities given kinship set, checking for
-      # underflow and trying to adjust if necessary.  Would be good to raise a
-      # proper error if adjustment impossible
-      fll.gp.prbs.KP = FindGPPs(fll.gp.lg.prbs.KP)
+      # Full genopair probabilities given kinships, n_pairs x n_kinships, 
+      # exponentiating log-probabilities, checking for underflow and trying to
+      # adjust if necessary.  Would be good to raise a proper error if
+      # adjustment impossible
+      FGPs.gvn.Ks = FindGPsGvnKs(FGLPs.gvn.Ks)
       
-      print("fll.gp.prbs.KP")
-      print(str(fll.gp.prbs.KP))
-      print(head(fll.gp.prbs.KP))
+      print("FGPs.gvn.Ks")
+      print(str(FGPs.gvn.Ks))
+      print(head(FGPs.gvn.Ks))
       # print("Correct, n_pairs x n_kinships")
       # 
       print("fll.SI.SY.IPs.lst()$SYIPs.lst[[hst.ind]]")
@@ -209,7 +207,7 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), knshp_st_bool = knshp.st.bln(),
-        gp_probs = fll.gp.prbs.KP, 
+        gp_probs = FGPs.gvn.Ks, 
         smp_yr_ind_prs = fll.SI.SY.IPs.lst()$SYIPs.lst[[hst.ind]]
       )
       

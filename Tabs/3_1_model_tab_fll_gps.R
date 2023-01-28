@@ -145,7 +145,7 @@ MakeFLGPsKPRctv = function(kp.tp) {
     lst
   })
 }
-fll.gp.lg.prbs.UP.lst = MakeFLGPsKPRctv("unrelated")
-fll.gp.lg.prbs.SP.lst = MakeFLGPsKPRctv("self")
-fll.gp.lg.prbs.POP.lst = MakeFLGPsKPRctv("parent-offspring")
-fll.gp.lg.prbs.HSP.lst = MakeFLGPsKPRctv("half-sibling")
+FGLPs.UPs.lst = MakeFLGPsKPRctv("unrelated")
+FGLPs.SPs.lst = MakeFLGPsKPRctv("self")
+FGLPs.POPs.lst = MakeFLGPsKPRctv("parent-offspring")
+FGLPs.HSPs.lst = MakeFLGPsKPRctv("half-sibling")

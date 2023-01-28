@@ -241,16 +241,12 @@ Type objective_function<Type>::operator() ()
       }
     }
     
-    // Request values and derivatives for kinship probabilities, need values
-    // separately to check for true parameter values
+    // Request values for kinship probabilities
     REPORT(exp_N_s_yrs);
     REPORT(prbs_SPs);
     REPORT(prbs_POPs);
     REPORT(prbs_HSPs);
-    ADREPORT(prbs_SPs);
-    ADREPORT(prbs_POPs);
-    ADREPORT(prbs_HSPs);
-    
+
     // Temporary variables for kinpair probabilities
     Type prb_SP, prb_POP, prb_HSP, prb_UP;
     
@@ -383,8 +379,8 @@ Type objective_function<Type>::operator() ()
           prb_UP = prb_UP - prb_HSP;
         }
         
-        // Add negative log likelihood from genopair probabilities given kinships
-        // and kinship probabilities in terms of parameters.
+        // Add negative log likelihood from genopair probabilities given
+        // kinships and kinship probabilities in terms of parameters.
         nll = nll - log(gp_prb + prb_UP * gp_probs(gpind, 0));
       }
     }
