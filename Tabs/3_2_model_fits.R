@@ -159,22 +159,21 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
       
       # Full genopair log-probabilities given selected kinships, n_pairs x
       # n_kinships, combining those for unrelated pairs and selected kinships
-      fglps.gvn.ks = cbind(
+      fglpsgks = cbind(
         fglps.UPs.lst()[[hst.ind]],
         if ("Half-sibling" %in% knshp.st()) fglps.HSPs.lst()[[hst.ind]],
         if ("Parent-offspring" %in% knshp.st()) fglps.POPs.lst()[[hst.ind]],
         if ("Self" %in% knshp.st()) fglps.SPs.lst()[[hst.ind]]
       )
-      colnames(fglps.gvn.ks) = 
-        c("UP", "HSP", "POP", "SP")[c(T, rev(kivs()) == 1)]
+      colnames(fglpsgks) = c("UP", "HSP", "POP", "SP")[c(T, rev(kivs()) == 1)]
       
       # Full genopair probabilities given kinships, n_pairs x n_kinships, 
       # exponentiating log-probabilities, checking for underflow and trying to
       # adjust if necessary.  Would be good to raise a proper error if
       # adjustment impossible
-      fgps.gvn.ks = FindGPsGvnKs(fglps.gvn.ks)
+      fgpsgks = FindGPsGvnKs(fglpsgks)
       cat("Full genopair probabilities given kinships \n")
-      print(head(fgps.gvn.ks))
+      print(head(fgpsgks))
       cat("\n")
 
       # Survey-year index pairs, n_pairs x 2, starting from zero for C++
@@ -211,7 +210,7 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), knshp_st_bool = kivs(),
-        gp_probs = fgps.gvn.ks, 
+        gp_probs = fgpsgks, 
         smp_yr_ind_prs = fsisyips.lst()$syips.lst[[hst.ind]]
       )
       

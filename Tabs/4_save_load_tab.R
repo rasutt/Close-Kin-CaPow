@@ -112,7 +112,7 @@ observeEvent(input$file, {
   frst.fglps(saved.objs$frst.fglps)
   mdl.st(saved.objs$mdl.st)
   knshp.st(saved.objs$knshp.st)
-  fll.SI.SY.IPs.lst(NULL)
+  fsisyips.lst(NULL)
   offst.SYIPs.lst(saved.objs$offst.SYIPs.lst)
   
   # If started multi-core cluster

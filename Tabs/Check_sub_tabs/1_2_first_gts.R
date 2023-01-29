@@ -5,11 +5,9 @@
 # alleles at each locus
 frst.ale.frqs = reactive(FindAleFrqs(FS.atts()$unq.smp.gts))
 
-# Probabilities of possible genopairs at each locus as 3 x 3 x L arrays, where
-# rows represent the first genotypes, and columns the second, ordered as 00, 01,
-# and 11, for binary SNPs.
-frst.pss.gp.prbs.KPs = 
-  reactive(FindPssGPPsKPs(frst.ale.frqs(), L(), knshp.chcs))
+# Possible genopair probabilities given kinships at each locus for first study,
+# 3 x 3 x L, for possible genotypes ordered 00, 01, 11
+frst.pgpsgks = reactive(FindPssGPPsKPs(frst.ale.frqs(), L(), knshp.chcs))
 
 # Sample histories from first study, (n_animals x n_surveys)
 frst.smp.hsts = reactive(as.matrix(fst.std()[, 4:(3 + k())]))
@@ -68,7 +66,7 @@ observeEvent({
     # Find full set of genopair log-probabilities for first study, n.pairs x
     # n.kinships
     frst.fglps(FindGLPs(
-      frst.pss.gp.prbs.KPs(), frst.smp.gts(), frst.SIPs.fll(), L()
+      frst.pgpsgks(), frst.smp.gts(), frst.SIPs.fll(), L()
     ))
   }
 })
@@ -76,7 +74,7 @@ observeEvent({
 # Offset genopair log-probabilities for first study
 frst.oglps = reactive({
   FindGLPs(
-    frst.pss.gp.prbs.KPs(), frst.smp.gts(), frst.SIPs.offst(), L()
+    frst.pgpsgks(), frst.smp.gts(), frst.SIPs.offst(), L()
   )
 })
 
@@ -91,10 +89,10 @@ exp.plod.KP = reactive({
   # Possible values of HSP vs UP PLODs, leaving division by number of loci to
   # next step after summation
   pss.plods = 
-    log(frst.pss.gp.prbs.KPs()[, , , 2] / frst.pss.gp.prbs.KPs()[, , , 1])
+    log(frst.pgpsgks()[, , , 2] / frst.pgpsgks()[, , , 1])
   
   # Unrelated, parent-offspring, and self-pairs
-  prbs.plods = frst.pss.gp.prbs.KPs() * rep(pss.plods, 4)
+  prbs.plods = frst.pgpsgks() * rep(pss.plods, 4)
   exp.plod.base = colSums(prbs.plods, dims = 3) / L()
   
   # First-cousin, avuncular, and half-sibling pairs
@@ -153,22 +151,22 @@ frmt.gpps = function(gpps) {
 
 # Table showing GPPs given unrelated
 output$firstGPPsUP = renderTable({
-  frmt.gpps(frst.pss.gp.prbs.KPs()[, , 1, 1])
+  frmt.gpps(frst.pgpsgks()[, , 1, 1])
 }, rownames = T)
 
 # Table showing GPPs given half-siblings
 output$firstGPPsHSP = renderTable({
-  frmt.gpps(frst.pss.gp.prbs.KPs()[, , 1, 2])
+  frmt.gpps(frst.pgpsgks()[, , 1, 2])
 }, rownames = T)
 
 # Table showing GPPs given parent-offspring
 output$firstGPPsPOP = renderTable({
-  frmt.gpps(frst.pss.gp.prbs.KPs()[, , 1, 3])
+  frmt.gpps(frst.pgpsgks()[, , 1, 3])
 }, rownames = T)
 
 # Table showing GPPs given self-resample
 output$firstGPPsSP = renderTable({
-  frmt.gpps(frst.pss.gp.prbs.KPs()[, , 1, 4])
+  frmt.gpps(frst.pgpsgks()[, , 1, 4])
 }, rownames = T)
 
 # Table of genopair probabilities of first few pairs captured (can show

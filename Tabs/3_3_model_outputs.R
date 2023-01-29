@@ -10,7 +10,7 @@ observeEvent(input$simulate, {
   knshp.st(NULL)
   fit.lst(NULL)
   fsisyips.lst(NULL)
-  offst.syips.lst(NULL)
+  # offst.syips.lst(NULL)
   
   # If started multi-core cluster
   if (!is.null(cl())) {
@@ -79,8 +79,8 @@ observeEvent(input$fit, {
       clusterExport(
         cl(),
         list(
-          "hst.lst.prll", "siips.lst.prll", "L.prll", "k.prll", "
-          FindLogGPProbsKP"
+          "hst.lst.prll", "siips.lst.prll", "L.prll", "k.prll", 
+          "FindGLPs"
         ), 
         environment()
       )

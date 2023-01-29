@@ -1,46 +1,36 @@
 # Allele frequencies for each study, 2 x n_loci X n_sims
 ale.frqs.ary = reactive({
-  # Make empty list
-  ale.frqs.ary.tmp = array(dim = c(2, L(), n.sims()))
-  
   # Loop over histories
   withProgress({
-    for (hst.ind in 1:n.sims()) {
-      # Get simulated family and capture histories of population of animals
-      # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
-      
-      # Allele frequencies, 2 x n_loci matrices, representing relative
-      # frequencies of 0 and 1-coded SNP alleles at each locus
-      ale.frqs.ary.tmp[, , hst.ind] = 
-        FindAleFrqs(attributes(pop.cap.hist)$unq.smp.gts)
-    }
+    sapply(
+      sim.lst()$hists.lst, 
+      function(pop.cap.hist) FindAleFrqs(attributes(pop.cap.hist)$unq.smp.gts),
+      simplify = "array"
+    )
   }, value = 0, message = "Finding allele frequencies")
-  
-  ale.frqs.ary.tmp
 })
 
 # Possible genotype probabilities for each study, 3 x n_loci x n_sims
-pss.gt.prbs.ary = reactive({
+pgtps.ary = reactive({
   FindPssGtPrbsAry(ale.frqs.ary())
 })
 
-# Possible first genotype probabilities for sample pairs for each study, 3 x 3 x
+# Possible first genotype probabilities for genopairs in each study, 3 x 3 x
 # n_loci x n_sims, first genotypes are rows
-pss.gt.1.prbs.ary = reactive({
-  FindPssFrstGtPrbsAry(pss.gt.prbs.ary(), L(), n.sims())
+pgt1ps.ary = reactive({
+  FindPssFrstGtPrbsAry(pgtps.ary(), L(), n.sims())
 })
 
 # Possible genopair probabilities for each kinship for each study, 3 x 3 x
 # n_loci x n_sims
 pgps.UPs.ary = reactive({
-  FindPssGpPsUPsAry(pss.gt.1.prbs.ary())
+  FindPssGpPsUPsAry(pgt1ps.ary())
 })
 pgps.SPs.ary = reactive({
-  FindPssGpPsSPsAry(pss.gt.prbs.ary(), L(), n.sims())
+  FindPssGpPsSPsAry(pgtps.ary(), L(), n.sims())
 })
 pgps.POPs.ary = reactive({
-  FindPssGpPsPOPsAry(pss.gt.1.prbs.ary(), ale.frqs.ary(), L(), n.sims())
+  FindPssGpPsPOPsAry(pgt1ps.ary(), ale.frqs.ary(), L(), n.sims())
 })
 pgps.HSPs.ary = reactive({
   FindPssGpPsHSPsAry(pgps.UPs.ary(), pgps.POPs.ary())
