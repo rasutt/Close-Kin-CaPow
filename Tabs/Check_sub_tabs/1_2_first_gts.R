@@ -1,50 +1,43 @@
-# Find allele frequencies from genotypes in 2 x L x n_individuals arrays,
-# representing two binary SNPs at each locus for each individual, excluding
-# repeated samples of the same individual in different surveys.  Frequencies are
-# returned as 2 x L matrices representing the frequencies of 0 and 1-coded SNP
-# alleles at each locus
-frst.ale.frqs = reactive(FindAleFrqs(FS.atts()$unq.smp.gts))
-
-# Possible genopair probabilities given kinships at each locus for first study,
-# 3 x 3 x L, for possible genotypes ordered 00, 01, 11
-frst.pgpsgks = reactive(FindPssGPPsKPs(frst.ale.frqs(), L(), knshp.chcs))
-
-# Sample histories from first study, (n_animals x n_surveys)
-frst.smp.hsts = reactive(as.matrix(fst.std()[, 4:(3 + k())]))
-
-# Indices of samples from first study, (n_samples)
-frst.smp.inds = reactive(row(frst.smp.hsts())[as.logical(frst.smp.hsts())])
-
-# Sample genotypes, (2 x L x n_samples), indexed from unique sampled genotypes,
+# Genotypes, 2 x L x n_individuals, indexed from unique sampled genotypes,
 # (2 x L x n_animals), representing two binary SNPs at each locus for
 # each individual sampled at least once. They are expanded to arrays by indexing
 # sample genotypes.
-frst.smp.gts = reactive(FS.atts()$unq.smp.gts[, , frst.smp.inds()])
+frst.gts = reactive(FS.atts()$unq.smp.gts)
 
-# Indices of survey-years for each sample, starting from zero, as used in TMB
-# C++ objective function
-frst.smp.yr.inds = reactive({
-  col(frst.smp.hsts())[as.logical(frst.smp.hsts())] - 1
-})
+# Allele frequencies for first study, 2 x n_loci, representing 0 and 1-coded SNP
+# alleles at each locus
+frst.ale.frqs = reactive(FindAleFrqs(frst.gts()))
 
-# Sample index pairs, 2 x n_pairs matrix of indices of samples in each pair to
-# include in likelihood, possibly all pairs or just consecutive pairs
-frst.SIPs.fll = reactive(combn(length(frst.smp.inds()), 2))
-frst.SIPs.offst = reactive(FindSIPsOffset(k(), frst.smp.yr.inds()))
+# Possible genopair probabilities given kinships at each locus for first study,
+# 3 x 3 x n_loci x n_kinships, for possible genotypes ordered 00, 01, 11
+frst.pgpsgks = reactive(FindPssGPPsKPs(frst.ale.frqs(), L(), knshp.chcs))
 
-# Sample-year index pairs
-FindSYIPs = reactive(function(smp.ind.prs) {
-  # n_pairs x 2 matrix of survey-years for each sample in each pair
+# Sample histories from first study, n_animals x n_surveys
+frst.smp.hsts = reactive(as.matrix(frst.std()[, 4:(3 + k())]))
+
+# Sample-individual indices from first study, n_samples
+frst.siis = reactive(row(frst.smp.hsts())[as.logical(frst.smp.hsts())])
+
+# Sample-year indices from first study, n_samples, starting from zero as used in
+# TMB C++ objective function
+frst.syis = reactive(col(frst.smp.hsts())[as.logical(frst.smp.hsts())] - 1)
+
+# Full and offset sample-individual index pairs, n_pairs x 2
+frst.fsiips = reactive(t(combn(length(frst.siis()), 2)))
+frst.osiips = reactive(t(FindSIPsOffset(k(), frst.syis())))
+
+# Function to find sample-year index pairs, n_pairs x 2
+FindSYIPs = function(syis, siips) {
   matrix(
-    frst.smp.yr.inds()[as.vector(t(smp.ind.prs))], ncol = 2,
+    syis[as.vector(siips)], ncol = 2,
     dimnames = list(pair = NULL, sample_year_index = 1:2)
   )
-})
+}
 
 # Indices of survey-years for each sample in each pair, starting at zero for
 # C++ template, and ordered by survey-year of first sample
-frst.SYIPs.fll = reactive(FindSYIPs()(frst.SIPs.fll()))
-frst.SYIPs.offst = reactive(FindSYIPs()(frst.SIPs.offst()))
+frst.SYIPs.fll = reactive(FindSYIPs(frst.syis(), frst.fsiips()))
+frst.SYIPs.offst = reactive(FindSYIPs(frst.syis(), frst.osiips()))
 
 # Nullify genopair log-probabilities when new datasets simulated
 observeEvent(input$simulate, frst.fglps(NULL))
@@ -65,17 +58,13 @@ observeEvent({
   ) {
     # Find full set of genopair log-probabilities for first study, n.pairs x
     # n.kinships
-    frst.fglps(FindGLPs(
-      frst.pgpsgks(), frst.smp.gts(), frst.SIPs.fll(), L()
-    ))
+    frst.fglps(FindGLPs(frst.pgpsgks(), frst.gts(), frst.fsiips(), L()))
   }
 })
 
 # Offset genopair log-probabilities for first study
 frst.oglps = reactive({
-  FindGLPs(
-    frst.pgpsgks(), frst.smp.gts(), frst.SIPs.offst(), L()
-  )
+  FindGLPs(frst.pgpsgks(), frst.gts(), frst.osiips(), L())
 })
 
 # Genopair probabilities for optimization
@@ -118,9 +107,9 @@ first.plods = reactive({
 # later)
 output$firstGTs = renderTable({
   df = data.frame(cbind(
-    rep(fst.std()$ID[frst.smp.inds()[1:3]], each = 2), 
+    rep(frst.std()$ID[frst.siis()[1:3]], each = 2), 
     rep(paste0(c("m", "p"), "aternal"), 3),
-    matrix(frst.smp.gts()[, , 1:3], nrow = 6)
+    matrix(frst.gts()[, , 1:3], nrow = 6)
   ))
   names(df) = c("ID", "Allele", paste0("L", 1:L()))
   df
@@ -173,7 +162,7 @@ output$firstGPPsSP = renderTable({
 # kin-pairs later)
 output$firstFewLGPPs = renderTable({
   df = data.frame(cbind(
-    matrix(fst.std()[frst.smp.inds()[t(frst.SIPs.fll()[, 1:3])], 1], ncol = 2),
+    matrix(frst.std()[frst.siis()[frst.fsiips()[1:3, ]], 1], ncol = 2),
     frst.SYIPs.fll()[1:3, ],
     frst.fglps()[1:3, ]
   ))
@@ -234,7 +223,7 @@ output$firstPLODsRare = renderPlot({
 # Table of genopair probabilities of first few pairs captured
 output$firstFewGPPsFll = renderTable({
   df = data.frame(cbind(
-    matrix(fst.std()[frst.smp.inds()[t(frst.SIPs.fll()[, 1:3])], 1], ncol = 2),
+    matrix(frst.std()[frst.siis()[frst.fsiips()[1:3, ]], 1], ncol = 2),
     frst.SYIPs.fll()[1:3, ],
     format(head(GPPs.fll(), 3), digits = 3, scientific = T)
   ))
@@ -249,7 +238,7 @@ output$firstFewGPPsFll = renderTable({
 output$firstFewGPPsOffst = renderTable({
   df = data.frame(cbind(
     matrix(
-      fst.std()[frst.smp.inds()[t(frst.SIPs.offst()[, 1:3])], 1], 
+      frst.std()[frst.siis()[frst.osiips()[1:3, ]], 1], 
       ncol = 2
     ),
     frst.SYIPs.offst()[1:3, ],

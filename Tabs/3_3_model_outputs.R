@@ -28,7 +28,7 @@ observeEvent(input$fit, {
   # If fitting full genopair model for first time since simulation/loading
   if ("Full genopair" %in% mdl.st() && is.null(fsisyips.lst())) {
     # Full set of sample-individual and sample-year index pairs for genopair
-    # models, 2 x n_pairs x 2(??), representing individual and year that each
+    # models, 2 x n_pairs x 2, representing individual and year that each
     # sample came from. Sample-years start from zero for TMB C++ objective
     # function
     fsisyips.lst({
@@ -44,11 +44,12 @@ observeEvent(input$fit, {
           pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
           
           # Sample history matrix, n_individuals x n_surveys, rows ordered by
-          # individual ID
+          # individual ID, using == 1 as simpler for data frame input
           smp.hsts.bln = pop.cap.hist[, 4:(3 + k())] == 1
           
           # Sample-individual and sample-year index pairs
-          siips.lst[[hst.ind]] = combn(row(smp.hsts.bln)[smp.hsts.bln], 2)
+          siips.lst[[hst.ind]] = 
+            t(combn(row(smp.hsts.bln)[smp.hsts.bln], 2))
           syips.lst[[hst.ind]] = 
             t(combn(col(smp.hsts.bln)[smp.hsts.bln] - 1, 2))
           

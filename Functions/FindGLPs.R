@@ -3,9 +3,8 @@
 # ~1Gb.
 FindGLPs = function(pgps, gts, siips, L, sk = F) {
   # Sample-individual indices of first and second samples in each pair, n_pairs
-  # x 1
-  siis.1 = siips[1, ]
-  siis.2 = siips[2, ]
+  siis.1 = siips[, 1]
+  siis.2 = siips[, 2]
   
   # Number of pairs of samples
   n.pairs = length(siis.1)

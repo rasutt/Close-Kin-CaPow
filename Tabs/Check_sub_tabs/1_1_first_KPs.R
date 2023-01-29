@@ -1,10 +1,10 @@
 # Outputs for first study kin-pairs sub-tab of checks tab
 
 # Get first study from list
-fst.std = reactive(sim.lst()$hists.lst[[1]])
+frst.std = reactive(sim.lst()$hists.lst[[1]])
 
 # Get attributes of first study
-FS.atts = reactive(attributes(fst.std()))
+FS.atts = reactive(attributes(frst.std()))
 
 # Create general optimizer starting-values and bounds, NAs filled in below
 ck.start = reactive({
@@ -19,7 +19,7 @@ tk.obj = reactive({
   ns.caps = FS.atts()$ns.caps
   
   # Find numbers of kin pairs
-  ns.kps.lst = FindNsKinPairs(k(), n.srvy.prs(), fst.std())
+  ns.kps.lst = FindNsKinPairs(k(), n.srvy.prs(), frst.std())
   
   # Create TMB function
   MakeTMBObj(
@@ -149,7 +149,7 @@ output$firstEstNsKPsBtnPop = renderTable({
 ## Within surveys
 
 # Find numbers of kin pairs
-frst.ns.kps.lst = reactive(FindNsKinPairs(k(), n.srvy.prs(), fst.std()))
+frst.ns.kps.lst = reactive(FindNsKinPairs(k(), n.srvy.prs(), frst.std()))
 
 # Show table
 output$firstNsKPsWtnSmp = renderTable({

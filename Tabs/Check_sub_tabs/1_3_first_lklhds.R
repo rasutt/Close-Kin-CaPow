@@ -4,7 +4,7 @@
 ppn.start = reactive(c(ck.start()[-3], FS.atts()$Ns, rep(p(), k())))
 
 # Get numbers of animals captured in study
-n.cap.hists = reactive(nrow(fst.std()))
+n.cap.hists = reactive(nrow(frst.std()))
 
 # Popan likelihood TMB objective function
 ppn.obj = reactive({

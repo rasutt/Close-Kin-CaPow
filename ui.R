@@ -47,7 +47,7 @@ ui <- fluidPage(
   navbarPage(
     title = "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "model.tab",
+    selected = "check.tab",
     position = "fixed-top",
     
     # Sim tab ----
@@ -143,7 +143,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "frst.KPs.tb",
+        selected = "frst.gts.tb",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
