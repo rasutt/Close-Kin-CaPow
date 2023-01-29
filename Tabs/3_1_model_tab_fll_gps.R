@@ -14,7 +14,6 @@ ale.frqs.ary = reactive({
       # frequencies of 0 and 1-coded SNP alleles at each locus
       ale.frqs.ary.tmp[, , hst.ind] = 
         FindAleFrqs(attributes(pop.cap.hist)$unq.smp.gts)
-      
     }
   }, value = 0, message = "Finding allele frequencies")
   
@@ -52,45 +51,28 @@ pgps.HSPs.ary = reactive({
 # Normal function, taking an array of possible genopair probabilities given a
 # certain kinship, over all studies, as an input, and using reactive objects
 FindFLGPs = function(hst.ind, pgps.ary) {
+  # Update progress bar
+  incProgress(1/n.sims())
+  
   # Get simulated family and capture histories of population of animals
   # over time
   pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
   
   # Individual genotypes, n_individuals x n_loci, representing genotypes for
   # each individual sampled
-  indvdl.gts = attributes(pop.cap.hist)$unq.smp.gts
+  gts = attributes(pop.cap.hist)$unq.smp.gts
   
-  # Possible genopair probabilities over genopairs and loci for this study
-  pgps.KP = pgps.ary[, , , hst.ind]
+  # Possible genopair probabilities for this study, n_genotypes x n_genotypes x
+  # n_loci
+  pgps = pgps.ary[, , , hst.ind]
   
-  # Sample-individual index pairs, n_pairs x 2, representing individual that
+  # Sample-individual index pairs, n_pairs x 2, representing the individual that
   # each sample in each pair came from
   siips = fsisyips.lst()$siips.lst[[hst.ind]]
   
   # Genopair log-probabilities over all loci given each kinship, for each
   # pair to include in likelihood
-  FindLogGPProbsKP(pgps.KP, indvdl.gts, siips, L(), sngl.knshp = T)
-
-  # # Sample history matrix, n_individuals x n_surveys, rows ordered by
-  # # individual ID
-  # smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k())])
-  # 
-  # # Sample index pairs, 2 x n_pairs, representing indices of samples in each
-  # # pair
-  # smp.ind.prs = combn(sum(smp.hsts), 2)
-  # 
-  # # Sample genotypes, extracted from matrix of individual genotypes,
-  # # n_samples x n_loci, rows ordered by survey-year then individual ID
-  # smp.gts = FindSmpGts(smp.hsts, attributes(pop.cap.hist)$unq.smp.gts)
-  # 
-  # # Possible genopair probabilities over genopairs and loci for this study
-  # pgps.KP = pgps.ary[, , , hst.ind]
-  # 
-  # # Genopair log-probabilities over all loci given each kinship, for each
-  # # pair to include in likelihood
-  # FindLogGPProbsKP(
-  #   pgps.KP, smp.gts, smp.ind.prs, L(), sngl.knshp = T, kp.tp
-  # )
+  FindGLPs(pgps, gts, siips, L(), sk = T)
 }
 
 # Function using "parallel" library to use multiple CPU cores, giving > 2x
@@ -104,10 +86,11 @@ FindFLGPsPrll = function(hst.ind) {
   
   # Individual genotypes, n_individuals x n_loci, representing genotypes for
   # each individual sampled
-  indvdl.gts = attributes(pop.cap.hist)$unq.smp.gts
+  gts = attributes(pop.cap.hist)$unq.smp.gts
   
-  # Possible genopair probabilities over genopairs and loci for this study
-  pgps.KP = pgps.ary[, , , hst.ind]
+  # Possible genopair probabilities for this study, n_genotypes x n_genotypes x
+  # n_loci
+  pgps = pgps.ary[, , , hst.ind]
   
   # Sample-individual index pairs, n_pairs x 2, representing individual that
   # each sample in each pair came from
@@ -115,11 +98,12 @@ FindFLGPsPrll = function(hst.ind) {
   
   # Genopair log-probabilities over all loci given each kinship, for each
   # pair to include in likelihood
-  FindLogGPProbsKP(pgps.KP, indvdl.gts, siips, L.prll, sngl.knshp = T)
+  FindGLPs(pgps, gts, siips, L.prll, sk = T)
 }
 
-# Set up multicore processing and find log-probabilities given kinship 
-MakeFLGPsKPRctv = function(knshp) {
+# Make full genopair log-probabilities reactive function given a particular
+# kinship
+MakeFGLPsRctv = function(knshp) {
   reactive({
     # Possible genopair probabilities given selected kinship, n_genotypes x
     # n_genotypes x n_loci
@@ -174,8 +158,7 @@ MakeFLGPsKPRctv = function(knshp) {
         value = 0,
         message = paste(
           "Finding genopair log-probabilities given", knshp, "pairs"
-        ),
-        detail = "Using multiple cores so no progress updates available"
+        )
       )
       
       # Return results
@@ -183,7 +166,7 @@ MakeFLGPsKPRctv = function(knshp) {
     }
   })
 }
-fglps.UPs.lst = MakeFLGPsKPRctv("unrelated")
-fglps.SPs.lst = MakeFLGPsKPRctv("self")
-fglps.POPs.lst = MakeFLGPsKPRctv("parent-offspring")
-fglps.HSPs.lst = MakeFLGPsKPRctv("half-sibling")
+fglps.UPs.lst = MakeFGLPsRctv("unrelated")
+fglps.SPs.lst = MakeFGLPsRctv("self")
+fglps.POPs.lst = MakeFGLPsRctv("parent-offspring")
+fglps.HSPs.lst = MakeFGLPsRctv("half-sibling")

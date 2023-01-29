@@ -49,37 +49,42 @@ frst.SYIPs.fll = reactive(FindSYIPs()(frst.SIPs.fll()))
 frst.SYIPs.offst = reactive(FindSYIPs()(frst.SIPs.offst()))
 
 # Nullify genopair log-probabilities when new datasets simulated
-observeEvent(input$simulate, frst.LGPPs.KP.fll(NULL))
+observeEvent(input$simulate, frst.fglps(NULL))
 
-# Find genopair log-probabilities as n.pairs x n.kp.tps matrix with rows for
-# pairs of individuals, and columns for types of kinships considered
+# If tab changed in app
 observeEvent({
     input$nav.tab
     input$check.sub.tabs
 }, {
+  # If new tab requires genopair probabilities and they have not yet been
+  # computed
   if (
     input$nav.tab == "check.tab" && 
     input$check.sub.tabs %in% c(
       "frst.gts.tb", "frst.lklhds.tb", "frst.ests.tb"
     ) &&
-    is.null(frst.LGPPs.KP.fll())
+    is.null(frst.fglps())
   ) {
-    frst.LGPPs.KP.fll(FindLogGPProbsKP(
+    # Find full set of genopair log-probabilities for first study, n.pairs x
+    # n.kinships
+    frst.fglps(FindGLPs(
       frst.pss.gp.prbs.KPs(), frst.smp.gts(), frst.SIPs.fll(), L()
     ))
   }
 })
-frst.LGPPs.KP.offst = reactive({
-  FindLogGPProbsKP(
+
+# Offset genopair log-probabilities for first study
+frst.oglps = reactive({
+  FindGLPs(
     frst.pss.gp.prbs.KPs(), frst.smp.gts(), frst.SIPs.offst(), L()
   )
 })
 
 # Genopair probabilities for optimization
 GPPs.fll = reactive({
-  FindGPPs(frst.LGPPs.KP.fll())
+  FindGPPs(frst.fglps())
 })
-GPPs.offst = reactive(FindGPPs(frst.LGPPs.KP.offst()))
+GPPs.offst = reactive(FindGPPs(frst.oglps()))
 
 # Expected values of HSP vs UP PLODs given kinships
 exp.plod.KP = reactive({
@@ -106,7 +111,7 @@ exp.plod.KP = reactive({
 
 # Find half-sibling vs unrelated pairs PLODs from log genopair probabilities
 first.plods = reactive({
-  (frst.LGPPs.KP.fll()[, 2] - frst.LGPPs.KP.fll()[, 1]) / L()
+  (frst.fglps()[, 2] - frst.fglps()[, 1]) / L()
 })
 
 ## Outputs
@@ -172,7 +177,7 @@ output$firstFewLGPPs = renderTable({
   df = data.frame(cbind(
     matrix(fst.std()[frst.smp.inds()[t(frst.SIPs.fll()[, 1:3])], 1], ncol = 2),
     frst.SYIPs.fll()[1:3, ],
-    frst.LGPPs.KP.fll()[1:3, ]
+    frst.fglps()[1:3, ]
   ))
   df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
   names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
@@ -184,9 +189,9 @@ output$firstLGPPs = renderPlot({
   par(mfrow = c(1, 4))
   lapply(1:4, function(i) {
     # Plotting may fail if all log-probabilities negative infinity
-    if(any(is.finite(frst.LGPPs.KP.fll()[, i]))) {
+    if(any(is.finite(frst.fglps()[, i]))) {
       hist(
-        frst.LGPPs.KP.fll()[, i], main = gp.prb.KP.tps[i],
+        frst.fglps()[, i], main = gp.prb.KP.tps[i],
         xlab = "Log-probability", br = 50
       )
     } else plot.new()
@@ -276,7 +281,7 @@ output$frstSYIPCntsOffst = renderTable({
 # Histograms of genopair log-probabilities given basic kinships
 output$frstGpPs = renderPlot({
   par(mfrow = c(1, 4))
-  frst.Gp.Ps = FindGPPs(frst.LGPPs.KP.fll())
+  frst.Gp.Ps = FindGPPs(frst.fglps())
   lapply(1:4, function(i) {
     hst.dt = hist(frst.Gp.Ps[, i], br = 50, plot = F)
     hst.dt$counts = log(hst.dt$counts + 1)

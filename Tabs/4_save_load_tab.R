@@ -49,7 +49,7 @@ output$downloadData <- downloadHandler(
       ns.SFPs.t = ns.SFPs.t(),
       ns.SibPs = ns.SibPs(),
       pns.UPs = pns.UPs(),
-      frst.LGPPs.KP.fll = frst.LGPPs.KP.fll(),
+      frst.fglps = frst.fglps(),
       mdl.st = mdl.st(),
       knshp.st = knshp.st(),
       offst.SYIPs.lst = offst.SYIPs.lst()
@@ -109,7 +109,7 @@ observeEvent(input$file, {
   ns.SFPs.t(saved.objs$ns.SFPs.t)
   ns.SibPs(saved.objs$ns.SibPs)
   pns.UPs(saved.objs$pns.UPs)
-  frst.LGPPs.KP.fll(saved.objs$frst.LGPPs.KP.fll)
+  frst.fglps(saved.objs$frst.fglps)
   mdl.st(saved.objs$mdl.st)
   knshp.st(saved.objs$knshp.st)
   fll.SI.SY.IPs.lst(NULL)
