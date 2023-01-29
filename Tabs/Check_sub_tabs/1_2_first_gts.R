@@ -36,8 +36,8 @@ FindSYIPs = function(syis, siips) {
 
 # Indices of survey-years for each sample in each pair, starting at zero for
 # C++ template, and ordered by survey-year of first sample
-frst.SYIPs.fll = reactive(FindSYIPs(frst.syis(), frst.fsiips()))
-frst.SYIPs.offst = reactive(FindSYIPs(frst.syis(), frst.osiips()))
+frst.fsyips = reactive(FindSYIPs(frst.syis(), frst.fsiips()))
+frst.osyips = reactive(FindSYIPs(frst.syis(), frst.osiips()))
 
 # Nullify genopair log-probabilities when new datasets simulated
 observeEvent(input$simulate, frst.fglps(NULL))
@@ -47,8 +47,7 @@ observeEvent({
     input$nav.tab
     input$check.sub.tabs
 }, {
-  # If new tab requires genopair probabilities and they have not yet been
-  # computed
+  # If new tab requires genopair probabilities and they have not been computed
   if (
     input$nav.tab == "check.tab" && 
     input$check.sub.tabs %in% c(
@@ -63,31 +62,25 @@ observeEvent({
 })
 
 # Offset genopair log-probabilities for first study
-frst.oglps = reactive({
-  FindGLPs(frst.pgpsgks(), frst.gts(), frst.osiips(), L())
-})
+frst.oglps = reactive(FindGLPs(frst.pgpsgks(), frst.gts(), frst.osiips(), L()))
 
 # Genopair probabilities for optimization
-GPPs.fll = reactive({
-  FindGPPs(frst.fglps())
-})
-GPPs.offst = reactive(FindGPPs(frst.oglps()))
+frst.fgps = reactive(FindGPPs(frst.fglps()))
+frst.ogps = reactive(FindGPPs(frst.oglps()))
 
-# Expected values of HSP vs UP PLODs given kinships
-exp.plod.KP = reactive({
-  # Possible values of HSP vs UP PLODs, leaving division by number of loci to
-  # next step after summation
-  pss.plods = 
-    log(frst.pgpsgks()[, , , 2] / frst.pgpsgks()[, , , 1])
+# Expected values of HSP vs UP PLODs given various kinships
+exp.plods = reactive({
+  # Possible values of genopair HSP vs UP log-probability ratios at each locus,
+  # 3 x 3 x n_loci
+  pglprs = log(frst.pgpsgks()[, , , 2] / frst.pgpsgks()[, , , 1])
   
-  # Unrelated, parent-offspring, and self-pairs
-  prbs.plods = frst.pgpsgks() * rep(pss.plods, 4)
-  exp.plod.base = colSums(prbs.plods, dims = 3) / L()
+  # Expected plods for unrelated, half-sibling, parent-offspring, and self-pairs
+  exp.plod.base = colSums(frst.pgpsgks() * rep(pglprs, 4), dims = 3) / L()
   
-  # First-cousin, avuncular, and half-sibling pairs
+  # Expected plods for first-cousin and avuncular pairs
   exp.plod.extd = (c(7, 3) * exp.plod.base[1] + exp.plod.base[3]) / c(8, 4)
   
-  # Combine in order from furthest to closest kinship, add names, and return.
+  # Combine in order from furthest to closest kinship, add names, and return
   vec = c(exp.plod.base[1], exp.plod.extd, exp.plod.base[2:4])
   names(vec) = c(
     "Unrelated", "First cousin", "Avuncular", "Half-sibling",
@@ -163,7 +156,7 @@ output$firstGPPsSP = renderTable({
 output$firstFewLGPPs = renderTable({
   df = data.frame(cbind(
     matrix(frst.std()[frst.siis()[frst.fsiips()[1:3, ]], 1], ncol = 2),
-    frst.SYIPs.fll()[1:3, ],
+    frst.fsyips()[1:3, ],
     frst.fglps()[1:3, ]
   ))
   df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
@@ -194,7 +187,7 @@ output$firstPLODs = renderPlot({
   )
   
   # Plot expected values
-  abline(v = exp.plod.KP()[1], col = 2, lwd = 2)
+  abline(v = exp.plods()[1], col = 2, lwd = 2)
   
   # Add legend
   legend(
@@ -217,15 +210,15 @@ output$firstPLODsRare = renderPlot({
   )
   
   # Plot expected values
-  abline(v = exp.plod.KP(), col = 2:7, lwd = 2)
+  abline(v = exp.plods(), col = 2:7, lwd = 2)
 })
 
 # Table of genopair probabilities of first few pairs captured
 output$firstFewGPPsFll = renderTable({
   df = data.frame(cbind(
     matrix(frst.std()[frst.siis()[frst.fsiips()[1:3, ]], 1], ncol = 2),
-    frst.SYIPs.fll()[1:3, ],
-    format(head(GPPs.fll(), 3), digits = 3, scientific = T)
+    frst.fsyips()[1:3, ],
+    format(head(frst.fgps(), 3), digits = 3, scientific = T)
   ))
   df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
   names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
@@ -241,8 +234,8 @@ output$firstFewGPPsOffst = renderTable({
       frst.std()[frst.siis()[frst.osiips()[1:3, ]], 1], 
       ncol = 2
     ),
-    frst.SYIPs.offst()[1:3, ],
-    format(head(GPPs.offst(), 3), digits = 3, scientific = T)
+    frst.osyips()[1:3, ],
+    format(head(frst.ogps(), 3), digits = 3, scientific = T)
   ))
   df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
   names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
@@ -252,7 +245,7 @@ output$firstFewGPPsOffst = renderTable({
 # Table of numbers of pairs with corresponding survey indices for first and
 # second samples
 output$frstSYIPCntsFll = renderTable({
-  df = data.frame(matrix(table(data.frame(frst.SYIPs.fll())), nrow = k()))
+  df = data.frame(matrix(table(data.frame(frst.fsyips())), nrow = k()))
   dimnames(df) = list(Index_1 = 1:k() - 1, Index_2 = 1:k() - 1)
   df
 }, rownames = T)
@@ -260,7 +253,7 @@ output$frstSYIPCntsFll = renderTable({
 # Table of numbers of pairs with corresponding survey indices for first and
 # second samples
 output$frstSYIPCntsOffst = renderTable({
-  df = data.frame(matrix(table(data.frame(frst.SYIPs.offst())), nrow = k()))
+  df = data.frame(matrix(table(data.frame(frst.osyips())), nrow = k()))
   dimnames(df) = list(Index_1 = 1:k() - 1, Index_2 = 1:k() - 1)
   df
 }, rownames = T)
