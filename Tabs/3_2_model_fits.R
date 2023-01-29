@@ -1,5 +1,5 @@
-# Kinship set Boolean vector
-knshp.st.bln = reactive(as.integer(knshp.chcs %in% knshp.st()))
+# Kinship indicator variables, binary variable for each kinship offered
+kivs = reactive(as.integer(knshp.chcs %in% knshp.st()))
 
 # Fit popan model
 fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
@@ -102,7 +102,7 @@ fit.ck = reactive(if ("True kinship" %in% mdl.st()) {
       obj = MakeTMBObj(
         ck.start, "true kinship",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-        alpha = alpha(), knshp_st_bool = knshp.st.bln(),
+        alpha = alpha(), knshp_st_bool = kivs(),
         ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ], 
         ns_POPs_btn = ns.kps.lst$btn[2, ], ns_HSPs_wtn = ns.kps.lst$wtn[2, ],
         ns_HSPs_btn = ns.kps.lst$btn[3, ], ns_caps = ns.caps
@@ -159,30 +159,34 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
       
       # Full genopair log-probabilities given selected kinships, n_pairs x
       # n_kinships, combining those for unrelated pairs and selected kinships
-      FGLPs.gvn.Ks = cbind(
-        FGLPs.UPs.lst()[[hst.ind]],
-        if ("Half-sibling" %in% knshp.st()) FGLPs.HSPs.lst()[[hst.ind]],
-        if ("Parent-offspring" %in% knshp.st()) FGLPs.POPs.lst()[[hst.ind]],
-        if ("Self" %in% knshp.st()) FGLPs.SPs.lst()[[hst.ind]]
+      fglps.gvn.ks = cbind(
+        fglps.UPs.lst()[[hst.ind]],
+        if ("Half-sibling" %in% knshp.st()) fglps.HSPs.lst()[[hst.ind]],
+        if ("Parent-offspring" %in% knshp.st()) fglps.POPs.lst()[[hst.ind]],
+        if ("Self" %in% knshp.st()) fglps.SPs.lst()[[hst.ind]]
       )
+      colnames(fglps.gvn.ks) = 
+        c("UP", "HSP", "POP", "SP")[c(T, rev(kivs()) == 1)]
       
       # Full genopair probabilities given kinships, n_pairs x n_kinships, 
       # exponentiating log-probabilities, checking for underflow and trying to
       # adjust if necessary.  Would be good to raise a proper error if
       # adjustment impossible
-      FGPs.gvn.Ks = FindGPsGvnKs(FGLPs.gvn.Ks)
+      fgps.gvn.ks = FindGPsGvnKs(fglps.gvn.ks)
+      cat("Full genopair probabilities given kinships \n")
+      print(head(fgps.gvn.ks))
+      cat("\n")
+
+      # Survey-year index pairs, n_pairs x 2, starting from zero for C++
+      # objective function
+      cat("Survey-year index pairs \n")
+      syips = data.frame(fsisyips.lst()$syips.lst[[hst.ind]])
+      names(syips) = paste("Sample", 1:2)
+      print(table((syips)))
+      cat("\n")
       
-      print("FGPs.gvn.Ks")
-      print(str(FGPs.gvn.Ks))
-      print(head(FGPs.gvn.Ks))
-      # print("Correct, n_pairs x n_kinships")
-      # 
-      print("fll.SI.SY.IPs.lst()$SYIPs.lst[[hst.ind]]")
-      print(str(fll.SI.SY.IPs.lst()$SYIPs.lst[[hst.ind]]))
-      print(summary(fll.SI.SY.IPs.lst()$SYIPs.lst[[hst.ind]]))
-      
-      # print("fll.SI.SY.IPs.lst()$SIIPs.lst[[hst.ind]]")
-      # print(str(fll.SI.SY.IPs.lst()$SIIPs.lst[[hst.ind]]))
+      # print("fsisyips.lst()$siips.lst[[hst.ind]]")
+      # print(str(fsisyips.lst()$siips.lst[[hst.ind]]))
       # 
       # print("pss.gt.prbs.ary()[, 1:2, hst.ind]")
       # print(pss.gt.prbs.ary()[, 1:2, hst.ind])
@@ -199,16 +203,16 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
       # print("pss.gp.prbs.POPs.ary()[, , 1:2, hst.ind]")
       # print(pss.gp.prbs.POPs.ary()[, , 1:2, hst.ind])
       # 
-      # print("knshp.st.bln")
-      # print(knshp.st.bln())
+      # print("kivs")
+      # print(kivs())
       
       # Make objective function
       obj = MakeTMBObj(
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-        alpha = alpha(), knshp_st_bool = knshp.st.bln(),
-        gp_probs = FGPs.gvn.Ks, 
-        smp_yr_ind_prs = fll.SI.SY.IPs.lst()$SYIPs.lst[[hst.ind]]
+        alpha = alpha(), knshp_st_bool = kivs(),
+        gp_probs = fgps.gvn.ks, 
+        smp_yr_ind_prs = fsisyips.lst()$syips.lst[[hst.ind]]
       )
       
       # Try to fit genopair likelihood model
@@ -268,7 +272,7 @@ fit.os = reactive(if ("Offset genopair" %in% mdl.st()) {
       obj = MakeTMBObj(
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
-        alpha = alpha(), knshp_st_bool = knshp.st.bln(),
+        alpha = alpha(), knshp_st_bool = kivs(),
         gp_probs = Gp.Mdl.Inpts$GPPs, 
         smp_yr_ind_prs = Gp.Mdl.Inpts$smp.yr.ind.prs
       )

@@ -9,8 +9,8 @@ observeEvent(input$simulate, {
   # Nullify objects
   knshp.st(NULL)
   fit.lst(NULL)
-  fll.SI.SY.IPs.lst(NULL)
-  offst.SYIPs.lst(NULL)
+  fsisyips.lst(NULL)
+  offst.syips.lst(NULL)
   
   # If started multi-core cluster
   if (!is.null(cl())) {
@@ -26,14 +26,14 @@ observeEvent(input$fit, {
   knshp.st(input$knshp.st)
   
   # If fitting full genopair model for first time since simulation/loading
-  if ("Full genopair" %in% mdl.st() && is.null(fll.SI.SY.IPs.lst())) {
+  if ("Full genopair" %in% mdl.st() && is.null(fsisyips.lst())) {
     # Full set of sample-individual and sample-year index pairs for genopair
     # models, 2 x n_pairs x 2(??), representing individual and year that each
     # sample came from. Sample-years start from zero for TMB C++ objective
     # function
-    fll.SI.SY.IPs.lst({
+    fsisyips.lst({
       # Make lists
-      SIIPs.lst = SYIPs.lst = vector("list", n.sims())
+      siips.lst = syips.lst = vector("list", n.sims())
       
       # Show progress-bar
       withProgress(
@@ -48,8 +48,8 @@ observeEvent(input$fit, {
           smp.hsts.bln = pop.cap.hist[, 4:(3 + k())] == 1
           
           # Sample-individual and sample-year index pairs
-          SIIPs.lst[[hst.ind]] = combn(row(smp.hsts.bln)[smp.hsts.bln], 2)
-          SYIPs.lst[[hst.ind]] = 
+          siips.lst[[hst.ind]] = combn(row(smp.hsts.bln)[smp.hsts.bln], 2)
+          syips.lst[[hst.ind]] = 
             t(combn(col(smp.hsts.bln)[smp.hsts.bln] - 1, 2))
           
           # Update progress-bar
@@ -60,37 +60,41 @@ observeEvent(input$fit, {
       )
       
       # Return lists
-      list(SIIPs.lst = SIIPs.lst, SYIPs.lst = SYIPs.lst)
+      list(siips.lst = siips.lst, syips.lst = syips.lst)
     })
     
-    # Start new R sessions on separate "logical" CPU cores (nodes) for finding
-    # genopair log-probabilities. Using 6 of my 12 cores seems to be optimal
-    cl(makeCluster(6))
-    
-    # Evaluate reactive objects and pass values to new R sessions. Passing large
-    # objects to parLapply does not improve performance (to my surprise). Can't
-    # index in parLapply for some reason
-    hst.lst.prll = sim.lst()$hists.lst
-    SIIPs.lst.prll = fll.SI.SY.IPs.lst()$SIIPs.lst
-    L.prll = L()
-    k.prll = k()
-    clusterExport(
-      cl(),
-      list(
-        "hst.lst.prll", "SIIPs.lst.prll", "L.prll", "k.prll", "FindLogGPProbsKP"
-      ), 
-      environment()
-    )
+    # If the numbers of studies and/or loci are large use multicore processing
+    if (n.sims() * L() > 1e3) {
+      # Start new R sessions on separate "logical" CPU cores (nodes) for finding
+      # genopair log-probabilities. Using 6 of my 12 cores seems to be optimal
+      cl(makeCluster(detectCores() %/% 2))
+      
+      # Evaluate reactive objects and pass values to new R sessions. Passing
+      # large objects to parLapply does not improve performance (to my
+      # surprise). Can't index in parLapply for some reason
+      hst.lst.prll = sim.lst()$hists.lst
+      siips.lst.prll = fsisyips.lst()$siips.lst
+      L.prll = L()
+      k.prll = k()
+      clusterExport(
+        cl(),
+        list(
+          "hst.lst.prll", "siips.lst.prll", "L.prll", "k.prll", "
+          FindLogGPProbsKP"
+        ), 
+        environment()
+      )
+    } 
   }
   
   # If fitting offset genopair model for first time find offset survey-year
   # index pairs
   if (
     F
-    # is.null(offst.SYIPs.lst()) &&
+    # is.null(offst.syips.lst()) &&
     # "Offset genopair" %in% mdl.st()
   ) {
-    offst.SYIPs.lst.tmp = vector("list", n.sims())
+    offst.syips.lst.tmp = vector("list", n.sims())
     
     # Loop over histories
     withProgress({
@@ -107,14 +111,14 @@ observeEvent(input$fit, {
         # Sample-year index pairs, n_pairs x 2, representing survey-year of each
         # sample in each offset pair, counting from zero as passing into TMB C++
         # objective function
-        offst.SYIPs.lst.tmp[[hst.ind]] = 
+        offst.syips.lst.tmp[[hst.ind]] = 
           matrix(smp.yr.inds[as.vector(t(smp.ind.prs.offst))], ncol = 2)
         
         incProgress(1/n.sims())
       }
     }, value = 0, message = "Finding offset sample-year index pairs")
     
-    offst.SYIPs.lst(offst.SYIPs.lst.tmp)
+    offst.syips.lst(offst.syips.lst.tmp)
   }
   
   # Boolean for models requested 

@@ -109,7 +109,7 @@ server <- function(input, output) {
   mdl.st = reactiveVal(saved.objs$mdl.st)
   knshp.st = reactiveVal(saved.objs$knshp.st)
   offst.SYIPs.lst = reactiveVal(saved.objs$offst.SYIPs.lst)
-  fll.SI.SY.IPs.lst = reactiveVal()
+  fsisyips.lst = reactiveVal()
   cl = reactiveVal()
   
   # Variables bound to simulate button (for last simulation) ----

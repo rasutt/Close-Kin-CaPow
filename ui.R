@@ -47,7 +47,7 @@ ui <- fluidPage(
   navbarPage(
     title = "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "check.tab",
+    selected = "model.tab",
     position = "fixed-top",
     
     # Sim tab ----

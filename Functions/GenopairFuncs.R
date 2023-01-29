@@ -72,6 +72,7 @@ FindGPsGvnKs = function(LGPPs) {
   # Get genopair probabilities (by excluding probabilities giveb half-sibs for
   # now) and check for pairs where all probabilities underflow to zero
   gpp.slct = exp(LGPPs)
+  colnames(gpp.slct) = colnames(LGPPs)
   all_undrflw = rowSums(gpp.slct) == 0
   
   # If there is underflow adjust log-probabilities by factor giving equal
@@ -85,6 +86,7 @@ FindGPsGvnKs = function(LGPPs) {
     adj = mean(c(min(apply(LGPPs, 1, max)), max(LGPPs)))
     lg.gpp.adj = LGPPs - adj
     gpp.adj = exp(lg.gpp.adj)
+    colnames(gpp.adj) = colnames(LGPPs)
     
     # Show adjustment and results
     cat("Probabilities adjusted by factor of exp(", adj, ")\n", sep = "")
