@@ -23,7 +23,7 @@ frst.siis = reactive(row(frst.smp.hsts())[as.logical(frst.smp.hsts())])
 frst.syis = reactive(col(frst.smp.hsts())[as.logical(frst.smp.hsts())] - 1)
 
 # Full and offset sample-individual index pairs, n_pairs x 2
-frst.fsiips = reactive(t(combn(length(frst.siis()), 2)))
+frst.fsiips = reactive(t(combn(frst.siis(), 2)))
 frst.osiips = reactive(t(FindSIPsOffset(k(), frst.syis())))
 
 # Function to find sample-year index pairs, n_pairs x 2
@@ -70,18 +70,19 @@ frst.ogps = reactive(FindGPPs(frst.oglps()))
 
 # Expected values of HSP vs UP PLODs given various kinships
 exp.plods = reactive({
-  # Possible values of genopair HSP vs UP log-probability ratios at each locus,
+  # Possible  genopair HSP vs UP log-probability ratios at each locus,
   # 3 x 3 x n_loci
   pglprs = log(frst.pgpsgks()[, , , 2] / frst.pgpsgks()[, , , 1])
   
-  # Expected plods for unrelated, half-sibling, parent-offspring, and self-pairs
-  exp.plod.base = colSums(frst.pgpsgks() * rep(pglprs, 4), dims = 3) / L()
+  # Expected plods for kinship basis, unrelated, half-sibling, parent-offspring,
+  # and self-pairs
+  exp.plds.bss = colSums(frst.pgpsgks() * rep(pglprs, 4), dims = 3) / L()
   
-  # Expected plods for first-cousin and avuncular pairs
-  exp.plod.extd = (c(7, 3) * exp.plod.base[1] + exp.plod.base[3]) / c(8, 4)
+  # Expected plods for extended kinships, first-cousin and avuncular pairs
+  exp.plds.extd = (c(7, 3) * exp.plds.bss[1] + exp.plds.bss[3]) / c(8, 4)
   
   # Combine in order from furthest to closest kinship, add names, and return
-  vec = c(exp.plod.base[1], exp.plod.extd, exp.plod.base[2:4])
+  vec = c(exp.plds.bss[1], exp.plds.extd, exp.plds.bss[2:4])
   names(vec) = c(
     "Unrelated", "First cousin", "Avuncular", "Half-sibling",
     "Parent-offspring", "Self"
@@ -96,8 +97,7 @@ first.plods = reactive({
 
 ## Outputs
 
-# Table of genotypes of first few individuals captured (can show kin-pairs
-# later)
+# Table of genotypes of first few individuals captured
 output$firstGTs = renderTable({
   df = data.frame(cbind(
     rep(frst.std()$ID[frst.siis()[1:3]], each = 2), 
@@ -125,60 +125,66 @@ output$firstGtPrbs = renderTable({
 }, rownames = T)
 
 # Function to format genopair probabilities for display
-frmt.gpps = function(gpps) {
+FrmtGPs = function(gpps) {
   df = data.frame(gpps)
   names(df) = row.names(df) = pss.gt.lbls
   df
 }
 
-# Table showing GPPs given unrelated
-output$firstGPPsUP = renderTable({
-  frmt.gpps(frst.pgpsgks()[, , 1, 1])
+# Table showing genopair probabilities given unrelated
+output$firstGPsUP = renderTable({
+  FrmtGPs(frst.pgpsgks()[, , 1, 1])
 }, rownames = T)
 
-# Table showing GPPs given half-siblings
-output$firstGPPsHSP = renderTable({
-  frmt.gpps(frst.pgpsgks()[, , 1, 2])
+# Table showing genopair probabilities given half-siblings
+output$firstGPsHSP = renderTable({
+  FrmtGPs(frst.pgpsgks()[, , 1, 2])
 }, rownames = T)
 
-# Table showing GPPs given parent-offspring
-output$firstGPPsPOP = renderTable({
-  frmt.gpps(frst.pgpsgks()[, , 1, 3])
+# Table showing genopair probabilities given parent-offspring
+output$firstGPsPOP = renderTable({
+  FrmtGPs(frst.pgpsgks()[, , 1, 3])
 }, rownames = T)
 
-# Table showing GPPs given self-resample
-output$firstGPPsSP = renderTable({
-  frmt.gpps(frst.pgpsgks()[, , 1, 4])
+# Table showing genopair probabilities given self-resample
+output$firstGPsSP = renderTable({
+  FrmtGPs(frst.pgpsgks()[, , 1, 4])
 }, rownames = T)
 
-# Table of genopair probabilities of first few pairs captured (can show
-# kin-pairs later)
+# Table of genopair log-probabilities of first few pairs captured
 output$firstFewLGPPs = renderTable({
   df = data.frame(cbind(
-    matrix(frst.std()[frst.siis()[frst.fsiips()[1:3, ]], 1], ncol = 2),
+    matrix(frst.std()$ID[as.vector(frst.fsiips()[1:3, ])], nrow = 3),
     frst.fsyips()[1:3, ],
     frst.fglps()[1:3, ]
   ))
   df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
-  names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
+  names(df) = c("ID 1", "ID 2", "Survey index 1", "Survey index 2", gpkts)
   df
 })
 
-# Histograms of genopair log-probabilities given basic kinships
-output$firstLGPPs = renderPlot({
+# Histograms of genopair log-probabilities given kinships
+output$firstGLPs = renderPlot({
+  # Set up four plots
   par(mfrow = c(1, 4))
+  
+  # Try to plot for each kinship
   lapply(1:4, function(i) {
-    # Plotting may fail if all log-probabilities negative infinity
+    # If any log-probabilities greater than negative infinity
     if(any(is.finite(frst.fglps()[, i]))) {
+      # Plot them
       hist(
-        frst.fglps()[, i], main = gp.prb.KP.tps[i],
+        frst.fglps()[, i], main = gpkts[i],
         xlab = "Log-probability", br = 50
       )
-    } else plot.new()
+    } 
+    
+    # Otherwise leave a blank space
+    else plot.new()
   })
 })
 
-# Plot PLODs
+# Plot PLODs on regular scale
 output$firstPLODs = renderPlot({
   # Plot plods
   hist(
@@ -199,17 +205,19 @@ output$firstPLODs = renderPlot({
   )
 })
 
-# Plot PLODs and zoom in on rare values representing likely close-kin
+# Plot PLODs on log-scale
 output$firstPLODsRare = renderPlot({
-  # Plot uncommon values
+  # Get counts and take logs
   hst.data = hist(first.plods(), breaks = 200, plot = F) 
   hst.data$counts = log(hst.data$counts + 1)
+  
+  # Plot them
   plot(
     hst.data, main = "Frequency on log scale",
     xlab = "PLOD", ylab = "Log (frequency + 1)"
   )
   
-  # Plot expected values
+  # Add expected values
   abline(v = exp.plods(), col = 2:7, lwd = 2)
 })
 
@@ -221,7 +229,7 @@ output$firstFewGPPsFll = renderTable({
     format(head(frst.fgps(), 3), digits = 3, scientific = T)
   ))
   df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
-  names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
+  names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gpkts)
   df
 }, digits = 6)
 
@@ -238,7 +246,7 @@ output$firstFewGPPsOffst = renderTable({
     format(head(frst.ogps(), 3), digits = 3, scientific = T)
   ))
   df[, 1:4] = as.integer(as.matrix(df[, 1:4]))
-  names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gp.prb.KP.tps)
+  names(df) = c("ID1", "ID2", "Survey index 1", "Survey index 2", gpkts)
   df
 }, digits = 6)
 
@@ -266,7 +274,7 @@ output$frstGpPs = renderPlot({
     hst.dt = hist(frst.Gp.Ps[, i], br = 50, plot = F)
     hst.dt$counts = log(hst.dt$counts + 1)
     plot(
-      hst.dt, main = gp.prb.KP.tps[i], xlab = "Probability", 
+      hst.dt, main = gpkts[i], xlab = "Probability", 
       ylab = "log (frequency + 1)"
     )
   })

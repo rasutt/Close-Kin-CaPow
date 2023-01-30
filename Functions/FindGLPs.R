@@ -39,7 +39,7 @@ FindGLPs = function(pgps, gts, siips, L, sk = F) {
   
   # Set timer
   s.time = proc.time()[3]
-  
+
   # Loop over batches of loci 
   for(btch.ind in 1:n.btchs) {
     # Increment batch counter
@@ -51,12 +51,12 @@ FindGLPs = function(pgps, gts, siips, L, sk = F) {
     
     # Genotype indices for current batch of loci, n_individuals x n_loci_batch
     gt.inds.btch = gt.inds[, loci.inds]
-    
+
     # Sample genotype indices for current batch of loci for first and second
     # samples in each pair, n_pairs x n_loci_batch
     sgisb.1 = gt.inds.btch[siis.1, ]
     sgisb.2 = gt.inds.btch[siis.2, ]
-    
+
     # Sample genotype and locus-indices for current batch of loci for first and
     # second samples in each pair, (n_pairs x n_loci_batch) x 3
     sglisb = cbind(
@@ -64,7 +64,7 @@ FindGLPs = function(pgps, gts, siips, L, sk = F) {
       as.vector(sgisb.2),
       rep(loci.inds, each = n.pairs)
     )
-    
+
     # Look up genopair log-probabilities for this batch of loci and add to
     # totals. Possible values are stored in n_gts x n_gts x L x kinships
     # array. Using apply to pick out one kinship at a time to limit memory
@@ -78,7 +78,7 @@ FindGLPs = function(pgps, gts, siips, L, sk = F) {
         })
     }
   }
-  
+
   # Return log genopair probabilities
   glps
 }

@@ -16,6 +16,9 @@ mdl.chcs = c("Popan", "True kinship", "Full genopair", "Offset genopair")
 knshp.chcs = c("Self", "Parent-offspring", "Half-sibling")
 all.knshps.bln = rep(1, 3)
 
+# Genopair probability kinships
+gpkts = c("Unrelated", rev(knshp.chcs))
+
 # Set simulation parameters for basic scenario
 stch.bths <- T # Set whether numbers of births stochastic
 
@@ -93,9 +96,5 @@ n.pss.gts = 3
 # Find possible genopairs by indexing possible genotypes to get all combinations
 pss.gts.1 = pss.gts[, rep(1:n.pss.gts, n.pss.gts)]
 pss.gts.2 = pss.gts[, rep(1:n.pss.gts, each = n.pss.gts)]
-
-gp.prb.KP.tps = c(
-  "Unrelated", "Half-sibling", "Parent-offspring", "Self-resample"
-)
 
 
