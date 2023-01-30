@@ -23,49 +23,45 @@ FindSmpGts <- function(smp.hsts, unq.smp.gts) {
   unq.smp.gts[, , smp.indvdl.inds]
 }
 
-# Sample index pairs, 2 x n_pairs matrix of indices of samples in each pair to
-# include in likelihood, possibly all pairs or just consecutive pairs with
-# individuals shuffled out of ID/birth order
-FindSIPsOffset = function(k, smp.yr.inds) {
-  # Empty matrix to add sample index pairs to, 2 x 0
-  smp.ind.prs = matrix(0, 2, 0)
+# Function to find sample index pairs for offset model, n_pairs x 2,
+# including consecutive pairs within surveys, and between all pairs of surveys,
+# with samples repeated for survey with fewer samples
+FindSIPsOffset = function(k, syis) {
+  # Sample index pairs, 0 x 2, to concatenate pairs to
+  sips = matrix(NA, 0, 2)
   
   # Possible survey-year indices
-  pss.s.yr.inds = 0:(k - 1)
+  psyis = 0:(k - 1)
   
   # Loop over first survey-year indices
-  for (i in pss.s.yr.inds) {
-    # Get indices for samples in this year and randomize order
-    smp.inds.yr.1 = which(smp.yr.inds == i)
-    smp.inds.yr.1 = smp.inds.yr.1[sample(length(smp.inds.yr.1))]
+  for (i in psyis) {
+    # Sample indices for survey year one of pair, in random order
+    sissy.1 = which(syis == i)
+    sissy.1 = sissy.1[sample(length(sissy.1))]
     
     # If at least one sample
-    if (length(smp.inds.yr.1) > 0) {
+    if (length(sissy.1) > 0) {
       # Add offset index pairs for samples in this year
-      smp.ind.prs = cbind(
-        smp.ind.prs, 
-        rbind(smp.inds.yr.1, c(smp.inds.yr.1[-1], smp.inds.yr.1[1]))
-      )
+      sips = rbind(sips, cbind(sissy.1, c(sissy.1[-1], sissy.1[1])))
       
       # Loop over second survey-year indices
-      for (j in pss.s.yr.inds[pss.s.yr.inds > i]) {
-        # Get indices for samples in this year 
-        smp.inds.yr.2 = which(smp.yr.inds == j)
-        smp.inds.yr.2 = smp.inds.yr.2[sample(length(smp.inds.yr.2))]
+      for (j in psyis[psyis > i]) {
+        # Sample indices for survey year two of pair, in random order
+        sissy.2 = which(syis == j)
+        sissy.2 = sissy.2[sample(length(sissy.2))]
         
         # Check at least one sample
-        if (length(smp.inds.yr.2) > 0) {
+        if (length(sissy.2) > 0) {
           # Add offset index pairs for samples from these years, shorter index
           # set recycled with warning
-          smp.ind.prs = suppressWarnings(
-            cbind(smp.ind.prs, rbind(smp.inds.yr.1, smp.inds.yr.2))
-          )
+          sips = suppressWarnings(rbind(sips, cbind(sissy.1, sissy.2)))
         }
       }
     }
   }
   
-  smp.ind.prs
+  # Return
+  sips
 }
 
 FindGPsGvnKs = function(LGPPs) {
