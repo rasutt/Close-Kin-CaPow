@@ -13,11 +13,11 @@ VBE.ui <- function(id, types, descs) {
       h3(type),
       p(descs[i]),
       h4("Values"),
-      plotOutput(outputId = ns(paste0("vals", type))),
+      plotOutput(ns(paste0("vals", type))),
       h4("Biases"),
-      tableOutput(outputId = ns(paste0("bss", type))),
+      tableOutput(ns(paste0("bss", type))),
       h4("Errors"),
-      plotOutput(outputId = ns(paste0("errs", type)))
+      plotOutput(ns(paste0("errs", type)))
     )
   }))
 }
@@ -130,9 +130,9 @@ ui <- fluidPage(
           p("Expected population size and parameter values of next simulation
           implied by currently selected inputs."),
           h3("Expected population size"),
-          plotOutput(outputId = "nextExpPop"),
+          plotOutput("nextExpPop"),
           h3("Implied parameters"),
-          tableOutput(outputId = "nextParsImpld")
+          tableOutput("nextParsImpld")
         ),
         # ----
       )
@@ -151,13 +151,13 @@ ui <- fluidPage(
           h2("Current simulation features"),
           p("Features of current simulation, selected and implied."),
           h3("Selected parameters"),
-          tableOutput(outputId = "currParsSltd"),
+          tableOutput("currParsSltd"),
           h3("Implied parameters"),
-          tableOutput(outputId = "currParsImpld"),
+          tableOutput("currParsImpld"),
           h3("Simulation options"),
-          tableOutput(outputId = "currSimOpts"),
+          tableOutput("currSimOpts"),
           h3("Biological scenario"),
-          tableOutput(outputId = "currBioScen")
+          tableOutput("currBioScen")
         ),
         # First study samples ----
         tabPanel(
@@ -169,13 +169,13 @@ ui <- fluidPage(
           h3("First sample-histories"),
           p("The data for the first few animals sampled
             in the study, by earliest birth year."),
-          tableOutput(outputId = "firstSampHists"),
+          tableOutput("firstSampHists"),
           
           h3("Sufficient statistics"),
           p("Sufficient statistics for sample histories, used to fit popan 
             models."),
-          tableOutput(outputId = "firstSmpHstStats"),
-          textOutput(outputId = "firstNSmpHsts")
+          tableOutput("firstSmpHstStats"),
+          textOutput("firstNSmpHsts")
         ),
         # First study kin-pairs ----
         tabPanel(
@@ -191,45 +191,45 @@ ui <- fluidPage(
           h3("Kinpair probabilities predicted for first study from TMB"),
           p("Predictions given true parameter values"),
           h4("From TMB function"),
-          tableOutput(outputId = "firstKPPrbsTMB"),
+          tableOutput("firstKPPrbsTMB"),
           h4("From kin pair numbers checks"),
-          tableOutput(outputId = "firstKPPrbsR"),
+          tableOutput("firstKPPrbsR"),
           
           h3("Numbers of pairs within survey-years (whole population)"),
           p("Numbers of pairs of individuals with given relationships,
             where both are alive in the given survey-year.  Population
             sizes are included for reference."),
           h4("Predicted"),
-          tableOutput(outputId = "firstEstNsKPsWtnPop"),
+          tableOutput("firstEstNsKPsWtnPop"),
           h4("Simulated"),
-          tableOutput(outputId = "firstNsKPsWtnPop"),
+          tableOutput("firstNsKPsWtnPop"),
           
           h3("Numbers of pairs between survey-years (whole population)"),
           p("Numbers of pairs of individuals with given relationships,
             where one individual is alive in each of the given pair of 
             survey-years."),
           h4("Predicted"),
-          tableOutput(outputId = "firstEstNsKPsBtnPop"),
+          tableOutput("firstEstNsKPsBtnPop"),
           h4("Simulated"),
-          tableOutput(outputId = "firstNsKPsBtnPop"),
+          tableOutput("firstNsKPsBtnPop"),
         
           h3("Numbers of pairs within survey-years (sampled individuals)"),
           p("Numbers of pairs of individuals with given relationships,
             where both are sampled in the given survey-year.  Total numbers 
             sampled are included for reference."),
           h4("Predicted"),
-          tableOutput(outputId = "firstEstNsKPsWtnSmp"),
+          tableOutput("firstEstNsKPsWtnSmp"),
           h4("Simulated"),
-          tableOutput(outputId = "firstNsKPsWtnSmp"),
+          tableOutput("firstNsKPsWtnSmp"),
           
           h3("Numbers of pairs between survey-years (sampled individuals)"),
           p("Numbers of pairs of individuals with given relationships,
             where one individual is sampled in each of the given pair of 
             survey-years."),
           h4("Predicted"),
-          tableOutput(outputId = "firstEstNsKPsBtnSmp"),
+          tableOutput("firstEstNsKPsBtnSmp"),
           h4("Simulated"),
-          tableOutput(outputId = "firstNsKPsBtnSmp"),
+          tableOutput("firstNsKPsBtnSmp"),
         ),
         # First study genetics ----
         tabPanel(
@@ -241,66 +241,66 @@ ui <- fluidPage(
           
           h3("First sample genotypes"),
           p("First few individuals sampled."),
-          tableOutput(outputId = "firstGTs"),
+          tableOutput("firstFSGs"),
           
           h3("Allele frequencies"),
           p("Relative frequencies, excluding samples from same animals in
              different surveys."),
-          tableOutput(outputId = "firstAFs"),
+          tableOutput("firstAFs"),
           
           h3("Genotype probabilities"),
           p("Probabilities of possible genotypes assuming that genes are 
             inherited with probabilities given by their frequencies above."),
-          tableOutput(outputId = "firstGtPrbs"),
+          tableOutput("firstGPs"),
           
-          h3("Genopair probabilities given kinship"),
-          p("Possible values at first locus."),
+          h3("Genopair probabilities at first locus"),
+          p("Probabilities of all possible genopairs given each kinship."),
           fluidRow(
-            column(3, h4("Unrelated"), tableOutput(outputId = "firstGPsUP")),
-            column(
-              3, h4("Half-siblings"), tableOutput(outputId = "firstGPsHSP")
-            ),
-            column(
-              3, h4("Parent-offspring"), tableOutput(outputId = "firstGPsPOP")
-            ),
-            column(
-              3, h4("Self-resample"), tableOutput(outputId = "firstGPsSP")
-            )
+            column(3, h4("Unrelated"), tableOutput("firstGPsUPL1")),
+            column(3, h4("Half-siblings"), tableOutput("firstGPsHSPL1")),
+            column(3, h4("Parent-offspring"), tableOutput("firstGPsPOPL1")),
+            column(3, h4("Self-resample"), tableOutput("firstGPsSPL1"))
           ),
           
-          h3("Genopair log-probabilities given kinship"),
+          h3("Genopair log-probabilities at first locus"),
+          p("Log-probabilities of all possible genopairs given each kinship."),
+          fluidRow(
+            column(3, h4("Unrelated"), tableOutput("firstGLPsUPL1")),
+            column(3, h4("Half-siblings"), tableOutput("firstGLPsHSPL1")),
+            column(3, h4("Parent-offspring"), tableOutput("firstGLPsPOPL1")),
+            column(3, h4("Self-resample"), tableOutput("firstGLPsSPL1"))
+          ),
+          
+          h3("First sample genopair log-probabilities"),
           p("Observed values for first few sample-pairs, over all loci."),
-          tableOutput(outputId = "firstFewLGPPs"),
-          p("Observed values for all sample-pairs, over all loci."),
-          plotOutput(outputId = "firstGLPs"),
+          tableOutput("firstFSGLPs"),
 
-          h3("Half-sibling vs unrelated pair PLODs"),
+          h3("All sample genopair log-probabilities"),
           p("Observed values for all sample-pairs, over all loci."),
-          fluidRow(
-            column(6, plotOutput(outputId = "firstPLODs")),
-            column(6, plotOutput(outputId = "firstPLODsRare"))
-          ),
+          plotOutput("firstASGLPs"),
           
-          h3("Genopair probabilities given kinship"),
+          h3("First sample genopair probabilities"),
           h4("All pairs"),
           p("Observed values for first few sample-pairs, over all loci."),
-          tableOutput(outputId = "firstFewGPPsFll"),
+          tableOutput("firstFSGPsF"),
+
           p("Numbers of pairs with corresponding survey indices for first and
             second samples."),
-          tableOutput(outputId = "frstSYIPCntsFll"),
+          tableOutput("firstSYIPsF"),
           
           h4("Offset pairs"),
-          p("Observed values for first few sample-pairs, over all loci (order is 
+          p("Observed values for first few sample-pairs, over all loci (order is
           random to avoid bias due to age representation when individuals 
           repeated to include pairs between surveys with different numbers of 
             samples)."),
-          tableOutput(outputId = "firstFewGPPsOffst"),
+          tableOutput("firstFSGPsO"),
           p("Numbers of pairs with corresponding survey indices for first and
             second samples."),
-          tableOutput(outputId = "frstSYIPCntsOffst"),
+          tableOutput("firstSYIPsO"),
           
+          h3("Half-sibling vs unrelated pair PLODs"),
           p("Observed values for all sample-pairs, over all loci."),
-          plotOutput(outputId = "frstGpPs")
+          plotOutput("firstPLODs")
         ),
         # First study likelihoods ----
         tabPanel(
@@ -310,7 +310,7 @@ ui <- fluidPage(
           h3("Likelihood surface near true parameter values"),
           p("Negative log-likelihood over each parameter while others held at 
             true values."),
-          plotOutput(outputId = "firstNLLSurfs")
+          plotOutput("firstNLLSurfs")
         ),
         # First study estimates ----
         tabPanel(
@@ -320,11 +320,11 @@ ui <- fluidPage(
           p("Parameter estimates for first simulated study. Close-kin models 
              include self, parent-offspring, and half-sibling pairs."),
           h3("Results for first study"),
-          tableOutput(outputId = "firstResults"),
+          tableOutput("firstResults"),
 
           h3("Kinpair probabilities estimated for first study"),
           h4("True kinship model"),
-          tableOutput(outputId = "firstKPPrbsTK")
+          tableOutput("firstKPPrbsTK")
         ),
         # Populations ----
         tabPanel(
@@ -333,7 +333,7 @@ ui <- fluidPage(
           h2("Population sizes"),
           p("Numbers of individuals that are alive in the population."),
           h3("Whole simulation"),
-          plotOutput(outputId = "checkExpPop"),
+          plotOutput("checkExpPop"),
           VBE.ui("N", "In survey-years", "")
         ),
         # Unknown parents ----
@@ -351,8 +351,8 @@ ui <- fluidPage(
           parents, that are alive in survey-years, and pairs of survey-years. 
           The observed numbers of pairs of individuals, including one or more 
           with unknown parents, will be added soon."),
-          tableOutput(outputId = "UPsWtn"),
-          tableOutput(outputId = "UPsBtn"),
+          tableOutput("UPsWtn"),
+          tableOutput("UPsBtn"),
         ),
         # All pairs ----
         KP.tab.ui("APs"),
@@ -399,31 +399,31 @@ ui <- fluidPage(
           h3("Unknown parents"),
           p("Average percentages of individuals with unknown parents, that are
             alive in survey-years, and pairs of survey-years."),
-          tableOutput(outputId = "percUnknPrnts"),
+          tableOutput("percUnknPrnts"),
           # h4("Temporal estimates"),
           # textOutput("tempEstBiasNote"),
-          # tableOutput(outputId = "bsNsKPsTemp"),
+          # tableOutput("bsNsKPsTemp"),
           h3("Numbers of pairs within survey-years (whole population)"),
           p("Numbers of pairs of individuals with given relationships,
             where both are alive in the same survey-year.  Population
             sizes are included for reference."),
-          tableOutput(outputId = "bsNsKPsWtnPop"),
+          tableOutput("bsNsKPsWtnPop"),
           h3("Numbers of pairs between survey-years (whole population)"),
           p("Numbers of pairs of individuals with given relationships,
             where one individual is alive in each of a pair of survey-years."),
-          tableOutput(outputId = "bsNsKPsBtnPop"),
+          tableOutput("bsNsKPsBtnPop"),
           
           # h3("Probabilities"),
           # h4("Within surveys"),
-          # tableOutput(outputId = "bsProbsKPsWtn"),
+          # tableOutput("bsProbsKPsWtn"),
           # h4("Between surveys"),
-          # tableOutput(outputId = "bsProbsKPsBtn"),
+          # tableOutput("bsProbsKPsBtn"),
           
           # h3("Numbers among sampled animals"),
           # h4("Within surveys"),
-          # tableOutput(outputId = "bsNsKPsCapWtn"),
+          # tableOutput("bsNsKPsCapWtn"),
           # h4("Between surveys")
-          # tableOutput(outputId = "bsNsKPsCapBtn")
+          # tableOutput("bsNsKPsCapBtn")
         ),
       )
     ), 
@@ -453,21 +453,21 @@ ui <- fluidPage(
         ),
         mainPanel(
           h2("Compare model performance"),
-          tableOutput(outputId = "nDatasets"),
-          tableOutput(outputId = "knshpSt"),
+          tableOutput("nDatasets"),
+          tableOutput("knshpSt"),
           h3("Model fitting"),
-          tableOutput(outputId = "mdlFtRts"),
+          tableOutput("mdlFtRts"),
           h3("Estimator performance"),
           h4("Bias"),
-          tableOutput(outputId = "estBias"),
+          tableOutput("estBias"),
           h4("Coefficient of variation"),
-          tableOutput(outputId = "estCV"),
+          tableOutput("estCV"),
           h4("Estimates/errors"),
-          plotOutput(outputId = "mdlCmpnPlt"),
+          plotOutput("mdlCmpnPlt"),
           h3("95% confidence interval coverage"),
-          tableOutput(outputId = "CICov"),
+          tableOutput("CICov"),
           h3("95% confidence intervals for lambda"),
-          plotOutput(outputId = "CIPlot")
+          plotOutput("CIPlot")
         )
       )
     ),
