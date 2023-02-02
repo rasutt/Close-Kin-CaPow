@@ -10,7 +10,10 @@ step_phi = 0.005
 n.pts = 100
 
 # Model choices
-mdl.chcs = c("Popan", "True kinship", "Full genopair", "Offset genopair")
+mdl.chcs = c(
+  "Popan", "Offset true kinship", "True kinship", "Full genopair", 
+  "Offset genopair"
+)
 
 # Kinship choices for models
 knshp.chcs = c("Self", "Parent-offspring", "Half-sibling")

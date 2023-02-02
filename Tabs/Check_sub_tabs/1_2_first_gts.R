@@ -25,24 +25,19 @@ frst.syis = reactive(col(frst.smp.hsts())[as.logical(frst.smp.hsts())] - 1)
 # Offset sample index pairs for first study
 frst.osips = reactive(FindSIPsOffset(k(), frst.syis()))
 
-# Function to find sample-individual index pairs, n_pairs x 2
-FindSIIPs = function(siis, sips) {
-  matrix(siis[as.vector(sips)], ncol = 2)
+# Function to find sample-individual or sample-year index pairs, n_pairs x 2
+FindSISYIPs = function(sisyis, sips) {
+  matrix(sisyis[as.vector(sips)], ncol = 2)
 }
 
 # Full and offset sample-individual index pairs, n_pairs x 2
 frst.fsiips = reactive(t(combn(frst.siis(), 2)))
-frst.osiips = reactive(FindSIIPs(frst.siis(), frst.osips()))
-
-# Function to find sample-year index pairs, n_pairs x 2
-FindSYIPs = function(syis, sips) {
-  matrix(syis[as.vector(sips)], ncol = 2)
-}
+frst.osiips = reactive(FindSISYIPs(frst.siis(), frst.osips()))
 
 # Indices of survey-years for each sample in each pair, starting at zero for
 # C++ template, and ordered by survey-year of first sample
 frst.fsyips = reactive(t(combn(frst.syis(), 2)))
-frst.osyips = reactive(FindSYIPs(frst.syis(), frst.osips()))
+frst.osyips = reactive(FindSISYIPs(frst.syis(), frst.osips()))
 
 # Nullify genopair log-probabilities when new datasets simulated
 observeEvent(input$simulate, frst.fglps(NULL))

@@ -52,7 +52,7 @@ output$downloadData <- downloadHandler(
       frst.fglps = frst.fglps(),
       mdl.st = mdl.st(),
       knshp.st = knshp.st(),
-      offst.SYIPs.lst = offst.SYIPs.lst()
+      osisyips.lst = osisyips.lst()
     )
     save(saved.objs, file = file)
   }
@@ -112,8 +112,7 @@ observeEvent(input$file, {
   frst.fglps(saved.objs$frst.fglps)
   mdl.st(saved.objs$mdl.st)
   knshp.st(saved.objs$knshp.st)
-  fsisyips.lst(NULL)
-  offst.SYIPs.lst(saved.objs$offst.SYIPs.lst)
+  osisyips.lst(saved.objs$osisyips.lst)
   
   # If started multi-core cluster
   if (!is.null(cl())) {

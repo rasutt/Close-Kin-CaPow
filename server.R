@@ -108,10 +108,8 @@ server <- function(input, output) {
   frst.fglps = reactiveVal(saved.objs$frst.fglps)
   mdl.st = reactiveVal(saved.objs$mdl.st)
   knshp.st = reactiveVal(saved.objs$knshp.st)
-  offst.SYIPs.lst = reactiveVal(saved.objs$offst.SYIPs.lst)
-  fsisyips.lst = reactiveVal()
-  cl = reactiveVal()
-  
+  osisyips.lst = reactiveVal(saved.objs$osisyips.lst)
+
   # Variables bound to simulate button (for last simulation) ----
   observeEvent(input$simulate, {
     # Individual survival rate

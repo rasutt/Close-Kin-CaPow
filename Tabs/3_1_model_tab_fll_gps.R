@@ -1,3 +1,101 @@
+# Sample-individual and sample-year indices, length n_samples, starting from
+# zero for sample-years for TMB functions, for all studies
+sisyis.lst = reactive({
+  # Make lists
+  siis = syis = vector("list", n.sims())
+  
+  # Show progress-bar
+  withProgress(
+    # Loop over histories
+    for (hst.ind in 1:n.sims()) {
+      # Get simulated family and capture histories of population of
+      # animals over time
+      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
+      
+      # Sample history matrix, n_individuals x n_surveys, rows ordered by
+      # individual ID, using == 1 as simpler for data frame input
+      smp.hsts.bln = pop.cap.hist[, 4:(3 + k())] == 1
+      
+      # Sample-individual indices
+      siis[[hst.ind]] = row(smp.hsts.bln)[smp.hsts.bln]
+      
+      # Sample-year indices, starting from zero for TMB functions
+      syis[[hst.ind]] = col(smp.hsts.bln)[smp.hsts.bln] - 1
+      
+      # Update progress-bar
+      incProgress(1/n.sims())
+    }, 
+    value = 0, 
+    message = "Finding all sample-individual and sample-year indices"
+  )
+  
+  # Return list
+  list(siis = siis, syis = syis)
+})
+
+# Full set of sample-individual and sample-year index pairs for genopair
+# models, 2 x n_pairs x 2, representing individual and year that each
+# sample came from. Sample-years start from zero for TMB C++ objective
+# function
+fsisyips.lst = reactive({
+  # Make lists
+  siips.lst = syips.lst = vector("list", n.sims())
+  
+  # Show progress-bar
+  withProgress(
+    # Loop over histories
+    for (hst.ind in 1:n.sims()) {
+      # Get simulated family and capture histories of population of
+      # animals over time
+      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
+      
+      # Sample history matrix, n_individuals x n_surveys, rows ordered by
+      # individual ID, using == 1 as simpler for data frame input
+      smp.hsts.bln = pop.cap.hist[, 4:(3 + k())] == 1
+      
+      # Sample-individual and sample-year index pairs
+      siips.lst[[hst.ind]] = t(combn(sisyis.lst()$siis[[hst.ind]], 2))
+      syips.lst[[hst.ind]] = t(combn(sisyis.lst()$syis[[hst.ind]], 2))
+      
+      # Update progress-bar
+      incProgress(1/n.sims())
+    }, 
+    value = 0, 
+    message = "Finding all sample-individual and sample-year index pairs"
+  )
+  
+  # Return lists
+  list(siips.lst = siips.lst, syips.lst = syips.lst)
+})
+
+# If the numbers of studies and/or loci are large use multicore processing
+cl = reactive({
+  if (n.sims() * L() > 1e3) {
+    # Start new R sessions on separate "logical" CPU cores (nodes) for finding
+    # genopair log-probabilities. Using 6 of my 12 cores seems to be optimal
+    cl.tmp = makeCluster(detectCores() %/% 2)
+    
+    # Evaluate reactive objects and pass values to new R sessions. Passing
+    # large objects to parLapply does not improve performance (to my
+    # surprise). Can't index in parLapply for some reason
+    hst.lst.prll = sim.lst()$hists.lst
+    siips.lst.prll = fsisyips.lst()$siips.lst
+    L.prll = L()
+    k.prll = k()
+    clusterExport(
+      cl.tmp,
+      list(
+        "hst.lst.prll", "siips.lst.prll", "L.prll", "k.prll", 
+        "FindGLPs"
+      ), 
+      environment()
+    )
+    
+    # Return cluster
+    cl.tmp
+  } 
+})
+
 # Allele frequencies for each study, 2 x n_loci X n_sims
 ale.frqs.ary = reactive({
   # Loop over histories

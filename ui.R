@@ -47,7 +47,7 @@ ui <- fluidPage(
   navbarPage(
     title = "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "check.tab",
+    selected = "model.tab",
     position = "fixed-top",
     
     # Sim tab ----
@@ -439,14 +439,14 @@ ui <- fluidPage(
             inputId = "mdl.st", label = "Models to fit",
             choices = mdl.chcs, 
             # selected = mdl.chcs
-            # selected = "True kinship"
-            selected = c("True kinship", "Full genopair")
+            selected = c("Offset true kinship", "True kinship")
+            # selected = c("True kinship", "Full genopair")
           ),
           checkboxGroupInput(
             inputId = "knshp.st", label = "Kinships to include",
             choices = knshp.chcs,
-            # selected = knshp.chcs
-            selected = c("Self", "Parent-offspring")
+            selected = knshp.chcs
+            # selected = c("Self", "Parent-offspring")
           ),
           actionButton(
             inputId = "fit", label = "Fit models"

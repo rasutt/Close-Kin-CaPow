@@ -3,14 +3,12 @@ n.pars = reactive(length(est.par.names()))
 # Number of models requested
 n.mods = reactive(length(mdl.st()))
 
-
 # When new datasets simulated
 observeEvent(input$simulate, {
   # Nullify objects
   knshp.st(NULL)
   fit.lst(NULL)
-  fsisyips.lst(NULL)
-  # offst.syips.lst(NULL)
+  osisyips.lst(NULL)
   
   # If started multi-core cluster
   if (!is.null(cl())) {
@@ -25,114 +23,55 @@ observeEvent(input$fit, {
   mdl.st(input$mdl.st)
   knshp.st(input$knshp.st)
   
-  # If fitting full genopair model for first time since simulation/loading
-  if ("Full genopair" %in% mdl.st() && is.null(fsisyips.lst())) {
-    # Full set of sample-individual and sample-year index pairs for genopair
-    # models, 2 x n_pairs x 2, representing individual and year that each
-    # sample came from. Sample-years start from zero for TMB C++ objective
-    # function
-    fsisyips.lst({
-      # Make lists
-      siips.lst = syips.lst = vector("list", n.sims())
-      
-      # Show progress-bar
-      withProgress(
-        # Loop over histories
-        for (hst.ind in 1:n.sims()) {
-          # Get simulated family and capture histories of population of
-          # animals over time
-          pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
-          
-          # Sample history matrix, n_individuals x n_surveys, rows ordered by
-          # individual ID, using == 1 as simpler for data frame input
-          smp.hsts.bln = pop.cap.hist[, 4:(3 + k())] == 1
-          
-          # Sample-individual and sample-year index pairs
-          siips.lst[[hst.ind]] = 
-            t(combn(row(smp.hsts.bln)[smp.hsts.bln], 2))
-          syips.lst[[hst.ind]] = 
-            t(combn(col(smp.hsts.bln)[smp.hsts.bln] - 1, 2))
-          
-          # Update progress-bar
-          incProgress(1/n.sims())
-        }, 
-        value = 0, 
-        message = "Finding all sample-individual and sample-year index pairs"
-      )
-      
-      # Return lists
-      list(siips.lst = siips.lst, syips.lst = syips.lst)
-    })
-    
-    # If the numbers of studies and/or loci are large use multicore processing
-    if (n.sims() * L() > 1e3) {
-      # Start new R sessions on separate "logical" CPU cores (nodes) for finding
-      # genopair log-probabilities. Using 6 of my 12 cores seems to be optimal
-      cl(makeCluster(detectCores() %/% 2))
-      
-      # Evaluate reactive objects and pass values to new R sessions. Passing
-      # large objects to parLapply does not improve performance (to my
-      # surprise). Can't index in parLapply for some reason
-      hst.lst.prll = sim.lst()$hists.lst
-      siips.lst.prll = fsisyips.lst()$siips.lst
-      L.prll = L()
-      k.prll = k()
-      clusterExport(
-        cl(),
-        list(
-          "hst.lst.prll", "siips.lst.prll", "L.prll", "k.prll", 
-          "FindGLPs"
-        ), 
-        environment()
-      )
-    } 
-  }
-  
-  # If fitting offset genopair model for first time find offset survey-year
-  # index pairs
+  # If fitting offset true kinship or genopair model for first time since
+  # simulation/loading
   if (
-    F
-    # is.null(offst.syips.lst()) &&
-    # "Offset genopair" %in% mdl.st()
+    is.null(osisyips.lst()) &&
+    any(c("Offset true kinship", "Offset genopair") %in% mdl.st())
   ) {
-    offst.syips.lst.tmp = vector("list", n.sims())
+    osyips = osiips = vector("list", n.sims())
     
     # Loop over histories
-    withProgress({
-      for (hst.ind in 1:n.sims()) {
-        # Sample-year indices, columns in sample history matrix, representing
-        # the survey that each sample came from, ordered by survey-year then
-        # individual ID.  Counting from zero as will be passed to TMB objective
-        # function
-        smp.yr.inds = SYIs.lst()[[hst.ind]]
-        
-        # Sample index pairs for just consecutive pairs
-        smp.ind.prs.offst = FindSIPsOffset(k(), smp.yr.inds)
-        
-        # Sample-year index pairs, n_pairs x 2, representing survey-year of each
-        # sample in each offset pair, counting from zero as passing into TMB C++
-        # objective function
-        offst.syips.lst.tmp[[hst.ind]] = 
-          matrix(smp.yr.inds[as.vector(t(smp.ind.prs.offst))], ncol = 2)
-        
-        incProgress(1/n.sims())
-      }
-    }, value = 0, message = "Finding offset sample-year index pairs")
+    withProgress(
+      {
+        for (hst.ind in 1:n.sims()) {
+          # Sample-year indices
+          syis = sisyis.lst()$syis[[hst.ind]]
+          
+          # Sample index pairs for just consecutive pairs
+          osips = FindSIPsOffset(k(), syis)
+          
+          # Sample-individual and sample-year index pairs, n_pairs x 2,
+          # representing individual and survey-year of each sample in each
+          # offset pair, counting from zero for survey-years as passing into TMB
+          # C++ objective function
+          osyips[[hst.ind]] = FindSISYIPs(syis, osips)
+          osiips[[hst.ind]] = 
+            FindSISYIPs(sisyis.lst()$siis[[hst.ind]], osips)
+          
+          incProgress(1/n.sims())
+        }
+      }, value = 0, 
+      message = "Finding offset sample-individual and sample-year index pairs"
+    )
     
-    offst.syips.lst(offst.syips.lst.tmp)
+    osisyips.lst(list(osiips = osiips, osyips = osyips))
   }
   
   # Boolean for models requested 
   mod.bool = mdl.chcs %in% mdl.st()
   
   # Combine and keep only for selected models
-  ests = list(fit.ppn()$ests, fit.ck()$ests, fit.gp()$ests, fit.os()$ests)[
-    mod.bool
-  ]
-  ses = list(fit.ppn()$ses, fit.ck()$ses, fit.gp()$ses, fit.os()$ses)[mod.bool]
-  cnvgs = list(fit.ppn()$cnvgs, fit.ck()$cnvgs, fit.gp()$cnvgs, fit.os()$cnvgs)[
-    mod.bool
-  ]
+  ests = list(
+    fit.ppn()$ests, fit.otk()$ests, fit.ck()$ests, fit.gp()$ests, fit.os()$ests
+  )[mod.bool]
+  ses = list(
+    fit.ppn()$ses, fit.otk()$ses, fit.ck()$ses, fit.gp()$ses, fit.os()$ses
+  )[mod.bool]
+  cnvgs = list(
+    fit.ppn()$cnvgs, fit.otk()$cnvgs, fit.ck()$cnvgs, fit.gp()$cnvgs, 
+    fit.os()$cnvgs
+  )[mod.bool]
   names(ests) = names(ses) = names(cnvgs) = mdl.st()
   
   # Update list of model fits

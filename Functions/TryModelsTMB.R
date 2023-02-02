@@ -44,7 +44,7 @@ TryModelTMB <- function(
         scale = 1 / obj$par, lower = lwr, upper = upr,
         control = list(
           # trace = 1,
-          iter.max = 400
+          iter.max = 800
         )
       )
     )
