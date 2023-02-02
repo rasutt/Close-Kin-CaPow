@@ -30,7 +30,7 @@ first.ck.ests = reactive({
 # Full genopair model 
 first.FGP.ests = reactive({
   # Try to fit genopair likelihood model
-  rslt = TryModelTMB(GPP.obj.fll(), ck.lwr(), ck.upr(), "genopair")
+  rslt = TryModelTMB(fgof(), ck.lwr(), ck.upr(), "genopair")
   
   # If no error
   if (!all(is.na(rslt))) {
@@ -44,7 +44,7 @@ first.FGP.ests = reactive({
 # Offset model
 first.OGP.ests = reactive({
   # Try to fit genopair likelihood model
-  rslt = TryModelTMB(GPP.obj.offst(), ck.lwr(), ck.upr(), "genopair")
+  rslt = TryModelTMB(ogof(), ck.lwr(), ck.upr(), "genopair")
   
   # If no error
   if (!all(is.na(rslt))) {

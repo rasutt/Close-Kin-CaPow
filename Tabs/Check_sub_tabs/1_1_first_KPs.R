@@ -1,8 +1,5 @@
 # Outputs for first study kin-pairs sub-tab of checks tab
 
-# Get first study from list
-frst.std = reactive(sim.lst()$hists.lst[[1]])
-
 # Get attributes of first study
 FS.atts = reactive(attributes(frst.std()))
 

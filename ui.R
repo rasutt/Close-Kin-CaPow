@@ -143,7 +143,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "frst.gts.tb",
+        selected = "frst.lklhds.tb",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
@@ -280,6 +280,7 @@ ui <- fluidPage(
           plotOutput("firstASGLPs"),
           
           h3("First sample genopair probabilities"),
+          p("Possibly adjusted by a large positive factor to avoid underflow."),
           h4("All pairs"),
           p("Observed values for first few sample-pairs, over all loci."),
           tableOutput("firstFSGPsF"),
@@ -310,7 +311,7 @@ ui <- fluidPage(
           h3("Likelihood surface near true parameter values"),
           p("Negative log-likelihood over each parameter while others held at 
             true values."),
-          plotOutput("firstNLLSurfs")
+          plotOutput("firstNLLSurfs", height = 500)
         ),
         # First study estimates ----
         tabPanel(

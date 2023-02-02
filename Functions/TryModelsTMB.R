@@ -7,7 +7,9 @@ MakeTMBObj <- function(
     survives = NA,
     alpha = NA, knshp_st_bool = NA,
     ns_SPs_btn = NA, ns_POPs_wtn = NA, ns_POPs_btn = NA, ns_HSPs_wtn = NA, 
-    ns_HSPs_btn = NA, ns_caps = NA,
+    ns_HSPs_btn = NA, 
+    ns_caps = NA,
+    ns_pairs_wtn = NA, ns_pairs_btn = NA,
     gp_probs = matrix(NA, 1, 1), smp_yr_ind_prs = matrix(NA, 1, 1)
 ) {
   # Create TMB function
@@ -20,6 +22,7 @@ MakeTMBObj <- function(
     ns_SPs_btn = ns_SPs_btn, ns_POPs_wtn = ns_POPs_wtn, 
     ns_POPs_btn = ns_POPs_btn, ns_HSPs_wtn = ns_HSPs_wtn, 
     ns_HSPs_btn = ns_HSPs_btn, ns_caps = ns_caps,
+    ns_pairs_wtn = ns_pairs_wtn, ns_pairs_btn = ns_pairs_btn,
     gp_probs = gp_probs, smp_yr_ind_prs = smp_yr_ind_prs, 
     n_pairs = nrow(gp_probs)
   )
@@ -27,7 +30,9 @@ MakeTMBObj <- function(
 }
 
 # Try to fit close kin model with TMB
-TryModelTMB <- function(obj, lwr, upr, mdl.tp = c("true kinship", "genopair")) {
+TryModelTMB <- function(
+    obj, lwr, upr, mdl.tp = c("true kinship", "offset true kinship", "genopair")
+) {
   # cat(mdl.tp, "\n")
   # cat("Optimiser trace: \n")
   

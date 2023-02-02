@@ -1,12 +1,15 @@
+# Get first study from list
+frst.std = reactive(sim.lst()$hists.lst[[1]])
+
 # Summarise data for POPAN model
 frst.pop.sum = reactive({
-  pop.sum = as.matrix(FindPopSum(k(), fst.std(), n.cap.hists()))
+  pop.sum = as.matrix(FindPopSum(k(), frst.std(), n.cap.hists()))
   mode(pop.sum) = "integer"
   data.frame(pop.sum)
 })
 
 # First sample-histories
-output$firstSampHists = renderTable(head(data.frame(fst.std())))
+output$firstSampHists = renderTable(head(data.frame(frst.std())))
 
 # First sample-history sufficient statistics
 output$firstSmpHstStats = renderTable({

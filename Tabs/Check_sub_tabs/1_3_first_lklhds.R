@@ -18,21 +18,44 @@ ppn.obj = reactive({
   )
 })
 
-# Genopair likelihood TMB objective function
-GPP.obj.fll = reactive({
+# Offset true kinship objective function from TMB
+otk.obj = reactive({
+  # Get numbers of pairs for each pair of surveys
+  ns.pairs = table(data.frame(frst.osyips()))
+
+  # Find numbers of kin pairs
+  ns.kps.lst = FindNsOKPs(
+    k(), n.srvy.prs(), frst.std(), frst.osiips(), frst.osyips()
+  )
+
+  # Create TMB function
+  MakeTMBObj(
+    ck.start(), "offset true kinship",
+    k(), srvy.gaps(), fnl.year(), srvy.yrs(),
+    alpha = alpha(), knshp_st_bool = all.knshps.bln,
+    ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ],
+    ns_POPs_btn = ns.kps.lst$btn[2, ], ns_HSPs_wtn = ns.kps.lst$wtn[2, ],
+    ns_HSPs_btn = ns.kps.lst$btn[3, ], 
+    ns_pairs_wtn = diag(ns.pairs), 
+    ns_pairs_btn = t(ns.pairs)[lower.tri(ns.pairs)]
+  )
+})
+
+# Full and offset genopair objective functions from TMB
+fgof = reactive({
   MakeTMBObj(
     ck.start(), "genopair",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
     alpha = alpha(), knshp_st_bool = all.knshps.bln,
-    gp_probs = GPPs.fll(), smp_yr_ind_prs = frst.SYIPs.fll()
+    gp_probs = frst.fgps(), smp_yr_ind_prs = frst.fsyips()
   )
 })
-GPP.obj.offst = reactive({
+ogof = reactive({
   MakeTMBObj(
     ck.start(), "genopair",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
     alpha = alpha(), knshp_st_bool = all.knshps.bln, 
-    gp_probs = GPPs.offst(), smp_yr_ind_prs = frst.SYIPs.offst()
+    gp_probs = frst.ogps(), smp_yr_ind_prs = frst.osyips()
   )
 })
 
@@ -60,9 +83,10 @@ ppn.par.mat = reactive({
 # Negative log-likelihood surfaces for first study, n_points x n_pars x n_models
 frst.nll.srfcs = reactive({
   obj.par = array(
-    0, c(n.pts, 3, 4), dimnames = list(
+    0, c(n.pts, 3, 5), dimnames = list(
       NULL, NULL, 
-      c("Popan", "True kinship", "Full genopair", "Offset genopair")
+      c("Popan", "True kinship", "Offset true kinship", "Full genopair", 
+        "Offset genopair")
     )
   )
   
@@ -81,8 +105,9 @@ frst.nll.srfcs = reactive({
       # Find NLL values at current parameter values
       obj.par[i, p, "Popan"] = ppn.obj()$fn(ppn.par.vals)
       obj.par[i, p, "True kinship"] = tk.obj()$fn(ck.par.vals)
-      obj.par[i, p, "Full genopair"] = GPP.obj.fll()$fn(ck.par.vals)
-      obj.par[i, p, "Offset genopair"] = GPP.obj.offst()$fn(ck.par.vals)
+      obj.par[i, p, "Offset true kinship"] = otk.obj()$fn(ck.par.vals)
+      obj.par[i, p, "Full genopair"] = fgof()$fn(ck.par.vals)
+      obj.par[i, p, "Offset genopair"] = ogof()$fn(ck.par.vals)
     }
   }
   
@@ -116,9 +141,10 @@ plot.nll = function(mdl.nm) {
 # Plot NLL surfaces for each parameter with others held at true values, for each
 # model
 output$firstNLLSurfs = renderPlot({
-  par(mfrow = c(4, 3), mar = rep(2, 4))
+  par(mfrow = c(5, 3), mar = rep(2, 4))
   plot.nll("Popan")
   plot.nll("True kinship")
+  plot.nll("Offset true kinship")
   plot.nll("Full genopair")
   plot.nll("Offset genopair")
 })

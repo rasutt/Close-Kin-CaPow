@@ -73,8 +73,8 @@ observeEvent({
 frst.oglps = reactive(FindGLPs(frst.pgpsgks(), frst.gts(), frst.osiips(), L()))
 
 # Genopair probabilities for optimization
-frst.fgps = reactive(FindGPPs(frst.fglps()))
-frst.ogps = reactive(FindGPPs(frst.oglps()))
+frst.fgps = reactive(FindGPsGvnKs(frst.fglps()))
+frst.ogps = reactive(FindGPsGvnKs(frst.oglps()))
 
 # Expected values of HSP vs UP PLODs given various kinships
 exp.plods = reactive({
@@ -132,9 +132,10 @@ output$firstGPs = renderTable({
   df
 }, rownames = T)
 
-# Function to format genopair data at first locus for display
-FrmtGDL1 = function(gpps) {
-  df = data.frame(gpps)
+# Function to format genopair probabilities and log-probabilities at first locus
+# for display
+FrmtGDL1 = function(gnpr.dt) {
+  df = data.frame(gnpr.dt)
   names(df) = row.names(df) = pss.gt.lbls
   df
 }
@@ -167,13 +168,13 @@ output$firstGLPsSPL1 = renderTable({
   FrmtGDL1(log(frst.pgpsgks()[, , 1, 4]))
 }, rownames = T)
 
-# Function to formate first sample genopair data for display
+# Function to format first sample genopair probabilities and log-probabilities
+# for display
 FrmtFSGD = function(siips, gnpr.dt) {
-  df = data.frame(cbind(
+  df = data.frame(
     matrix(frst.std()$ID[as.vector(siips)], nrow = 3),
     format(gnpr.dt, digits = 3, scientific = T)
-  ))
-  df[, 1:2] = (as.matrix(df[, 1:2]))
+  )
   names(df) = c("ID 1", "ID 2", gpkts)
   df
 }
@@ -204,32 +205,22 @@ output$firstASGLPs = renderPlot({
   })
 })
 
-# Table of genopair probabilities of first few pairs captured
+# Tables of genopair probabilities of first few pairs in full and offset models
 output$firstFSGPsF = renderTable({
   FrmtFSGD(frst.fsiips()[1:3, ], frst.fgps()[1:3, ])
-}, digits = 6)
-
-# Show table of genopair probabilities for first few offset pairs (order is
-# random to avoid bias due to age representation when individuals repeated to
-# include pairs between surveys with different numbers of samples)
+})
 output$firstFSGPsO = renderTable({
   FrmtFSGD(frst.osiips()[1:3, ], frst.ogps()[1:3, ])
-}, digits = 6)
+})
 
-# Table of survey-year index pair counts for full genopair model
-output$firstSYIPsF = renderTable({
-  df = data.frame(matrix(table(data.frame(frst.fsyips())), nrow = k()))
-  dimnames(df) = list(Index_1 = 1:k() - 1, Index_2 = 1:k() - 1)
+# Tables of survey-year index pair counts for full and offset genopair models
+FrmtSYIPs = function(syips) {
+  df = data.frame(matrix(table(data.frame(syips)), nrow = k()))
+  dimnames(df) = list(1:k() - 1, 1:k() - 1)
   df
-}, rownames = T)
-
-# Table of numbers of pairs with corresponding survey indices for first and
-# second samples
-output$firstSYIPsO = renderTable({
-  df = data.frame(matrix(table(data.frame(frst.osyips())), nrow = k()))
-  dimnames(df) = list(Index_1 = 1:k() - 1, Index_2 = 1:k() - 1)
-  df
-}, rownames = T)
+}
+output$firstSYIPsF = renderTable(FrmtSYIPs(frst.fsyips()), rownames = T)
+output$firstSYIPsO = renderTable(FrmtSYIPs(frst.osyips()), rownames = T)
 
 # Plot PLODs on log-scale
 output$firstPLODs = renderPlot({

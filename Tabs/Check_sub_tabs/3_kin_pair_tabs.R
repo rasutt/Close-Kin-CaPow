@@ -4,7 +4,7 @@
 # with lists as want to keep reactives separate
 VPE.srvr(
   "N", reactive(list(N.s.yrs())), 
-  reactive(list(est.ns.kps.pop()$wtn[, 1])), 
+  reactive(list(pred.ns.kps.pop()$wtn[, 1])), 
   N.errs, "In survey-years"
 )
 VPE.srvr.rglr("APs", ns.APs, preds.lst, ns.APs.errs)
