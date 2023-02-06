@@ -11,7 +11,7 @@ n.pts = 100
 
 # Model choices
 mdl.chcs = c(
-  "Popan", "True kinship", "Offset true kinship", "Full genopair", 
+  "Popan", "Full true kinship", "Offset true kinship", "Full genopair", 
   "Offset genopair"
 )
 

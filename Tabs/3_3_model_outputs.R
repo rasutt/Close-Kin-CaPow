@@ -93,7 +93,7 @@ observeEvent(input$fit, {
   mod.bool = mdl.chcs %in% mdl.st()
 
   # Combine and keep only for selected models
-  fit.lst.tmp = list(fit.ppn(), fit.ck(), fit.otk(), fit.gp(), fit.os())
+  fit.lst.tmp = list(fit.ppn(), fit.ftk(), fit.otk(), fit.fg(), fit.og())
   ests = lapply(fit.lst.tmp, function(fit) fit$ests)[mod.bool]
   ses = lapply(fit.lst.tmp, function(fit) fit$ses)[mod.bool]
   cnvgs = lapply(fit.lst.tmp, function(fit) fit$cnvgs)[mod.bool]

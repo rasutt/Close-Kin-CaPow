@@ -1,7 +1,9 @@
 # Make TMB objective function by providing starting parameter values, model
 # type, and data required.
 MakeTMBObj <- function(
-    start, mdl_tp = c("popan", "true kinship", "genopair"),
+    start, mdl_tp = c(
+      "popan", "full true kinship", "offset true kinship", "genopair"
+    ),
     k = NA, srvy_gaps = NA, fnl_year = NA, srvy_yrs = NA, 
     n_cap_hists = NA, first_tab = NA, last_tab = NA, caps = NA, non_caps = NA, 
     survives = NA,
@@ -31,7 +33,10 @@ MakeTMBObj <- function(
 
 # Try to fit close kin model with TMB
 TryModelTMB <- function(
-    obj, lwr, upr, mdl.tp = c("true kinship", "offset true kinship", "genopair")
+    obj, lwr, upr, 
+    mdl.tp = c(
+      "popan", "full true kinship", "offset true kinship", "genopair"
+    )
 ) {
   # cat(mdl.tp, "\n")
   # cat("Optimiser trace: \n")

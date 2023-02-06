@@ -64,7 +64,7 @@ FindSIPsOffset = function(k, syis) {
   sips
 }
 
-FindGPsGvnKs = function(LGPPs) {
+FindGPs = function(LGPPs) {
   # Get genopair probabilities (by excluding probabilities giveb half-sibs for
   # now) and check for pairs where all probabilities underflow to zero
   gpp.slct = exp(LGPPs)
@@ -141,13 +141,12 @@ FindGpMdlInpts <- function(pop.cap.hist, L, k, os.mdl, knshp.st) {
   
   # Genopair log-probabilities over all loci given each kinship, for each
   # pair to include in likelihood
-  lg.gp.prbs.KPs = 
-    FindLogGPProbsKP(pss.gp.prbs.KPs, smp.gts, smp.ind.prs, L)
+  lg.gp.prbs.KPs = FindGLPs(pss.gp.prbs.KPs, smp.gts, smp.ind.prs, L)
   
   # Exponentiate genopair log-probabilities given kinship set, checking for
   # underflow and trying to adjust if necessary.  Would be good to raise a
   # proper error if adjustment impossible
-  GPPs = FindGPPs(lg.gp.prbs.KPs)
+  GPPs = FindGPs(lg.gp.prbs.KPs)
   
   list(GPPs = GPPs, smp.yr.ind.prs = smp.yr.ind.prs)
 }

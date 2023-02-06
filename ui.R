@@ -324,7 +324,7 @@ ui <- fluidPage(
           tableOutput("firstResults"),
 
           h3("Kinpair probabilities estimated for first study"),
-          h4("True kinship model"),
+          h4("Full true kinship model"),
           tableOutput("firstKPPrbsTK")
         ),
         # Populations ----
@@ -439,8 +439,8 @@ ui <- fluidPage(
             inputId = "mdl.st", label = "Models to fit",
             choices = mdl.chcs, 
             # selected = mdl.chcs
-            selected = c("True kinship", "Offset true kinship")
-            # selected = c("True kinship", "Full genopair")
+            selected = c("Full true kinship", "Offset true kinship")
+            # selected = c("Full true kinship", "Full genopair")
           ),
           checkboxGroupInput(
             inputId = "knshp.st", label = "Kinships to include",

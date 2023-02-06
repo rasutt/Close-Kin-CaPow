@@ -16,7 +16,7 @@ first.ppn.ests = reactive({
 # True kinship model
 first.ck.ests = reactive({
   # Try to fit true kinship likelihood model
-  rslt = TryModelTMB(tk.obj(), ck.lwr(), ck.upr(), "true kinship")
+  rslt = TryModelTMB(ftk.obj(), ck.lwr(), ck.upr(), "full true kinship")
   
   # If no error
   if (!all(is.na(rslt))) {
@@ -44,7 +44,7 @@ first.otk.ests = reactive({
 # Full genopair model 
 first.fg.ests = reactive({
   # Try to fit genopair likelihood model
-  rslt = TryModelTMB(fgof(), ck.lwr(), ck.upr(), "genopair")
+  rslt = TryModelTMB(fg.obj(), ck.lwr(), ck.upr(), "genopair")
   
   # If no error
   if (!all(is.na(rslt))) {
@@ -58,7 +58,7 @@ first.fg.ests = reactive({
 # Offset model
 first.og.ests = reactive({
   # Try to fit genopair likelihood model
-  rslt = TryModelTMB(ogof(), ck.lwr(), ck.upr(), "genopair")
+  rslt = TryModelTMB(og.obj(), ck.lwr(), ck.upr(), "genopair")
   
   # If no error
   if (!all(is.na(rslt))) {
@@ -98,7 +98,7 @@ output$firstResults = renderTable({
 # Kinpair probabilities for first study after optimisation of true kinships
 # likelihood
 frst.KP.prbs.TKs.lst = reactive({
-  tk.obj()$report()
+  ftk.obj()$report()
 })
 
 output$firstKPPrbsTK = renderTable({

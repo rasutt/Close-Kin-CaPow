@@ -65,8 +65,8 @@ fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
   list(ests = ppn.tmb.ests, ses = ppn.tmb.ses, cnvgs = !ppn.tmb.cnvg)
 })
 
-# Fit true kinship model
-fit.ck = reactive(if ("True kinship" %in% mdl.st()) {
+# Fit full true kinship model
+fit.ftk = reactive(if ("Full true kinship" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), NA)
   ck.lwr <- c(0, 0.75, NA)
@@ -102,7 +102,7 @@ fit.ck = reactive(if ("True kinship" %in% mdl.st()) {
       
       # Create TMB function
       obj = MakeTMBObj(
-        ck.start, "true kinship",
+        ck.start, "full true kinship",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), knshp_st_bool = kivs(),
         ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ], 
@@ -111,7 +111,7 @@ fit.ck = reactive(if ("True kinship" %in% mdl.st()) {
       )
       
       # Try to fit close-kin likelihood model
-      ck.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "true kinship")
+      ck.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "full true kinship")
       
       # If optimiser did not give error
       if(!all(is.na(ck.tmb.res))) {
@@ -204,7 +204,7 @@ fit.otk = reactive(if ("Offset true kinship" %in% mdl.st()) {
 })
 
 # Fit genopair model
-fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
+fit.fg = reactive(if ("Full genopair" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), NA)
   ck.lwr <- c(0, 0.75, NA)
@@ -246,7 +246,7 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
       # exponentiating log-probabilities, checking for underflow and trying to
       # adjust if necessary.  Would be good to raise a proper error if
       # adjustment impossible
-      fgpsgks = FindGPsGvnKs(fglpsgks)
+      fgpsgks = FindGPs(fglpsgks)
       cat("Full genopair probabilities given kinships \n")
       print(head(fgpsgks))
       cat("\n")
@@ -309,7 +309,7 @@ fit.gp = reactive(if ("Full genopair" %in% mdl.st()) {
 })
 
 # Fit offset model
-fit.os = reactive(if ("Offset genopair" %in% mdl.st()) {
+fit.og = reactive(if ("Offset genopair" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), NA)
   ck.lwr <- c(0, 0.75, NA)

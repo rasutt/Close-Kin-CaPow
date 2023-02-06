@@ -42,7 +42,7 @@ otk.obj = reactive({
 })
 
 # Full and offset genopair objective functions from TMB
-fgof = reactive({
+fg.obj = reactive({
   MakeTMBObj(
     ck.start(), "genopair",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
@@ -50,7 +50,7 @@ fgof = reactive({
     gp_probs = frst.fgps(), smp_yr_ind_prs = frst.fsyips()
   )
 })
-ogof = reactive({
+og.obj = reactive({
   MakeTMBObj(
     ck.start(), "genopair",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
@@ -104,10 +104,10 @@ frst.nll.srfcs = reactive({
       
       # Find NLL values at current parameter values
       obj.par[i, p, "Popan"] = ppn.obj()$fn(ppn.par.vals)
-      obj.par[i, p, "True kinship"] = tk.obj()$fn(ck.par.vals)
+      obj.par[i, p, "True kinship"] = ftk.obj()$fn(ck.par.vals)
       obj.par[i, p, "Offset true kinship"] = otk.obj()$fn(ck.par.vals)
-      obj.par[i, p, "Full genopair"] = fgof()$fn(ck.par.vals)
-      obj.par[i, p, "Offset genopair"] = ogof()$fn(ck.par.vals)
+      obj.par[i, p, "Full genopair"] = fg.obj()$fn(ck.par.vals)
+      obj.par[i, p, "Offset genopair"] = og.obj()$fn(ck.par.vals)
     }
   }
   

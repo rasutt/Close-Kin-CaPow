@@ -77,7 +77,7 @@ Type objective_function<Type>::operator() ()
   Type nll = Type(0.0);
   
   // If fitting true kinship or genopair model
-  if(mdl_tp == "true kinship" || mdl_tp == "genopair" || 
+  if(mdl_tp == "full true kinship" || mdl_tp == "genopair" || 
      mdl_tp == "offset true kinship") {
     // Find super-population size to compare with popan models, first N_t
     // divided by first entry proportion, and request standard error
@@ -254,7 +254,7 @@ Type objective_function<Type>::operator() ()
     Type prb_SP, prb_POP, prb_HSP, prb_UP;
     
     // If fitting true kinship model
-    if(mdl_tp == "true kinship" || mdl_tp == "offset true kinship") {
+    if(mdl_tp == "full true kinship" || mdl_tp == "offset true kinship") {
       // Numbers of "unrelated" pairs, not related in another way
       int ns_UPs_wtn, ns_UPs_btn;
       
@@ -263,7 +263,7 @@ Type objective_function<Type>::operator() ()
       
         // Loop over number of surveys
         for(int s_ind = 0; s_ind < k; s_ind++) {
-          if(mdl_tp == "true kinship") {
+          if(mdl_tp == "full true kinship") {
             // Find number of "unrelated pairs" within sample, updated below
             ns_UPs_wtn = ns_caps(s_ind) * (ns_caps(s_ind) - 1) / 2;
           } else {
@@ -299,7 +299,7 @@ Type objective_function<Type>::operator() ()
       for(int s_ind_1 = 0; s_ind_1 < k - 1; s_ind_1++) {
         // Loop over surveys with greater indices than first
         for(int s_ind_2 = s_ind_1 + 1; s_ind_2 < k; s_ind_2++) {
-          if(mdl_tp == "true kinship") {
+          if(mdl_tp == "full true kinship") {
             // Find number of non-POP-non-SPs between samples
             ns_UPs_btn = ns_caps(s_ind_1) * ns_caps(s_ind_2);
           } else {

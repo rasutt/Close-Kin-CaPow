@@ -11,7 +11,7 @@ ck.start = reactive({
 })
 
 # True kinship likelihood TMB objective function - True kinships 
-tk.obj = reactive({
+ftk.obj = reactive({
   # Get numbers of animals captured in each survey
   ns.caps = FS.atts()$ns.caps
   
@@ -20,7 +20,7 @@ tk.obj = reactive({
   
   # Create TMB function
   MakeTMBObj(
-    ck.start(), "true kinship",
+    ck.start(), "full true kinship",
     k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
     alpha = alpha(), knshp_st_bool = all.knshps.bln,
     ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ], 
@@ -31,7 +31,7 @@ tk.obj = reactive({
 
 # Kinpair probabilities for true parameter values from TMB objective function
 frst.KP.prbs.TVs.lst = reactive({
-  tk.obj()$report(c(rho(), phi(), exp.N.fin()))
+  ftk.obj()$report(c(rho(), phi(), exp.N.fin()))
 })
 
 # Function to format kinpair probabilities for display
