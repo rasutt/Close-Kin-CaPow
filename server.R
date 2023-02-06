@@ -109,7 +109,11 @@ server <- function(input, output) {
   mdl.st = reactiveVal(saved.objs$mdl.st)
   knshp.st = reactiveVal(saved.objs$knshp.st)
   osisyips.lst = reactiveVal(saved.objs$osisyips.lst)
-
+  
+  # Create empty multicore cluster object, as needs to be updated when new
+  # datasets loaded/simulated, and new models fit
+  cl = reactiveVal(NULL)
+  
   # Variables bound to simulate button (for last simulation) ----
   observeEvent(input$simulate, {
     # Individual survival rate

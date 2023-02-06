@@ -1,3 +1,5 @@
+# Reactives to fit models when requested
+
 # Kinship indicator variables, binary variable for each kinship offered
 kivs = reactive(as.integer(knshp.chcs %in% knshp.st()))
 
@@ -32,7 +34,7 @@ fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
       # Get numbers of animals captured in study
       n.cap.hists <- nrow(pop.cap.hist)
       
-      # Update optimiser starting-values and bounds
+      # Update optimizer starting-values and bounds
       ppn.start[3] <- attributes(pop.cap.hist)$Ns
       ppn.lwr[3] <- n.cap.hists
       
@@ -63,7 +65,7 @@ fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
   list(ests = ppn.tmb.ests, ses = ppn.tmb.ses, cnvgs = !ppn.tmb.cnvg)
 })
 
-# Fit close-kin model
+# Fit true kinship model
 fit.ck = reactive(if ("True kinship" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), NA)
@@ -129,7 +131,7 @@ fit.ck = reactive(if ("True kinship" %in% mdl.st()) {
 })
 
 # Fit offset true kinships model
-fit.otk = reactive(if ("True kinship" %in% mdl.st()) {
+fit.otk = reactive(if ("Offset true kinship" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
   ck.start <- c(rho(), phi(), NA)
   ck.lwr <- c(0, 0.75, NA)

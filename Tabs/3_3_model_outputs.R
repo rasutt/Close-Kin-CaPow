@@ -13,6 +13,7 @@ observeEvent(input$simulate, {
   # If started multi-core cluster
   if (!is.null(cl())) {
     # Stop R sessions on other nodes
+    print("stopping cluster")
     stopCluster(cl())
   }
 })
@@ -23,8 +24,34 @@ observeEvent(input$fit, {
   mdl.st(input$mdl.st)
   knshp.st(input$knshp.st)
   
-  # If fitting offset true kinship or genopair model for first time since
-  # simulation/loading
+  # If the numbers of studies and/or loci are large, and multicore cluster not
+  # setup for current dataset
+  if (n.sims() * L() > 1e3 && is.null(cl())) {
+    # Start new R sessions on separate "logical" CPU cores (nodes) for finding
+    # genopair log-probabilities. Using 6 of my 12 cores seems to be optimal
+    cl.tmp = makeCluster(detectCores() %/% 2)
+    
+    # Evaluate reactive objects and pass values to new R sessions. Passing
+    # large objects to parLapply does not improve performance (to my
+    # surprise). Can't index in parLapply for some reason
+    hst.lst.prll = sim.lst()$hists.lst
+    siips.lst.prll = fsisyips.lst()$siips.lst
+    L.prll = L()
+    k.prll = k()
+    clusterExport(
+      cl.tmp,
+      list(
+        "hst.lst.prll", "siips.lst.prll", "L.prll", "k.prll", 
+        "FindGLPs"
+      ), 
+      environment()
+    )
+    
+    # Update cluster reactive value
+    cl(cl.tmp)
+  } 
+  
+  # If fitting offset model for first time since simulation/loading
   if (
     is.null(osisyips.lst()) &&
     any(c("Offset true kinship", "Offset genopair") %in% mdl.st())
@@ -46,8 +73,7 @@ observeEvent(input$fit, {
           # offset pair, counting from zero for survey-years as passing into TMB
           # C++ objective function
           osyips[[hst.ind]] = FindSISYIPs(syis, osips)
-          osiips[[hst.ind]] = 
-            FindSISYIPs(sisyis.lst()$siis[[hst.ind]], osips)
+          osiips[[hst.ind]] = FindSISYIPs(sisyis.lst()$siis[[hst.ind]], osips)
           
           incProgress(1/n.sims())
         }
@@ -60,8 +86,9 @@ observeEvent(input$fit, {
   
   # Boolean for models requested 
   mod.bool = mdl.chcs %in% mdl.st()
-  
+
   # Combine and keep only for selected models
+  print("getting model fits")
   ests = list(
     fit.ppn()$ests, fit.otk()$ests, fit.ck()$ests, fit.gp()$ests, fit.os()$ests
   )[mod.bool]

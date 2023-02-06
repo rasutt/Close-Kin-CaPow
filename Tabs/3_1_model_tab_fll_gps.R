@@ -68,34 +68,6 @@ fsisyips.lst = reactive({
   list(siips.lst = siips.lst, syips.lst = syips.lst)
 })
 
-# If the numbers of studies and/or loci are large use multicore processing
-cl = reactive({
-  if (n.sims() * L() > 1e3) {
-    # Start new R sessions on separate "logical" CPU cores (nodes) for finding
-    # genopair log-probabilities. Using 6 of my 12 cores seems to be optimal
-    cl.tmp = makeCluster(detectCores() %/% 2)
-    
-    # Evaluate reactive objects and pass values to new R sessions. Passing
-    # large objects to parLapply does not improve performance (to my
-    # surprise). Can't index in parLapply for some reason
-    hst.lst.prll = sim.lst()$hists.lst
-    siips.lst.prll = fsisyips.lst()$siips.lst
-    L.prll = L()
-    k.prll = k()
-    clusterExport(
-      cl.tmp,
-      list(
-        "hst.lst.prll", "siips.lst.prll", "L.prll", "k.prll", 
-        "FindGLPs"
-      ), 
-      environment()
-    )
-    
-    # Return cluster
-    cl.tmp
-  } 
-})
-
 # Allele frequencies for each study, 2 x n_loci X n_sims
 ale.frqs.ary = reactive({
   # Loop over histories
@@ -134,30 +106,30 @@ pgps.HSPs.ary = reactive({
   FindPssGpPsHSPsAry(pgps.UPs.ary(), pgps.POPs.ary())
 })
 
-# Find full set of genopair log-probabilities for each kinship
+## Find full set of genopair log-probabilities for each kinship
 
 # Normal function, taking an array of possible genopair probabilities given a
 # certain kinship, over all studies, as an input, and using reactive objects
 FindFLGPs = function(hst.ind, pgps.ary) {
   # Update progress bar
   incProgress(1/n.sims())
-  
+
   # Get simulated family and capture histories of population of animals
   # over time
   pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
-  
+
   # Individual genotypes, n_individuals x n_loci, representing genotypes for
   # each individual sampled
   gts = attributes(pop.cap.hist)$unq.smp.gts
-  
+
   # Possible genopair probabilities for this study, n_genotypes x n_genotypes x
   # n_loci
   pgps = pgps.ary[, , , hst.ind]
-  
+
   # Sample-individual index pairs, n_pairs x 2, representing the individual that
   # each sample in each pair came from
   siips = fsisyips.lst()$siips.lst[[hst.ind]]
-  
+
   # Genopair log-probabilities over all loci given each kinship, for each
   # pair to include in likelihood
   FindGLPs(pgps, gts, siips, L(), sk = T)
@@ -171,19 +143,19 @@ FindFLGPsPrll = function(hst.ind) {
   # Get simulated family and capture histories of population of animals
   # over time
   pop.cap.hist <- hst.lst.prll[[hst.ind]]
-  
+
   # Individual genotypes, n_individuals x n_loci, representing genotypes for
   # each individual sampled
   gts = attributes(pop.cap.hist)$unq.smp.gts
-  
+
   # Possible genopair probabilities for this study, n_genotypes x n_genotypes x
   # n_loci
   pgps = pgps.ary[, , , hst.ind]
-  
+
   # Sample-individual index pairs, n_pairs x 2, representing individual that
   # each sample in each pair came from
   siips = siips.lst.prll[[hst.ind]]
-  
+
   # Genopair log-probabilities over all loci given each kinship, for each
   # pair to include in likelihood
   FindGLPs(pgps, gts, siips, L.prll, sk = T)
@@ -202,15 +174,15 @@ MakeFGLPsRctv = function(knshp) {
       "parent-offspring" = pgps.POPs.ary(),
       "half-sibling" = pgps.HSPs.ary()
     )
-    
+
     # If the numbers of studies and/or loci are large use multicore processing
     if (n.sims() * L() > 1e3) {
-      # Record time 
+      # Record time
       s = Sys.time()
-      
+
       # Send possible genopair probabilities to R sessions on multiple CPU cores
       clusterExport(cl(), list("pgps.ary"), environment())
-      
+
       # Find actual genopair log-probabilities for different chunks of studies
       # on different nodes and combine results when done
       withProgress(
@@ -223,7 +195,7 @@ MakeFGLPsRctv = function(knshp) {
         ),
         detail = "Using multiple cores so no progress updates available"
       )
-      
+
       # Show time taken
       cat(
         "Found log probabilities, given", knshp, "pairs, over",
@@ -231,11 +203,11 @@ MakeFGLPsRctv = function(knshp) {
         n.sims(), "studies in",
         Sys.time() - s, "\n\n"
       )
-      
+
       # Return results
       lst
-    } 
-    
+    }
+
     # Otherwise use normal code
     else {
       # Find actual genopair log-probabilities
@@ -248,7 +220,7 @@ MakeFGLPsRctv = function(knshp) {
           "Finding genopair log-probabilities given", knshp, "pairs"
         )
       )
-      
+
       # Return results
       lst
     }
