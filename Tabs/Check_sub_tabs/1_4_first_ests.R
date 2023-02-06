@@ -27,8 +27,22 @@ first.ck.ests = reactive({
   }
 })
 
+# Offset true kinship model
+first.otk.ests = reactive({
+  # Try to fit true kinship likelihood model
+  rslt = TryModelTMB(otk.obj(), ck.lwr(), ck.upr(), "offset true kinship")
+  
+  # If no error
+  if (!all(is.na(rslt))) {
+    # Combine with missing values for capture probabilities
+    c(rslt$est.se.df[, 1], rep(NA, k()), rslt$cnvg)
+  } else {
+    c(rep(NA, k() + 4), 1)
+  }
+})
+
 # Full genopair model 
-first.FGP.ests = reactive({
+first.fg.ests = reactive({
   # Try to fit genopair likelihood model
   rslt = TryModelTMB(fgof(), ck.lwr(), ck.upr(), "genopair")
   
@@ -42,7 +56,7 @@ first.FGP.ests = reactive({
 })
 
 # Offset model
-first.OGP.ests = reactive({
+first.og.ests = reactive({
   # Try to fit genopair likelihood model
   rslt = TryModelTMB(ogof(), ck.lwr(), ck.upr(), "genopair")
   
@@ -64,14 +78,15 @@ output$firstResults = renderTable({
   
   # Add results
   res.mat = rbind(
-    res.mat, first.ppn.ests(), first.ck.ests(),
-    first.FGP.ests(), first.OGP.ests()
+    res.mat, first.ppn.ests(), first.ck.ests(), first.otk.ests(),
+    first.fg.ests(), first.og.ests()
   )
   
   # Add model names
   res.df = data.frame(
     model = c(
-      "True values", "Popan", "True kinship", "Full genopair", "Offset genopair"
+      "True values", "Popan", "True kinship", "Offset true kinship", 
+      "Full genopair", "Offset genopair"
     ),
     res.mat
   )

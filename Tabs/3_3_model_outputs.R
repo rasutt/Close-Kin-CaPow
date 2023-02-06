@@ -27,8 +27,11 @@ observeEvent(input$fit, {
   knshp.st(input$knshp.st)
   
   # If the numbers of studies and/or loci are large, and multicore cluster not
-  # setup for current dataset
-  if (n.sims() * L() > 1e3 && is.null(cl())) {
+  # setup for current dataset, and full genopair model being fit
+  if (n.sims() * L() > 1e3 && 
+      is.null(cl()) && 
+      "Full genopair" %in% mdl.st()
+  ) {
     # Start new R sessions on separate "logical" CPU cores (nodes) for finding
     # genopair log-probabilities. Using 6 of my 12 cores seems to be optimal
     cl.tmp = makeCluster(detectCores() %/% 2)
@@ -90,16 +93,10 @@ observeEvent(input$fit, {
   mod.bool = mdl.chcs %in% mdl.st()
 
   # Combine and keep only for selected models
-  ests = list(
-    fit.ppn()$ests, fit.otk()$ests, fit.ck()$ests, fit.gp()$ests, fit.os()$ests
-  )[mod.bool]
-  ses = list(
-    fit.ppn()$ses, fit.otk()$ses, fit.ck()$ses, fit.gp()$ses, fit.os()$ses
-  )[mod.bool]
-  cnvgs = list(
-    fit.ppn()$cnvgs, fit.otk()$cnvgs, fit.ck()$cnvgs, fit.gp()$cnvgs, 
-    fit.os()$cnvgs
-  )[mod.bool]
+  fit.lst.tmp = list(fit.ppn(), fit.ck(), fit.otk(), fit.gp(), fit.os())
+  ests = lapply(fit.lst.tmp, function(fit) fit$ests)[mod.bool]
+  ses = lapply(fit.lst.tmp, function(fit) fit$ses)[mod.bool]
+  cnvgs = lapply(fit.lst.tmp, function(fit) fit$cnvgs)[mod.bool]
   names(ests) = names(ses) = names(cnvgs) = mdl.st()
   
   # Update list of model fits
