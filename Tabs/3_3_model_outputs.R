@@ -13,8 +13,10 @@ observeEvent(input$simulate, {
   # If started multi-core cluster
   if (!is.null(cl())) {
     # Stop R sessions on other nodes
-    print("stopping cluster")
     stopCluster(cl())
+    
+    # Nullify cluster reactive value
+    cl(NULL)
   }
 })
 
@@ -88,7 +90,6 @@ observeEvent(input$fit, {
   mod.bool = mdl.chcs %in% mdl.st()
 
   # Combine and keep only for selected models
-  print("getting model fits")
   ests = list(
     fit.ppn()$ests, fit.otk()$ests, fit.ck()$ests, fit.gp()$ests, fit.os()$ests
   )[mod.bool]

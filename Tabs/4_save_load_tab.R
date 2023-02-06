@@ -118,6 +118,9 @@ observeEvent(input$file, {
   if (!is.null(cl())) {
     # Stop R sessions on other nodes
     stopCluster(cl())
+    
+    # Nullify cluster reactive value
+    cl(NULL)
   }
 })
 
