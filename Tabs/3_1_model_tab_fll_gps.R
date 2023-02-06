@@ -110,7 +110,7 @@ pgps.HSPs.ary = reactive({
 
 # Normal function, taking an array of possible genopair probabilities given a
 # certain kinship, over all studies, as an input, and using reactive objects
-FindFLGPs = function(hst.ind, pgps.ary) {
+FindFGLPs = function(hst.ind, pgps.ary) {
   # Update progress bar
   incProgress(1/n.sims())
 
@@ -213,7 +213,7 @@ MakeFGLPsRctv = function(knshp) {
       # Find actual genopair log-probabilities
       withProgress(
         {
-          lst = lapply(1:n.sims(), FindFLGPs, pgps.ary)
+          lst = lapply(1:n.sims(), FindFGLPs, pgps.ary)
         },
         value = 0,
         message = paste(

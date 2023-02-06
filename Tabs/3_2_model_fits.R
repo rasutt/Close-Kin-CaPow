@@ -259,27 +259,6 @@ fit.fg = reactive(if ("Full genopair" %in% mdl.st()) {
       print(table((syips)))
       cat("\n")
       
-      # print("fsisyips.lst()$siips.lst[[hst.ind]]")
-      # print(str(fsisyips.lst()$siips.lst[[hst.ind]]))
-      # 
-      # print("pss.gt.prbs.ary()[, 1:2, hst.ind]")
-      # print(pss.gt.prbs.ary()[, 1:2, hst.ind])
-      # 
-      # print("pss.gt.1.prbs.ary()[, , 1:2, hst.ind]")
-      # print(pss.gt.1.prbs.ary()[, , 1:2, hst.ind])
-      # 
-      # print("pss.gp.prbs.UPs.ary()[, , 1:2, hst.ind]")
-      # print(pss.gp.prbs.UPs.ary()[, , 1:2, hst.ind])
-      # 
-      # print("pss.gp.prbs.HSPs.ary()[, , 1:2, hst.ind]")
-      # print(pss.gp.prbs.HSPs.ary()[, , 1:2, hst.ind])
-      # 
-      # print("pss.gp.prbs.POPs.ary()[, , 1:2, hst.ind]")
-      # print(pss.gp.prbs.POPs.ary()[, , 1:2, hst.ind])
-      # 
-      # print("kivs")
-      # print(kivs())
-      
       # Make objective function
       obj = MakeTMBObj(
         ck.start, "genopair",
@@ -333,7 +312,7 @@ fit.og = reactive(if ("Offset genopair" %in% mdl.st()) {
       # over time
       pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
       
-      # Update optimiser starting-values and bounds
+      # Update optimizer starting-values and bounds
       ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
       ck.lwr[3] <- attributes(pop.cap.hist)$ns.caps[k()]
       
@@ -348,7 +327,7 @@ fit.og = reactive(if ("Offset genopair" %in% mdl.st()) {
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), knshp_st_bool = kivs(),
         gp_probs = Gp.Mdl.Inpts$GPPs, 
-        smp_yr_ind_prs = Gp.Mdl.Inpts$smp.yr.ind.prs
+        smp_yr_ind_prs = osisyips.lst()$osyips[[hst.ind]]
       )
       
       # Try to fit genopair likelihood model
