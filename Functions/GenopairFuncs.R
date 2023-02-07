@@ -23,10 +23,10 @@ FindSmpGts <- function(smp.hsts, unq.smp.gts) {
   unq.smp.gts[, , smp.indvdl.inds]
 }
 
-# Function to find sample index pairs for offset model, n_pairs x 2,
-# including consecutive pairs within surveys, and between all pairs of surveys,
-# with samples repeated for survey with fewer samples
-FindSIPsOffset = function(k, syis) {
+# Function to find offset sample index pairs, n_pairs x 2, including consecutive
+# pairs within surveys, and between all pairs of surveys, with samples repeated
+# for survey with fewer samples
+FindOSIPs = function(k, syis) {
   # Sample index pairs, 0 x 2, to concatenate pairs to
   sips = matrix(NA, 0, 2)
   
@@ -64,12 +64,14 @@ FindSIPsOffset = function(k, syis) {
   sips
 }
 
-FindGPs = function(LGPPs) {
+# Function to find genopair probabilities by exponentiating log-probabilities,
+# checking for underflow, and trying to adjust if necessary
+FindGPs = function(glps) {
   # Get genopair probabilities (by excluding probabilities giveb half-sibs for
   # now) and check for pairs where all probabilities underflow to zero
-  gpp.slct = exp(LGPPs)
-  colnames(gpp.slct) = colnames(LGPPs)
-  all_undrflw = rowSums(gpp.slct) == 0
+  gps = exp(glps)
+  colnames(gps) = colnames(glps)
+  all_undrflw = rowSums(gps) == 0
   
   # If there is underflow adjust log-probabilities by factor giving equal
   # weight to smallest and largest values to avoid both under and overflow
@@ -79,74 +81,47 @@ FindGPs = function(LGPPs) {
     
     # Want smallest maximum kinship probability and largest probability to be
     # equally far from one
-    adj = mean(c(min(apply(LGPPs, 1, max)), max(LGPPs)))
-    lg.gpp.adj = LGPPs - adj
-    gpp.adj = exp(lg.gpp.adj)
-    colnames(gpp.adj) = colnames(LGPPs)
+    adj = mean(c(min(apply(glps, 1, max)), max(glps)))
+    glps.adj = glps - adj
+    gps.adj = exp(glps.adj)
+    colnames(gps.adj) = colnames(glps)
     
     # Show adjustment and results
     cat("Probabilities adjusted by factor of exp(", adj, ")\n", sep = "")
     print("Adjusted log-probabilities and probabilities of genopairs:")
-    print(summary(lg.gpp.adj))
-    print(summary(gpp.adj))
+    print(summary(glps.adj))
+    print(summary(gps.adj))
     cat("Proportion of pairs for which adjusted probabilities given all 
-        kinships underflow to zero:", mean(rowSums(gpp.adj) == 0), "\n")
+        kinships underflow to zero:", mean(rowSums(gps.adj) == 0), "\n")
     
-    return(gpp.adj)
+    return(gps.adj)
   } 
   else {
-    return(gpp.slct)
+    return(gps)
   }
 }
 
-FindGpMdlInpts <- function(pop.cap.hist, L, k, os.mdl, knshp.st) {
-  # Sample history matrix, n_individuals x n_surveys, rows ordered by
-  # individual ID
-  smp.hsts = as.matrix(pop.cap.hist[, 4:(3 + k)])
-  
-  # Sample genotypes, extracted from matrix of individual genotypes,
-  # n_samples x n_loci, rows ordered by survey-year then individual ID
-  smp.gts = FindSmpGts(smp.hsts, attributes(pop.cap.hist)$unq.smp.gts)
-  
-  # Sample-year indices, columns in sample history matrix, representing the
-  # survey that each sample came from, ordered by survey-year then
-  # individual ID.  Counting from zero as will be passed to TMB objective
-  # function
-  smp.yr.inds = col(smp.hsts)[as.logical(smp.hsts)] - 1
-  
-  # Sample index pairs, 2 x n_pairs, representing indices of samples in each
-  # pair to include in likelihood, possibly all pairs or just consecutive
-  # pairs
-  smp.ind.prs = 
-    if (os.mdl) {
-      FindSIPsOffset(k, smp.yr.inds)
-    } else {
-      combn(length(smp.yr.inds), 2)
-    }
-  
-  # Sample-year index pairs, n_pairs x 2, representing survey-year of each
-  # sample in each pair, counting from zero as passing into TMB C++
-  # objective function
-  smp.yr.ind.prs = matrix(smp.yr.inds[as.vector(t(smp.ind.prs))], ncol = 2)
-  
+# Function to find genopair probabilities from genotypes and sample-individual
+# index pairs
+FindGPsMdl <- function(pop.cap.hist, L, knshp.st, siips) {
+  # Get individual genotypes
+  gts = attributes(pop.cap.hist)$unq.smp.gts
+    
   # Allele frequencies, 2 x n_loci matrices, representing relative
   # frequencies of 0 and 1-coded SNP alleles at each locus
-  ale.frqs = FindAleFrqs(attributes(pop.cap.hist)$unq.smp.gts)
+  ale.frqs = FindAleFrqs(gts)
   
   # Possible genopair probabilities given kinship set, n_possible_genotypes
   # x n_possible_genotypes x n_loci x n_kinships, representing probabilities
   # of each possible pair of genotypes at each locus given each kinship
   # considered
-  pss.gp.prbs.KPs = FindPssGPPsKPs(ale.frqs, L, knshp.st)
+  pgps = FindPssGPPsKPs(ale.frqs, L, knshp.st)
   
   # Genopair log-probabilities over all loci given each kinship, for each
   # pair to include in likelihood
-  lg.gp.prbs.KPs = FindGLPs(pss.gp.prbs.KPs, smp.gts, smp.ind.prs, L)
+  glps = FindGLPs(pgps, gts, siips, L)
   
   # Exponentiate genopair log-probabilities given kinship set, checking for
-  # underflow and trying to adjust if necessary.  Would be good to raise a
-  # proper error if adjustment impossible
-  GPPs = FindGPs(lg.gp.prbs.KPs)
-  
-  list(GPPs = GPPs, smp.yr.ind.prs = smp.yr.ind.prs)
+  # underflow and trying to adjust if necessary
+  FindGPs(glps)
 }

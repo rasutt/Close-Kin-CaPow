@@ -23,7 +23,7 @@ frst.siis = reactive(row(frst.smp.hsts())[as.logical(frst.smp.hsts())])
 frst.syis = reactive(col(frst.smp.hsts())[as.logical(frst.smp.hsts())] - 1)
 
 # Offset sample index pairs for first study
-frst.osips = reactive(FindSIPsOffset(k(), frst.syis()))
+frst.osips = reactive(FindOSIPs(k(), frst.syis()))
 
 # Function to find sample-individual or sample-year index pairs, n_pairs x 2
 FindSISYIPs = function(sisyis, sips) {
@@ -73,24 +73,24 @@ frst.ogps = reactive(FindGPsGvnKs(frst.oglps()))
 
 # Expected values of HSP vs UP PLODs given various kinships
 exp.plods = reactive({
-  # Possible  genopair HSP vs UP log-probability ratios at each locus,
+  # Possible genopair log-probability ratios (given HSP vs UP) at each locus,
   # 3 x 3 x n_loci
   pglprs = log(frst.pgpsgks()[, , , 2] / frst.pgpsgks()[, , , 1])
   
   # Expected plods for kinship basis, unrelated, half-sibling, parent-offspring,
   # and self-pairs
-  exp.plds.bss = colSums(frst.pgpsgks() * rep(pglprs, 4), dims = 3) / L()
+  eplds.bss = colSums(frst.pgpsgks() * rep(pglprs, 4), dims = 3) / L()
   
   # Expected plods for extended kinships, first-cousin and avuncular pairs
-  exp.plds.extd = (c(7, 3) * exp.plds.bss[1] + exp.plds.bss[3]) / c(8, 4)
+  eplds.extd = (c(7, 3) * eplds.bss[1] + eplds.bss[3]) / c(8, 4)
   
   # Combine in order from furthest to closest kinship, add names, and return
-  vec = c(exp.plds.bss[1], exp.plds.extd, exp.plds.bss[2:4])
-  names(vec) = c(
+  eplds.cmbd = c(eplds.bss[1], eplds.extd, eplds.bss[2:4])
+  names(eplds.cmbd) = c(
     "Unrelated", "First cousin", "Avuncular", "Half-sibling",
     "Parent-offspring", "Self"
   )
-  vec
+  eplds.cmbd
 })
 
 # Find half-sibling vs unrelated pairs PLODs from log genopair probabilities
@@ -195,7 +195,7 @@ output$firstASGLPs = renderPlot({
       )
     } 
     
-    # Otherwise leave a blank space
+    # Otherwise leave a blank plot
     else plot.new()
   })
 })

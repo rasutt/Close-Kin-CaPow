@@ -71,7 +71,7 @@ observeEvent(input$fit, {
           syis = sisyis.lst()$syis[[hst.ind]]
           
           # Sample index pairs for just consecutive pairs
-          osips = FindSIPsOffset(k(), syis)
+          osips = FindOSIPs(k(), syis)
           
           # Sample-individual and sample-year index pairs, n_pairs x 2,
           # representing individual and survey-year of each sample in each

@@ -108,9 +108,10 @@ pgps.HSPs.ary = reactive({
 
 ## Find full set of genopair log-probabilities for each kinship
 
-# Normal function, taking an array of possible genopair probabilities given a
-# certain kinship, over all studies, as an input, and using reactive objects
-FindFGLPs = function(hst.ind, pgps.ary) {
+# Function for normal sequential computing, taking an array of possible genopair
+# probabilities given a certain kinship, over all studies, as an input, and
+# using reactive objects
+FindGLPsSqntl = function(hst.ind, pgps.ary, siips.lst) {
   # Update progress bar
   incProgress(1/n.sims())
 
@@ -128,7 +129,7 @@ FindFGLPs = function(hst.ind, pgps.ary) {
 
   # Sample-individual index pairs, n_pairs x 2, representing the individual that
   # each sample in each pair came from
-  siips = fsisyips.lst()$siips.lst[[hst.ind]]
+  siips = siips.lst[[hst.ind]]
 
   # Genopair log-probabilities over all loci given each kinship, for each
   # pair to include in likelihood
@@ -213,7 +214,9 @@ MakeFGLPsRctv = function(knshp) {
       # Find actual genopair log-probabilities
       withProgress(
         {
-          lst = lapply(1:n.sims(), FindFGLPs, pgps.ary)
+          lst = lapply(
+            1:n.sims(), FindGLPsSqntl, pgps.ary, fsisyips.lst()$siips.lst
+          )
         },
         value = 0,
         message = paste(

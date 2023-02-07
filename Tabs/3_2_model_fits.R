@@ -244,8 +244,7 @@ fit.fg = reactive(if ("Full genopair" %in% mdl.st()) {
       
       # Full genopair probabilities given kinships, n_pairs x n_kinships, 
       # exponentiating log-probabilities, checking for underflow and trying to
-      # adjust if necessary.  Would be good to raise a proper error if
-      # adjustment impossible
+      # adjust if necessary
       fgpsgks = FindGPs(fglpsgks)
       cat("Full genopair probabilities given kinships \n")
       print(head(fgpsgks))
@@ -271,7 +270,7 @@ fit.fg = reactive(if ("Full genopair" %in% mdl.st()) {
       # Try to fit genopair likelihood model
       gp.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "genopair")
       
-      # If optimiser did not give error
+      # If optimizer did not give error
       if(!all(is.na(gp.tmb.res))) {
         gp.tmb.ests[hst.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 1]
         gp.tmb.ses[hst.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 2]
@@ -316,24 +315,24 @@ fit.og = reactive(if ("Offset genopair" %in% mdl.st()) {
       ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
       ck.lwr[3] <- attributes(pop.cap.hist)$ns.caps[k()]
       
-      # Genopair model inputs, list of 2, genopair probabilities given kinship
-      # set, n_pairs x n_kinships, and sample-year index pairs, n_pairs x 2
-      Gp.Mdl.Inpts = 
-        FindGpMdlInpts(pop.cap.hist, L(), k(), os.mdl = T, knshp.st())
+      # Genopair probabilities given each kinship selected, n_pairs x
+      # n_kinships
+      gps = FindGPsMdl(
+        pop.cap.hist, L(), knshp.st(), osisyips.lst()$osiips[[hst.ind]]
+      )
       
       # Make objective function
       obj = MakeTMBObj(
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), knshp_st_bool = kivs(),
-        gp_probs = Gp.Mdl.Inpts$GPPs, 
-        smp_yr_ind_prs = osisyips.lst()$osyips[[hst.ind]]
+        gp_probs = gps, smp_yr_ind_prs = osisyips.lst()$osyips[[hst.ind]]
       )
       
       # Try to fit genopair likelihood model
       os.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "genopair")
       
-      # If optimiser did not give error
+      # If optimizer did not give error
       if(!all(is.na(os.tmb.res))) {
         os.tmb.ests[hst.ind, -(5:(4 + k()))] <- os.tmb.res$est.se.df[, 1]
         os.tmb.ses[hst.ind, -(5:(4 + k()))] <- os.tmb.res$est.se.df[, 2]
