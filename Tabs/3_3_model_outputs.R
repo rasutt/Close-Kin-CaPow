@@ -8,7 +8,7 @@ observeEvent(input$simulate, {
   # Nullify objects
   knshp.st(NULL)
   fit.lst(NULL)
-  osisyips.lst(NULL)
+  osisyips(NULL)
   
   # If started multi-core cluster
   if (!is.null(cl())) {
@@ -39,16 +39,12 @@ observeEvent(input$fit, {
     # Evaluate reactive objects and pass values to new R sessions. Passing
     # large objects to parLapply does not improve performance (to my
     # surprise). Can't index in parLapply for some reason
-    hst.lst.prll = sim.lst()$hists.lst
-    siips.lst.prll = fsisyips.lst()$siips.lst
-    L.prll = L()
-    k.prll = k()
+    hsts.pl = sim.lst()$hists.lst
+    siips.pl = fsisyips()$siips
+    L.pl = L()
     clusterExport(
       cl.tmp,
-      list(
-        "hst.lst.prll", "siips.lst.prll", "L.prll", "k.prll", 
-        "FindGLPs"
-      ), 
+      list("hsts.pl", "siips.pl", "L.pl", "FindGLPs"), 
       environment()
     )
     
@@ -58,7 +54,7 @@ observeEvent(input$fit, {
   
   # If fitting offset model for first time since simulation/loading
   if (
-    is.null(osisyips.lst()) &&
+    is.null(osisyips()) &&
     any(c("Offset true kinship", "Offset genopair") %in% mdl.st())
   ) {
     osyips = osiips = vector("list", n.sims())
@@ -68,7 +64,7 @@ observeEvent(input$fit, {
       {
         for (hst.ind in 1:n.sims()) {
           # Sample-year indices
-          syis = sisyis.lst()$syis[[hst.ind]]
+          syis = sisyis()$syis[[hst.ind]]
           
           # Sample index pairs for just consecutive pairs
           osips = FindOSIPs(k(), syis)
@@ -78,7 +74,7 @@ observeEvent(input$fit, {
           # offset pair, counting from zero for survey-years as passing into TMB
           # C++ objective function
           osyips[[hst.ind]] = FindSISYIPs(syis, osips)
-          osiips[[hst.ind]] = FindSISYIPs(sisyis.lst()$siis[[hst.ind]], osips)
+          osiips[[hst.ind]] = FindSISYIPs(sisyis()$siis[[hst.ind]], osips)
           
           incProgress(1/n.sims())
         }
@@ -86,7 +82,7 @@ observeEvent(input$fit, {
       message = "Finding offset sample-individual and sample-year index pairs"
     )
     
-    osisyips.lst(list(osiips = osiips, osyips = osyips))
+    osisyips(list(osiips = osiips, osyips = osyips))
   }
   
   # Boolean for models requested 

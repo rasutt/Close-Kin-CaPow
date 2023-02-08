@@ -108,7 +108,7 @@ server <- function(input, output) {
   frst.fglps = reactiveVal(saved.objs$frst.fglps)
   mdl.st = reactiveVal(saved.objs$mdl.st)
   knshp.st = reactiveVal(saved.objs$knshp.st)
-  osisyips.lst = reactiveVal(saved.objs$osisyips.lst)
+  osisyips = reactiveVal(saved.objs$osisyips)
   
   # Create empty multicore cluster object, as needs to be updated when new
   # datasets loaded/simulated, and new models fit
@@ -205,7 +205,7 @@ server <- function(input, output) {
   source("Tabs/Check_sub_tabs/2_pops_gts_and_UPs.R", local = T)
   source("Tabs/Check_sub_tabs/3_kin_pair_tabs.R", local = T)
   source("Tabs/Check_sub_tabs/4_bias.R", local = T)
-  source("Tabs/3_1_model_tab_fll_gps.R", local = T)
+  source("Tabs/3_1_fglps.R", local = T)
   source("Tabs/3_2_model_fits.R", local = T)
   source("Tabs/3_3_model_outputs.R", local = T)
   source("Tabs/4_save_load_tab.R", local = T)

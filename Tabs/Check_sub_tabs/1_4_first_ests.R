@@ -95,6 +95,50 @@ output$firstResults = renderTable({
   res.df
 }, digits = 3)
 
+# Kinpair probabilities for true parameter values from TMB objective function
+frst.KP.prbs.TVs.lst = reactive({
+  ftk.obj()$report(c(rho(), phi(), exp.N.fin()))
+})
+
+# Function to format kinpair probabilities for display
+frmt.kp.prbs = function(kp.prbs.lst) {
+  mat = t(
+    sapply(
+      kp.prbs.lst[c("prbs_SPs", "prbs_POPs", "prbs_HSPs")], 
+      function(kp.prbs.mat) {
+        # Pull out and combine values within and between surveys
+        c(diag(kp.prbs.mat), kp.prbs.mat[upper.tri(kp.prbs.mat)])
+      }
+    )
+  )
+  mat = rbind(c(kp.prbs.lst[["exp_N_s_yrs"]], rep(NA, n.srvy.prs())), mat)
+  df = data.frame(format(mat, digits = 3, scientific = T))
+  colnames(df) = c(srvy.yrs(), srvy.prs())
+  rownames(df) = c("Population size", knshp.chcs)
+  df
+}
+
+# Kinpair probabilities for first study given true parameter values, from TMB
+output$firstKPPrbsTMB = renderTable({
+  frmt.kp.prbs(frst.KP.prbs.TVs.lst())
+}, rownames = T)
+
+# Kinpair probabilities for first study given true parameter values, from R
+output$firstKPPrbsR = renderTable({
+  wtn = pred.ns.kps.pop()$wtn
+  btn = pred.ns.kps.pop()$btn
+  
+  prbs.wtn = cbind(wtn[, "N.s.yrs"], 0, wtn[, c("POPs", "HSPs")] / wtn[, "APs"])
+  prbs.btn = cbind(NA, btn[, c("SPs", "POPs", "HSPs")] / btn[, "APs"])
+  
+  df = data.frame(format(t(rbind(prbs.wtn, prbs.btn)), dig = 3, sci = T))
+  
+  colnames(df) = c(srvy.yrs(), srvy.prs())
+  rownames(df) = c("Population size", knshp.chcs)
+  
+  df
+}, rownames = T)
+
 # Kinpair probabilities for first study after optimisation of true kinships
 # likelihood
 frst.KP.prbs.TKs.lst = reactive({

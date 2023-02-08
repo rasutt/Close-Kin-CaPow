@@ -188,13 +188,6 @@ ui <- fluidPage(
             the average over many simulations should approach the expected 
             values."),
           
-          h3("Kinpair probabilities predicted for first study from TMB"),
-          p("Predictions given true parameter values"),
-          h4("From TMB function"),
-          tableOutput("firstKPPrbsTMB"),
-          h4("From kin pair numbers checks"),
-          tableOutput("firstKPPrbsR"),
-          
           h3("Numbers of pairs within survey-years (whole population)"),
           p("Numbers of pairs of individuals with given relationships,
             where both are alive in the given survey-year.  Population
@@ -323,8 +316,14 @@ ui <- fluidPage(
           h3("Results for first study"),
           tableOutput("firstResults"),
 
-          h3("Kinpair probabilities estimated for first study"),
-          h4("Full true kinship model"),
+          h2("Kinpair probabilities predicted for first study"),
+          h3("Given true parameter values"),
+          h4("From TMB objective function"),
+          tableOutput("firstKPPrbsTMB"),
+          h4("From kin pair numbers checks"),
+          tableOutput("firstKPPrbsR"),
+          
+          h3("Estimated from true kinship model"),
           tableOutput("firstKPPrbsTK")
         ),
         # Populations ----

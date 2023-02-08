@@ -6,18 +6,18 @@ kivs = reactive(as.integer(knshp.chcs %in% knshp.st()))
 # Fit popan model
 fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
-  ck.start <- c(rho(), phi(), NA)
-  ck.lwr <- c(0, 0.75, NA)
-  ck.upr <- c(0.35, 1, Inf)
-  ppn.start <- cbd.start <- c(ck.start, rep(p(), k()))
-  ppn.lwr <- cbd.lwr <- c(ck.lwr, rep(0, k()))
-  ppn.upr <- cbd.upr <- c(ck.upr, rep(1, k()))
+  ck.start = c(rho(), phi(), NA)
+  ck.lwr = c(0, 0.75, NA)
+  ck.upr = c(0.35, 1, Inf)
+  ppn.start = cbd.start = c(ck.start, rep(p(), k()))
+  ppn.lwr = cbd.lwr = c(ck.lwr, rep(0, k()))
+  ppn.upr = cbd.upr = c(ck.upr, rep(1, k()))
   
   # Create vector model convergences
-  ppn.tmb.cnvg <- numeric(n.sims())
+  ppn.cnvg = numeric(n.sims())
   
   # Create matrices for estimates and standard errors
-  ppn.tmb.ests <- ppn.tmb.ses <- matrix(
+  ppn.ests = ppn.ses = matrix(
     nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
   )
   
@@ -29,17 +29,17 @@ fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
       
       # Get simulated family and capture histories of population of animals
       # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
+      stdy = sim.lst()$hists.lst[[hst.ind]]
       
       # Get numbers of animals captured in study
-      n.cap.hists <- nrow(pop.cap.hist)
+      n.cap.hists = nrow(stdy)
       
       # Update optimizer starting-values and bounds
-      ppn.start[3] <- attributes(pop.cap.hist)$Ns
-      ppn.lwr[3] <- n.cap.hists
+      ppn.start[3] = attributes(stdy)$Ns
+      ppn.lwr[3] = n.cap.hists
       
       # Summarise data for POPAN model
-      pop.sum <- FindPopSum(k(), pop.cap.hist, n.cap.hists)
+      pop.sum = FindPopSum(k(), stdy, n.cap.hists)
       
       # Create TMB function
       ppn.obj = MakeTMBObj(
@@ -51,10 +51,10 @@ fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
       )
       
       # Try to fit models
-      ppn.tmb.res = TryModelTMB(ppn.obj, ppn.lwr, ppn.upr, "popan")
-      ppn.tmb.ests[hst.ind, ] <- ppn.tmb.res$est.se.df[, 1]
-      ppn.tmb.ses[hst.ind, ] <- ppn.tmb.res$est.se.df[, 2]
-      ppn.tmb.cnvg[hst.ind] = ppn.tmb.res$cnvg
+      ppn.res = TryModelTMB(ppn.obj, ppn.lwr, ppn.upr, "popan")
+      ppn.ests[hst.ind, ] = ppn.res$est.se.df[, 1]
+      ppn.ses[hst.ind, ] = ppn.res$est.se.df[, 2]
+      ppn.cnvg[hst.ind] = ppn.res$cnvg
       
       incProgress(1/n.sims())
     }
@@ -62,21 +62,21 @@ fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
   
   # Combine model estimates, standard errors, and convergences, as lists and
   # return those requested
-  list(ests = ppn.tmb.ests, ses = ppn.tmb.ses, cnvgs = !ppn.tmb.cnvg)
+  list(ests = ppn.ests, ses = ppn.ses, cnvgs = !ppn.cnvg)
 })
 
 # Fit full true kinship model
 fit.ftk = reactive(if ("Full true kinship" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
-  ck.start <- c(rho(), phi(), NA)
-  ck.lwr <- c(0, 0.75, NA)
-  ck.upr <- c(0.35, 1, Inf)
+  ck.start = c(rho(), phi(), NA)
+  ck.lwr = c(0, 0.75, NA)
+  ck.upr = c(0.35, 1, Inf)
   
   # Create vector for model convergences
-  ck.tmb.cnvg <- numeric(n.sims())
+  ck.cnvg = numeric(n.sims())
   
   # Create matrices for estimates and standard errors
-  ck.tmb.ests <- ck.tmb.ses <- matrix(
+  ck.ests = ck.ses = matrix(
     nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
   )
   
@@ -88,17 +88,17 @@ fit.ftk = reactive(if ("Full true kinship" %in% mdl.st()) {
       
       # Get simulated family and capture histories of population of animals
       # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
+      stdy = sim.lst()$hists.lst[[hst.ind]]
       
       # Get numbers of animals captured in each survey
-      ns.caps <- attributes(pop.cap.hist)$ns.caps
+      ns.caps = attributes(stdy)$ns.caps
       
       # Find numbers of kin pairs
-      ns.kps.lst <- FindNsKinPairs(k(), n.srvy.prs(), pop.cap.hist)
+      ns.kps.lst = FindNsKinPairs(k(), n.srvy.prs(), stdy)
       
       # Update optimiser starting-values and bounds
-      ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
-      ck.lwr[3] <- ns.caps[k()]
+      ck.start[3] = attributes(stdy)$N.t.vec[hist.len()]
+      ck.lwr[3] = ns.caps[k()]
       
       # Create TMB function
       obj = MakeTMBObj(
@@ -111,37 +111,37 @@ fit.ftk = reactive(if ("Full true kinship" %in% mdl.st()) {
       )
       
       # Try to fit close-kin likelihood model
-      ck.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "full true kinship")
+      ck.res = TryModelTMB(obj, ck.lwr, ck.upr, "full true kinship")
       
       # If optimiser did not give error
-      if(!all(is.na(ck.tmb.res))) {
+      if(!all(is.na(ck.res))) {
         # Store results separately
-        ck.tmb.ests[hst.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
-        ck.tmb.ses[hst.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 2]
-        ck.tmb.cnvg[hst.ind] = ck.tmb.res$cnvg
+        ck.ests[hst.ind, -(5:(4 + k()))] = ck.res$est.se.df[, 1]
+        ck.ses[hst.ind, -(5:(4 + k()))] = ck.res$est.se.df[, 2]
+        ck.cnvg[hst.ind] = ck.res$cnvg
       }
       
       incProgress(1/n.sims())
     }
-  }, value = 0, message = "Fitting close-kin model")
+  }, value = 0, message = "Fitting full true kinship model")
   
   # Combine model estimates, standard errors, and convergences, and return as
   # lists
-  list(ests = ck.tmb.ests, ses = ck.tmb.ses, cnvgs = !ck.tmb.cnvg)
+  list(ests = ck.ests, ses = ck.ses, cnvgs = !ck.cnvg)
 })
 
 # Fit offset true kinships model
 fit.otk = reactive(if ("Offset true kinship" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
-  ck.start <- c(rho(), phi(), NA)
-  ck.lwr <- c(0, 0.75, NA)
-  ck.upr <- c(0.35, 1, Inf)
+  ck.start = c(rho(), phi(), NA)
+  ck.lwr = c(0, 0.75, NA)
+  ck.upr = c(0.35, 1, Inf)
   
   # Create vector for model convergences
-  ck.tmb.cnvg <- numeric(n.sims())
+  ck.cnvg = numeric(n.sims())
   
   # Create matrices for estimates and standard errors
-  ck.tmb.ests <- ck.tmb.ses <- matrix(
+  ck.ests = ck.ses = matrix(
     nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
   )
   
@@ -153,23 +153,22 @@ fit.otk = reactive(if ("Offset true kinship" %in% mdl.st()) {
       
       # Get simulated family and capture histories of population of animals
       # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
+      stdy = sim.lst()$hists.lst[[hst.ind]]
       
       # Offset sample-year index pairs
-      osyips = osisyips.lst()$osyips[[hst.ind]]
+      osyips = osisyips()$osyips[[hst.ind]]
       
       # Find numbers of kin pairs
       ns.kps.lst = FindNsOKPs(
-        k(), n.srvy.prs(), pop.cap.hist, osisyips.lst()$osiips[[hst.ind]], 
-        osyips
+        k(), n.srvy.prs(), stdy, osisyips()$osiips[[hst.ind]], osyips
       )
       
       # Get numbers of pairs for each pair of surveys
       ns.pairs = table(data.frame(osyips))
       
       # Update optimiser starting-values and bounds
-      ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
-      ck.lwr[3] <- attributes(pop.cap.hist)$ns.caps[k()]
+      ck.start[3] = attributes(stdy)$N.t.vec[hist.len()]
+      ck.lwr[3] = attributes(stdy)$ns.caps[k()]
       
       # Create TMB function
       obj = MakeTMBObj(
@@ -184,37 +183,37 @@ fit.otk = reactive(if ("Offset true kinship" %in% mdl.st()) {
       )
 
       # Try to fit close-kin likelihood model
-      ck.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "true kinship")
+      ck.res = TryModelTMB(obj, ck.lwr, ck.upr, "offset true kinship")
       
-      # If optimiser did not give error
-      if(!all(is.na(ck.tmb.res))) {
+      # If optimizer did not give error
+      if(!all(is.na(ck.res))) {
         # Store results separately
-        ck.tmb.ests[hst.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 1]
-        ck.tmb.ses[hst.ind, -(5:(4 + k()))] <- ck.tmb.res$est.se.df[, 2]
-        ck.tmb.cnvg[hst.ind] = ck.tmb.res$cnvg
+        ck.ests[hst.ind, -(5:(4 + k()))] = ck.res$est.se.df[, 1]
+        ck.ses[hst.ind, -(5:(4 + k()))] = ck.res$est.se.df[, 2]
+        ck.cnvg[hst.ind] = ck.res$cnvg
       }
       
       incProgress(1/n.sims())
     }
-  }, value = 0, message = "Fitting offset true kinships model")
+  }, value = 0, message = "Fitting offset true kinship model")
   
   # Combine model estimates, standard errors, and convergences, and return as
   # lists
-  list(ests = ck.tmb.ests, ses = ck.tmb.ses, cnvgs = !ck.tmb.cnvg)
+  list(ests = ck.ests, ses = ck.ses, cnvgs = !ck.cnvg)
 })
 
 # Fit genopair model
 fit.fg = reactive(if ("Full genopair" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
-  ck.start <- c(rho(), phi(), NA)
-  ck.lwr <- c(0, 0.75, NA)
-  ck.upr <- c(0.35, 1, Inf)
+  ck.start = c(rho(), phi(), NA)
+  ck.lwr = c(0, 0.75, NA)
+  ck.upr = c(0.35, 1, Inf)
   
   # Create vector for model convergences
-  gp.tmb.cnvg <- numeric(n.sims())
+  gp.cnvg = numeric(n.sims())
   
   # Create matrices for estimates and standard errors
-  gp.tmb.ests <- gp.tmb.ses <- matrix(
+  gp.ests = gp.ses = matrix(
     nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
   )
   
@@ -226,78 +225,62 @@ fit.fg = reactive(if ("Full genopair" %in% mdl.st()) {
       
       # Get simulated family and capture histories of population of animals
       # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
+      stdy = sim.lst()$hists.lst[[hst.ind]]
       
       # Update optimizer starting-values and bounds
-      ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
-      ck.lwr[3] <- attributes(pop.cap.hist)$ns.caps[k()]
+      ck.start[3] = attributes(stdy)$N.t.vec[hist.len()]
+      ck.lwr[3] = attributes(stdy)$ns.caps[k()]
       
       # Full genopair log-probabilities given selected kinships, n_pairs x
       # n_kinships, combining those for unrelated pairs and selected kinships
-      fglpsgks = cbind(
-        fglps.UPs.lst()[[hst.ind]],
-        if ("Half-sibling" %in% knshp.st()) fglps.HSPs.lst()[[hst.ind]],
-        if ("Parent-offspring" %in% knshp.st()) fglps.POPs.lst()[[hst.ind]],
-        if ("Self" %in% knshp.st()) fglps.SPs.lst()[[hst.ind]]
+      fglps = cbind(
+        fglps.UPs()[[hst.ind]],
+        if ("Half-sibling" %in% knshp.st()) fglps.HSPs()[[hst.ind]],
+        if ("Parent-offspring" %in% knshp.st()) fglps.POPs()[[hst.ind]],
+        if ("Self" %in% knshp.st()) fglps.SPs()[[hst.ind]]
       )
-      colnames(fglpsgks) = c("UP", "HSP", "POP", "SP")[c(T, rev(kivs()) == 1)]
-      
-      # Full genopair probabilities given kinships, n_pairs x n_kinships, 
-      # exponentiating log-probabilities, checking for underflow and trying to
-      # adjust if necessary
-      fgpsgks = FindGPs(fglpsgks)
-      cat("Full genopair probabilities given kinships \n")
-      print(head(fgpsgks))
-      cat("\n")
-
-      # Survey-year index pairs, n_pairs x 2, starting from zero for C++
-      # objective function
-      cat("Survey-year index pairs \n")
-      syips = data.frame(fsisyips.lst()$syips.lst[[hst.ind]])
-      names(syips) = paste("Sample", 1:2)
-      print(table((syips)))
-      cat("\n")
+      colnames(fglps) = c("UP", "HSP", "POP", "SP")[c(T, rev(kivs()) == 1)]
       
       # Make objective function
       obj = MakeTMBObj(
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), knshp_st_bool = kivs(),
-        gp_probs = fgpsgks, 
-        smp_yr_ind_prs = fsisyips.lst()$syips.lst[[hst.ind]]
+        gp_probs = FindGPs(fglps), 
+        smp_yr_ind_prs = fsisyips()$syips[[hst.ind]]
       )
       
       # Try to fit genopair likelihood model
-      gp.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "genopair")
+      gp.res = TryModelTMB(obj, ck.lwr, ck.upr, "full genopair")
       
       # If optimizer did not give error
-      if(!all(is.na(gp.tmb.res))) {
-        gp.tmb.ests[hst.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 1]
-        gp.tmb.ses[hst.ind, -(5:(4 + k()))] <- gp.tmb.res$est.se.df[, 2]
-        gp.tmb.cnvg[hst.ind] = gp.tmb.res$cnvg
+      if(!all(is.na(gp.res))) {
+        gp.ests[hst.ind, -(5:(4 + k()))] = gp.res$est.se.df[, 1]
+        gp.ses[hst.ind, -(5:(4 + k()))] = gp.res$est.se.df[, 2]
+        gp.cnvg[hst.ind] = gp.res$cnvg
       }
       
       incProgress(1/n.sims())
     }
-  }, value = 0, message = "Fitting genopair model")
+  }, value = 0, message = "Fitting full genopair model")
   
   # Combine model estimates, standard errors, and convergences, and return as
   # lists
-  list(ests = gp.tmb.ests, ses = gp.tmb.ses, cnvgs = !gp.tmb.cnvg)
+  list(ests = gp.ests, ses = gp.ses, cnvgs = !gp.cnvg)
 })
 
 # Fit offset model
 fit.og = reactive(if ("Offset genopair" %in% mdl.st()) {
   # Create general optimizer starting-values and bounds, NAs filled in below
-  ck.start <- c(rho(), phi(), NA)
-  ck.lwr <- c(0, 0.75, NA)
-  ck.upr <- c(0.35, 1, Inf)
+  ck.start = c(rho(), phi(), NA)
+  ck.lwr = c(0, 0.75, NA)
+  ck.upr = c(0.35, 1, Inf)
   
   # Create vector for model convergences
-  os.tmb.cnvg <- numeric(n.sims())
+  og.cnvg = numeric(n.sims())
   
   # Create matrices for estimates and standard errors
-  os.tmb.ests <- os.tmb.ses <- matrix(
+  og.ests = og.ses = matrix(
     nrow = n.sims(), ncol = 4 + k(), dimnames = list(NULL, est.par.names())
   )
   
@@ -309,16 +292,16 @@ fit.og = reactive(if ("Offset genopair" %in% mdl.st()) {
       
       # Get simulated family and capture histories of population of animals
       # over time
-      pop.cap.hist <- sim.lst()$hists.lst[[hst.ind]]
+      stdy = sim.lst()$hists.lst[[hst.ind]]
       
       # Update optimizer starting-values and bounds
-      ck.start[3] <- attributes(pop.cap.hist)$N.t.vec[hist.len()]
-      ck.lwr[3] <- attributes(pop.cap.hist)$ns.caps[k()]
+      ck.start[3] = attributes(stdy)$N.t.vec[hist.len()]
+      ck.lwr[3] = attributes(stdy)$ns.caps[k()]
       
       # Genopair probabilities given each kinship selected, n_pairs x
       # n_kinships
       gps = FindGPsMdl(
-        pop.cap.hist, L(), knshp.st(), osisyips.lst()$osiips[[hst.ind]]
+        stdy, L(), knshp.st(), osisyips()$osiips[[hst.ind]]
       )
       
       # Make objective function
@@ -326,25 +309,25 @@ fit.og = reactive(if ("Offset genopair" %in% mdl.st()) {
         ck.start, "genopair",
         k(), srvy.gaps(), fnl.year(), srvy.yrs(), 
         alpha = alpha(), knshp_st_bool = kivs(),
-        gp_probs = gps, smp_yr_ind_prs = osisyips.lst()$osyips[[hst.ind]]
+        gp_probs = gps, smp_yr_ind_prs = osisyips()$osyips[[hst.ind]]
       )
       
       # Try to fit genopair likelihood model
-      os.tmb.res = TryModelTMB(obj, ck.lwr, ck.upr, "genopair")
+      og.res = TryModelTMB(obj, ck.lwr, ck.upr, "offset genopair")
       
       # If optimizer did not give error
-      if(!all(is.na(os.tmb.res))) {
-        os.tmb.ests[hst.ind, -(5:(4 + k()))] <- os.tmb.res$est.se.df[, 1]
-        os.tmb.ses[hst.ind, -(5:(4 + k()))] <- os.tmb.res$est.se.df[, 2]
-        os.tmb.cnvg[hst.ind] = os.tmb.res$cnvg
+      if(!all(is.na(og.res))) {
+        og.ests[hst.ind, -(5:(4 + k()))] = og.res$est.se.df[, 1]
+        og.ses[hst.ind, -(5:(4 + k()))] = og.res$est.se.df[, 2]
+        og.cnvg[hst.ind] = og.res$cnvg
       }
       
       incProgress(1/n.sims())
     }
-  }, value = 0, message = "Fitting offset model")
+  }, value = 0, message = "Fitting offset genopair model")
   
   # Combine model estimates, standard errors, and convergences, and return as
   # lists
-  list(ests = os.tmb.ests, ses = os.tmb.ses, cnvgs = !os.tmb.cnvg)
+  list(ests = og.ests, ses = og.ses, cnvgs = !og.cnvg)
 })
 

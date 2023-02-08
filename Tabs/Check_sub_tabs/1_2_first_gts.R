@@ -2,7 +2,7 @@
 # (2 x L x n_animals), representing two binary SNPs at each locus for
 # each individual sampled at least once. They are expanded to arrays by indexing
 # sample genotypes.
-frst.gts = reactive(FS.atts()$unq.smp.gts)
+frst.gts = reactive(FS.atts()$ind.gts)
 
 # Allele frequencies for first study, 2 x n_loci, representing 0 and 1-coded SNP
 # alleles at each locus

@@ -3,10 +3,10 @@
 # repeated samples of the same individual in different surveys.  Frequencies are
 # returned as 2 x L matrices representing the frequencies of 0 and 1-coded SNP
 # alleles at each locus
-FindAleFrqs <- function(unq.smp.gts) {
+FindAleFrqs <- function(ind.gts) {
   # Frequencies of 1-coded SNP alleles are means over both alleles at each
   # locus for each sample
-  ale.frqs.1 = apply(unq.smp.gts, 2, mean)
+  ale.frqs.1 = apply(ind.gts, 2, mean)
   
   # Combine with frequencies for 0-coded alleles and return
   rbind(1 - ale.frqs.1, ale.frqs.1)
@@ -14,13 +14,13 @@ FindAleFrqs <- function(unq.smp.gts) {
 
 # Find sample genotypes, extracted from matrix of individual genotypes,
 # n_samples x n_loci, rows ordered by survey-year then individual ID
-FindSmpGts <- function(smp.hsts, unq.smp.gts) {
+FindSmpGts <- function(smp.hsts, ind.gts) {
   # Sample-individual indices, row numbers in sample history matrix,
   # representing the individual that each sample came from, ordered by
   # survey-year then individual ID
   smp.indvdl.inds = row(smp.hsts)[as.logical(smp.hsts)]
   
-  unq.smp.gts[, , smp.indvdl.inds]
+  ind.gts[, , smp.indvdl.inds]
 }
 
 # Function to find offset sample index pairs, n_pairs x 2, including consecutive
@@ -105,7 +105,7 @@ FindGPs = function(glps) {
 # index pairs
 FindGPsMdl <- function(pop.cap.hist, L, knshp.st, siips) {
   # Get individual genotypes
-  gts = attributes(pop.cap.hist)$unq.smp.gts
+  gts = attributes(pop.cap.hist)$ind.gts
     
   # Allele frequencies, 2 x n_loci matrices, representing relative
   # frequencies of 0 and 1-coded SNP alleles at each locus
