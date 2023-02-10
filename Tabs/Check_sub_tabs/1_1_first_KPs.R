@@ -57,9 +57,9 @@ output$firstNsKPsPop = renderTable({
 
 # Predicted - repeats predictions for self-pairs as haven't implemented for
 # parents unknown
-output$firstEstNsKPsPop = renderTable({
+frst.kp.preds = reactive({
   preds_wtn = t(pred.ns.kps.pop()$wtn)
-  preds = cbind(
+  cbind(
     rbind(
       preds_wtn[1:2, ], matrix(NA, nrow = 2, ncol = k()), preds_wtn[-(1:2), ]
     ),
@@ -67,8 +67,10 @@ output$firstEstNsKPsPop = renderTable({
       rep(NA, n.srvy.prs()), t(pred.ns.kps.pop()$btn)[c(1:2, 2, 3:4, 6:8), ]
     )
   )
-  
-  FrmtTbl(preds, kp.tps, c(srvy.yrs(), srvy.prs()))
+})
+
+output$firstEstNsKPsPop = renderTable({
+  FrmtTbl(frst.kp.preds(), kp.tps, c(srvy.yrs(), srvy.prs()))
 }, rownames = T)
 
 ## Numbers of kin-pairs among sampled individuals
@@ -77,7 +79,7 @@ output$firstEstNsKPsPop = renderTable({
 frst.ns.kps.lst = reactive(FindNsKinPairs(k(), n.srvy.prs(), frst.std()))
 
 # Simulated
-output$firstNsKPsSmp = renderTable({
+frst.kps = reactive({
   wtn = rbind(
     FS.atts()$ns.caps, choose(FS.atts()$ns.caps, 2), NA,
     frst.ns.kps.lst()$wtn
@@ -88,8 +90,11 @@ output$firstNsKPsSmp = renderTable({
   )
   btn = rbind(NA, APs.btn, frst.ns.kps.lst()$btn)
   
+  cbind(wtn, btn)
+})
+output$firstNsKPsSmp = renderTable({
   FrmtTbl(
-    cbind(wtn, btn), 
+    frst.kps(), 
     c(
       "Total number sampled", "All pairs", "Self-pairs (all)", 
       "Parent-offspring pairs", "Half-sibling pairs"
@@ -98,8 +103,16 @@ output$firstNsKPsSmp = renderTable({
   )
 }, rownames = T)
 
-# Predicted
+# Predicted (based on numbers sampled)
 output$firstEstNsKPsSmp = renderTable({
+  # Predictions for probabilities for population multiplied by total numbers of
+  # pairs sampled
+  preds = frst.kp.preds()[c(3, 5, 9), ] / frst.kp.preds()[2, ] * frst.kps()[2, ]
 
-})
+  FrmtTbl(
+    preds, 
+    c("Self-pairs (all)", "Parent-offspring pairs", "Half-sibling pairs"), 
+    c(srvy.yrs(), srvy.prs())
+  )
+}, rownames = T)
 

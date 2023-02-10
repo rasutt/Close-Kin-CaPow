@@ -203,7 +203,7 @@ ui <- fluidPage(
             where both are sampled in the given survey-year, or one individual 
             is sampled in each of the given pair of survey-years.  Total numbers 
             sampled are included for reference."),
-          h4("Predicted"),
+          h4("Predicted (based on numbers sampled)"),
           tableOutput("firstEstNsKPsSmp"),
           h4("Simulated"),
           tableOutput("firstNsKPsSmp")
