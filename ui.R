@@ -188,24 +188,16 @@ ui <- fluidPage(
             the average over many simulations should approach the expected 
             values."),
           
-          h3("Numbers of pairs within survey-years (whole population)"),
+          h3("Numbers of pairs in population"),
           p("Numbers of pairs of individuals with given relationships,
-            where both are alive in the given survey-year.  Population
+            where both are alive in the given survey-year, or one individual is
+            alive in each of the given pair of survey-years.  Population
             sizes are included for reference."),
           h4("Predicted"),
-          tableOutput("firstEstNsKPsWtnPop"),
+          tableOutput("firstEstNsKPsPop"),
           h4("Simulated"),
-          tableOutput("firstNsKPsWtnPop"),
+          tableOutput("firstNsKPsPop"),
           
-          h3("Numbers of pairs between survey-years (whole population)"),
-          p("Numbers of pairs of individuals with given relationships,
-            where one individual is alive in each of the given pair of 
-            survey-years."),
-          h4("Predicted"),
-          tableOutput("firstEstNsKPsBtnPop"),
-          h4("Simulated"),
-          tableOutput("firstNsKPsBtnPop"),
-        
           h3("Numbers of pairs within survey-years (sampled individuals)"),
           p("Numbers of pairs of individuals with given relationships,
             where both are sampled in the given survey-year.  Total numbers 

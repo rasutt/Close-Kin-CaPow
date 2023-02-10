@@ -68,8 +68,8 @@ observeEvent({
 frst.oglps = reactive(FindGLPs(frst.pgpsgks(), frst.gts(), frst.osiips(), L()))
 
 # Genopair probabilities for optimization
-frst.fgps = reactive(FindGPsGvnKs(frst.fglps()))
-frst.ogps = reactive(FindGPsGvnKs(frst.oglps()))
+frst.fgps = reactive(FindGPs(frst.fglps()))
+frst.ogps = reactive(FindGPs(frst.oglps()))
 
 # Expected values of HSP vs UP PLODs given various kinships
 exp.plods = reactive({

@@ -3,6 +3,9 @@
 # Get attributes of first study
 FS.atts = reactive(attributes(frst.std()))
 
+# Population sizes
+FS.Nts.wtn = reactive(FS.atts()$N.t.vec[s.yr.inds()])
+
 # Function to format table of integers
 FrmtTbl = function(data, rw.nms, cl.nms) {
   mode(data) = "integer"
@@ -11,15 +14,10 @@ FrmtTbl = function(data, rw.nms, cl.nms) {
   df
 }
 
-### Numbers of kin-pairs in whole population
+## Numbers of kin-pairs in whole population
 
-## Within surveys
-
-# Population sizes
-FS.Nts.wtn = reactive(FS.atts()$N.t.vec[s.yr.inds()])
-
-# Show table
-output$firstNsKPsWtnPop = renderTable({
+# Simulated
+output$firstNsKPsPop = renderTable({
   SPs.prnts.kwn = find.SPs.prnts.kwn(FS.atts(), k())
   SMPs = c(
     find.SMPs.wtn(FS.atts(), k()), 
@@ -57,42 +55,20 @@ output$firstNsKPsWtnPop = renderTable({
   )
 }, rownames = T)
 
-## Between surveys
-
-# Show table
-output$firstNsKPsBtnPop = renderTable({
-  SPs.prnts.kwn = find.SPs.prnts.kwn(FS.atts(), k())
-  SMPs = find.SMSPs.btn(FS.atts(), k()) - SPs.prnts.kwn
-  SFPs = find.SFSPs.btn(FS.atts(), k()) - SPs.prnts.kwn
-  FSPs = find.FSSPs.btn(FS.atts(), k()) - SPs.prnts.kwn
-  FrmtTbl(
+# Predicted - repeats predictions for self-pairs as haven't implemented for
+# parents unknown
+output$firstEstNsKPsPop = renderTable({
+  preds_wtn = t(pred.ns.kps.pop()$wtn)
+  preds = cbind(
     rbind(
-      # Total numbers of pairs
-      combn(FS.Nts.wtn(), 2, function(N.s.pr) N.s.pr[1] * N.s.pr[2]), 
-      
-      # Self-pairs with parents unknown and known
-      find.SPs(FS.atts(), k()), SPs.prnts.kwn, 
-      
-      # Other kin-pairs
-      find.POPs.btn(FS.atts(), k()),
-      SMPs, SFPs, FSPs, SMPs + SFPs - 2 * FSPs
-    ), 
-    kp.tps.pop.btn, srvy.prs()
+      preds_wtn[1:2, ], matrix(NA, nrow = 2, ncol = k()), preds_wtn[-(1:2), ]
+    ),
+    rbind(
+      rep(NA, n.srvy.prs()), t(pred.ns.kps.pop()$btn)[c(1:2, 2, 3:4, 6:8), ]
+    )
   )
-}, rownames = T)
-
-## Estimated numbers of kin-pairs in whole population
-
-# Within surveys
-output$firstEstNsKPsWtnPop = renderTable({
-  FrmtTbl(t(pred.ns.kps.pop()$wtn), kp.tps.pop.wtn, srvy.yrs())
-}, rownames = T)
-
-# Between surveys - repeats predictions for self-pairs as haven't implemented
-# for parents unknown
-output$firstEstNsKPsBtnPop = renderTable({
-  preds = t(pred.ns.kps.pop()$btn)
-  FrmtTbl(preds[c(1:2, 2, 3:4, 6:8), ], kp.tps.pop.btn, srvy.prs())
+  
+  FrmtTbl(preds, kp.tps, c(srvy.yrs(), srvy.prs()))
 }, rownames = T)
 
 ### Numbers of kin-pairs among sampled individuals
