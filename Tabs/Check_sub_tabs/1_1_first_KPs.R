@@ -71,58 +71,35 @@ output$firstEstNsKPsPop = renderTable({
   FrmtTbl(preds, kp.tps, c(srvy.yrs(), srvy.prs()))
 }, rownames = T)
 
-### Numbers of kin-pairs among sampled individuals
-
-## Within surveys
+## Numbers of kin-pairs among sampled individuals
 
 # Find numbers of kin pairs
 frst.ns.kps.lst = reactive(FindNsKinPairs(k(), n.srvy.prs(), frst.std()))
 
-# Show table
-output$firstNsKPsWtnSmp = renderTable({
+# Simulated
+output$firstNsKPsSmp = renderTable({
+  wtn = rbind(
+    FS.atts()$ns.caps, choose(FS.atts()$ns.caps, 2), NA,
+    frst.ns.kps.lst()$wtn
+  )
+  
+  APs.btn = combn(
+    FS.atts()$ns.caps, 2, function(ns.caps.pr) ns.caps.pr[1] * ns.caps.pr[2]
+  )
+  btn = rbind(NA, APs.btn, frst.ns.kps.lst()$btn)
+  
   FrmtTbl(
-    rbind(
-      FS.atts()$ns.caps, 
-      choose(FS.atts()$ns.caps, 2), frst.ns.kps.lst()$wtn
-    ), 
+    cbind(wtn, btn), 
     c(
-      "Total number sampled", "All pairs", "Parent-offspring pairs",
-      "Half-sibling pairs"
+      "Total number sampled", "All pairs", "Self-pairs (all)", 
+      "Parent-offspring pairs", "Half-sibling pairs"
     ), 
-    srvy.yrs()
+    c(srvy.yrs(), srvy.prs())
   )
 }, rownames = T)
 
-## Between surveys
+# Predicted
+output$firstEstNsKPsSmp = renderTable({
 
-# Show table
-output$firstNsKPsBtnSmp = renderTable({
-  FrmtTbl(
-    rbind(
-      combn(
-        FS.atts()$ns.caps, 2, function(ns.caps.pr) ns.caps.pr[1] * ns.caps.pr[2]
-      ),
-      frst.ns.kps.lst()$btn
-    ), 
-    c(
-      "All pairs", "Self-pairs (all)", "Parent-offspring pairs",
-      "Half-sibling pairs"
-    ), 
-    srvy.prs()
-  )
-}, rownames = T)
-
-## Estimated numbers of kin-pairs among sampled individuals
-
-# # Within surveys
-# output$firstEstNsKPsWtnSmp = renderTable({
-#   frmt.tbl(t(pred.ns.kps.pop()$wtn), kp.tps.pop.wtn, srvy.yrs())
-# }, rownames = T)
-# 
-# # Between surveys - repeats predictions for self-pairs as haven't implemented
-# # for parents unknown
-# output$firstEstNsKPsBtnSmp = renderTable({
-#   preds = t(pred.ns.kps.pop()$btn)
-#   frmt.tbl(preds[c(1:2, 2, 3:4, 6:8), ], kp.tps.pop.btn, srvy.prs())
-# }, rownames = T)
+})
 

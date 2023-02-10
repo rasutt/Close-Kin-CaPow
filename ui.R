@@ -47,7 +47,7 @@ ui <- fluidPage(
   navbarPage(
     title = "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "model.tab",
+    selected = "check.tab",
     position = "fixed-top",
     
     # Sim tab ----
@@ -143,7 +143,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "frst.lklhds.tb",
+        selected = "frst.KPs.tb",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
@@ -198,23 +198,15 @@ ui <- fluidPage(
           h4("Simulated"),
           tableOutput("firstNsKPsPop"),
           
-          h3("Numbers of pairs within survey-years (sampled individuals)"),
+          h3("Numbers of pairs among sampled individuals"),
           p("Numbers of pairs of individuals with given relationships,
-            where both are sampled in the given survey-year.  Total numbers 
+            where both are sampled in the given survey-year, or one individual 
+            is sampled in each of the given pair of survey-years.  Total numbers 
             sampled are included for reference."),
           h4("Predicted"),
-          tableOutput("firstEstNsKPsWtnSmp"),
+          tableOutput("firstEstNsKPsSmp"),
           h4("Simulated"),
-          tableOutput("firstNsKPsWtnSmp"),
-          
-          h3("Numbers of pairs between survey-years (sampled individuals)"),
-          p("Numbers of pairs of individuals with given relationships,
-            where one individual is sampled in each of the given pair of 
-            survey-years."),
-          h4("Predicted"),
-          tableOutput("firstEstNsKPsBtnSmp"),
-          h4("Simulated"),
-          tableOutput("firstNsKPsBtnSmp"),
+          tableOutput("firstNsKPsSmp")
         ),
         # First study genetics ----
         tabPanel(
