@@ -15,7 +15,7 @@ output$currParsSltd <- renderTable({
 
 # Display current implied parameter values
 output$currParsImpld <- renderTable(
-  frmt.pars.impld(lambda(), exp.N.t()[hist.len()], exp.Ns()), digits = 3
+  frmt.pars.impld(lambda(), beta(), exp.N.t()[hist.len()], exp.Ns()), digits = 3
 )
 
 # Display current simulation values

@@ -9,11 +9,11 @@ par.vals.df = function(par.vals, par.names, lng.nmbr.inds = 3:4) {
 }
 
 # Function to format parameters implied by inputs for output
-frmt.pars.impld = function(lambda, exp.N.lst, exp.Ns) {
+frmt.pars.impld = function(lambda, beta, exp.N.lst, exp.Ns) {
   par.vals.df(
-    c(lambda, exp.N.lst, exp.Ns),
-    c("Population growth rate", "Expected final population size", 
-      "Expected superpopulation size"), 2:3
+    c(lambda, beta, exp.N.lst, exp.Ns),
+    c("Population growth rate", "Birthrate among mature females",
+      "Expected final population size", "Expected superpopulation size")
   )
 }
 

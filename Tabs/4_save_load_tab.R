@@ -8,6 +8,7 @@ output$downloadData <- downloadHandler(
       phi = phi(),
       rho = rho(),
       lambda = lambda(),
+      beta = beta(),
       base.yr = base.yr(),
       exp.N.base = exp.N.base(),
       srvy.yrs = srvy.yrs(),
@@ -68,6 +69,7 @@ observeEvent(input$file, {
   phi(saved.objs$phi)
   rho(saved.objs$rho)
   lambda(saved.objs$lambda)
+  beta(saved.objs$beta)
   base.yr(saved.objs$base.yr)
   exp.N.base(saved.objs$exp.N.base)
   srvy.yrs(saved.objs$srvy.yrs)

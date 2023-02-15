@@ -19,11 +19,17 @@ output$nextExpPop <- renderPlot({
   )
 })
 
+# if (beta < 0 | beta > 1)
+#   cat("Implied birthrate for mature females:", round(beta, 3), "\n")
+# if (beta < 0) stop("Negative birth rates impossible")
+# if (beta > 1) stop("Maximum one calf at a time")
+
 # Display implied parameter values
-output$nextParsImpld <- renderTable(
-  frmt.pars.impld(lambda.rct(), exp.N.t.rct()[input$hist.len], exp.Ns.rct()), 
-  digits = 3
-)
+output$nextParsImpld <- renderTable({
+  frmt.pars.impld(
+    lambda.rct(), beta.rct(), exp.N.t.rct()[input$hist.len], exp.Ns.rct()
+  )
+}, digits = 3)
 
 # Function to format table of integers
 FrmtTbl = function(data, rw.nms, cl.nms) {

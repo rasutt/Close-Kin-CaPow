@@ -19,6 +19,10 @@ server <- function(input, output) {
   # inputs while typing survey years ---- 
   # Population growth rate
   lambda.rct <- reactive(input$rho + input$phi) 
+  # Implied birth rate for mature females surviving to birth year
+  beta.rct = reactive({
+    2 * (1 - input$phi / lambda.rct()) * (lambda.rct() / input$phi)^input$alpha
+  })
   # Survey years
   srvy.yrs.rct = reactive({
     sort(eval(parse(text = paste0("c(", input$srvy.yrs, ")"))))
@@ -70,6 +74,7 @@ server <- function(input, output) {
   phi = reactiveVal(saved.objs$phi)
   rho = reactiveVal(saved.objs$rho)
   lambda = reactiveVal(saved.objs$lambda)
+  beta = reactiveVal(saved.objs$beta)
   exp.N.base = reactiveVal(saved.objs$exp.N.base)
   base.yr = reactiveVal(saved.objs$base.yr)
   srvy.yrs = reactiveVal(saved.objs$srvy.yrs)
@@ -128,6 +133,8 @@ server <- function(input, output) {
     rho(input$rho)
     # Population growth rate
     lambda(lambda.rct())
+    # Implied birth rate for mature females surviving to birth year
+    beta(beta.rct())
     # Expected population size in base year
     exp.N.base(input$exp.N.base)
     # Base year for expected population size
