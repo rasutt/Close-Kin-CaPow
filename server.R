@@ -25,12 +25,20 @@ server <- function(input, output) {
   })
   # Number of surveys 
   k.rct = reactive(length(srvy.yrs.rct()))
+  # Survey pairs
+  srvy.prs.rct = reactive({
+    apply(combn(srvy.yrs.rct(), 2), 2, paste, collapse = "-")
+  })
+  # Number of pairs of surveys
+  n.srvy.prs.rct = reactive(length(srvy.prs.rct()))
   # Final survey/simulation year 
   fnl.year.rct = reactive(tail(srvy.yrs.rct(), 1))  
   # First simulation year
   fst.year.rct = reactive(fnl.year.rct() - input$hist.len + 1)
   # Simulation years
   sim.yrs.rct = reactive(fst.year.rct():fnl.year.rct())
+  # Indices of survey years within population histories
+  s.yr.inds.rct = reactive(input$hist.len + srvy.yrs.rct() - fnl.year.rct())
   # Survey gaps
   srvy.gaps.rct <- reactive(as.integer(diff(srvy.yrs.rct())))
   # Expected population size over time
@@ -56,8 +64,6 @@ server <- function(input, output) {
       rep(input$p, k.rct())
     )
   })
-  # Models to fit
-  models = reactive(input$models) 
 
   # Load saved objects ----
   load("Datasets/ckc_saved_objs.Rdata")
@@ -148,10 +154,10 @@ server <- function(input, output) {
     srvy.gaps(srvy.gaps.rct())
     # Number of surveys
     k(k.rct())
-    # Number of pairs of surveys
-    n.srvy.prs(choose(k(), 2))
     # Survey pairs
-    srvy.prs(apply(combn(srvy.yrs(), 2), 2, paste, collapse = "-"))
+    srvy.prs(srvy.prs.rct())
+    # Number of pairs of surveys
+    n.srvy.prs(n.srvy.prs.rct())
     # Final survey/simulation year
     fnl.year(fnl.year.rct())
     # First simulation year
@@ -163,7 +169,7 @@ server <- function(input, output) {
     # Years to check temporal estimates
     yrs.chk.t(sim.yrs()[(hist.len() - n.yrs.chk.t()):(hist.len() - 1)])
     # Indices of survey years within population histories
-    s.yr.inds(hist.len() + srvy.yrs() - fnl.year())
+    s.yr.inds(s.yr.inds.rct())
     # Expected population size over time
     exp.N.t(exp.N.t.rct())
     # Expected final population size

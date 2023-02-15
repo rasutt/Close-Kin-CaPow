@@ -48,17 +48,17 @@ TryModelTMB <- function(
         start = obj$par, obj = obj$fn, grad = obj$gr, hess = obj$he,
         scale = 1 / obj$par, lower = lwr, upper = upr,
         control = list(
-          trace = 1,
-          iter.max = 2000,
-          rel.tol = 1e-4,
-          x.tol = 1.2e-2
+          # trace = 1,
+          # iter.max = 2000,
+          # rel.tol = 1e-4,
+          # x.tol = 1.2e-2
         )
       )
     )
   )
   
-  cat("Reported values from TMB: \n")
-  print(summary(sdreport(obj)))
+  # cat("Reported values from TMB: \n")
+  # print(summary(sdreport(obj)))
   
   # If optimiser hit error
   if (inherits(opt, "try-error")) {

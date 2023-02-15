@@ -132,9 +132,15 @@ ui <- fluidPage(
           h3("Expected population size"),
           plotOutput("nextExpPop"),
           h3("Implied parameters"),
-          tableOutput("nextParsImpld")
+          tableOutput("nextParsImpld"),
+          h3("Predicted numbers of kinpairs"),
+          h4("Among sampled individuals"),
+          tableOutput("firstEstNsKPsSmp"),
+          h4("Among offset pairs"),
+          tableOutput("firstEstNsKPsOff"),
+          h4("In population"),
+          tableOutput("firstEstNsKPsPop")
         ),
-        # ----
       )
     ),
     # Check tab ----
@@ -182,20 +188,14 @@ ui <- fluidPage(
           title = "First study kin-pairs",
           value = "frst.KPs.tb",
           h2("First study kin-pairs"),
-          p("Numbers of kin-pairs predicted versus simulated in the first
-            population and sampling study simulated, as an example.  Note that
-            individual simulations can be quite different from each other, but 
-            the average over many simulations should approach the expected 
-            values."),
+          p("Numbers of kin-pairs simulated in the first
+            population and sampling study simulated."),
           
           h3("Numbers of pairs in population"),
           p("Numbers of pairs of individuals with given relationships,
             where both are alive in the given survey-year, or one individual is
             alive in each of the given pair of survey-years.  Population
             sizes are included for reference."),
-          h4("Predicted"),
-          tableOutput("firstEstNsKPsPop"),
-          h4("Simulated"),
           tableOutput("firstNsKPsPop"),
           
           h3("Numbers of pairs among sampled individuals"),
@@ -203,9 +203,6 @@ ui <- fluidPage(
             where both are sampled in the given survey-year, or one individual 
             is sampled in each of the given pair of survey-years.  Total numbers 
             sampled are included for reference."),
-          h4("Predicted (based on numbers sampled)"),
-          tableOutput("firstEstNsKPsSmp"),
-          h4("Simulated"),
           tableOutput("firstNsKPsSmp")
         ),
         # First study genetics ----
