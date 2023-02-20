@@ -1,9 +1,6 @@
 # Load shiny package
 library(shiny)
 
-# Load high-precision numbers package
-# library(Rmpfr)
-
 # Function to make outputs for values, biases, and errors
 VBE.ui <- function(id, types, descs) {
   ns <- NS(id)
@@ -47,7 +44,7 @@ ui <- fluidPage(
   navbarPage(
     title = "Close-kin CaPow!",
     id = "nav.tab",
-    selected = "check.tab",
+    selected = "sim.tab",
     position = "fixed-top",
     
     # Sim tab ----
@@ -87,7 +84,7 @@ ui <- fluidPage(
           ),
           sliderInput(
             inputId = "p", label = "Base level capture probability:",
-            0, 0.2, value = 0.1, step = 0.01
+            0.01, 0.21, value = 0.1, step = 0.01
           ),
           sliderInput(
             inputId = "L", label = "Number of SNP loci:",

@@ -19,25 +19,12 @@ output$nextExpPop <- renderPlot({
   )
 })
 
-# if (beta < 0 | beta > 1)
-#   cat("Implied birthrate for mature females:", round(beta, 3), "\n")
-# if (beta < 0) stop("Negative birth rates impossible")
-# if (beta > 1) stop("Maximum one calf at a time")
-
 # Display implied parameter values
 output$nextParsImpld <- renderTable({
   frmt.pars.impld(
     lambda.rct(), beta.rct(), exp.N.t.rct()[input$hist.len], exp.Ns.rct()
   )
 }, digits = 3)
-
-# Function to format table of integers
-FrmtTbl = function(data, rw.nms, cl.nms) {
-  mode(data) = "integer"
-  df = data.frame(matrix(data, ncol = length(cl.nms)), row.names = rw.nms)
-  names(df) = cl.nms
-  df
-}
 
 # Predicted numbers of kin-pairs for whole population
 pred.ns.kps.pop.rct = reactive({
@@ -62,6 +49,14 @@ frst.kp.preds = reactive({
     )
   )
 })
+
+# Function to format table of integers
+FrmtTbl = function(data, rw.nms, cl.nms, md = "integer") {
+  mode(data) = md
+  df = data.frame(matrix(data, ncol = length(cl.nms)), row.names = rw.nms)
+  names(df) = cl.nms
+  df
+}
 
 # Predicted numbers of kin-pairs among sampled individuals
 output$firstEstNsKPsSmp = renderTable({
@@ -101,7 +96,8 @@ output$firstEstNsKPsOff = renderTable({
     preds, 
     c("Number of samples", "Total number of pairs", "Self-pairs (all)", 
       "Parent-offspring pairs", "Half-sibling pairs"), 
-    c(srvy.yrs.rct(), srvy.prs.rct())
+    c(srvy.yrs.rct(), srvy.prs.rct()),
+    md = "numeric"
   )
 }, rownames = T)
 
@@ -117,8 +113,10 @@ bindEvent(observe({
   
   # Create list for population and capture histories
   hists.lst <- vector("list", n.sims())
-  # Create vectors for final and super-population sizes
-  N.fin.vec <- Ns.vec <- numeric(n.sims())
+  # Create vectors for final and super-population sizes, and numbers of sample
+  # histories
+  N.fin.vec <- Ns.vec <- n.smp.hsts <- n.smp.hsts <- numeric(n.sims())
+  any.empty = logical(n.sims())
   
   # Loop over histories
   withProgress({
@@ -129,9 +127,12 @@ bindEvent(observe({
         phi(), lambda(), N.init, hist.len(), srvy.yrs(), k(), fnl.year(), p(),
         L(), clvng.p(), tmp.emgn(), alpha(), clvng.ints()
       )
-      # Collect final and super-population sizes
+      # Collect final and super-population sizes, and numbers of sample
+      # histories
       N.fin.vec[hist.ind] <- tail(attributes(hists.lst[[hist.ind]])$N.t.vec, 1)
       Ns.vec[hist.ind] <- attributes(hists.lst[[hist.ind]])$Ns
+      n.smp.hsts[hist.ind] <- nrow(hists.lst[[hist.ind]])
+      any.empty[hist.ind] <- any(attributes(hists.lst[[hist.ind]])$ns.caps == 0)
       
       # Update progress. Unexplained "Error in as.vector: object 'x' not
       # found" seen 19/12/2021 coming from incProgress...
@@ -139,6 +140,31 @@ bindEvent(observe({
     }
   }, value = 0, message = "Simulating populations")
   
-  sim.lst(list(hists.lst = hists.lst, N.fin.vec = N.fin.vec, Ns.vec = Ns.vec))
+  # Check for populations that went extinct
+  extinct = N.fin.vec == 0
+  cat("\n", sum(extinct), " out of ", n.sims(), " populations went extinct. \n",
+      sep = "")
+  
+  # Check for studies that captured no animals
+  no.smps = n.smp.hsts == 0
+  cat("\n", sum(no.smps), " out of ", n.sims(), " studies found no samples. \n",
+      sep = "")
+  
+  # Report surveys that captured no animals
+  cat("\n", sum(any.empty), " out of ", n.sims(), 
+      " surveys found no samples. \n",
+      sep = "")
+  
+  # Find studies that were OK
+  stdy.ok = !extinct & !no.smps #& !any.empty
+  
+  # Update number of simulations
+  n.sims(sum(stdy.ok))
+  
+  # Combine and return for studies that were OK
+  sim.lst(list(
+    hists.lst = hists.lst[stdy.ok], N.fin.vec = N.fin.vec[stdy.ok], 
+    Ns.vec = Ns.vec[stdy.ok]
+  ))
 }), input$simulate)
 

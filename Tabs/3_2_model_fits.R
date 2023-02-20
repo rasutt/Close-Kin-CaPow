@@ -50,11 +50,16 @@ fit.ppn = reactive(if ("Popan" %in% mdl.st()) {
         non_caps = pop.sum$non.caps, survives = pop.sum$survives[-k()]
       )
       
-      # Try to fit models
+      # Try to fit model
       ppn.res = TryModelTMB(ppn.obj, ppn.lwr, ppn.upr, "popan")
-      ppn.ests[hst.ind, ] = ppn.res$est.se.df[, 1]
-      ppn.ses[hst.ind, ] = ppn.res$est.se.df[, 2]
-      ppn.cnvg[hst.ind] = ppn.res$cnvg
+
+      # If optimizer did not give error
+      if(!all(is.na(ppn.res))) {
+        # Store results separately
+        ppn.ests[hst.ind, ] = ppn.res$est.se.df[, 1]
+        ppn.ses[hst.ind, ] = ppn.res$est.se.df[, 2]
+        ppn.cnvg[hst.ind] = ppn.res$cnvg
+      }
       
       incProgress(1/n.sims())
     }
@@ -170,27 +175,32 @@ fit.otk = reactive(if ("Offset true kinship" %in% mdl.st()) {
       ck.start[3] = attributes(stdy)$N.t.vec[hist.len()]
       ck.lwr[3] = attributes(stdy)$ns.caps[k()]
       
-      # Create TMB function
-      obj = MakeTMBObj(
-        ck.start(), "offset true kinship",
-        k(), srvy.gaps(), fnl.year(), srvy.yrs(),
-        alpha = alpha(), knshp_st_bool = kivs(),
-        ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ],
-        ns_POPs_btn = ns.kps.lst$btn[2, ], ns_HSPs_wtn = ns.kps.lst$wtn[2, ],
-        ns_HSPs_btn = ns.kps.lst$btn[3, ], 
-        ns_pairs_wtn = diag(ns.pairs), 
-        ns_pairs_btn = t(ns.pairs)[lower.tri(ns.pairs)]
-      )
-
-      # Try to fit close-kin likelihood model
-      ck.res = TryModelTMB(obj, ck.lwr, ck.upr, "offset true kinship")
-      
-      # If optimizer did not give error
-      if(!all(is.na(ck.res))) {
-        # Store results separately
-        ck.ests[hst.ind, -(5:(4 + k()))] = ck.res$est.se.df[, 1]
-        ck.ses[hst.ind, -(5:(4 + k()))] = ck.res$est.se.df[, 2]
-        ck.cnvg[hst.ind] = ck.res$cnvg
+      if (any(attributes(stdy)$ns.caps == 0)) {
+        print(ns.kps.lst)
+        print(ns.pairs)
+      } else {
+        # Create TMB function
+        obj = MakeTMBObj(
+          ck.start(), "offset true kinship",
+          k(), srvy.gaps(), fnl.year(), srvy.yrs(),
+          alpha = alpha(), knshp_st_bool = kivs(),
+          ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ],
+          ns_POPs_btn = ns.kps.lst$btn[2, ], ns_HSPs_wtn = ns.kps.lst$wtn[2, ],
+          ns_HSPs_btn = ns.kps.lst$btn[3, ], 
+          ns_pairs_wtn = diag(ns.pairs), 
+          ns_pairs_btn = t(ns.pairs)[lower.tri(ns.pairs)]
+        )
+        
+        # Try to fit close-kin likelihood model
+        ck.res = TryModelTMB(obj, ck.lwr, ck.upr, "offset true kinship")
+        
+        # If optimizer did not give error
+        if(!all(is.na(ck.res))) {
+          # Store results separately
+          ck.ests[hst.ind, -(5:(4 + k()))] = ck.res$est.se.df[, 1]
+          ck.ses[hst.ind, -(5:(4 + k()))] = ck.res$est.se.df[, 2]
+          ck.cnvg[hst.ind] = ck.res$cnvg
+        }
       }
       
       incProgress(1/n.sims())

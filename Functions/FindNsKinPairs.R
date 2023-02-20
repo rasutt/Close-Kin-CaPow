@@ -55,16 +55,25 @@ FindNsKinPairs <- function(k, n.srvy.prs, pop.cap.hist) {
       )
       
       # Same-mother and self-pairs between pair of samples
-      max.mum = max(c(fm.smp.1.i$mum, fm.smp.2.i$mum), na.rm = T)
-      mum.tab.1 = tabulate(fm.smp.1.i$mum, max.mum)
-      mum.tab.2 = tabulate(fm.smp.2.i$mum, max.mum)
-      ns.SMSPs.btn = mum.tab.1 %*% mum.tab.2
+      if (any(!is.na(c(fm.smp.1.i$mum, fm.smp.2.i$mum)))) {
+        max.mum = max(c(fm.smp.1.i$mum, fm.smp.2.i$mum), na.rm = T)
+        mum.tab.1 = tabulate(fm.smp.1.i$mum, max.mum)
+        mum.tab.2 = tabulate(fm.smp.2.i$mum, max.mum)
+        ns.SMSPs.btn = mum.tab.1 %*% mum.tab.2
+      } else {
+        ns.SMSPs.btn = 0
+      }
+        
     
       # Same-father and self-pairs between pair of samples
-      max.dad = max(c(fm.smp.1.i$dad, fm.smp.2.i$dad), na.rm = T)
-      dad.tab.1 = tabulate(fm.smp.1.i$dad, max.dad)
-      dad.tab.2 = tabulate(fm.smp.2.i$dad, max.dad)
-      ns.SFSPs.btn = dad.tab.1 %*% dad.tab.2
+      if (any(!is.na(c(fm.smp.1.i$dad, fm.smp.2.i$dad)))) {
+        max.dad = max(c(fm.smp.1.i$dad, fm.smp.2.i$dad), na.rm = T)
+        dad.tab.1 = tabulate(fm.smp.1.i$dad, max.dad)
+        dad.tab.2 = tabulate(fm.smp.2.i$dad, max.dad)
+        ns.SFSPs.btn = dad.tab.1 %*% dad.tab.2
+      } else {
+        ns.SFSPs.btn = 0
+      }
       
       # Full-sibling and self-pairs
       mums.1 = fm.smp.1.i$mum[!is.na(fm.smp.1.i$mum)]
