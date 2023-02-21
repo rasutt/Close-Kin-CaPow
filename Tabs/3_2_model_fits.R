@@ -169,38 +169,36 @@ fit.otk = reactive(if ("Offset true kinship" %in% mdl.st()) {
       )
       
       # Get numbers of pairs for each pair of surveys
-      ns.pairs = table(data.frame(osyips))
+      ns.pairs = table(
+        factor(osyips[, 1], levels = 1:k() - 1),
+        factor(osyips[, 2], levels = 1:k() - 1)
+      )
       
       # Update optimiser starting-values and bounds
       ck.start[3] = attributes(stdy)$N.t.vec[hist.len()]
       ck.lwr[3] = attributes(stdy)$ns.caps[k()]
       
-      if (any(attributes(stdy)$ns.caps == 0)) {
-        print(ns.kps.lst)
-        print(ns.pairs)
-      } else {
-        # Create TMB function
-        obj = MakeTMBObj(
-          ck.start(), "offset true kinship",
-          k(), srvy.gaps(), fnl.year(), srvy.yrs(),
-          alpha = alpha(), knshp_st_bool = kivs(),
-          ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ],
-          ns_POPs_btn = ns.kps.lst$btn[2, ], ns_HSPs_wtn = ns.kps.lst$wtn[2, ],
-          ns_HSPs_btn = ns.kps.lst$btn[3, ], 
-          ns_pairs_wtn = diag(ns.pairs), 
-          ns_pairs_btn = t(ns.pairs)[lower.tri(ns.pairs)]
-        )
-        
-        # Try to fit close-kin likelihood model
-        ck.res = TryModelTMB(obj, ck.lwr, ck.upr, "offset true kinship")
-        
-        # If optimizer did not give error
-        if(!all(is.na(ck.res))) {
-          # Store results separately
-          ck.ests[hst.ind, -(5:(4 + k()))] = ck.res$est.se.df[, 1]
-          ck.ses[hst.ind, -(5:(4 + k()))] = ck.res$est.se.df[, 2]
-          ck.cnvg[hst.ind] = ck.res$cnvg
-        }
+      # Create TMB function
+      obj = MakeTMBObj(
+        ck.start(), "offset true kinship",
+        k(), srvy.gaps(), fnl.year(), srvy.yrs(),
+        alpha = alpha(), knshp_st_bool = kivs(),
+        ns_SPs_btn = ns.kps.lst$btn[1, ], ns_POPs_wtn = ns.kps.lst$wtn[1, ],
+        ns_POPs_btn = ns.kps.lst$btn[2, ], ns_HSPs_wtn = ns.kps.lst$wtn[2, ],
+        ns_HSPs_btn = ns.kps.lst$btn[3, ], 
+        ns_pairs_wtn = diag(ns.pairs), 
+        ns_pairs_btn = t(ns.pairs)[lower.tri(ns.pairs)]
+      )
+      
+      # Try to fit close-kin likelihood model
+      ck.res = TryModelTMB(obj, ck.lwr, ck.upr, "offset true kinship")
+      
+      # If optimizer did not give error
+      if(!all(is.na(ck.res))) {
+        # Store results separately
+        ck.ests[hst.ind, -(5:(4 + k()))] = ck.res$est.se.df[, 1]
+        ck.ses[hst.ind, -(5:(4 + k()))] = ck.res$est.se.df[, 2]
+        ck.cnvg[hst.ind] = ck.res$cnvg
       }
       
       incProgress(1/n.sims())

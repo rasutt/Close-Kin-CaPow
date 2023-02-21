@@ -23,9 +23,9 @@ FindSmpGts <- function(smp.hsts, ind.gts) {
   ind.gts[, , smp.indvdl.inds]
 }
 
-# Function to find offset sample index pairs, n_pairs x 2, including consecutive
-# pairs within surveys, and between all pairs of surveys, with samples repeated
-# for survey with fewer samples
+# Function to find offset sample index pairs, n_pairs x 2, consecutive pairs
+# within surveys, and between all pairs of surveys, with samples repeated for
+# survey with fewer samples
 FindOSIPs = function(k, syis) {
   # Sample index pairs, 0 x 2, to concatenate pairs to
   sips = matrix(NA, 0, 2)
@@ -37,21 +37,23 @@ FindOSIPs = function(k, syis) {
   for (i in psyis) {
     # Sample indices for survey year one of pair, in random order
     sissy.1 = which(syis == i)
-    sissy.1 = sissy.1[sample(length(sissy.1))]
+    n.sissy.1 = length(sissy.1)
+    sissy.1 = sissy.1[sample(n.sissy.1)]
     
     # If at least one sample
-    if (length(sissy.1) > 0) {
+    if (n.sissy.1 > 0) {
       # Add offset index pairs for samples in this year
-      sips = rbind(sips, cbind(sissy.1, c(sissy.1[-1], sissy.1[1])))
+      sips = rbind(sips, cbind(sissy.1[-n.sissy.1], sissy.1[-1]))
       
       # Loop over second survey-year indices
       for (j in psyis[psyis > i]) {
         # Sample indices for survey year two of pair, in random order
         sissy.2 = which(syis == j)
-        sissy.2 = sissy.2[sample(length(sissy.2))]
+        n.sissy.2 = length(sissy.2)
+        sissy.2 = sissy.2[sample(n.sissy.2)]
         
         # Check at least one sample
-        if (length(sissy.2) > 0) {
+        if (n.sissy.2 > 0) {
           # Add offset index pairs for samples from these years, shorter index
           # set recycled with warning
           sips = suppressWarnings(rbind(sips, cbind(sissy.1, sissy.2)))
