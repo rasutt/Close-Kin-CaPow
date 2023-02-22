@@ -6,6 +6,56 @@ FS.atts = reactive(attributes(frst.std()))
 # Population sizes
 FS.Nts.wtn = reactive(FS.atts()$N.t.vec[s.yr.inds()])
 
+# Numbers of kin-pairs among all sampled individuals, and offset pairs
+frst.ns.skps.lst = reactive(FindNsKinPairs(k(), n.srvy.prs(), frst.std()))
+frst.ns.okps.lst = reactive({
+  FindNsOKPs(k(), n.srvy.prs(), frst.std(), frst.osiips(), frst.osyips())
+})
+
+# Function to combine kinpair numbers within and between surveys
+combnKPs = function(ns.kps.lst, offset = F) {
+  wtn = rbind(
+    FS.atts()$ns.caps, 
+    if (offset) {
+      FS.atts()$ns.caps
+    } else {
+      choose(FS.atts()$ns.caps, 2)
+    },
+    NA,
+    ns.kps.lst$wtn
+  )
+  
+  btn = rbind(
+    NA, 
+    if (offset) {
+      combn(
+        FS.atts()$ns.caps, 2, 
+        function(ns.caps.pr) max(ns.caps.pr[1], ns.caps.pr[2])
+      )
+    } else {
+      combn(
+        FS.atts()$ns.caps, 2, function(ns.caps.pr) ns.caps.pr[1] * ns.caps.pr[2]
+      )
+    },
+    ns.kps.lst$btn
+  )
+  
+  FrmtTbl(
+    cbind(wtn, btn), 
+    c("Total number sampled", "All pairs", "Self-pairs (all)", 
+      "Parent-offspring pairs", "Half-sibling pairs"), 
+    c(srvy.yrs(), srvy.prs())
+  )
+}
+
+# Show kinpair numbers among all sampled individuals, and offset pairs
+output$firstNsKPsSmp = renderTable({
+  combnKPs(frst.ns.skps.lst())
+}, rownames = T)
+output$firstNsKPsOfst = renderTable({
+  combnKPs(frst.ns.okps.lst(), offset = T)
+}, rownames = T)
+
 # Numbers of kin-pairs in population
 output$firstNsKPsPop = renderTable({
   SPs.prnts.kwn = find.SPs.prnts.kwn(FS.atts(), k())
@@ -42,33 +92,6 @@ output$firstNsKPsPop = renderTable({
       SMPs, SFPs, FSPs, SMPs + SFPs - 2 * FSPs
     ), 
     kp.tps, c(srvy.yrs(), srvy.prs())
-  )
-}, rownames = T)
-
-# Numbers of kin-pairs among sampled individuals
-frst.ns.kps.lst = reactive(FindNsKinPairs(k(), n.srvy.prs(), frst.std()))
-frst.kps = reactive({
-  wtn = rbind(
-    FS.atts()$ns.caps, choose(FS.atts()$ns.caps, 2), NA,
-    frst.ns.kps.lst()$wtn
-  )
-  
-  APs.btn = combn(
-    FS.atts()$ns.caps, 2, function(ns.caps.pr) ns.caps.pr[1] * ns.caps.pr[2]
-  )
-  
-  btn = rbind(NA, APs.btn, frst.ns.kps.lst()$btn)
-  
-  cbind(wtn, btn)
-})
-output$firstNsKPsSmp = renderTable({
-  FrmtTbl(
-    frst.kps(), 
-    c(
-      "Total number sampled", "All pairs", "Self-pairs (all)", 
-      "Parent-offspring pairs", "Half-sibling pairs"
-    ), 
-    c(srvy.yrs(), srvy.prs())
   )
 }, rownames = T)
 

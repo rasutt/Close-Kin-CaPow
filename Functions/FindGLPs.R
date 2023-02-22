@@ -19,7 +19,7 @@ FindGLPs = function(pgps, gts, siips, L, sk = F) {
   # Actual genopair log-probabilities given kinships, n_pairs x n_kinships
   glps = matrix(
     0, nrow = n.pairs, ncol = n.knshps,
-    dimnames = list(pair = 1:n.pairs, Kinship = dimnames(pgps)[[4]])
+    dimnames = list(pair = NULL, Kinship = dimnames(pgps)[[4]])
   )
   
   # Genotype indices at each locus, n_individuals x n_loci, for genotypes

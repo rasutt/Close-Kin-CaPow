@@ -139,13 +139,17 @@ output$firstKPPrbsR = renderTable({
   df
 }, rownames = T)
 
-# Kinpair probabilities for first study after optimisation of true kinships
-# likelihood
-frst.KP.prbs.TKs.lst = reactive({
-  ftk.obj()$report()
-})
-
-output$firstKPPrbsTK = renderTable({
-  frmt.kp.prbs(frst.KP.prbs.TKs.lst())
+# Kinpair probabilities for first study after optimization of models likelihoods
+output$firstKPPrbsFTK = renderTable({
+  frmt.kp.prbs(ftk.obj()$report())
+}, rownames = T)
+output$firstKPPrbsOTK = renderTable({
+  frmt.kp.prbs(otk.obj()$report())
+}, rownames = T)
+output$firstKPPrbsFG = renderTable({
+  frmt.kp.prbs(fg.obj()$report())
+}, rownames = T)
+output$firstKPPrbsOG = renderTable({
+  frmt.kp.prbs(og.obj()$report())
 }, rownames = T)
 

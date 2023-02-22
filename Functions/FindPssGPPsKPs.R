@@ -13,8 +13,10 @@ FindPssGtPrbsAry = function(ale.frqs.ary) {
   # Indexing the 2 x L x n_sims allele frequencies array for each allele of
   # each possible genotype (globally defined for SNP genotypes), and multiplying
   # by 2 possible cases for heterozygous genotypes
-  ary = ale.frqs.ary[ales.1.inds, , ] * ale.frqs.ary[ales.2.inds, , ]
-  ary[ales.1.inds != ales.2.inds, , ] = ary[ales.1.inds != ales.2.inds, , ] * 2
+  ary = ale.frqs.ary[ales.1.inds, , , drop = F] * 
+    ale.frqs.ary[ales.2.inds, , , drop = F]
+  ary[ales.1.inds != ales.2.inds, , ] = 
+    ary[ales.1.inds != ales.2.inds, , , drop = F] * 2
   ary
 }
 

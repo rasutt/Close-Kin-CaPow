@@ -31,7 +31,7 @@ ftk.obj = reactive({
   ns.caps = FS.atts()$ns.caps
   
   # Find numbers of kin pairs
-  ns.kps.lst = FindNsKinPairs(k(), n.srvy.prs(), frst.std())
+  ns.kps.lst = frst.ns.skps.lst()
   
   # Create TMB function
   MakeTMBObj(
@@ -50,9 +50,7 @@ otk.obj = reactive({
   ns.pairs = table(data.frame(frst.osyips()))
 
   # Find numbers of kin pairs
-  ns.kps.lst = FindNsOKPs(
-    k(), n.srvy.prs(), frst.std(), frst.osiips(), frst.osyips()
-  )
+  ns.kps.lst = frst.ns.okps.lst()
 
   # Create TMB function
   MakeTMBObj(

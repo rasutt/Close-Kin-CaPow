@@ -4,7 +4,7 @@
 output$checkExpPop = renderPlot({
   # Plot population trajectories
   matplot(
-    sim.yrs(), t(N.t.mat()), type = 'l',
+    sim.yrs(), t(N.t.mat()), type = 'l', ylim = c(0, max(N.t.mat())),
     col = rgb(0, 0, 0, alpha = 0.1), lty = 1, 
     xlab = 'Year', ylab = 'Population size', main = "Population sizes over time"
   )

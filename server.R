@@ -50,6 +50,8 @@ server <- function(input, output) {
     input$exp.N.base * lambda.rct()^(fnl.year.rct() - input$base.yr) / 
       lambda.rct()^((input$hist.len - 1):0)
   })
+  # Initial population size
+  N.init.rct = reactive(round(exp.N.t.rct()[1]))
   # Expected super-population size
   exp.Ns.rct = reactive({
     exp.N.srvy.yrs = 
@@ -85,6 +87,7 @@ server <- function(input, output) {
   tmp.emgn = reactiveVal(saved.objs$tmp.emgn)
   alpha = reactiveVal(saved.objs$alpha)
   hist.len = reactiveVal(saved.objs$hist.len)
+  n.sims.rqd = reactiveVal(saved.objs$n.sims.rqd)
   n.sims = reactiveVal(saved.objs$n.sims)
   srvy.gaps = reactiveVal(saved.objs$srvy.gaps)
   k = reactiveVal(saved.objs$k)
@@ -97,6 +100,7 @@ server <- function(input, output) {
   yrs.chk.t = reactiveVal(saved.objs$yrs.chk.t)
   s.yr.inds = reactiveVal(saved.objs$s.yr.inds)
   exp.N.t = reactiveVal(saved.objs$exp.N.t)
+  N.init = reactiveVal(saved.objs$N.init)
   exp.N.fin = reactiveVal(saved.objs$exp.N.fin)
   exp.Ns = reactiveVal(saved.objs$exp.Ns)
   par.names = reactiveVal(saved.objs$par.names)
@@ -155,8 +159,6 @@ server <- function(input, output) {
     alpha(input$alpha)
     # Length of simulation
     hist.len(input$hist.len)
-    # Number of simulations
-    n.sims(input$n.sims)
     # Survey gaps
     srvy.gaps(srvy.gaps.rct())
     # Number of surveys
@@ -179,6 +181,8 @@ server <- function(input, output) {
     s.yr.inds(s.yr.inds.rct())
     # Expected population size over time
     exp.N.t(exp.N.t.rct())
+    # Initial population size
+    N.init(N.init.rct())
     # Expected final population size
     exp.N.fin(exp.N.t()[hist.len()])
     # Expected super-population size
@@ -192,11 +196,11 @@ server <- function(input, output) {
     # Simulation options and biological scenario
     sim.opts.bio.scen({
       df = data.frame(
-        input$n.sims, input$hist.len, input$clvng.ints, input$clvng.p, 
+        input$n.sims.rqd, input$hist.len, input$clvng.ints, input$clvng.p, 
         input$tmp.emgn, input$alpha
       )
       names(df) = c(
-        "Number of studies", "Population history length", 
+        "Number of studies requested", "Population history length", 
         "Female time-order breeding", "Additional calving-capture probability", 
         "Male absense probability", "Age of sexual maturity"
       )

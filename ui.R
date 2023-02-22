@@ -114,7 +114,7 @@ ui <- fluidPage(
             0, 100, value = 80, step = 10
           ),
           sliderInput(
-            inputId = "n.sims", label = "Number of studies to simulate:",
+            inputId = "n.sims.rqd", label = "Number of studies to simulate:",
             1, 1000, value = 2
           ),
           actionButton(
@@ -130,7 +130,7 @@ ui <- fluidPage(
           plotOutput("nextExpPop"),
           h3("Implied parameters"),
           tableOutput("nextParsImpld"),
-          h3("Predicted numbers of kinpairs"),
+          h3("Predicted numbers of samples and kinpairs"),
           h4("Among sampled individuals"),
           tableOutput("firstEstNsKPsSmp"),
           h4("Among offset pairs"),
@@ -146,7 +146,7 @@ ui <- fluidPage(
       value = "check.tab",
       tabsetPanel(
         id = "check.sub.tabs",
-        selected = "frst.KPs.tb",
+        selected = "sim.feat.tab",
         # Simulation features ----
         tabPanel(
           title = "Simulation features",
@@ -160,7 +160,9 @@ ui <- fluidPage(
           h3("Simulation options"),
           tableOutput("currSimOpts"),
           h3("Biological scenario"),
-          tableOutput("currBioScen")
+          tableOutput("currBioScen"),
+          h3("Datasets removed and retained"),
+          tableOutput("nsDtstsRmvd")
         ),
         # First study samples ----
         tabPanel(
@@ -188,19 +190,26 @@ ui <- fluidPage(
           p("Numbers of kin-pairs simulated in the first
             population and sampling study simulated."),
           
-          h3("Numbers of pairs in population"),
-          p("Numbers of pairs of individuals with given relationships,
-            where both are alive in the given survey-year, or one individual is
-            alive in each of the given pair of survey-years.  Population
-            sizes are included for reference."),
-          tableOutput("firstNsKPsPop"),
-          
           h3("Numbers of pairs among sampled individuals"),
           p("Numbers of pairs of individuals with given relationships,
             where both are sampled in the given survey-year, or one individual 
             is sampled in each of the given pair of survey-years.  Total numbers 
             sampled are included for reference."),
-          tableOutput("firstNsKPsSmp")
+          tableOutput("firstNsKPsSmp"),
+          
+          h3("Numbers of offset pairs among sampled individuals"),
+          p("Numbers of pairs of individuals with given relationships,
+            where both are sampled in the given survey-year, or one individual 
+            is sampled in each of the given pair of survey-years.  Total numbers 
+            sampled are included for reference."),
+          tableOutput("firstNsKPsOfst"),
+          
+          h3("Numbers of pairs in population"),
+          p("Numbers of pairs of individuals with given relationships,
+            where both are alive in the given survey-year, or one individual is
+            alive in each of the given pair of survey-years.  Population
+            sizes are included for reference."),
+          tableOutput("firstNsKPsPop")
         ),
         # First study genetics ----
         tabPanel(
@@ -289,20 +298,28 @@ ui <- fluidPage(
           title = "First study estimates",
           value = "frst.ests.tb",
           h2("First study estimates"),
-          p("Parameter estimates for first simulated study. Close-kin models 
-             include self, parent-offspring, and half-sibling pairs."),
-          h3("Results for first study"),
+          p("Parameter and kinpair probability estimates for first simulated
+          study. Close-kin models include self, parent-offspring, and
+            half-sibling pairs."),
+          
+          h3("Parameter estimates"),
           tableOutput("firstResults"),
 
-          h2("Kinpair probabilities predicted for first study"),
-          h3("Given true parameter values"),
-          h4("From TMB objective function"),
-          tableOutput("firstKPPrbsTMB"),
+          h3("Kinpair probabilities given true parameter values"),
           h4("From kin pair numbers checks"),
           tableOutput("firstKPPrbsR"),
+          h4("From TMB objective function"),
+          tableOutput("firstKPPrbsTMB"),
           
-          h3("Estimated from true kinship model"),
-          tableOutput("firstKPPrbsTK")
+          h3("Kinpair probabilities given estimated parameter values"),
+          h4("From full true kinship model"),
+          tableOutput("firstKPPrbsFTK"),
+          h4("From offset true kinship model"),
+          tableOutput("firstKPPrbsOTK"),
+          h4("From full genopair model"),
+          tableOutput("firstKPPrbsFG"),
+          h4("From offset genopair model"),
+          tableOutput("firstKPPrbsOG")
         ),
         # Populations ----
         tabPanel(

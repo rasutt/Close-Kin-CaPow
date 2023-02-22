@@ -1,9 +1,9 @@
 # Simulation and outputs bound to simulate button
 
 # Plot expected population size over time
-output$nextExpPop <- renderPlot({
+output$nextExpPop = renderPlot({
   plot(
-    sim.yrs.rct(), exp.N.t.rct(), 
+    sim.yrs.rct(), exp.N.t.rct(), ylim = c(0, max(exp.N.t.rct())),
     col = 'red', lwd = 2, type = 'l',
     xlab = 'Year', ylab = 'Population size', 
     main = "Expected population size over time"
@@ -20,9 +20,10 @@ output$nextExpPop <- renderPlot({
 })
 
 # Display implied parameter values
-output$nextParsImpld <- renderTable({
+output$nextParsImpld = renderTable({
   frmt.pars.impld(
-    lambda.rct(), beta.rct(), exp.N.t.rct()[input$hist.len], exp.Ns.rct()
+    lambda.rct(), beta.rct(), N.init.rct(), exp.N.t.rct()[input$hist.len], 
+    exp.Ns.rct()
   )
 }, digits = 3)
 
@@ -103,68 +104,53 @@ output$firstEstNsKPsOff = renderTable({
 
 # Output predicted numbers in population
 output$firstEstNsKPsPop = renderTable({
-  FrmtTbl(frst.kp.preds(), kp.tps, c(srvy.yrs.rct(), srvy.prs.rct()))
+  FrmtTbl(frst.kp.preds()[-4, ], kp.tps[-4], c(srvy.yrs.rct(), srvy.prs.rct()))
 }, rownames = T)
 
 # Simulate population and capture histories
 bindEvent(observe({
-  # Initial population size
-  N.init = round(exp.N.t()[1])
-  
   # Create list for population and capture histories
-  hists.lst <- vector("list", n.sims())
+  hists.lst = vector("list", input$n.sims.rqd)
   # Create vectors for final and super-population sizes, and numbers of sample
   # histories
-  N.fin.vec <- Ns.vec <- n.smp.hsts <- n.smp.hsts <- numeric(n.sims())
-  any.empty = logical(n.sims())
+  N.fin.vec = Ns.vec = n.smp.hsts = n.smp.hsts = numeric(input$n.sims.rqd)
+  any.empty = no.pairs = logical(input$n.sims.rqd)
   
   # Loop over histories
   withProgress({
-    for (hist.ind in 1:n.sims()) {
+    for (hist.ind in 1:input$n.sims.rqd) {
       # Simulate family and capture histories of population of animals over
       # time
-      hists.lst[[hist.ind]] <- SimPopStud(
-        phi(), lambda(), N.init, hist.len(), srvy.yrs(), k(), fnl.year(), p(),
+      hists.lst[[hist.ind]] = stdy = SimPopStud(
+        phi(), lambda(), N.init(), hist.len(), srvy.yrs(), k(), fnl.year(), p(),
         L(), clvng.p(), tmp.emgn(), alpha(), clvng.ints()
       )
       # Collect final and super-population sizes, and numbers of sample
       # histories
-      N.fin.vec[hist.ind] <- tail(attributes(hists.lst[[hist.ind]])$N.t.vec, 1)
-      Ns.vec[hist.ind] <- attributes(hists.lst[[hist.ind]])$Ns
-      n.smp.hsts[hist.ind] <- nrow(hists.lst[[hist.ind]])
-      any.empty[hist.ind] <- any(attributes(hists.lst[[hist.ind]])$ns.caps == 0)
+      N.fin.vec[hist.ind] = tail(attributes(stdy)$N.t.vec, 1)
+      Ns.vec[hist.ind] = attributes(stdy)$Ns
+      no.pairs[hist.ind] = sum(attributes(stdy)$ns.caps) < 2
       
       # Update progress. Unexplained "Error in as.vector: object 'x' not
       # found" seen 19/12/2021 coming from incProgress...
-      incProgress(1/n.sims())
+      incProgress(1 / input$n.sims.rqd)
     }
   }, value = 0, message = "Simulating populations")
   
   # Check for populations that went extinct
   extinct = N.fin.vec == 0
-  cat("\n", sum(extinct), " out of ", n.sims(), " populations went extinct. \n",
-      sep = "")
-  
-  # Check for studies that captured no animals
-  no.smps = n.smp.hsts == 0
-  cat("\n", sum(no.smps), " out of ", n.sims(), " studies found no samples. \n",
-      sep = "")
-  
-  # Report surveys that captured no animals
-  cat("\n", sum(any.empty), " out of ", n.sims(), 
-      " surveys found no samples. \n",
-      sep = "")
-  
+
   # Find studies that were OK
-  stdy.ok = !extinct & !no.smps #& !any.empty
-  
-  # Update number of simulations
+  stdy.ok = !extinct & !no.pairs
+
+  # Update number of successful simulations
   n.sims(sum(stdy.ok))
   
   # Combine and return for studies that were OK
   sim.lst(list(
     hists.lst = hists.lst[stdy.ok], N.fin.vec = N.fin.vec[stdy.ok], 
-    Ns.vec = Ns.vec[stdy.ok]
+    Ns.vec = Ns.vec[stdy.ok], n.extinct = sum(extinct), 
+    n.no.pairs = sum(no.pairs)
   ))
 }), input$simulate)
 
