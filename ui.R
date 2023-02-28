@@ -1,39 +1,19 @@
-# Load shiny package
+# Load packages. Shiny for the app, parallel for multicore processing, and TMB
+# for automatic differentiation
 library(shiny)
+library(parallel)
+library(TMB)
 
-# Function to make outputs for values, biases, and errors
-VBE.ui <- function(id, types, descs) {
-  ns <- NS(id)
-  tagList(lapply(1:length(types), function(i) {
-    type = types[i]
-    list(
-      h3(type),
-      p(descs[i]),
-      h4("Values"),
-      plotOutput(ns(paste0("vals", type))),
-      h4("Biases"),
-      tableOutput(ns(paste0("bss", type))),
-      h4("Errors"),
-      plotOutput(ns(paste0("errs", type)))
-    )
-  }))
-}
+# Load functions
+funcs <- list.files("Functions")
+for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]))
 
-# Function to make outputs for titles, descriptions, values, biases, and errors
-TDVBE.ui <- function(
-  id, ttl_dsc, types = wtn_btn_headings, typ_dscs = wtn_btn_descs
-) {
-  tagList(h2(kp.nms[id]), p(ttl_dsc), VBE.ui(id, types, typ_dscs))
-}
-
-# Function to make kin-pair tab-panel
-KP.tab.ui = function(id) {
-  tabPanel(
-    title = kp.nms[id],
-    value = paste0(id, ".tab"),
-    TDVBE.ui(id, rglr.kp.dscs[id])
-  )
-}
+# Compile C++ likelihood functions.  Have to restart R for compile and
+# dyn.load to take effect sometimes.  Also sometimes need to update R so that
+# Matrix package matches, or actually delete and recompile files after
+# reinstalling TMB
+compile("TMB_files/UnifiedNLL.cpp")
+dyn.load(dynlib("TMB_files/UnifiedNLL"))
 
 # Define UI for app
 ui <- fluidPage(

@@ -1,18 +1,3 @@
-# Load functions
-funcs <- list.files("Functions")
-for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]))
-
-# Load TMB library and likelihood functions.  Have to restart R for compile and
-# dyn.load to take effect sometimes.  Also sometimes need to update R so that
-# Matrix package matches, or actually delete and recompile files after
-# reinstalling TMB
-library(TMB)
-compile("TMB_files/UnifiedNLL.cpp")
-dyn.load(dynlib("TMB_files/UnifiedNLL"))
-
-# Load parallel library for multicore processing
-library(parallel)
-
 # Define server logic for app
 server <- function(input, output) {
   # Reactive variables (for next simulation).  Can ignore warnings for invalid

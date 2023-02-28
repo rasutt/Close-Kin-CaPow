@@ -67,6 +67,40 @@ plot.errs = function(errs, var.name) {
   )
 }
 
+# Function to make outputs for values, biases, and errors
+VBE.ui <- function(id, types, descs) {
+  ns <- NS(id)
+  tagList(lapply(1:length(types), function(i) {
+    type = types[i]
+    list(
+      h3(type),
+      p(descs[i]),
+      h4("Values"),
+      plotOutput(ns(paste0("vals", type))),
+      h4("Biases"),
+      tableOutput(ns(paste0("bss", type))),
+      h4("Errors"),
+      plotOutput(ns(paste0("errs", type)))
+    )
+  }))
+}
+
+# Function to make outputs for titles, descriptions, values, biases, and errors
+TDVBE.ui <- function(
+    id, ttl_dsc, types = wtn_btn_headings, typ_dscs = wtn_btn_descs
+) {
+  tagList(h2(kp.nms[id]), p(ttl_dsc), VBE.ui(id, types, typ_dscs))
+}
+
+# Function to make kin-pair tab-panel
+KP.tab.ui = function(id) {
+  tabPanel(
+    title = kp.nms[id],
+    value = paste0(id, ".tab"),
+    TDVBE.ui(id, rglr.kp.dscs[id])
+  )
+}
+
 # Functions to create servers for values, biases, and errors modules, in general
 # case, and for regular estimates within and between survey-years
 VPE.srvr <- function(id, vals, preds, errs, types = wtn_btn_headings) {
