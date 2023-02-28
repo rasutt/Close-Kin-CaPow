@@ -7,8 +7,8 @@ for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]))
 # Matrix package matches, or actually delete and recompile files after
 # reinstalling TMB
 library(TMB)
-compile("TMB_objective_functions/UnifiedNLL.cpp")
-dyn.load(dynlib("TMB_objective_functions/UnifiedNLL"))
+compile("TMB_files/UnifiedNLL.cpp")
+dyn.load(dynlib("TMB_files/UnifiedNLL"))
 
 # Load parallel library for multicore processing
 library(parallel)
@@ -17,6 +17,7 @@ library(parallel)
 server <- function(input, output) {
   # Reactive variables (for next simulation).  Can ignore warnings for invalid
   # inputs while typing survey years ---- 
+  
   # Population growth rate
   lambda.rct <- reactive(input$rho + input$phi) 
   # Implied birth rate for mature females surviving to birth year
@@ -70,7 +71,7 @@ server <- function(input, output) {
       rep(input$p, k.rct())
     )
   })
-
+  
   # Load saved objects ----
   load("Datasets/ckc_saved_objs.Rdata")
   phi = reactiveVal(saved.objs$phi)
@@ -210,20 +211,22 @@ server <- function(input, output) {
   
   # Load functions, and outputs for simulating studies, checking
   # simulations, and analyzing model performance ----
-  source("Tabs/1_sim_tab.R", local = T)
-  source("Tabs/2_1_check_tab.R", local = T)
-  source("Tabs/2_2_preds_and_errs.R", local = T)
-  source("Tabs/Check_sub_tabs/0_sim_feats.R", local = T)
-  source("Tabs/Check_sub_tabs/1_0_first_caps.R", local = T)
-  source("Tabs/Check_sub_tabs/1_1_first_KPs.R", local = T)
-  source("Tabs/Check_sub_tabs/1_2_first_gts.R", local = T)
-  source("Tabs/Check_sub_tabs/1_3_first_lklhds.R", local = T)
-  source("Tabs/Check_sub_tabs/1_4_first_ests.R", local = T)
-  source("Tabs/Check_sub_tabs/2_pops_gts_and_UPs.R", local = T)
-  source("Tabs/Check_sub_tabs/3_kin_pair_tabs.R", local = T)
-  source("Tabs/Check_sub_tabs/4_bias.R", local = T)
-  source("Tabs/3_1_fglps.R", local = T)
-  source("Tabs/3_2_model_fits.R", local = T)
-  source("Tabs/3_3_model_outputs.R", local = T)
-  source("Tabs/4_save_load_tab.R", local = T)
+  
+  # Source code for app
+  source("Tabs/sim_tab.R", local = T)
+  source("Tabs/Check_tabs/sim_feats.R", local = T)
+  source("Tabs/Check_tabs/First_study_tabs/first_caps.R", local = T)
+  source("Tabs/Check_tabs/First_study_tabs/first_KPs.R", local = T)
+  source("Tabs/Check_tabs/First_study_tabs/first_gts.R", local = T)
+  source("Tabs/Check_tabs/First_study_tabs/first_lklhds.R", local = T)
+  source("Tabs/Check_tabs/First_study_tabs/first_ests.R", local = T)
+  source("Tabs/Check_tabs/All_studies_tabs/all_studies_checks.R", local = T)
+  source("Tabs/Check_tabs/All_studies_tabs/preds_and_errs.R", local = T)
+  source("Tabs/Check_tabs/All_studies_tabs/pops_and_unknwn_prnts.R", local = T)
+  source("Tabs/Check_tabs/All_studies_tabs/kin_pair_tabs.R", local = T)
+  source("Tabs/Check_tabs/All_studies_tabs/overall_biases.R", local = T)
+  source("Tabs/Fit_tab/all_genopairs.R", local = T)
+  source("Tabs/Fit_tab/model_fits.R", local = T)
+  source("Tabs/Fit_tab/model_outputs.R", local = T)
+  source("Tabs/save_load_tab.R", local = T)
 }

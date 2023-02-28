@@ -46,14 +46,16 @@ observeEvent(input$simulate, frst.fglps(NULL))
 
 # If tab changed in app
 observeEvent({
-    input$nav.tab
-    input$check.sub.tabs
+  input$nav.tab
+  input$check.sub.tabs
+  input$FS.sub.tab
 }, {
   # If new tab requires full genopair probabilities and they have not been
   # computed
   if (
     input$nav.tab == "check.tab" && 
-    input$check.sub.tabs %in% c(
+    input$check.sub.tabs == "frst.stdy.tb" && 
+    input$FS.sub.tab %in% c(
       "frst.gts.tb", "frst.lklhds.tb", "frst.ests.tb"
     ) &&
     is.null(frst.fglps())

@@ -97,13 +97,14 @@ bindEvent(observe({
 
 # Compute separate checks ----
 observeEvent({
+  input$AS.sub.tab
   input$check.sub.tabs
   input$nav.tab
 }, {
-  if (input$nav.tab == "check.tab") {
+  if (input$nav.tab == "check.tab" & input$check.sub.tabs == "all.stds.tb") {
     # Find population sizes over time
     if (
-      input$check.sub.tabs %in% c("N.tab", "APs.tab", "bias.tab") && 
+      input$AS.sub.tab %in% c("N.tab", "APs.tab", "bias.tab") && 
       is.null(N.t.mat())
     ) {
       withProgress({
@@ -120,7 +121,7 @@ observeEvent({
     
     # Find observed survival rates
     if (
-      input$check.sub.tabs %in% c("phi.tab", "bias.tab") && 
+      input$AS.sub.tab %in% c("phi.tab", "bias.tab") && 
       is.null(avg.phi.obs())
     ) {
       withProgress({
@@ -137,7 +138,7 @@ observeEvent({
     # Find numbers of self-pairs between survey-years in simulated populations
     if (
       is.null(ns.SPs()) &&
-      input$check.sub.tabs %in% 
+      input$AS.sub.tab %in% 
       c("SPs.tab", "SMPs.tab", "SFPs.tab", "FSPs.tab", "HSPs.tab", "bias.tab")
     ) {
       ns.SPs(list(
@@ -149,7 +150,7 @@ observeEvent({
 
     # Find proportions of individuals with unknown parents
     if (
-      input$check.sub.tabs %in% 
+      input$AS.sub.tab %in% 
       c("UPs.tab", "bias.tab") && 
       is.null(pns.UPs())
     ) {
@@ -165,7 +166,7 @@ observeEvent({
     
     # Find numbers of parent-offspring pairs
     if (
-      input$check.sub.tabs %in% c("POPs.tab", "bias.tab") && 
+      input$AS.sub.tab %in% c("POPs.tab", "bias.tab") && 
       is.null(ns.POPs())
     ) {
       # Update reactive value
@@ -181,7 +182,7 @@ observeEvent({
     # Find numbers of same-mother pairs
     if (
       is.null(ns.SMPs()) &&
-      input$check.sub.tabs %in% 
+      input$AS.sub.tab %in% 
       c("SMPs.tab", "FSPs.tab", "HSPs.tab", "bias.tab")
     ) {
       # In survey-years
@@ -193,7 +194,7 @@ observeEvent({
     }
     if (
       # is.null(ns.SMPs.t()) &&
-      # input$check.sub.tabs %in% c("SMPs.tab", "bias.tab")
+      # input$AS.sub.tab %in% c("SMPs.tab", "bias.tab")
       F
     ) {
       # Update reactive value
@@ -216,7 +217,7 @@ observeEvent({
     # Find numbers of same-father pairs
     if (
       is.null(ns.SFPs()) &&
-      input$check.sub.tabs %in% 
+      input$AS.sub.tab %in% 
       c("SFPs.tab", "FSPs.tab", "HSPs.tab", "bias.tab")
     ) {
       # In survey-years
@@ -228,7 +229,7 @@ observeEvent({
     }
     if (
       # is.null(ns.SFPs.t()) &&
-      # input$check.sub.tabs %in% c("SFPs.tab", "bias.tab") 
+      # input$AS.sub.tab %in% c("SFPs.tab", "bias.tab") 
       F
     ) {
       # Update reactive value
@@ -250,7 +251,7 @@ observeEvent({
     # Find numbers of full and half-sibling pairs
     if (
       is.null(ns.SibPs()) &&
-      input$check.sub.tabs %in% c("FSPs.tab", "HSPs.tab", "bias.tab")
+      input$AS.sub.tab %in% c("FSPs.tab", "HSPs.tab", "bias.tab")
     ) {
       # Full-sibling pairs
       ns.FSPs.wtn = find.KPs.wtn()(find.FSPs.wtn, "full-sibling")
@@ -272,7 +273,7 @@ observeEvent({
 
 # Population sizes in survey-years
 N.s.yrs = reactive({
-  N.s.yrs.new = N.t.mat()[, s.yr.inds()]
+  N.s.yrs.new = N.t.mat()[, s.yr.inds(), drop = F]
 
   # Change label for column-names from Year to Survey_year
   dimnames(N.s.yrs.new) = list(NULL, Survey_year = srvy.yrs())
@@ -298,7 +299,7 @@ ns.APs = reactive({
 ns.FSPs = reactive(ns.SibPs()[1:2])
 ns.HSPs = reactive(ns.SibPs()[3:4])
 
-# Compute combined checks ----
+# Compute combined checks for sampled animals ----
 observeEvent({
   input$check.sub.tabs
   input$nav.tab
