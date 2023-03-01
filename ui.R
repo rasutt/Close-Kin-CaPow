@@ -80,11 +80,11 @@ ui <- fluidPage(
             label = "Additional capture probability when calving:",
             0, 0.5, value = 0, step = 0.05
           ),
-          sliderInput(
-            inputId = "tmp.emgn", 
-            label = "Probability that males absent:",
-            0, 1, value = 0, step = 0.05
-          ),
+          # sliderInput(
+          #   inputId = "tmp.emgn", 
+          #   label = "Probability that males absent:",
+          #   0, 1, value = 0, step = 0.05
+          # ),
           sliderInput(
             inputId = "alpha", label = "Age of sexual maturity:",
             1, 15, value = 8, step = 1
