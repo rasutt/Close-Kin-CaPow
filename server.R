@@ -58,7 +58,7 @@ server <- function(input, output) {
   })
   
   # Load saved objects ----
-  load("Datasets/ckc_saved_objs.Rdata")
+  load("ckc_saved_objs.Rdata")
   phi = reactiveVal(saved.objs$phi)
   rho = reactiveVal(saved.objs$rho)
   lambda = reactiveVal(saved.objs$lambda)
@@ -70,7 +70,8 @@ server <- function(input, output) {
   L = reactiveVal(saved.objs$L)
   clvng.ints = reactiveVal(saved.objs$clvng.ints)
   clvng.p = reactiveVal(saved.objs$clvng.p)
-  tmp.emgn = reactiveVal(saved.objs$tmp.emgn)
+  # tmp.emgn = reactiveVal(saved.objs$tmp.emgn)
+  tmp.emgn = reactiveVal(0)
   alpha = reactiveVal(saved.objs$alpha)
   hist.len = reactiveVal(saved.objs$hist.len)
   n.sims.rqd = reactiveVal(saved.objs$n.sims.rqd)
