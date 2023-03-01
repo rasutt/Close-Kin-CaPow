@@ -104,8 +104,8 @@ ui <- fluidPage(
         # Outputs ---- 
         mainPanel(
           h2("Next simulation features"),
-          p("Expected population size and parameter values of next simulation
-          implied by currently selected inputs."),
+          p("Features of next simulation implied by currently selected 
+            inputs."),
           h3("Expected population size"),
           plotOutput("nextExpPop"),
           h3("Implied parameters"),
