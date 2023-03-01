@@ -33,8 +33,15 @@ ui <- fluidPage(
       value = "sim.tab",
       
       # App title and description
-      includeMarkdown("README.md"),
-      
+      h1("Close-Kin CaPow!"),
+      p("This is a web app for close-kin capture-recapture study power analysis 
+        by simulation. It simulates datasets from capture-recapture studies of
+        populations of animals over time, checks whether the simulations match
+        certain predictions, fits close-kin and/or conventional capture-
+        recapture models to the datasets, and analyses the resulting estimates. 
+        It is most applicable to 'whale-like' populations that have one or fewer
+        offspring per year"),
+
       # Side-bar layout separating inputs and outputs
       sidebarLayout(
         # Inputs ----
@@ -276,9 +283,8 @@ ui <- fluidPage(
               title = "First study likelihoods",
               value = "frst.lklhds.tb",
               h2("First study likelihoods"),
-              h3("Likelihood surface near true parameter values"),
-              p("Negative log-likelihood over each parameter while others held 
-              at true values."),
+              p("Negative log-likelihood surface over each parameter while 
+              others held at true values."),
               plotOutput("firstNLLSurfs", height = 500)
             ),
             # First study estimates ----
