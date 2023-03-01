@@ -141,7 +141,7 @@ server <- function(input, output) {
     # Additional capture probability when calving
     clvng.p(input$clvng.p)
     # Probability of males being away from survey area
-    tmp.emgn(input$tmp.emgn)
+    # tmp.emgn(input$tmp.emgn)
     # Age of sexual maturity
     alpha(input$alpha)
     # Length of simulation
@@ -184,12 +184,14 @@ server <- function(input, output) {
     sim.opts.bio.scen({
       df = data.frame(
         input$n.sims.rqd, input$hist.len, input$clvng.ints, input$clvng.p, 
-        input$tmp.emgn, input$alpha
+        # input$tmp.emgn, 
+        input$alpha
       )
       names(df) = c(
         "Number of studies requested", "Population history length", 
         "Female time-order breeding", "Additional calving-capture probability", 
-        "Male absense probability", "Age of sexual maturity"
+        # "Male absense probability", 
+        "Age of sexual maturity"
       )
       df
     })
