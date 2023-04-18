@@ -4,16 +4,17 @@ library(shiny)
 library(parallel)
 library(TMB)
 
-# Load functions
-funcs <- list.files("Functions")
-for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]))
-
 # Compile C++ likelihood functions.  Have to restart R for compile and
 # dyn.load to take effect sometimes.  Also sometimes need to update R so that
 # Matrix package matches, or actually delete and recompile files after
 # reinstalling TMB
 compile("TMB_files/UnifiedNLL.cpp")
 dyn.load(dynlib("TMB_files/UnifiedNLL"))
+# dyn.load(dynlib("TMB_files_for_docker/UnifiedNLL"))
+
+# Load functions. Can't use local = T true for docker here
+funcs <- list.files("Functions")
+for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]))
 
 # Define UI for app
 ui <- fluidPage(
