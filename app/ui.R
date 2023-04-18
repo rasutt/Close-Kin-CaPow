@@ -10,7 +10,6 @@ library(TMB)
 # reinstalling TMB
 compile("TMB_files/UnifiedNLL.cpp")
 dyn.load(dynlib("TMB_files/UnifiedNLL"))
-# dyn.load(dynlib("TMB_files_for_docker/UnifiedNLL"))
 
 # Load functions. Can't use local = T true for docker here
 funcs <- list.files("Functions")
