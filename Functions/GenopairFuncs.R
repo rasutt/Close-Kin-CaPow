@@ -1,3 +1,5 @@
+# Various genopair related functions
+
 # Find allele frequencies from genotypes in 2 x L x n_individuals arrays,
 # representing two binary SNPs at each locus for each individual, excluding
 # repeated samples of the same individual in different surveys.  Frequencies are

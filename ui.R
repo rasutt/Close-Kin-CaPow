@@ -5,8 +5,8 @@ library(parallel)
 library(TMB)
 
 # Load functions
-funcs <- list.files("Functions")
-for (i in 1:length(funcs)) source(paste0("Functions/", funcs[i]))
+funcs.files <- list.files("Functions")
+for (i in 1:length(funcs.files)) source(paste0("Functions/", funcs.files[i]))
 
 # Compile C++ likelihood functions.  Have to restart R for compile and
 # dyn.load to take effect sometimes.  Also sometimes need to update R so that
@@ -152,7 +152,7 @@ ui <- fluidPage(
           tableOutput("nsDtstsRmvd")
         ),
         
-        # First study
+        # First study ----
         tabPanel(
           title = "First study",
           value = "frst.stdy.tb",

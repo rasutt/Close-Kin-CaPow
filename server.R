@@ -201,20 +201,7 @@ server <- function(input, output) {
   # simulations, and analyzing model performance ----
   
   # Source code for app
-  source("Tabs/sim_tab.R", local = T)
-  source("Tabs/Check_tabs/sim_feats.R", local = T)
-  source("Tabs/Check_tabs/First_study_tabs/first_caps.R", local = T)
-  source("Tabs/Check_tabs/First_study_tabs/first_KPs.R", local = T)
-  source("Tabs/Check_tabs/First_study_tabs/first_gts.R", local = T)
-  source("Tabs/Check_tabs/First_study_tabs/first_lklhds.R", local = T)
-  source("Tabs/Check_tabs/First_study_tabs/first_ests.R", local = T)
-  source("Tabs/Check_tabs/All_studies_tabs/all_studies_checks.R", local = T)
-  source("Tabs/Check_tabs/All_studies_tabs/preds_and_errs.R", local = T)
-  source("Tabs/Check_tabs/All_studies_tabs/pops_and_unknwn_prnts.R", local = T)
-  source("Tabs/Check_tabs/All_studies_tabs/kin_pair_tabs.R", local = T)
-  source("Tabs/Check_tabs/All_studies_tabs/overall_biases.R", local = T)
-  source("Tabs/Fit_tab/all_genopairs.R", local = T)
-  source("Tabs/Fit_tab/model_fits.R", local = T)
-  source("Tabs/Fit_tab/model_outputs.R", local = T)
-  source("Tabs/save_load_tab.R", local = T)
+  tabs.files <- list.files("Tabs", recursive = T)
+  for (i in 1:length(tabs.files)) 
+    source(paste0("Tabs/", tabs.files[i]), local = T)
 }

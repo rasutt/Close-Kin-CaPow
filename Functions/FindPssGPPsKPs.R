@@ -1,3 +1,5 @@
+# Functions to find possible genopair probabilities given various kinships
+
 # Function to find possible genotype probabilities
 FindPssGtPrbs = function(ale.frqs) {
   # Indexing the 2 x L allele frequencies matrix for each allele of each
