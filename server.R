@@ -1,7 +1,7 @@
 # Define server logic for app
 server <- function(input, output) {
-  # Reactive variables (for next simulation).  Can ignore warnings for invalid
-  # inputs while typing survey years ---- 
+  # Reactive variables (representing next simulation).  Can ignore warnings for
+  # invalid inputs while typing survey years ----
   
   # Population growth rate
   lambda.rct <- reactive(input$rho + input$phi) 
@@ -68,6 +68,7 @@ server <- function(input, output) {
   srvy.yrs = reactiveVal(saved.objs$srvy.yrs)
   p = reactiveVal(saved.objs$p)
   L = reactiveVal(saved.objs$L)
+  imaf = reactiveVal(saved.objs$imaf)
   clvng.ints = reactiveVal(saved.objs$clvng.ints)
   clvng.p = reactiveVal(saved.objs$clvng.p)
   # tmp.emgn = reactiveVal(saved.objs$tmp.emgn)
@@ -116,7 +117,7 @@ server <- function(input, output) {
   # datasets loaded/simulated, and new models fit
   cl = reactiveVal(NULL)
   
-  # Variables bound to simulate button (for last simulation) ----
+  # Variables bound to simulate button (representing current simulation) ----
   observeEvent(input$simulate, {
     # Individual survival rate
     phi(input$phi)
@@ -136,6 +137,8 @@ server <- function(input, output) {
     p(input$p)
     # Number of SNP loci
     L(input$L)
+    # Initial minor allele frequency
+    imaf(input$imaf)
     # Calving intervals
     clvng.ints(input$clvng.ints)
     # Additional capture probability when calving

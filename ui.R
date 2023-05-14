@@ -77,6 +77,10 @@ ui <- fluidPage(
             inputId = "L", label = "Number of SNP loci:",
             0, 1000, value = 10, step = 10
           ),
+          sliderInput(
+            inputId = "imaf", label = "Initial minor allele frequency:",
+            0, 0.5, value = 0.5 #, step = 10
+          ),
           checkboxInput(
             inputId = "clvng.ints", 
             label = "Females breed in order of time since last breeding", 

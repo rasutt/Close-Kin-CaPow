@@ -111,6 +111,7 @@ output$firstEstNsKPsPop = renderTable({
 bindEvent(observe({
   # Create list for population and capture histories
   hists.lst = vector("list", input$n.sims.rqd)
+  
   # Create vectors for final and super-population sizes, and numbers of sample
   # histories
   N.fin.vec = Ns.vec = n.smp.hsts = n.smp.hsts = numeric(input$n.sims.rqd)
@@ -123,8 +124,9 @@ bindEvent(observe({
       # time
       hists.lst[[hist.ind]] = stdy = SimPopStud(
         phi(), lambda(), N.init(), hist.len(), srvy.yrs(), k(), fnl.year(), p(),
-        L(), clvng.p(), tmp.emgn(), alpha(), clvng.ints()
+        L(), imaf(), clvng.p(), tmp.emgn(), alpha(), clvng.ints()
       )
+      
       # Collect final and super-population sizes, and numbers of sample
       # histories
       N.fin.vec[hist.ind] = tail(attributes(stdy)$N.t.vec, 1)

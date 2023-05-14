@@ -5,8 +5,8 @@
 # capture histories for captured animals, with parameters, implied birthrate
 # beta, and population trajectory N.t.vec attached.
 SimPopStud <- function(
-  phi, lambda, N.init, hist.len, srvy.yrs, k, f.year, p, L, clvng.p, tmp.emgn,
-  alpha, clvng.ints
+  phi, lambda, N.init, hist.len, srvy.yrs, k, f.year, p, L, imaf, clvng.p, 
+  tmp.emgn, alpha, clvng.ints
 ) {
   # Record start-time
   s.time <- proc.time()
@@ -29,8 +29,9 @@ SimPopStud <- function(
   t.lst.clf <- rep(NA, N.init)
   alive <- rep(T, N.init)
   
-  # Set initial genotypes
-  gts = array(as.integer(runif(2 * L * N.init) > 0.5), c(2, L, N.init))
+  # Set initial genotypes - binary SNPs with zero having initial minor allele
+  # frequency
+  gts = array(as.integer(runif(2 * L * N.init) > imaf), c(2, L, N.init))
   
   # Create vectors for population size and observed survival rates and enter
   # first value
