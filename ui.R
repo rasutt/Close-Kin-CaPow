@@ -121,13 +121,13 @@ ui <- fluidPage(
           plotOutput("nextExpPop"),
           h3("Implied parameters"),
           tableOutput("nextParsImpld"),
-          h3("Predicted numbers of samples and kinpairs"),
+          h3("Predicted numbers of kinpairs"),
           h4("Among sampled individuals"),
-          tableOutput("firstEstNsKPsSmp"),
+          tableOutput("predNsKPsSmpRct"),
           h4("Among offset pairs"),
-          tableOutput("firstEstNsKPsOff"),
+          tableOutput("predNsKPsOffRct"),
           h4("In population"),
-          tableOutput("firstEstNsKPsPop")
+          tableOutput("predNsKPsPopRct")
         ),
       )
     ),

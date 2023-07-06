@@ -2,16 +2,20 @@
 
 # Plot expected population size over time
 output$nextExpPop = renderPlot({
+  # Population size
   plot(
     sim.yrs.rct(), exp.N.t.rct(), ylim = c(0, max(exp.N.t.rct())),
     col = 'red', lwd = 2, type = 'l',
     xlab = 'Year', ylab = 'Population size', 
     main = "Expected population size over time"
   )
-  # Base year
+  
+  # Base year and population
   abline(v = input$base.yr, h = input$exp.N.base, col = 2)
+  
   # Surveys
   abline(v = srvy.yrs.rct(), lty = 2)
+  
   # Add legend
   legend(
     "topleft", legend = c("Over time", "In base year", "Survey years"),
@@ -27,31 +31,7 @@ output$nextParsImpld = renderTable({
   )
 }, digits = 3)
 
-# Predicted numbers of kin-pairs for whole population
-pred.ns.kps.pop.rct = reactive({
-  FindPredNsKPsPop(
-    exp.N.t.rct(), s.yr.inds.rct(), input$phi, input$rho, lambda.rct(), 
-    input$alpha, srvy.yrs.rct(), k.rct()
-  )
-})
-
-# Predicted numbers of kin-pairs in population - repeats predictions for
-# self-pairs as haven't implemented for parents unknown
-frst.kp.preds = reactive({
-  preds_wtn = t(pred.ns.kps.pop.rct()$wtn)
-  cbind(
-    rbind(
-      preds_wtn[1:2, ], matrix(NA, nrow = 2, ncol = k.rct()), 
-      preds_wtn[-(1:2), ]
-    ),
-    rbind(
-      rep(NA, n.srvy.prs.rct()), 
-      t(pred.ns.kps.pop.rct()$btn)[c(1:2, 2, 3:4, 6:8), ]
-    )
-  )
-})
-
-# Function to format table of integers
+# Function to format table with one data type
 FrmtTbl = function(data, rw.nms, cl.nms, md = "integer") {
   mode(data) = md
   df = data.frame(matrix(data, ncol = length(cl.nms)), row.names = rw.nms)
@@ -59,52 +39,95 @@ FrmtTbl = function(data, rw.nms, cl.nms, md = "integer") {
   df
 }
 
-# Predicted numbers of kin-pairs among sampled individuals
-output$firstEstNsKPsSmp = renderTable({
-  # Predictions for probabilities for population multiplied by expected total
-  # numbers of pairs sampled
-  exp.n.smps = pred.ns.kps.pop.rct()$wtn[, 1] * input$p
-  exp.n.APs.smps = c(
-    choose(exp.n.smps, 2), combn(exp.n.smps, 2, function(ns) ns[1] * ns[2])
-  )
-  preds = rbind(
-    c(exp.n.smps, rep(NA, n.srvy.prs.rct())), exp.n.APs.smps, 
-    frst.kp.preds()[c(3, 5, 9), ] / frst.kp.preds()[2, ] * exp.n.APs.smps
+# Predicted numbers of kin-pairs in population, reactive version. Transformed as
+# matrix combining numbers within surveys and between survey-pairs
+pred.ns.kps.pop.rct = reactive({
+  # Get numbers
+  preds = FindPredNsKPsPop(
+    exp.N.t.rct(), s.yr.inds.rct(), input$phi, input$rho, lambda.rct(), 
+    input$alpha, srvy.yrs.rct(), k.rct()
   )
   
-  FrmtTbl(
-    preds, 
-    c("Number of samples", "Total number of pairs", "Self-pairs (all)", 
-      "Parent-offspring pairs", "Half-sibling pairs"), 
-    c(srvy.yrs.rct(), srvy.prs.rct())
+  # Combine numbers within and between surveys in one table
+  preds_wtn = t(preds$wtn)
+  cbind(
+    # Within surveys
+    rbind(
+      # Population sizes and total numbers of pairs
+      preds_wtn[1:2, ], 
+      
+      # Self-pairs don't apply
+      rep(NA, k.rct()), 
+      
+      # Other close-kin pairs
+      preds_wtn[-(1:2), ]
+    ),
+    
+    # Between survey-pairs
+    rbind(
+      # Population sizes don't apply
+      rep(NA, n.srvy.prs.rct()), 
+      
+      # Other close-kin pairs
+      t(preds$btn)[-5, ]
+    )
   )
+})
+
+# Expected numbers of animals sampled
+exp.ns.smp = reactive(pred.ns.kps.pop.rct()[1, 1:k.rct()] * input$p)
+
+# Function to find and combine predicted numbers of offset or regular close-kin
+# pairs among sampled animals, given the predicted total numbers of pairs
+preds = reactive({
+  function(pred.ns.APs) {
+    rbind(
+      # Numbers sampled
+      c(exp.ns.smp(), rep(NA, n.srvy.prs.rct())), 
+      
+      # Total numbers of pairs
+      pred.ns.APs, 
+      
+      # Close-kin pairs. Probabilities from predicted numbers in population,
+      # multiplied by predicted total numbers of pairs.
+      t(t(pred.ns.kps.pop.rct()[-(1:2), ]) / pred.ns.kps.pop.rct()[2, ] * 
+          pred.ns.APs)
+    )
+  }
+})
+
+# Survey-years and survey-pairs
+srvy.yrs.prs = reactive(c(srvy.yrs.rct(), srvy.prs.rct()))
+
+# Predicted numbers of kin-pairs among sampled animals
+output$predNsKPsSmpRct = renderTable({
+  # Expected total numbers of pairs among sampled animals, within surveys, and
+  # between survey-pairs
+  pred.ns.APs.smp = c(
+    choose(exp.ns.smp(), 2), combn(exp.ns.smp(), 2, function(ns) ns[1] * ns[2])
+  )
+
+  # Format as table of integers and output
+  FrmtTbl(preds()(pred.ns.APs.smp), kp.tps[-4], srvy.yrs.prs())
 }, rownames = T)
 
-# Predicted numbers of kin-pairs among offset pairs
-output$firstEstNsKPsOff = renderTable({
-  # Predictions for probabilities for population multiplied by expected total
-  # numbers of pairs sampled
-  exp.n.smps = pred.ns.kps.pop.rct()$wtn[, 1] * input$p
-  exp.n.APs.offst = c(
-    exp.n.smps, combn(exp.n.smps, 2, function(ns) max(ns[1], ns[2]))
+# Predicted numbers of kin-pairs among offset pairs of sampled animals
+output$predNsKPsOffRct = renderTable({
+  # Expected total numbers of offset pairs among sampled animals, within
+  # surveys and between survey-pairs
+  pred.ns.APs.offst = c(
+    exp.ns.smp(), combn(exp.ns.smp(), 2, function(ns) max(ns[1], ns[2]))
   )
-  preds = rbind(
-    c(exp.n.smps, rep(NA, n.srvy.prs.rct())), exp.n.APs.offst, 
-    frst.kp.preds()[c(3, 5, 9), ] / frst.kp.preds()[2, ] * exp.n.APs.offst
-  )
-  
+
+  # Format as table of numeric and output
   FrmtTbl(
-    preds, 
-    c("Number of samples", "Total number of pairs", "Self-pairs (all)", 
-      "Parent-offspring pairs", "Half-sibling pairs"), 
-    c(srvy.yrs.rct(), srvy.prs.rct()),
-    md = "numeric"
+    preds()(pred.ns.APs.offst), kp.tps[-4], srvy.yrs.prs(), md = "numeric"
   )
 }, rownames = T)
 
 # Output predicted numbers in population
-output$firstEstNsKPsPop = renderTable({
-  FrmtTbl(frst.kp.preds()[-4, ], kp.tps[-4], c(srvy.yrs.rct(), srvy.prs.rct()))
+output$predNsKPsPopRct = renderTable({
+  FrmtTbl(pred.ns.kps.pop.rct(), kp.tps[-4], srvy.yrs.prs())
 }, rownames = T)
 
 # Simulate population and capture histories
